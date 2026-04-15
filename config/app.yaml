@@ -1,0 +1,79 @@
+# -----------------------------------------------------------------------------
+# Application Info
+# -----------------------------------------------------------------------------
+app:
+  name: energy_report_etl
+  version: 1.0.0
+
+# -----------------------------------------------------------------------------
+# Time settings
+# -----------------------------------------------------------------------------
+time:
+  timezone: Asia/Ho_Chi_Minh
+  week_start: monday   # monday | sunday
+
+# -----------------------------------------------------------------------------
+# Output settings
+# -----------------------------------------------------------------------------
+output:
+  directory: ${OUTPUT_DIR}
+  file_name_prefix: ${FILE_NAME_PREFIX}
+  file_name_format: "{prefix}_{timestamp}.pdf"
+  timestamp_format: "%Y-%m-%d_%H-%M-%S"
+
+# -----------------------------------------------------------------------------
+# Report configuration
+# -----------------------------------------------------------------------------
+report:
+  include:
+    daily: true
+    weekly: true
+    monthly: true
+    quarterly: true
+
+  decimal_places: 2
+
+  energy_unit: ${ENERGY_UNIT}
+  workshop_name: ${WORKSHOP_NAME}
+
+# -----------------------------------------------------------------------------
+# Chart configuration (ECharts)
+# -----------------------------------------------------------------------------
+charts:
+  engine: echarts
+
+  # Path to local ECharts library
+  echarts_path: "src/templates/assets/vendor/echarts/echarts.min.js"
+
+  types:
+    daily: bar
+    weekly: line
+    monthly: bar
+    quarterly: bar
+
+# -----------------------------------------------------------------------------
+# PDF configuration
+# -----------------------------------------------------------------------------
+pdf:
+  page_size: A4
+  orientation: portrait   # portrait | landscape
+  margin:
+    top: 20mm
+    bottom: 20mm
+    left: 15mm
+    right: 15mm
+
+# -----------------------------------------------------------------------------
+# Logging configuration
+# -----------------------------------------------------------------------------
+logging:
+  level: ${LOG_LEVEL}
+  file: logs/app.log
+
+# -----------------------------------------------------------------------------
+# Data validation / safety
+# -----------------------------------------------------------------------------
+data:
+  allow_null: true
+  safe_mode: true
+  skip_bad_records: true
