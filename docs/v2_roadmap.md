@@ -47,6 +47,70 @@ Chốt **Option B**:
 
 Quyết định này rất đúng về nghiệp vụ.
 
+Và mình đồng ý hoàn toàn với đề xuất UX của bạn: trong report nên có một chỗ nói rõ rằng dữ liệu KPI hiện có không tối ưu cho đúng kỳ đang xem, đồng thời gợi ý:
+
+“Nhập KPI theo ngày hoặc theo đúng chu kỳ của report là tốt nhất.”
+
+Cách đúng hơn
+Giai đoạn hiện tại
+
+Giữ rule:
+
+row Day có giá trị 0 hoặc production = 0
+→ vẫn là covered day hợp lệ
+không có row nào
+→ uncovered day, chưa kết luận là lỗi hay nghỉ
+Giai đoạn sau
+
+Khi bạn có:
+
+lịch nghỉ
+shift calendar
+production calendar
+
+thì mới refine tiếp:
+
+uncovered day nhưng nằm trong non-working calendar
+→ classify là non_working_day
+uncovered day nhưng là working day
+→ classify là missing_kpi_input
+Cách này sạch hơn rất nhiều.
+
+Đề xuất UX/report mà mình thấy rất hợp
+
+Bạn vừa đề xuất một message rất đúng hướng.
+Mình gợi ý bản tiếng Anh phù hợp hơn để dùng trong report sau này:
+
+Short note
+
+KPI data is not fully aligned with the current report period.
+
+Expanded note
+
+Some uncovered days may be non-working days or may have been entered using a different KPI time frame. For best accuracy, enter KPI daily or for the exact report period.
+
+Câu này rất dùng được trong:
+
+detail report
+note dưới section Production & KPI
+tooltip/info box
+2. Ở bước render sau này
+
+Trong bảng summary KPI theo ngày, nếu ngày nào không có KPI row trong DB thì vẫn nên tạo row đại diện cho ngày đó, rồi:
+
+để trống
+hoặc đổi màu
+hoặc có note/message
+
+Mình thấy đây là cách hiển thị tốt nhất, vì:
+
+người dùng nhìn ra được toàn bộ chu kỳ report
+biết ngày nào có dữ liệu, ngày nào không
+không nhầm giữa “không có row” và “giá trị = 0”
+
+Và nó rất khớp với rule vừa chốt:
+
+có row và giá trị 0 → vẫn là dữ liệu hợp lệ
 ---
 
 ## KPI logic

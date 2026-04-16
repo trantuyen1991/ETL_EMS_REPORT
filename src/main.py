@@ -13,6 +13,7 @@ from src.services.period_service import PeriodService
 from src.services.template_service import TemplateRenderingService
 from src.utils.logger import get_logger, setup_logging
 from src.config.data_sources import get_data_sources
+from src.services.kpi_service import KPIService
 
 def run_dev_test():
     """Run the local development report flow.
@@ -82,7 +83,7 @@ def run_dev_test():
             print(f"[TEST] {name}: rows={len(rows)}")
         except Exception as exc:
             print(f"[TEST] {name}: ERROR -> {exc}")
-
+    #
     kpi_repo = repos["energy_kpi"]
 
     try:
@@ -90,9 +91,29 @@ def run_dev_test():
             start_date=period.start_date,
             end_date=period.end_date,
         )
-        print(f"[TEST] energy_kpi: rows={len(kpi_rows)}")
+        print(f"[TEST] energy_kpi raw rows={len(kpi_rows)}")
+
+        kpi_service = KPIService()
+        latest_kpi_rows = kpi_service.select_latest_kpi_rows(kpi_rows)
+
+        print(f"[TEST] energy_kpi latest rows={len(latest_kpi_rows)}")
+
+        if latest_kpi_rows:
+            print("[TEST] energy_kpi first latest row:", latest_kpi_rows[0])
+
     except Exception as exc:
         print(f"[TEST] energy_kpi: ERROR -> {exc}")
+    #
+    kpi_object = kpi_service.build_kpi_report_object(
+        rows=kpi_rows,
+        report_start=period.start_date,
+        report_end=period.end_date,
+    )
+
+    print(f"[TEST] kpi_object summary={kpi_object['summary']}")
+    print(f"[TEST] kpi_object coverage={kpi_object['coverage']}")
+    print(f"[TEST] kpi_object selected_rows_count={len(kpi_object['selected_rows'])}")
+    print(f"[TEST] kpi_object daily_rows_count={len(kpi_object['daily_rows'])}")
 
     logger.info(
         "Resolved report period | period_type=%s start_date=%s end_date=%s previous_start_date=%s previous_end_date=%s label=%s",
