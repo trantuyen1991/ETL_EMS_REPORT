@@ -1,24 +1,33 @@
 # -*- coding: utf-8 -*-
-from src.utils.logger import setup_logging, get_logger
+
 from pathlib import Path
-from datetime import date
 
 from src.config.config_loader import load_config
 from src.db.mysql_client import MySQLClient, MySQLConfig
-from src.db.queries import EnergyDataRepository, DataSourceConfig
-
+from src.db.queries import DataSourceConfig, EnergyDataRepository
+from src.db.report_repository import MySqlEnergyReportRepository
 from src.services.aggregation_service import AggregationService
-from src.services.template_service import TemplateRenderingService
-
 from src.services.csv_export_service import CsvExportService
 from src.services.pdf_service import PDFService
-
+from src.services.period_service import PeriodService
+from src.services.template_service import TemplateRenderingService
+from src.utils.logger import get_logger, setup_logging
+from src.config.data_sources import get_data_sources
 
 def run_dev_test():
-    start_date = date(2025, 7, 1)
-    end_date = date(2025, 7, 7)
+    """Run the local development report flow.
 
+    Args:
+        None
+
+    Returns:
+        None
+
+    Example:
+        python -m src.main
+    """
     project_root = Path(__file__).resolve().parent.parent
+
     setup_logging(
         logging_config_path=project_root / "config" / "logging.yaml",
         log_file_path=project_root / "logs" / "app.log",
@@ -44,19 +53,63 @@ def run_dev_test():
 
     client = MySQLClient(mysql_config)
 
-    source_config = DataSourceConfig(
-        database="ems_db",
-        object_name="diode_energy",
-        object_type="view",
-        date_column="dt",
-        excluded_columns=("dt",),
+    period_service = PeriodService()
+    period = period_service.resolve_from_config(config)
+
+    sources = get_data_sources()
+
+    # Build repositories from data sources
+    repos = {
+        name: EnergyDataRepository(client, cfg)
+        for name, cfg in sources.items()
+    }
+ 
+    generic_source_names = [
+        "all_energy",
+        "diode_energy",
+        "ico_energy",
+        "sakari_energy",
+        "utility_usage",
+    ]
+
+    for name in generic_source_names:
+        repo = repos[name]
+        try:
+            rows = repo.get_daily_detail_rows(
+                start_date=period.start_date,
+                end_date=period.end_date,
+            )
+            print(f"[TEST] {name}: rows={len(rows)}")
+        except Exception as exc:
+            print(f"[TEST] {name}: ERROR -> {exc}")
+
+    kpi_repo = repos["energy_kpi"]
+
+    try:
+        kpi_rows = kpi_repo.get_kpi_rows_in_period(
+            start_date=period.start_date,
+            end_date=period.end_date,
+        )
+        print(f"[TEST] energy_kpi: rows={len(kpi_rows)}")
+    except Exception as exc:
+        print(f"[TEST] energy_kpi: ERROR -> {exc}")
+
+    logger.info(
+        "Resolved report period | period_type=%s start_date=%s end_date=%s previous_start_date=%s previous_end_date=%s label=%s",
+        period.period_type,
+        period.start_date,
+        period.end_date,
+        period.previous_start_date,
+        period.previous_end_date,
+        period.label,
     )
 
-    repo = EnergyDataRepository(client, source_config)
-    service = AggregationService(repo, config)
+    return
 
-    report = service.build_report(start_date, end_date)
-    
+    service = AggregationService(repo, config)
+    report = service.build_report(period)
+
+    print("REPORT PERIOD:", report["report_period"])
     print("TOTAL ENERGY:", report["total_energy"])
     print("BAR CHART:", report["bar_chart_data"])
     print("TOP METERS:", report["top_meters"][:3])
@@ -69,45 +122,58 @@ def run_dev_test():
     output_dir = Path(env_cfg["OUTPUT_DIR"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    html_output_path = output_dir / "debug_report.html"
+    file_suffix = period.file_suffix
+
+    html_output_path = output_dir / f"energy_report_{file_suffix}.html"
+    csv_output_path = output_dir / f"energy_report_{file_suffix}_raw.csv"
+    pdf_path = output_dir / f"energy_report_{file_suffix}.pdf"
+
     html_output_path.write_text(html, encoding="utf-8")
     print("HTML FILE:", html_output_path)
 
     csv_exporter = CsvExportService()
-    csv_output_path = output_dir / "debug_report_raw_detail.csv"
     final_csv_path = csv_exporter.export_rows(
         rows=report["raw_detail_rows"],
         output_path=csv_output_path,
     )
     print("CSV FILE:", final_csv_path)
 
-    pdf_path = output_dir / "energy_report.pdf"
-
     pdf_service = PDFService(config)
     pdf_service.export(html_output_path, pdf_path)
-
     print("PDF FILE:", pdf_path)
 
     logger.info(
-        "ETL job completed | start_date=%s end_date=%s total_energy=%s total_days=%s total_meter_count=%s html_file=%s csv_file=%s pdf_file=%s",
-        start_date,
-        end_date,
+        (
+            "ETL job completed | period_type=%s start_date=%s end_date=%s "
+            "total_energy=%s total_days=%s days_with_data=%s "
+            "total_meter_count=%s html_file=%s csv_file=%s pdf_file=%s"
+        ),
+        period.period_type,
+        period.start_date,
+        period.end_date,
         report["total_energy"],
         report["summary"]["total_days"],
+        report["summary"]["days_with_data"],
         report["summary"]["total_meter_count"],
         html_output_path,
         final_csv_path,
         pdf_path,
     )
 
-def run_production():
-    print("=== PRODUCTION MODE ===")
 
-    # Future steps:
-    # - parse input date
-    # - build report
-    # - export PDF
-    pass
+def run_production():
+    """Run the production report flow.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Example:
+        run_production()
+    """
+    run_dev_test()
 
 
 if __name__ == "__main__":

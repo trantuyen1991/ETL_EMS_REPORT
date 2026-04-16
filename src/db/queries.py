@@ -51,7 +51,7 @@ class DataSourceConfig:
     database: str
     object_name: str
     object_type: str = "view"
-    date_column: str = "dt"
+    date_column: Optional[str] = "dt"
     excluded_columns: Sequence[str] = field(default_factory=tuple)
     included_columns: Optional[Sequence[str]] = None
 
@@ -86,12 +86,15 @@ class EnergyDataRepository:
     # ==========================================================
 
     def _validate_source_config(self) -> None:
+        """Validate the source configuration."""
         self._validate_identifier(self._config.database)
         self._validate_identifier(self._config.object_name)
-        self._validate_identifier(self._config.date_column)
 
-        if self._config.object_type not in {"table", "view"}:
+        if self._config.object_type not in ("table", "view"):
             raise ValueError("object_type must be 'table' or 'view'")
+
+        if self._config.date_column is not None:
+            self._validate_identifier(self._config.date_column)
 
         for col in self._config.excluded_columns:
             self._validate_identifier(col)
@@ -277,3 +280,50 @@ class EnergyDataRepository:
 
         totals = self.get_meter_totals(start_date, end_date, selected_columns, True)
         return totals[:top_n]
+
+    def get_kpi_rows_in_period(
+        self,
+        start_date: date,
+        end_date: date,
+    ) -> list[dict[str, Any]]:
+        """Return raw KPI rows overlapping the requested report period.
+
+        Args:
+            start_date: Inclusive report start date.
+            end_date: Inclusive report end date.
+
+        Returns:
+            list[dict[str, Any]]: Raw KPI rows ordered by period and latest update.
+
+        Example:
+            rows = repo.get_kpi_rows_in_period(
+                start_date=date(2025, 1, 1),
+                end_date=date(2025, 1, 15),
+            )
+        """
+        query = f"""
+        SELECT
+            `id`,
+            `dt_start`,
+            `dt_end`,
+            `time_frame`,
+            `Total_prod`,
+            `Total_engy`,
+            `Total_kpi`,
+            `ICO_prod`,
+            `DIODE_prod`,
+            `SAKARI_prod`,
+            `ICO_engy`,
+            `DIODE_engy`,
+            `SAKARI_engy`,
+            `ICO_kpi`,
+            `DIODE_kpi`,
+            `SAKARI_kpi`,
+            `dt_lastupdate`,
+            `User`
+        FROM {self._source()}
+        WHERE `dt_start` <= %s
+        AND `dt_end` >= %s
+        ORDER BY `dt_start` ASC, `dt_end` ASC, `dt_lastupdate` DESC
+        """
+        return self._client.fetch_all(query, (end_date, start_date))
