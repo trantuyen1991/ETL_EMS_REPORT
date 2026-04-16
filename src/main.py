@@ -48,11 +48,12 @@ def run_dev_test():
     service = AggregationService(repo, config)
 
     report = service.build_report(start_date, end_date)
-
+    
     print("TOTAL ENERGY:", report["total_energy"])
     print("BAR CHART:", report["bar_chart_data"])
     print("TOP METERS:", report["top_meters"][:3])
     print("DAILY SUMMARY ROWS:", report["daily_summary_rows"][:2])
+    print("COMPARISON:", report["comparison"])
 
     renderer = TemplateRenderingService(project_root / "src" / "templates")
     html = renderer.render("report_template.html", report)

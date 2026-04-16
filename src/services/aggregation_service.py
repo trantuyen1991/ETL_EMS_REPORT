@@ -20,7 +20,7 @@ Example:
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from typing import Any
 
 
@@ -74,11 +74,14 @@ class AggregationService:
 
         total_meter_count = len(meter_columns)
         total_energy = self._calculate_total_energy(raw_detail_rows)
+
         daily_summary_rows = self._build_daily_summary_rows(
             detail_rows=raw_detail_rows,
             total_meter_count=total_meter_count,
         )
+
         bar_chart_data = self._build_bar_chart(daily_summary_rows)
+        comparison = self._build_period_comparison(start_date, end_date, current_total=total_energy)
 
         summary = {
             "total_days": len(raw_detail_rows),
@@ -95,6 +98,7 @@ class AggregationService:
             "bar_chart_data": bar_chart_data,
             "daily_summary_rows": daily_summary_rows,
             "raw_detail_rows": raw_detail_rows,
+            "comparison": comparison,
             "summary": summary,
             "meta": {
                 "workshop_name": self._config["env"].get("WORKSHOP_NAME", ""),
@@ -220,6 +224,76 @@ class AggregationService:
         return {
             "labels": labels,
             "values": values,
+        }
+
+    def _get_previous_period_range(self, start_date: date, end_date: date) -> tuple[date, date]:
+        """
+        Calculate the immediately previous period with the same inclusive duration.
+
+        Args:
+            start_date: Current period inclusive start date.
+            end_date: Current period inclusive end date.
+
+        Returns:
+            tuple[date, date]: Previous period inclusive start and end dates.
+
+        Example:
+            current: 2025-07-01 -> 2025-07-07
+            previous: 2025-06-24 -> 2025-06-30
+        """
+        duration_days = (end_date - start_date).days + 1
+        prev_end_date = start_date - timedelta(days=1)
+        prev_start_date = prev_end_date - timedelta(days=duration_days - 1)
+        return prev_start_date, prev_end_date
+
+    def _build_period_comparison(
+        self,
+        start_date: date,
+        end_date: date,
+        current_total: float,
+    ) -> dict[str, Any]:
+        """
+        Build comparison metrics versus the immediately previous period.
+
+        Args:
+            start_date: Current period inclusive start date.
+            end_date: Current period inclusive end date.
+            current_total: Total energy for the current period.
+
+        Returns:
+            dict[str, Any]: Comparison metrics for reporting.
+
+        Example:
+            comparison = self._build_period_comparison(start_date, end_date, 1234.56)
+        """
+        prev_start_date, prev_end_date = self._get_previous_period_range(start_date, end_date)
+
+        previous_rows = self._repo.get_daily_detail_rows(prev_start_date, prev_end_date)
+        previous_total = self._calculate_total_energy(previous_rows)
+
+        delta = round(current_total - previous_total, 2)
+
+        if previous_total > 0:
+            delta_pct = round((delta / previous_total) * 100, 2)
+        else:
+            delta_pct = 0.0
+
+        if delta > 0:
+            trend = "up"
+        elif delta < 0:
+            trend = "down"
+        else:
+            trend = "flat"
+
+        return {
+            "current_period": self._format_period(start_date, end_date),
+            "previous_period": self._format_period(prev_start_date, prev_end_date),
+            "current_total": round(current_total, 2),
+            "previous_total": round(previous_total, 2),
+            "delta": delta,
+            "delta_pct": delta_pct,
+            "trend": trend,
+            "has_previous_data": len(previous_rows) > 0,
         }
 
     def _format_period(self, start_date: date, end_date: date) -> str:
