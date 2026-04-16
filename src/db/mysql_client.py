@@ -12,7 +12,6 @@ This module provides a production-ready MySQL client with:
 
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass
 from typing import Any, Iterable, Optional, Sequence
 
@@ -22,9 +21,9 @@ from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursorDict
 from mysql.connector.pooling import MySQLConnectionPool
 
+from src.utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
-
+logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class MySQLConfig:

@@ -17,7 +17,6 @@ Design principles:
 
 from __future__ import annotations
 
-import logging
 import re
 from dataclasses import dataclass, field
 from datetime import date
@@ -25,7 +24,9 @@ from typing import Any, Optional, Sequence
 
 from src.db.mysql_client import MySQLClient
 
-logger = logging.getLogger(__name__)
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 NUMERIC_MYSQL_TYPES = {
     "tinyint",
