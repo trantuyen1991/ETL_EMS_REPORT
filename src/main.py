@@ -14,6 +14,7 @@ from src.services.template_service import TemplateRenderingService
 from src.utils.logger import get_logger, setup_logging
 from src.config.data_sources import get_data_sources
 from src.services.kpi_service import KPIService
+from src.services.utility_service import UtilityService
 
 def run_dev_test():
     """Run the local development report flow.
@@ -114,6 +115,27 @@ def run_dev_test():
     print(f"[TEST] kpi_object coverage={kpi_object['coverage']}")
     print(f"[TEST] kpi_object selected_rows_count={len(kpi_object['selected_rows'])}")
     print(f"[TEST] kpi_object daily_rows_count={len(kpi_object['daily_rows'])}")
+    #
+    utility_repo = repos["utility_usage"]
+
+    utility_rows = utility_repo.get_daily_detail_rows(
+        start_date=period.start_date,
+        end_date=period.end_date,
+    )
+
+    utility_service = UtilityService()
+
+    utility_object = utility_service.build_utility_report_object(
+        rows=utility_rows,
+        report_start=period.start_date,
+        report_end=period.end_date,
+    )
+
+    print(f"[TEST] utility summary={utility_object['summary']}")
+    print(f"[TEST] utility timeseries_count={len(utility_object['timeseries'])}")
+
+    if utility_object["timeseries"]:
+        print(f"[TEST] utility first={utility_object['timeseries'][0]}")
 
     logger.info(
         "Resolved report period | period_type=%s start_date=%s end_date=%s previous_start_date=%s previous_end_date=%s label=%s",
