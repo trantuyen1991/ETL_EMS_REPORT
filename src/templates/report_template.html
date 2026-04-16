@@ -213,29 +213,37 @@
         </div>
 
         <div class="section">
-            <div class="section-title">Daily Detail Table</div>
+            <div class="section-title">Daily Summary Table</div>
             <table class="data-table">
                 <thead>
                     <tr>
-                        {% if detail_rows %}
-                            {% for key in detail_rows[0].keys() %}
-                            <th>{{ key }}</th>
-                            {% endfor %}
-                        {% endif %}
+                        <th style="width: 110px;">Date</th>
+                        <th style="width: 120px;">Total Energy</th>
+                        <th>Top 1 Meter</th>
+                        <th style="width: 120px;">Top 1 Value</th>
+                        <th style="width: 120px;">Active Meter Count</th>
+                        <th style="width: 150px;">Average per Active Meter</th>
+                        <th style="width: 120px;">Total Meter Count</th>
+                        <th style="width: 130px;">Inactive Meter Count</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for row in detail_rows %}
+                    {% for row in daily_summary_rows %}
                     <tr>
-                        {% for value in row.values() %}
-                        <td>{{ value if value is not none else 0 }}</td>
-                        {% endfor %}
+                        <td>{{ row.dt }}</td>
+                        <td class="right">{{ row.total_energy }}</td>
+                        <td>{{ row.top_meter_name }}</td>
+                        <td class="right">{{ row.top_meter_value }}</td>
+                        <td class="right">{{ row.active_meter_count }}</td>
+                        <td class="right">{{ row.avg_per_active_meter }}</td>
+                        <td class="right">{{ row.total_meter_count }}</td>
+                        <td class="right">{{ row.inactive_meter_count }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             <div class="small-note">
-                Null values are displayed as 0 for reporting consistency.
+                Full raw detail data is exported separately as a CSV file.
             </div>
         </div>
 

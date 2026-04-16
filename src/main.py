@@ -9,9 +9,12 @@ from src.db.queries import EnergyDataRepository, DataSourceConfig
 from src.services.aggregation_service import AggregationService
 from src.services.template_service import TemplateRenderingService
 
+from src.services.csv_export_service import CsvExportService
+
 def run_dev_test():
     start_date = date(2025, 7, 1)
     end_date = date(2025, 7, 7)
+
     print("=== DEV MODE ===")
 
     project_root = Path(__file__).resolve().parent.parent
@@ -20,9 +23,6 @@ def run_dev_test():
         env_path=project_root / "config" / ".env",
         yaml_path=project_root / "config" / "app.yaml",
     )
-
-    #print("CONFIG TYPE:", type(config))
-    #print("CONFIG KEYS:", config.keys())
 
     env_cfg = config["env"]
 
@@ -45,18 +45,6 @@ def run_dev_test():
     )
 
     repo = EnergyDataRepository(client, source_config)
-    
-
-    print("DATE RANGE:", repo.get_available_date_range())
-    print("METER COLUMNS:", repo.get_meter_columns())
-
-    rows = repo.get_daily_detail_rows(start_date, end_date)
-    print("DETAIL ROWS:", rows[:2])
-
-    top = repo.get_top_n_meters(start_date, end_date)
-    print("TOP METERS:", top[:5])
-
-    # Tetst AggregationService
     service = AggregationService(repo, config)
 
     report = service.build_report(start_date, end_date)
@@ -64,25 +52,25 @@ def run_dev_test():
     print("TOTAL ENERGY:", report["total_energy"])
     print("BAR CHART:", report["bar_chart_data"])
     print("TOP METERS:", report["top_meters"][:3])
-
-    print(type(report["bar_chart_data"]))
-    print(report["bar_chart_data"])
-
-    service = AggregationService(repo, config)
-
-    report = service.build_report(start_date, end_date)
+    print("DAILY SUMMARY ROWS:", report["daily_summary_rows"][:2])
 
     renderer = TemplateRenderingService(project_root / "src" / "templates")
     html = renderer.render("report_template.html", report)
 
-    print("HTML LENGTH:", len(html))
-    print(html[:1000])
+    output_dir = Path(env_cfg["OUTPUT_DIR"])
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    output_html = project_root / "output" / "reports" / "debug_report.html"
-    output_html.parent.mkdir(parents=True, exist_ok=True)
-    output_html.write_text(html, encoding="utf-8")
+    html_output_path = output_dir / "debug_report.html"
+    html_output_path.write_text(html, encoding="utf-8")
+    print("HTML FILE:", html_output_path)
 
-    print("HTML FILE:", output_html)
+    csv_exporter = CsvExportService()
+    csv_output_path = output_dir / "debug_report_raw_detail.csv"
+    final_csv_path = csv_exporter.export_rows(
+        rows=report["raw_detail_rows"],
+        output_path=csv_output_path,
+    )
+    print("CSV FILE:", final_csv_path)
 
 def run_production():
     print("=== PRODUCTION MODE ===")
