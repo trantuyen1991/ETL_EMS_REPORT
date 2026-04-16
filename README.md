@@ -319,7 +319,10 @@ Tạo file: `docs/project_status.md`
 
 READY FOR V2 DEVELOPMENT 🚀
 ````
+- Next: V2 (multi-source, KPI, utility, advanced reporting)
 
+See details:
+👉 docs/v2_roadmap.md
 ---
 
 
