@@ -26,23 +26,23 @@ root:
   level: INFO
   handlers: [console, file]
 
-loggers:
-  app:
-    level: INFO
-    handlers: [console, file]
-    propagate: false
+# loggers:
+#   app:
+#     level: INFO
+#     handlers: [console, file]
+#     propagate: false
 
-  app.db:
-    level: INFO
-    handlers: [console, file]
-    propagate: false
+#   app.db:
+#     level: INFO
+#     handlers: [console, file]
+#     propagate: false
 
-  app.services:
-    level: INFO
-    handlers: [console, file]
-    propagate: false
+#   app.services:
+#     level: INFO
+#     handlers: [console, file]
+#     propagate: false
 
-  app.utils:
-    level: INFO
-    handlers: [console, file]
-    propagate: false
+#   app.utils:
+#     level: INFO
+#     handlers: [console, file]
+#     propagate: false

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from src.utils.logger import setup_logging, get_logger
 from pathlib import Path
 from datetime import date
 
@@ -10,14 +11,21 @@ from src.services.aggregation_service import AggregationService
 from src.services.template_service import TemplateRenderingService
 
 from src.services.csv_export_service import CsvExportService
+from src.services.pdf_service import PDFService
+
 
 def run_dev_test():
     start_date = date(2025, 7, 1)
     end_date = date(2025, 7, 7)
 
-    print("=== DEV MODE ===")
-
     project_root = Path(__file__).resolve().parent.parent
+    setup_logging(
+        logging_config_path=project_root / "config" / "logging.yaml",
+        log_file_path=project_root / "logs" / "app.log",
+    )
+
+    logger = get_logger(__name__)
+    logger.info("=== DEV MODE STARTED ===")
 
     config = load_config(
         env_path=project_root / "config" / ".env",
@@ -73,10 +81,29 @@ def run_dev_test():
     )
     print("CSV FILE:", final_csv_path)
 
+    pdf_path = output_dir / "energy_report.pdf"
+
+    pdf_service = PDFService(config)
+    pdf_service.export(html_output_path, pdf_path)
+
+    print("PDF FILE:", pdf_path)
+
+    logger.info(
+        "ETL job completed | start_date=%s end_date=%s total_energy=%s total_days=%s total_meter_count=%s html_file=%s csv_file=%s pdf_file=%s",
+        start_date,
+        end_date,
+        report["total_energy"],
+        report["summary"]["total_days"],
+        report["summary"]["total_meter_count"],
+        html_output_path,
+        final_csv_path,
+        pdf_path,
+    )
+
 def run_production():
     print("=== PRODUCTION MODE ===")
 
-    # Sau này bạn sẽ:
+    # Future steps:
     # - parse input date
     # - build report
     # - export PDF

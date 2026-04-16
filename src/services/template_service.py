@@ -19,14 +19,15 @@ Example:
 
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound, select_autoescape
 
 
-logger = logging.getLogger(__name__)
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class TemplateRenderingService:
