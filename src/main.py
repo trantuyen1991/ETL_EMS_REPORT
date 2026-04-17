@@ -1,33 +1,27 @@
 # -*- coding: utf-8 -*-
 
 from pathlib import Path
+from typing import Any
 
 from src.config.config_loader import load_config
-from src.db.mysql_client import MySQLClient, MySQLConfig
-from src.db.queries import DataSourceConfig, EnergyDataRepository
-from src.db.report_repository import MySqlEnergyReportRepository
-from src.services.aggregation_service import AggregationService
-from src.services.csv_export_service import CsvExportService
-from src.services.pdf_service import PDFService
-from src.services.period_service import PeriodService
-from src.services.template_service import TemplateRenderingService
-from src.utils.logger import get_logger, setup_logging
 from src.config.data_sources import get_data_sources
+from src.db.mysql_client import MySQLClient, MySQLConfig
+from src.db.queries import EnergyDataRepository
 from src.services.kpi_service import KPIService
-from src.services.utility_service import UtilityService
+from src.services.period_service import PeriodService
 from src.services.report_builder_service import ReportBuilderService
+from src.services.utility_service import UtilityService
+from src.utils.logger import get_logger, setup_logging
 
-def run_dev_test():
-    """Run the local development report flow.
 
-    Args:
-        None
+def _bootstrap() -> dict[str, Any]:
+    """Bootstrap application runtime objects for development flow.
 
     Returns:
-        None
+        dict[str, Any]: Runtime objects required by the dev flow.
 
     Example:
-        python -m src.main
+        runtime = _bootstrap()
     """
     project_root = Path(__file__).resolve().parent.parent
 
@@ -60,13 +54,27 @@ def run_dev_test():
     period = period_service.resolve_from_config(config)
 
     sources = get_data_sources()
-
-    # Build repositories from data sources
     repos = {
         name: EnergyDataRepository(client, cfg)
         for name, cfg in sources.items()
     }
- 
+
+    return {
+        "project_root": project_root,
+        "logger": logger,
+        "config": config,
+        "env_cfg": env_cfg,
+        "client": client,
+        "period": period,
+        "repos": repos,
+    }
+
+
+def _run_generic_source_smoke_test(
+    repos: dict[str, EnergyDataRepository],
+    period,
+) -> None:
+    """Run a quick smoke test for generic dt-based sources."""
     generic_source_names = [
         "all_energy",
         "diode_energy",
@@ -85,48 +93,66 @@ def run_dev_test():
             print(f"[TEST] {name}: rows={len(rows)}")
         except Exception as exc:
             print(f"[TEST] {name}: ERROR -> {exc}")
-    #
+
+
+def _build_kpi_object(
+    repos: dict[str, EnergyDataRepository],
+    period,
+) -> dict[str, Any]:
+    """Build the full KPI object for current and previous period."""
     kpi_repo = repos["energy_kpi"]
 
-    try:
-        kpi_rows = kpi_repo.get_kpi_rows_in_period(
-            start_date=period.start_date,
-            end_date=period.end_date,
-        )
-        print(f"[TEST] energy_kpi raw rows={len(kpi_rows)}")
-
-        kpi_service = KPIService()
-        latest_kpi_rows = kpi_service.select_latest_kpi_rows(kpi_rows)
-
-        print(f"[TEST] energy_kpi latest rows={len(latest_kpi_rows)}")
-
-        if latest_kpi_rows:
-            print("[TEST] energy_kpi first latest row:", latest_kpi_rows[0])
-
-    except Exception as exc:
-        print(f"[TEST] energy_kpi: ERROR -> {exc}")
-    #
-    kpi_object = kpi_service.build_kpi_report_object(
-        rows=kpi_rows,
-        report_start=period.start_date,
-        report_end=period.end_date,
-    )
-
-    print(f"[TEST] kpi_object summary={kpi_object['summary']}")
-    print(f"[TEST] kpi_object coverage={kpi_object['coverage']}")
-    print(f"[TEST] kpi_object selected_rows_count={len(kpi_object['selected_rows'])}")
-    print(f"[TEST] kpi_object daily_rows_count={len(kpi_object['daily_rows'])}")
-    #
-    utility_repo = repos["utility_usage"]
-
-    # Current period
-    utility_rows = utility_repo.get_daily_detail_rows(
+    current_rows = kpi_repo.get_kpi_rows_in_period(
         start_date=period.start_date,
         end_date=period.end_date,
     )
+    previous_rows = kpi_repo.get_kpi_rows_in_period(
+        start_date=period.previous_start_date,
+        end_date=period.previous_end_date,
+    )
 
-    # Previous period
-    previous_utility_rows = utility_repo.get_daily_detail_rows(
+    print(f"[TEST] energy_kpi current_raw_rows={len(current_rows)}")
+    print(f"[TEST] energy_kpi previous_raw_rows={len(previous_rows)}")
+
+    kpi_service = KPIService()
+
+    kpi_object = kpi_service.build_full_kpi_object(
+        current_rows=current_rows,
+        previous_rows=previous_rows,
+        report_start=period.start_date,
+        report_end=period.end_date,
+        previous_start=period.previous_start_date,
+        previous_end=period.previous_end_date,
+    )
+
+    print(f"[TEST] kpi comparison plant={kpi_object['comparison']['plant']}")
+    print(f"[TEST] kpi comparison areas={kpi_object['comparison']['areas']}")
+    print(
+        f"[TEST] kpi current coverage="
+        f"{kpi_object['current']['coverage']['coverage_days']}/"
+        f"{kpi_object['current']['coverage']['report_total_days']}"
+    )
+    print(
+        f"[TEST] kpi previous coverage="
+        f"{kpi_object['previous']['coverage']['coverage_days']}/"
+        f"{kpi_object['previous']['coverage']['report_total_days']}"
+    )
+
+    return kpi_object
+
+
+def _build_utility_object(
+    repos: dict[str, EnergyDataRepository],
+    period,
+) -> dict[str, Any]:
+    """Build the full utility object for current and previous period."""
+    utility_repo = repos["utility_usage"]
+
+    current_rows = utility_repo.get_daily_detail_rows(
+        start_date=period.start_date,
+        end_date=period.end_date,
+    )
+    previous_rows = utility_repo.get_daily_detail_rows(
         start_date=period.previous_start_date,
         end_date=period.previous_end_date,
     )
@@ -134,8 +160,8 @@ def run_dev_test():
     utility_service = UtilityService()
 
     utility_object = utility_service.build_full_utility_object(
-        current_rows=utility_rows,
-        previous_rows=previous_utility_rows,
+        current_rows=current_rows,
+        previous_rows=previous_rows,
         report_start=period.start_date,
         report_end=period.end_date,
         previous_start=period.previous_start_date,
@@ -145,59 +171,78 @@ def run_dev_test():
     print(f"[TEST] utility comparison keys={utility_object['comparison'].keys()}")
 
     first_key = list(utility_object["comparison"].keys())[0]
-    print(f"[TEST] utility comparison sample={first_key} -> {utility_object['comparison'][first_key]}")
-    #
+    print(
+        f"[TEST] utility comparison sample="
+        f"{first_key} -> {utility_object['comparison'][first_key]}"
+    )
+
+    return utility_object
+
+
+def _build_report_context(
+    env_cfg: dict[str, Any],
+    period,
+    kpi_object: dict[str, Any],
+    utility_object: dict[str, Any],
+) -> dict[str, Any]:
+    """Build the unified report context for V2."""
     report_builder = ReportBuilderService()
 
     meta = {
-        "workshop_name": config.get("WORKSHOP_NAME"),
-        "energy_unit": config.get("ENERGY_UNIT"),
+        "workshop_name": env_cfg.get("WORKSHOP_NAME", ""),
+        "energy_unit": env_cfg.get("ENERGY_UNIT", "kWh"),
     }
 
     period_info = {
         "start_date": period.start_date,
         "end_date": period.end_date,
         "type": period.period_type,
+        "label": period.label,
+        "comparison_label": period.comparison_label,
+        "previous_start_date": period.previous_start_date,
+        "previous_end_date": period.previous_end_date,
     }
 
     report_context = report_builder.build_report_context(
         meta=meta,
         period=period_info,
-        energy_object=None,  # chưa làm
+        energy_object=None,  # TODO: replace with V2 energy object later
         kpi_object=kpi_object,
         utility_object=utility_object,
     )
 
     print(f"[TEST] report_context keys={report_context.keys()}")
     print(f"[TEST] sections={report_context['sections'].keys()}")
-    #
-    # Current rows
-    kpi_rows = kpi_repo.get_kpi_rows_in_period(
-        start_date=period.start_date,
-        end_date=period.end_date,
+
+    return report_context
+
+
+def run_dev_test() -> None:
+    """Run the local development flow for V2 data objects."""
+    runtime = _bootstrap()
+
+    logger = runtime["logger"]
+    env_cfg = runtime["env_cfg"]
+    period = runtime["period"]
+    repos = runtime["repos"]
+
+    _run_generic_source_smoke_test(repos, period)
+
+    kpi_object = _build_kpi_object(repos, period)
+    utility_object = _build_utility_object(repos, period)
+
+    _build_report_context(
+        env_cfg=env_cfg,
+        period=period,
+        kpi_object=kpi_object,
+        utility_object=utility_object,
     )
 
-    # Previous rows
-    previous_kpi_rows = kpi_repo.get_kpi_rows_in_period(
-        start_date=period.previous_start_date,
-        end_date=period.previous_end_date,
-    )
-
-    kpi_service = KPIService()
-
-    kpi_object = kpi_service.build_full_kpi_object(
-        current_rows=kpi_rows,
-        previous_rows=previous_kpi_rows,
-        report_start=period.start_date,
-        report_end=period.end_date,
-        previous_start=period.previous_start_date,
-        previous_end=period.previous_end_date,
-    )
-
-    print(f"[TEST] kpi comparison plant={kpi_object['comparison']['plant']}")
-    print(f"[TEST] kpi comparison areas={kpi_object['comparison']['areas']}")
     logger.info(
-        "Resolved report period | period_type=%s start_date=%s end_date=%s previous_start_date=%s previous_end_date=%s label=%s",
+        (
+            "Resolved report period | period_type=%s start_date=%s end_date=%s "
+            "previous_start_date=%s previous_end_date=%s label=%s"
+        ),
         period.period_type,
         period.start_date,
         period.end_date,
@@ -206,75 +251,9 @@ def run_dev_test():
         period.label,
     )
 
-    return
 
-    service = AggregationService(repo, config)
-    report = service.build_report(period)
-
-    print("REPORT PERIOD:", report["report_period"])
-    print("TOTAL ENERGY:", report["total_energy"])
-    print("BAR CHART:", report["bar_chart_data"])
-    print("TOP METERS:", report["top_meters"][:3])
-    print("DAILY SUMMARY ROWS:", report["daily_summary_rows"][:2])
-    print("COMPARISON:", report["comparison"])
-
-    renderer = TemplateRenderingService(project_root / "src" / "templates")
-    html = renderer.render("report_template.html", report)
-
-    output_dir = Path(env_cfg["OUTPUT_DIR"])
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    file_suffix = period.file_suffix
-
-    html_output_path = output_dir / f"energy_report_{file_suffix}.html"
-    csv_output_path = output_dir / f"energy_report_{file_suffix}_raw.csv"
-    pdf_path = output_dir / f"energy_report_{file_suffix}.pdf"
-
-    html_output_path.write_text(html, encoding="utf-8")
-    print("HTML FILE:", html_output_path)
-
-    csv_exporter = CsvExportService()
-    final_csv_path = csv_exporter.export_rows(
-        rows=report["raw_detail_rows"],
-        output_path=csv_output_path,
-    )
-    print("CSV FILE:", final_csv_path)
-
-    pdf_service = PDFService(config)
-    pdf_service.export(html_output_path, pdf_path)
-    print("PDF FILE:", pdf_path)
-
-    logger.info(
-        (
-            "ETL job completed | period_type=%s start_date=%s end_date=%s "
-            "total_energy=%s total_days=%s days_with_data=%s "
-            "total_meter_count=%s html_file=%s csv_file=%s pdf_file=%s"
-        ),
-        period.period_type,
-        period.start_date,
-        period.end_date,
-        report["total_energy"],
-        report["summary"]["total_days"],
-        report["summary"]["days_with_data"],
-        report["summary"]["total_meter_count"],
-        html_output_path,
-        final_csv_path,
-        pdf_path,
-    )
-
-
-def run_production():
-    """Run the production report flow.
-
-    Args:
-        None
-
-    Returns:
-        None
-
-    Example:
-        run_production()
-    """
+def run_production() -> None:
+    """Run production flow."""
     run_dev_test()
 
 
