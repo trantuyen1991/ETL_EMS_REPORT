@@ -32,6 +32,7 @@ class ReportBuilderService:
         sections = {
             "kpi": self._build_kpi_section(kpi_object),
             "utility": self._build_utility_section(utility_object),
+            "energy": self._build_energy_section(energy_object),
         }
 
         notes = self._build_notes(kpi_object, utility_object)
@@ -79,8 +80,8 @@ class ReportBuilderService:
             "previous_display": self._fmt(comp["previous"]),
             "delta_display": self._fmt(comp["delta"]),
             "delta_pct_display": self._fmt_pct(comp["delta_pct"]),
-            "delta_class": self._trend_class(comp["delta"]),
-            "delta_pct_class": self._trend_class(comp["delta_pct"]),
+            "delta_class": self._consumption_trend_class(comp["delta"]),
+            "delta_pct_class": self._consumption_trend_class(comp["delta_pct"]),
         }
 
     def _build_utility_snapshot(self, utility_object) -> list:
@@ -99,8 +100,8 @@ class ReportBuilderService:
                 "previous_display": self._fmt(comp.get("previous")),
                 "delta_display": self._fmt(comp.get("delta")),
                 "delta_pct_display": self._fmt_pct(comp.get("delta_pct")),
-                "delta_class": self._trend_class(comp.get("delta")),
-                "delta_pct_class": self._trend_class(comp.get("delta_pct")),
+                "delta_class": self._consumption_trend_class(comp.get("delta")),
+                "delta_pct_class": self._consumption_trend_class(comp.get("delta_pct")),
             })
 
         return result
@@ -153,8 +154,8 @@ class ReportBuilderService:
                 "previous_display": self._fmt(plant["previous"]),
                 "delta_display": self._fmt(plant["delta"]),
                 "delta_pct_display": self._fmt_pct(plant["delta_pct"]),
-                "delta_class": self._trend_class(plant["delta"]),
-                "delta_pct_class": self._trend_class(plant["delta_pct"]),
+                "delta_class": self._consumption_trend_class(plant["delta"]),
+                "delta_pct_class": self._consumption_trend_class(plant["delta_pct"]),
                 "coverage_display": f"{curr['coverage']['coverage_days']}/{curr['coverage']['report_total_days']}",
             },
             "area_rows": self._build_kpi_area_rows(comp["areas"]),
@@ -171,8 +172,8 @@ class ReportBuilderService:
                 "previous_display": self._fmt(val["previous"]),
                 "delta_display": self._fmt(val["delta"]),
                 "delta_pct_display": self._fmt_pct(val["delta_pct"]),
-                "delta_class": self._trend_class(val["delta"]),
-                "delta_pct_class": self._trend_class(val["delta_pct"]),
+                "delta_class": self._consumption_trend_class(val["delta"]),
+                "delta_pct_class": self._consumption_trend_class(val["delta_pct"]),
                 "coverage_note": "",
             })
 
@@ -239,7 +240,7 @@ class ReportBuilderService:
 
             rows.append({
                 "date": row["dt"],
-                "date_display": str(row["dt"]),
+                "date_display": self._format_date_with_weekday(row["dt"]),
                 "daily_values": values,
                 "status": status,
                 "status_class": status_class,
@@ -329,8 +330,8 @@ class ReportBuilderService:
                 "previous_display": self._fmt(area_obj.get("previous")),
                 "delta_display": self._fmt(area_obj.get("delta")),
                 "delta_pct_display": self._fmt_pct(area_obj.get("delta_pct")),
-                "delta_class": self._trend_class(area_obj.get("delta")),
-                "delta_pct_class": self._trend_class(area_obj.get("delta_pct")),
+                "delta_class": self._consumption_trend_class(area_obj.get("delta")),
+                "delta_pct_class": self._consumption_trend_class(area_obj.get("delta_pct")),
             })
 
         return rows
@@ -378,7 +379,7 @@ class ReportBuilderService:
 
             rows.append({
                 "date": row.get("dt"),
-                "date_display": str(row.get("dt")),
+                "date_display": self._format_date_with_weekday(row.get("dt")),
                 "time_frame_source": row.get("time_frame_source"),
                 "plant_kpi_display": self._fmt_or_dash(row.get("kpi")),
                 "ico_kpi_display": self._fmt_or_dash(row.get("ico_kpi")),
@@ -409,3 +410,86 @@ class ReportBuilderService:
         if val is None:
             return "-"
         return f"{float(val) * 100:.2f}%"
+
+    def _consumption_trend_class(self, val):
+        """Return trend class for consumption/intensity metrics.
+
+        Business rule:
+        - Positive delta means worse (higher consumption/intensity) -> red
+        - Negative delta means better -> green
+        """
+        if val is None:
+            return "trend-neutral"
+        if val > 0:
+            return "trend-down"
+        if val < 0:
+            return "trend-up"
+        return "trend-neutral"
+
+    def _format_date_with_weekday(self, value) -> str:
+        """Format date as YYYY-MM-DD (Day)."""
+        if value is None:
+            return "-"
+
+        weekday = value.strftime("%a")
+        return f"{value.isoformat()} ({weekday})"
+
+    def _build_energy_section(self, energy_object) -> dict:
+        """Build energy section for report rendering."""
+        if not energy_object:
+            return {}
+
+        comparison_summary = energy_object["comparison"]["summary"]
+
+        summary_rows = []
+        for area_key, area_name in [
+            ("diode", "DIODE"),
+            ("ico", "ICO"),
+            ("sakari", "SAKARI"),
+        ]:
+            item = comparison_summary.get(area_key, {})
+
+            summary_rows.append({
+                "area_name": area_name,
+                "current_display": self._fmt(item.get("current")),
+                "previous_display": self._fmt(item.get("previous")),
+                "delta_display": self._fmt(item.get("delta")),
+                "delta_pct_display": self._fmt_pct(item.get("delta_pct")),
+                "delta_class": self._consumption_trend_class(item.get("delta")),
+                "delta_pct_class": self._consumption_trend_class(item.get("delta_pct")),
+                "meter_count": item.get("meter_count", 0),
+            })
+
+        top10_rows = []
+        for item in energy_object["comparison"]["top10_meters"]:
+            top10_rows.append({
+                "rank": item["rank"],
+                "meter_name": item["meter_name"],
+                "area": item["area"],
+                "current_display": self._fmt(item.get("current")),
+                "previous_display": self._fmt(item.get("previous")),
+                "delta_display": self._fmt(item.get("delta")),
+                "delta_pct_display": self._fmt_pct(item.get("delta_pct")),
+                "delta_class": self._consumption_trend_class(item.get("delta")),
+                "delta_pct_class": self._consumption_trend_class(item.get("delta_pct")),
+            })
+
+        daily_summary_rows = energy_object["current"]["daily_summary_rows"]
+
+        daily_tables = []
+        for table in energy_object["current"]["daily_tables"]:
+            daily_tables.append({
+                "area_key": table["area_key"],
+                "title": table["title"],
+                "columns": table["columns"],
+                "rows": table["rows"],
+            })
+
+        return {
+            "title": "Energy Consumption",
+            "subtitle": "Energy summary, comparison, top 10 meter, and daily detail.",
+            "summary_rows": summary_rows,
+            "top10_rows": top10_rows,
+            "daily_summary_rows": daily_summary_rows,
+            "daily_tables": daily_tables,
+        }

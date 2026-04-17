@@ -1,0 +1,379 @@
+# -*- coding: utf-8 -*-
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import Any
+
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+
+class EnergyService:
+    """Service for energy summary, comparison, top meter, and daily detail."""
+
+    def build_full_energy_object(
+        self,
+        current_area_rows: dict[str, list[dict[str, Any]]],
+        previous_area_rows: dict[str, list[dict[str, Any]]],
+        report_start: date,
+        report_end: date,
+        previous_start: date,
+        previous_end: date,
+    ) -> dict[str, Any]:
+        """Build full energy object for V2 report."""
+        current_obj = self.build_energy_report_object(
+            area_rows=current_area_rows,
+            report_start=report_start,
+            report_end=report_end,
+        )
+
+        previous_obj = self.build_energy_report_object(
+            area_rows=previous_area_rows,
+            report_start=previous_start,
+            report_end=previous_end,
+        )
+
+        comparison = {
+            "summary": self.build_energy_comparison(
+                current_summary=current_obj["summary"],
+                previous_summary=previous_obj["summary"],
+            ),
+            "top10_meters": self.build_top10_comparison(
+                current_top10=current_obj["top10_meters"],
+                previous_area_rows=previous_area_rows,
+                report_start=previous_start,
+                report_end=previous_end,
+            ),
+        }
+
+        return {
+            "current": current_obj,
+            "previous": previous_obj,
+            "comparison": comparison,
+        }
+
+    def build_energy_report_object(
+        self,
+        area_rows: dict[str, list[dict[str, Any]]],
+        report_start: date,
+        report_end: date,
+    ) -> dict[str, Any]:
+        """Build one period energy object."""
+        filtered_area_rows = {
+            area: self._filter_rows_in_period(rows, report_start, report_end)
+            for area, rows in area_rows.items()
+        }
+
+        area_tables = {
+            area: self.build_daily_energy_table(area, rows)
+            for area, rows in filtered_area_rows.items()
+        }
+
+        return {
+            "summary": self.build_energy_summary(area_tables),
+            "top10_meters": self.build_top10_meters(area_tables),
+            "daily_summary_rows": self.build_daily_summary_rows(area_tables),
+            "daily_tables": [
+                area_tables["diode"],
+                area_tables["ico"],
+                area_tables["sakari"],
+            ],
+        }
+
+    def _extract_meter_columns(
+        self,
+        rows: list[dict[str, Any]],
+    ) -> list[str]:
+        """Extract dynamic meter columns from raw rows."""
+        excluded = {"dt"}
+
+        column_names: set[str] = set()
+
+        for row in rows:
+            for key in row.keys():
+                if key not in excluded:
+                    column_names.add(key)
+
+        return sorted(column_names)
+
+    def build_daily_energy_table(
+        self,
+        area_key: str,
+        rows: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Build one dynamic daily energy table."""
+        meter_columns = self._extract_meter_columns(rows)
+
+        columns = [
+            {"key": "dt", "display_name": "Date", "is_date": True},
+            *[
+                {"key": column, "display_name": column, "is_date": False}
+                for column in meter_columns
+            ],
+        ]
+
+        daily_rows: list[dict[str, Any]] = []
+
+        for row in sorted(rows, key=lambda item: self._to_date(item.get("dt"))):
+            dt_value = self._to_date(row.get("dt"))
+
+            cells = []
+            for column in meter_columns:
+                cells.append({
+                    "key": column,
+                    "raw_value": row.get(column),
+                    "display": self._fmt_or_dash(row.get(column)),
+                })
+
+            daily_rows.append({
+                "date": dt_value,
+                "date_display": self._format_date_with_weekday(dt_value),
+                "cells": cells,
+            })
+
+        return {
+            "area_key": area_key,
+            "title": f"{area_key.upper()} Daily Energy Detail",
+            "columns": columns,
+            "rows": daily_rows,
+            "meter_columns": meter_columns,
+            "meter_count": len(meter_columns),
+        }
+
+    def build_energy_summary(
+        self,
+        area_tables: dict[str, dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Build per-area total summary."""
+        result: dict[str, Any] = {}
+
+        for area_key, table in area_tables.items():
+            total_energy = 0.0
+
+            for row in table["rows"]:
+                for cell in row["cells"]:
+                    value = cell["raw_value"]
+                    if isinstance(value, (int, float)):
+                        total_energy += float(value)
+
+            result[area_key] = {
+                "total_energy": round(total_energy, 4),
+                "meter_count": table["meter_count"],
+                "row_count": len(table["rows"]),
+            }
+
+        return result
+
+    def build_energy_comparison(
+        self,
+        current_summary: dict[str, Any],
+        previous_summary: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Build energy summary comparison by area."""
+        result: dict[str, Any] = {}
+
+        for area_key in ["diode", "ico", "sakari"]:
+            current_value = current_summary.get(area_key, {}).get("total_energy")
+            previous_value = previous_summary.get(area_key, {}).get("total_energy")
+
+            if current_value is None and previous_value is None:
+                delta = None
+                delta_pct = None
+            else:
+                curr = current_value or 0.0
+                prev = previous_value or 0.0
+                delta = curr - prev
+                delta_pct = (delta / prev) if prev != 0 else None
+
+            result[area_key] = {
+                "current": current_value,
+                "previous": previous_value,
+                "delta": delta,
+                "delta_pct": round(delta_pct, 4) if delta_pct is not None else None,
+                "meter_count": current_summary.get(area_key, {}).get("meter_count", 0),
+            }
+
+        return result
+
+    def build_top10_meters(
+        self,
+        area_tables: dict[str, dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Build top 10 meters across three areas for current period."""
+        meter_totals: list[dict[str, Any]] = []
+
+        for area_key, table in area_tables.items():
+            meter_totals.extend(
+                self._sum_meter_totals_for_table(area_key, table)
+            )
+
+        meter_totals.sort(key=lambda item: item["current"], reverse=True)
+
+        top10 = meter_totals[:10]
+
+        for index, item in enumerate(top10, start=1):
+            item["rank"] = index
+
+        return top10
+
+    def _sum_meter_totals_for_table(
+        self,
+        area_key: str,
+        table: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Sum total energy per meter for one area table."""
+        result: list[dict[str, Any]] = []
+
+        for column in table["meter_columns"]:
+            total = 0.0
+
+            for row in table["rows"]:
+                for cell in row["cells"]:
+                    if cell["key"] == column and isinstance(cell["raw_value"], (int, float)):
+                        total += float(cell["raw_value"])
+
+            result.append({
+                "meter_name": column,
+                "area": area_key.upper(),
+                "current": round(total, 4),
+            })
+
+        return result
+
+    def build_top10_comparison(
+        self,
+        current_top10: list[dict[str, Any]],
+        previous_area_rows: dict[str, list[dict[str, Any]]],
+        report_start: date,
+        report_end: date,
+    ) -> list[dict[str, Any]]:
+        """Attach previous-period values to current top 10 meters."""
+        previous_tables = {
+            area: self.build_daily_energy_table(
+                area,
+                self._filter_rows_in_period(rows, report_start, report_end),
+            )
+            for area, rows in previous_area_rows.items()
+        }
+
+        previous_lookup: dict[tuple[str, str], float] = {}
+
+        for area_key, table in previous_tables.items():
+            for item in self._sum_meter_totals_for_table(area_key, table):
+                previous_lookup[(area_key.upper(), item["meter_name"])] = item["current"]
+
+        result: list[dict[str, Any]] = []
+
+        for item in current_top10:
+            previous_value = previous_lookup.get((item["area"], item["meter_name"]), 0.0)
+            current_value = item["current"]
+            delta = current_value - previous_value
+            delta_pct = (delta / previous_value) if previous_value != 0 else None
+
+            result.append({
+                "rank": item["rank"],
+                "meter_name": item["meter_name"],
+                "area": item["area"],
+                "current": current_value,
+                "previous": previous_value,
+                "delta": round(delta, 4),
+                "delta_pct": round(delta_pct, 4) if delta_pct is not None else None,
+            })
+
+        return result
+
+    def build_daily_summary_rows(
+        self,
+        area_tables: dict[str, dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Build one daily energy summary table across all three areas."""
+        rows_by_date: dict[date, list[tuple[str, float]]] = {}
+
+        for table in area_tables.values():
+            for row in table["rows"]:
+                dt_value = row["date"]
+                rows_by_date.setdefault(dt_value, [])
+
+                for cell in row["cells"]:
+                    raw_value = cell["raw_value"]
+                    numeric_value = float(raw_value) if isinstance(raw_value, (int, float)) else 0.0
+                    rows_by_date[dt_value].append((cell["key"], numeric_value))
+
+        result: list[dict[str, Any]] = []
+
+        for dt_value in sorted(rows_by_date.keys()):
+            meter_values = rows_by_date[dt_value]
+
+            total_energy = sum(value for _, value in meter_values)
+            total_meter_count = len(meter_values)
+
+            active_values = [(name, value) for name, value in meter_values if value > 0]
+            active_meter_count = len(active_values)
+            inactive_meter_count = total_meter_count - active_meter_count
+
+            if active_values:
+                top_meter_name, top_meter_value = max(active_values, key=lambda item: item[1])
+                average_per_active = total_energy / active_meter_count
+            else:
+                top_meter_name = "-"
+                top_meter_value = 0.0
+                average_per_active = 0.0
+
+            result.append({
+                "date": dt_value,
+                "date_display": self._format_date_with_weekday(dt_value),
+                "total_energy_display": self._fmt(total_energy),
+                "top_1_meter": top_meter_name,
+                "top_1_value_display": self._fmt(top_meter_value),
+                "active_meter_count": active_meter_count,
+                "average_per_active_display": self._fmt(average_per_active),
+                "total_meter_count": total_meter_count,
+                "inactive_meter_count": inactive_meter_count,
+            })
+
+        return result
+
+    def _filter_rows_in_period(
+        self,
+        rows: list[dict[str, Any]],
+        start_date: date,
+        end_date: date,
+    ) -> list[dict[str, Any]]:
+        """Filter rows within date range."""
+        result = []
+
+        for row in rows:
+            dt_value = self._to_date(row.get("dt"))
+            if dt_value is not None and start_date <= dt_value <= end_date:
+                result.append(row)
+
+        return result
+
+    def _to_date(self, value: Any) -> date | None:
+        """Convert a value to date."""
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, date):
+            return value
+        return None
+
+    def _fmt(self, value: Any) -> str:
+        """Format numeric value."""
+        if value is None:
+            return "-"
+        return f"{float(value):,.2f}"
+
+    def _fmt_or_dash(self, value: Any) -> str:
+        """Format number or return dash."""
+        if value is None:
+            return "-"
+        return f"{float(value):,.2f}"
+
+    def _format_date_with_weekday(self, value: date | None) -> str:
+        """Format date with weekday."""
+        if value is None:
+            return "-"
+        return f"{value.isoformat()} ({value.strftime('%a')})"

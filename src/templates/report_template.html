@@ -484,6 +484,28 @@
         .footer-right {
             text-align: right;
         }
+        .energy-table-scroll {
+            width: 100%;
+            max-width: 100%;
+            max-height: 420px;
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .energy-dynamic-table {
+            min-width: 1200px;
+            border-collapse: collapse;
+        }
+
+        .energy-dynamic-table th,
+        .energy-dynamic-table td {
+            white-space: nowrap;
+            padding: 6px 8px;
+            font-size: 11px;
+        }
 
         /* ==========================================================================
            Print
@@ -615,7 +637,7 @@
 
             <!-- KPI Snapshot -->
             <div class="section-block">
-                <h3 class="subsection-title">KPI Snapshot</h3>
+                <h3 class="subsection-title">KPI Snapshot ({{ meta.kpi_unit or "kWh/Ton" }})</h3>
 
                 <div class="card-grid-4">
                     <div class="card-cell">
@@ -657,7 +679,7 @@
             </div>
             <!-- Area cards -->
             <div class="section-block">
-                <h3 class="subsection-title">Area KPI Snapshot</h3>
+                <h3 class="subsection-title">Area KPI Snapshot ({{ meta.kpi_unit or "kWh/Ton" }})</h3>
 
                 <div class="card-grid-4">
                     {% if summary.kpi_area_snapshot_rows %}
@@ -750,6 +772,138 @@
                 </ul>
             </div>
         </section>
+        <!-- ==========================================================
+             Energy Section
+             ========================================================== -->
+        {% if sections.energy %}
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">{{ sections.energy.title }}</h2>
+                <p class="section-subtitle">{{ sections.energy.subtitle }}</p>
+            </div>
+
+            <div class="section-block">
+                <h3 class="subsection-title">Energy Summary</h3>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Area</th>
+                            <th class="text-right">Current</th>
+                            <th class="text-right">Previous</th>
+                            <th class="text-right">Delta</th>
+                            <th class="text-right">Delta %</th>
+                            <th class="text-right">Meter Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in sections.energy.summary_rows %}
+                        <tr>
+                            <td>{{ row.area_name }}</td>
+                            <td class="text-right">{{ row.current_display }}</td>
+                            <td class="text-right">{{ row.previous_display }}</td>
+                            <td class="text-right {{ row.delta_class }}">{{ row.delta_display }}</td>
+                            <td class="text-right {{ row.delta_pct_class }}">{{ row.delta_pct_display }}</td>
+                            <td class="text-right">{{ row.meter_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-block">
+                <h3 class="subsection-title">Top 10 Meter</h3>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th class="text-right">Rank</th>
+                            <th>Meter</th>
+                            <th>Area</th>
+                            <th class="text-right">Current</th>
+                            <th class="text-right">Previous</th>
+                            <th class="text-right">Delta</th>
+                            <th class="text-right">Delta %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in sections.energy.top10_rows %}
+                        <tr>
+                            <td class="text-right">{{ row.rank }}</td>
+                            <td>{{ row.meter_name }}</td>
+                            <td>{{ row.area }}</td>
+                            <td class="text-right">{{ row.current_display }}</td>
+                            <td class="text-right">{{ row.previous_display }}</td>
+                            <td class="text-right {{ row.delta_class }}">{{ row.delta_display }}</td>
+                            <td class="text-right {{ row.delta_pct_class }}">{{ row.delta_pct_display }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-block">
+                <h3 class="subsection-title">Daily Summary Table</h3>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th class="text-right">Total Energy</th>
+                            <th>Top 1 Meter</th>
+                            <th class="text-right">Top 1 Value</th>
+                            <th class="text-right">Active Meter Count</th>
+                            <th class="text-right">Average per Active Meter</th>
+                            <th class="text-right">Total Meter Count</th>
+                            <th class="text-right">Inactive Meter Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in sections.energy.daily_summary_rows %}
+                        <tr>
+                            <td>{{ row.date_display }}</td>
+                            <td class="text-right">{{ row.total_energy_display }}</td>
+                            <td>{{ row.top_1_meter }}</td>
+                            <td class="text-right">{{ row.top_1_value_display }}</td>
+                            <td class="text-right">{{ row.active_meter_count }}</td>
+                            <td class="text-right">{{ row.average_per_active_display }}</td>
+                            <td class="text-right">{{ row.total_meter_count }}</td>
+                            <td class="text-right">{{ row.inactive_meter_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="muted" style="margin-top: 8px;">
+                    Full raw detail data is exported separately as a CSV file.
+                </p>
+            </div>
+
+            {% for table in sections.energy.daily_tables %}
+            <div class="section-block">
+                <h3 class="subsection-title">{{ table.title }}</h3>
+
+                <div class="energy-table-scroll">
+                    <table class="report-table energy-dynamic-table">
+                        <thead>
+                            <tr>
+                                {% for col in table.columns %}
+                                <th>{{ col.display_name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in table.rows %}
+                            <tr>
+                                <td>{{ row.date_display }}</td>
+                                {% for cell in row.cells %}
+                                <td class="text-right">{{ cell.display }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
 
         <!-- ==========================================================
              KPI Section
@@ -788,7 +942,7 @@
             {% endif %}
 
             <div class="section-block avoid-break">
-                <h3 class="subsection-title">Plant KPI Summary</h3>
+                <h3 class="subsection-title">Plant KPI Summary ({{ meta.kpi_unit or "kWh/Ton" }})</h3>
 
                 <table class="report-table">
                     <thead>
@@ -825,7 +979,7 @@
             </div>
 
             <div class="section-block">
-                <h3 class="subsection-title">Area KPI Comparison</h3>
+                <h3 class="subsection-title">Area KPI Comparison ({{ meta.kpi_unit or "kWh/Ton" }})</h3>
 
                 <table class="report-table">
                     <thead>
@@ -860,7 +1014,7 @@
             </div>
 
             <div class="section-block">
-                <h3 class="subsection-title">Daily KPI Values with Missing-Day Highlighting</h3>
+                <h3 class="subsection-title">Daily KPI Values with Missing-Day Highlighting ({{ meta.kpi_unit or "kWh/Ton" }})</h3>
 
                 <table class="report-table">
                     <thead>

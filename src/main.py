@@ -13,6 +13,7 @@ from src.services.report_builder_service import ReportBuilderService
 from src.services.utility_service import UtilityService
 from src.utils.logger import get_logger, setup_logging
 from src.services.template_service import TemplateRenderingService
+from src.services.energy_service import EnergyService
 
 def _bootstrap() -> dict[str, Any]:
     """Bootstrap application runtime objects for development flow.
@@ -178,10 +179,62 @@ def _build_utility_object(
 
     return utility_object
 
+def _build_energy_object(
+    repos: dict[str, EnergyDataRepository],
+    period,
+) -> dict[str, Any]:
+    """Build the full energy object for current and previous period."""
+    energy_service = EnergyService()
+
+    current_area_rows = {
+        "diode": repos["diode_energy"].get_daily_detail_rows(
+            start_date=period.start_date,
+            end_date=period.end_date,
+        ),
+        "ico": repos["ico_energy"].get_daily_detail_rows(
+            start_date=period.start_date,
+            end_date=period.end_date,
+        ),
+        "sakari": repos["sakari_energy"].get_daily_detail_rows(
+            start_date=period.start_date,
+            end_date=period.end_date,
+        ),
+    }
+
+    previous_area_rows = {
+        "diode": repos["diode_energy"].get_daily_detail_rows(
+            start_date=period.previous_start_date,
+            end_date=period.previous_end_date,
+        ),
+        "ico": repos["ico_energy"].get_daily_detail_rows(
+            start_date=period.previous_start_date,
+            end_date=period.previous_end_date,
+        ),
+        "sakari": repos["sakari_energy"].get_daily_detail_rows(
+            start_date=period.previous_start_date,
+            end_date=period.previous_end_date,
+        ),
+    }
+
+    energy_object = energy_service.build_full_energy_object(
+        current_area_rows=current_area_rows,
+        previous_area_rows=previous_area_rows,
+        report_start=period.start_date,
+        report_end=period.end_date,
+        previous_start=period.previous_start_date,
+        previous_end=period.previous_end_date,
+    )
+
+    print(f"[TEST] energy summary keys={energy_object['current']['summary'].keys()}")
+    print(f"[TEST] energy top10 rows={len(energy_object['current']['top10_meters'])}")
+    print(f"[TEST] energy daily summary rows={len(energy_object['current']['daily_summary_rows'])}")
+
+    return energy_object
 
 def _build_report_context(
     env_cfg: dict[str, Any],
     period,
+    energy_object: dict[str, Any],
     kpi_object: dict[str, Any],
     utility_object: dict[str, Any],
 ) -> dict[str, Any]:
@@ -191,6 +244,7 @@ def _build_report_context(
     meta = {
         "workshop_name": env_cfg.get("WORKSHOP_NAME", ""),
         "energy_unit": env_cfg.get("ENERGY_UNIT", "kWh"),
+        "kpi_unit": env_cfg.get("KPI_UNIT", "kWh/Ton"),
     }
 
     period_info = {
@@ -206,7 +260,7 @@ def _build_report_context(
     report_context = report_builder.build_report_context(
         meta=meta,
         period=period_info,
-        energy_object=None,  # TODO: replace with V2 energy object later
+        energy_object=energy_object,
         kpi_object=kpi_object,
         utility_object=utility_object,
     )
@@ -230,10 +284,12 @@ def run_dev_test() -> None:
 
     kpi_object = _build_kpi_object(repos, period)
     utility_object = _build_utility_object(repos, period)
+    energy_object = _build_energy_object(repos, period)
 
     report_context = _build_report_context(
         env_cfg=env_cfg,
         period=period,
+        energy_object=energy_object,
         kpi_object=kpi_object,
         utility_object=utility_object,
     )
