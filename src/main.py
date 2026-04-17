@@ -15,6 +15,7 @@ from src.utils.logger import get_logger, setup_logging
 from src.config.data_sources import get_data_sources
 from src.services.kpi_service import KPIService
 from src.services.utility_service import UtilityService
+from src.services.report_builder_service import ReportBuilderService
 
 def run_dev_test():
     """Run the local development report flow.
@@ -118,24 +119,57 @@ def run_dev_test():
     #
     utility_repo = repos["utility_usage"]
 
+    # Current period
     utility_rows = utility_repo.get_daily_detail_rows(
         start_date=period.start_date,
         end_date=period.end_date,
     )
 
-    utility_service = UtilityService()
-
-    utility_object = utility_service.build_utility_report_object(
-        rows=utility_rows,
-        report_start=period.start_date,
-        report_end=period.end_date,
+    # Previous period
+    previous_utility_rows = utility_repo.get_daily_detail_rows(
+        start_date=period.previous_start_date,
+        end_date=period.previous_end_date,
     )
 
-    print(f"[TEST] utility summary={utility_object['summary']}")
-    print(f"[TEST] utility timeseries_count={len(utility_object['timeseries'])}")
+    utility_service = UtilityService()
 
-    if utility_object["timeseries"]:
-        print(f"[TEST] utility first={utility_object['timeseries'][0]}")
+    utility_object = utility_service.build_full_utility_object(
+        current_rows=utility_rows,
+        previous_rows=previous_utility_rows,
+        report_start=period.start_date,
+        report_end=period.end_date,
+        previous_start=period.previous_start_date,
+        previous_end=period.previous_end_date,
+    )
+
+    print(f"[TEST] utility comparison keys={utility_object['comparison'].keys()}")
+
+    first_key = list(utility_object["comparison"].keys())[0]
+    print(f"[TEST] utility comparison sample={first_key} -> {utility_object['comparison'][first_key]}")
+    #
+    report_builder = ReportBuilderService()
+
+    meta = {
+        "workshop_name": config.get("WORKSHOP_NAME"),
+        "energy_unit": config.get("ENERGY_UNIT"),
+    }
+
+    period_info = {
+        "start_date": period.start_date,
+        "end_date": period.end_date,
+        "type": period.period_type,
+    }
+
+    report_context = report_builder.build_report_context(
+        meta=meta,
+        period=period_info,
+        energy_object=None,  # chưa làm
+        kpi_object=kpi_object,
+        utility_object=utility_object,
+    )
+
+    print(f"[TEST] report_context keys={report_context.keys()}")
+    print(f"[TEST] sections={report_context['sections'].keys()}")
 
     logger.info(
         "Resolved report period | period_type=%s start_date=%s end_date=%s previous_start_date=%s previous_end_date=%s label=%s",

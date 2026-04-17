@@ -62,6 +62,103 @@ class UtilityService:
             "timeseries": timeseries,
         }
 
+    def build_utility_comparison(
+        self,
+        current_summary: dict,
+        previous_summary: dict,
+    ) -> dict:
+        """
+        Build comparison between current and previous utility summaries.
+
+        Args:
+            current_summary: Current period utility summary.
+            previous_summary: Previous period utility summary.
+
+        Returns:
+            dict: Comparison per utility metric including delta and delta_pct.
+        """
+
+        comparison: dict = {}
+
+        all_keys = set(current_summary.keys()) | set(previous_summary.keys())
+
+        for key in all_keys:
+            curr_obj = current_summary.get(key)
+            prev_obj = previous_summary.get(key)
+
+            curr = curr_obj["total"] if curr_obj else None
+            prev = prev_obj["total"] if prev_obj else None
+
+            if curr is None and prev is None:
+                delta = None
+                delta_pct = None
+            else:
+                curr_val = curr or 0.0
+                prev_val = prev or 0.0
+
+                delta = curr_val - prev_val
+
+                if prev_val != 0:
+                    delta_pct = round(delta / prev_val, 4)
+                else:
+                    delta_pct = None
+
+            comparison[key] = {
+                "current": curr,
+                "previous": prev,
+                "delta": delta,
+                "delta_pct": delta_pct,
+            }
+
+        return comparison
+
+    def build_full_utility_object(
+        self,
+        current_rows: list[dict],
+        previous_rows: list[dict],
+        report_start,
+        report_end,
+        previous_start,
+        previous_end,
+    ) -> dict:
+        """
+        Build full utility object including current, previous and comparison.
+
+        Args:
+            current_rows: Raw rows for current period.
+            previous_rows: Raw rows for previous period.
+            report_start: Current period start date.
+            report_end: Current period end date.
+            previous_start: Previous period start date.
+            previous_end: Previous period end date.
+
+        Returns:
+            dict: Full utility object.
+        """
+
+        current_obj = self.build_utility_report_object(
+            rows=current_rows,
+            report_start=report_start,
+            report_end=report_end,
+        )
+
+        previous_obj = self.build_utility_report_object(
+            rows=previous_rows,
+            report_start=previous_start,
+            report_end=previous_end,
+        )
+
+        comparison = self.build_utility_comparison(
+            current_summary=current_obj["summary"],
+            previous_summary=previous_obj["summary"],
+        )
+
+        return {
+            "current": current_obj,
+            "previous": previous_obj,
+            "comparison": comparison,
+        }
+
     def _filter_rows_in_period(
         self,
         rows: List[Dict[str, Any]],
