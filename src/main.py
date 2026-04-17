@@ -170,7 +170,32 @@ def run_dev_test():
 
     print(f"[TEST] report_context keys={report_context.keys()}")
     print(f"[TEST] sections={report_context['sections'].keys()}")
+    #
+    # Current rows
+    kpi_rows = kpi_repo.get_kpi_rows_in_period(
+        start_date=period.start_date,
+        end_date=period.end_date,
+    )
 
+    # Previous rows
+    previous_kpi_rows = kpi_repo.get_kpi_rows_in_period(
+        start_date=period.previous_start_date,
+        end_date=period.previous_end_date,
+    )
+
+    kpi_service = KPIService()
+
+    kpi_object = kpi_service.build_full_kpi_object(
+        current_rows=kpi_rows,
+        previous_rows=previous_kpi_rows,
+        report_start=period.start_date,
+        report_end=period.end_date,
+        previous_start=period.previous_start_date,
+        previous_end=period.previous_end_date,
+    )
+
+    print(f"[TEST] kpi comparison plant={kpi_object['comparison']['plant']}")
+    print(f"[TEST] kpi comparison areas={kpi_object['comparison']['areas']}")
     logger.info(
         "Resolved report period | period_type=%s start_date=%s end_date=%s previous_start_date=%s previous_end_date=%s label=%s",
         period.period_type,

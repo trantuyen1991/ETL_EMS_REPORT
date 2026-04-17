@@ -259,6 +259,95 @@ class KPIService:
             "selected_rows": selected_rows,
         }
 
+    def build_kpi_comparison(
+        self,
+        current_summary: dict,
+        previous_summary: dict,
+    ) -> dict:
+        """
+        Compare KPI summaries between current and previous period.
+
+        IMPORTANT:
+        - Do NOT recalculate KPI
+        - Only compare aggregated values from summary
+
+        Args:
+            current_summary: Current KPI summary
+            previous_summary: Previous KPI summary
+
+        Returns:
+            dict: Comparison result
+        """
+
+        comparison = {
+            "plant": {},
+            "areas": {},
+        }
+
+        # ===== PLANT LEVEL =====
+        curr_plant = current_summary.get("plant", {})
+        prev_plant = previous_summary.get("plant", {})
+
+        curr_kpi = curr_plant.get("total_kpi")
+        prev_kpi = prev_plant.get("total_kpi")
+
+        if curr_kpi is None and prev_kpi is None:
+            delta = None
+            delta_pct = None
+        else:
+            curr_val = curr_kpi or 0.0
+            prev_val = prev_kpi or 0.0
+
+            delta = curr_val - prev_val
+
+            if prev_val != 0:
+                delta_pct = round(delta / prev_val, 4)
+            else:
+                delta_pct = None
+
+        comparison["plant"] = {
+            "current": curr_kpi,
+            "previous": prev_kpi,
+            "delta": delta,
+            "delta_pct": delta_pct,
+        }
+
+        # ===== AREA LEVEL =====
+        curr_areas = current_summary.get("areas", {})
+        prev_areas = previous_summary.get("areas", {})
+
+        all_areas = set(curr_areas.keys()) | set(prev_areas.keys())
+
+        for area in all_areas:
+            curr_area = curr_areas.get(area, {})
+            prev_area = prev_areas.get(area, {})
+
+            curr_kpi = curr_area.get("kpi")
+            prev_kpi = prev_area.get("kpi")
+
+            if curr_kpi is None and prev_kpi is None:
+                delta = None
+                delta_pct = None
+            else:
+                curr_val = curr_kpi or 0.0
+                prev_val = prev_kpi or 0.0
+
+                delta = curr_val - prev_val
+
+                if prev_val != 0:
+                    delta_pct = round(delta / prev_val, 4)
+                else:
+                    delta_pct = None
+
+            comparison["areas"][area] = {
+                "current": curr_kpi,
+                "previous": prev_kpi,
+                "delta": delta,
+                "delta_pct": delta_pct,
+            }
+
+        return comparison
+
     def build_kpi_daily_presentation_rows(
         self,
         selected_rows: list[dict[str, Any]],
@@ -427,6 +516,79 @@ class KPIService:
             "daily_rows": daily_rows,
         }
 
+    def build_full_kpi_object(
+        self,
+        current_rows: list[dict],
+        previous_rows: list[dict],
+        report_start,
+        report_end,
+        previous_start,
+        previous_end,
+    ) -> dict:
+        """
+        Build full KPI object including:
+        - current
+        - previous
+        - comparison
+
+        Returns:
+            dict
+        """
+
+        # ===== CURRENT =====
+        current_resolution = self.resolve_kpi_rows_for_period(
+            rows=current_rows,
+            report_start=report_start,
+            report_end=report_end,
+        )
+
+        current_summary = self.build_kpi_summary(
+            selected_rows=current_resolution["selected_rows"],
+            coverage_days=current_resolution["coverage_days"],
+            report_total_days=current_resolution["report_total_days"],
+            is_full_coverage=current_resolution["is_full_coverage"],
+            uncovered_ranges=current_resolution["uncovered_ranges"],
+            coverage_note=current_resolution["coverage_note"],
+            messages=current_resolution["messages"],
+        )
+
+        # ===== PREVIOUS =====
+        previous_resolution = self.resolve_kpi_rows_for_period(
+            rows=previous_rows,
+            report_start=previous_start,
+            report_end=previous_end,
+        )
+
+        previous_summary = self.build_kpi_summary(
+            selected_rows=previous_resolution["selected_rows"],
+            coverage_days=previous_resolution["coverage_days"],
+            report_total_days=previous_resolution["report_total_days"],
+            is_full_coverage=previous_resolution["is_full_coverage"],
+            uncovered_ranges=previous_resolution["uncovered_ranges"],
+            coverage_note=previous_resolution["coverage_note"],
+            messages=previous_resolution["messages"],
+        )
+
+        # ===== COMPARISON =====
+        comparison = self.build_kpi_comparison(
+            current_summary=current_summary,
+            previous_summary=previous_summary,
+        )
+
+        return {
+            "current": {
+                "summary": current_summary,
+                "coverage": current_resolution,
+                "selected_rows": current_resolution["selected_rows"],
+            },
+            "previous": {
+                "summary": previous_summary,
+                "coverage": previous_resolution,
+                "selected_rows": previous_resolution["selected_rows"],
+            },
+            "comparison": comparison,
+        }
+
     def _normalize_time_frame(self, value: Any) -> str:
         """Normalize the KPI time frame string."""
         if value is None:
@@ -579,7 +741,6 @@ class KPIService:
                 return row
 
         return None
-
 
     def _find_covering_block_row(
         self,
