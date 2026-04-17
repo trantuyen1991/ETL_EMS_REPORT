@@ -12,7 +12,7 @@ from src.services.period_service import PeriodService
 from src.services.report_builder_service import ReportBuilderService
 from src.services.utility_service import UtilityService
 from src.utils.logger import get_logger, setup_logging
-
+from src.services.template_service import TemplateRenderingService
 
 def _bootstrap() -> dict[str, Any]:
     """Bootstrap application runtime objects for development flow.
@@ -231,12 +231,19 @@ def run_dev_test() -> None:
     kpi_object = _build_kpi_object(repos, period)
     utility_object = _build_utility_object(repos, period)
 
-    _build_report_context(
+    report_context = _build_report_context(
         env_cfg=env_cfg,
         period=period,
         kpi_object=kpi_object,
         utility_object=utility_object,
     )
+    #
+    renderer = TemplateRenderingService("src/templates")
+
+    html = renderer.render("report_template.html", report_context)
+
+    with open("output/reports/debug.html", "w", encoding="utf-8") as f:
+        f.write(html)
 
     logger.info(
         (

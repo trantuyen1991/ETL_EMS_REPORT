@@ -551,6 +551,11 @@ class KPIService:
             coverage_note=current_resolution["coverage_note"],
             messages=current_resolution["messages"],
         )
+        current_daily_rows = self.build_kpi_daily_presentation_rows(
+            selected_rows=current_resolution["selected_rows"],
+            report_start=report_start,
+            report_end=report_end,
+        )
 
         # ===== PREVIOUS =====
         previous_resolution = self.resolve_kpi_rows_for_period(
@@ -568,6 +573,11 @@ class KPIService:
             coverage_note=previous_resolution["coverage_note"],
             messages=previous_resolution["messages"],
         )
+        previous_daily_rows = self.build_kpi_daily_presentation_rows(
+            selected_rows=previous_resolution["selected_rows"],
+            report_start=previous_start,
+            report_end=previous_end,
+        )
 
         # ===== COMPARISON =====
         comparison = self.build_kpi_comparison(
@@ -580,11 +590,13 @@ class KPIService:
                 "summary": current_summary,
                 "coverage": current_resolution,
                 "selected_rows": current_resolution["selected_rows"],
+                "daily_rows": current_daily_rows,
             },
             "previous": {
                 "summary": previous_summary,
                 "coverage": previous_resolution,
                 "selected_rows": previous_resolution["selected_rows"],
+                "daily_rows": previous_daily_rows,
             },
             "comparison": comparison,
         }
