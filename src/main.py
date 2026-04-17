@@ -263,6 +263,7 @@ def _build_report_context(
         energy_object=energy_object,
         kpi_object=kpi_object,
         utility_object=utility_object,
+        mode="html",
     )
 
     print(f"[TEST] report_context keys={report_context.keys()}")

@@ -20,6 +20,7 @@ class ReportBuilderService:
         energy_object: Dict[str, Any] | None,
         kpi_object: Dict[str, Any] | None,
         utility_object: Dict[str, Any] | None,
+        mode: str = "html",
     ) -> Dict[str, Any]:
 
         flags = self._build_flags(kpi_object, utility_object)
@@ -27,6 +28,7 @@ class ReportBuilderService:
         summary = self._build_summary(
             kpi_object=kpi_object,
             utility_object=utility_object,
+            energy_object=energy_object,
         )
 
         sections = {
@@ -46,6 +48,7 @@ class ReportBuilderService:
             "notes": notes,
             "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "version": "v2",
+            "context_mode": mode,
         }
 
         logger.info("Report context V2 built successfully")
@@ -106,12 +109,13 @@ class ReportBuilderService:
 
         return result
 
-    def _build_summary(self, kpi_object, utility_object) -> dict:
+    def _build_summary(self, kpi_object, utility_object,energy_object) -> dict:
         return {
             "kpi_snapshot": self._build_kpi_snapshot(kpi_object),
             "kpi_area_snapshot_rows": self._build_kpi_area_snapshot_rows(kpi_object),
             "utility_snapshot_rows": self._build_utility_snapshot(utility_object),
             "coverage": self._build_global_coverage(kpi_object),
+            "energy_snapshot": self._build_energy_snapshot(energy_object),
         }
 
     def _build_global_coverage(self, kpi_object) -> dict:
@@ -492,4 +496,38 @@ class ReportBuilderService:
             "top10_rows": top10_rows,
             "daily_summary_rows": daily_summary_rows,
             "daily_tables": daily_tables,
+        }
+
+    def _build_energy_snapshot(self, energy_object) -> dict[str, Any]:
+        """Build executive energy snapshot."""
+        if not energy_object:
+            return {}
+
+        current_total = 0.0
+        previous_total = 0.0
+
+        for area_key in ["diode", "ico", "sakari"]:
+            current_total += float(
+                energy_object["current"]["summary"].get(area_key, {}).get("total_energy", 0.0)
+            )
+            previous_total += float(
+                energy_object["previous"]["summary"].get(area_key, {}).get("total_energy", 0.0)
+            )
+
+        delta = current_total - previous_total
+        delta_pct = (delta / previous_total) if previous_total != 0 else None
+
+        current_rows = energy_object["current"].get("daily_summary_rows", [])
+        total_days = len(current_rows)
+        average_per_day = (current_total / total_days) if total_days else None
+
+        return {
+            "current_display": self._fmt(current_total),
+            "previous_display": self._fmt(previous_total),
+            "delta_display": self._fmt(delta),
+            "delta_pct_display": self._fmt_pct(delta_pct),
+            "delta_class": self._consumption_trend_class(delta),
+            "delta_pct_class": self._consumption_trend_class(delta_pct),
+            "total_days": total_days,
+            "average_per_day_display": self._fmt(average_per_day),
         }
