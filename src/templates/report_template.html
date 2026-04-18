@@ -1290,7 +1290,7 @@
 
         .kpi-total-grid {
             display: grid;
-            grid-template-columns: 4fr 6fr;
+            grid-template-columns: 3fr 7fr;
             gap: 14px;
             margin-bottom: 12px;
         }
@@ -1298,7 +1298,8 @@
         .kpi-plant-card {
             border: 1px solid var(--border-soft);
             border-radius: var(--radius-lg);
-            background: var(--bg-card);
+            background: #f8fbff;
+            border-color: #cfe0ff;
             padding: 14px 16px;
         }
 
@@ -1404,12 +1405,6 @@
             color: #475569;
             font-weight: 600;
         }
-        .kpi-area-table .col-share {
-            color: #64748b;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
         .kpi-area-table .col-delta,
         .kpi-area-table .col-delta-pct {
             font-weight: 700;
@@ -1427,9 +1422,141 @@
         .kpi-area-table .trend-neutral {
             color: var(--trend-neutral);
         }
+        .kpi-area-table .pct {
+            margin-left: 4px;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+            white-space: nowrap;
+        }
         @media (max-width: 900px) {
             .kpi-total-grid {
                 grid-template-columns: 1fr;
+            }
+        }
+        /* ==========================================================================
+        KPI daily detail
+        ========================================================================== */
+
+        .kpi-daily-detail-block {
+            margin-top: 16px;
+        }
+
+        .kpi-daily-detail-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .kpi-daily-detail-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .kpi-daily-detail-table th,
+        .kpi-daily-detail-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .kpi-daily-detail-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .kpi-daily-detail-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kpi-daily-detail-table .col-date {
+            min-width: 140px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-daily-detail-table .col-source {
+            min-width: 80px;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .kpi-daily-detail-table .col-plant,
+        .kpi-daily-detail-table .col-ico,
+        .kpi-daily-detail-table .col-diode,
+        .kpi-daily-detail-table .col-sakari {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .kpi-daily-detail-table .col-note {
+            min-width: 220px;
+            color: #475569;
+            white-space: normal;
+        }
+
+        .kpi-status-badge {
+            display: inline-block;
+            min-width: 84px;
+            text-align: center;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+
+        .kpi-status-ok {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border-color: #b7dfba;
+        }
+
+        .kpi-status-missing {
+            background: #fdecec;
+            color: #a61b1b;
+            border-color: #e4aaaa;
+        }
+
+        .kpi-status-partial {
+            background: #fff4db;
+            color: #8a5a00;
+            border-color: #e3c37f;
+        }
+
+        .kpi-row-ok {
+            background: #ffffff;
+        }
+
+        .kpi-row-missing {
+            background: #fff0f0;
+        }
+
+        .kpi-row-partial {
+            background: #fff9e8;
+        }
+
+        @media (max-width: 700px) {
+            .kpi-daily-detail-table {
+                min-width: 920px;
+            }
+
+            .kpi-daily-detail-table th,
+            .kpi-daily-detail-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .kpi-daily-detail-table .col-date {
+                min-width: 130px;
             }
         }
         /* ==========================================================================
@@ -2083,68 +2210,6 @@
                 </div>
             </div>
 
-            <div class="utility-coverage-block">
-                <h3 class="electricity-subsection-title">Comparison / Coverage</h3>
-
-                <div class="utility-coverage-banner">
-                    <p class="utility-coverage-title">Coverage summary</p>
-                    <p class="utility-coverage-text">
-                        <strong>Coverage:</strong>
-                        {{ sections.utility.consumption.coverage.coverage_display
-                        if sections.utility.consumption.coverage else "-" }}
-                        {% if sections.utility.consumption.coverage
-                            and sections.utility.consumption.coverage.coverage_note %}
-                        <br>
-                        {{ sections.utility.consumption.coverage.coverage_note }}
-                        {% endif %}
-                    </p>
-                </div>
-
-                <div class="utility-comparison-table-wrap">
-                    <table class="utility-comparison-table">
-                        <thead>
-                            <tr>
-                                <th>Utility</th>
-                                <th>{{ labels.current_period or "Current" }}</th>
-                                <th>{{ labels.previous_period or "Previous" }}</th>
-                                <th>Delta</th>
-                                <th>Delta %</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in sections.utility.consumption.totals.rows %}
-                            <tr>
-                                <td class="col-utility">{{ row.display_name }}</td>
-
-                                <td class="col-current">
-                                    {{ row.current_display }}
-                                </td>
-
-                                <td class="col-previous">
-                                    {{ row.previous_display }}
-                                </td>
-
-                                <td class="col-delta {{ row.delta_class }}">
-                                    {{ row.delta_display }}
-                                </td>
-
-                                <td class="col-delta-pct {{ row.delta_pct_class }}">
-                                    {% if row.delta_pct_class == 'trend-up' %}
-                                        <span class="delta-arrow trend-up">▲</span>
-                                    {% elif row.delta_pct_class == 'trend-down' %}
-                                        <span class="delta-arrow trend-down">▼</span>
-                                    {% else %}
-                                        <span class="delta-arrow trend-neutral">•</span>
-                                    {% endif %}
-                                    {{ row.delta_pct_display }}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
             <div class="utility-detail-block">
                 <h3 class="electricity-subsection-title">Daily utility detail</h3>
 
@@ -2221,9 +2286,9 @@
                             <span class="kpi-plant-label">Delta %</span>
                             <span class="kpi-plant-value {{ sections.kpi.comparison.plant.delta_pct_class }}">
                                 {% if sections.kpi.comparison.plant.delta_pct_class == 'trend-up' %}
-                                    <span class="delta-arrow trend-up">▲</span>
+                                    <span class="delta-arrow trend-up">▼</span>
                                 {% elif sections.kpi.comparison.plant.delta_pct_class == 'trend-down' %}
-                                    <span class="delta-arrow trend-down">▼</span>
+                                    <span class="delta-arrow trend-down">▲</span>
                                 {% else %}
                                     <span class="delta-arrow trend-neutral">•</span>
                                 {% endif %}
@@ -2237,19 +2302,6 @@
                                 {{ sections.kpi.totals.plant.coverage_display }}
                             </span>
                         </div>
-
-                        <div class="kpi-plant-metric">
-                            <span class="kpi-plant-label">Unit</span>
-                            <span class="kpi-plant-value">
-                                {{ sections.kpi.totals.plant.unit }}
-                            </span>
-                        </div>
-
-                        {% if sections.kpi.coverage.coverage_note %}
-                        <p class="kpi-coverage-note">
-                            {{ sections.kpi.coverage.coverage_note }}
-                        </p>
-                        {% endif %}
                     </div>
 
                     <div class="kpi-area-table-wrap">
@@ -2259,15 +2311,13 @@
                                     <th>Area</th>
                                     <th>{{ labels.current_period or "Current" }}</th>
                                     <th>{{ labels.previous_period or "Previous" }}</th>
-                                    <th>% of Plant</th>
                                     <th>Delta</th>
                                     <th>Delta %</th>
-                                    <th>Unit</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for row in sections.kpi.totals.areas %}
-                                    {% set area_ns = namespace(comp=None, share_current=None) %}
+                                    {% set area_ns = namespace(comp=None, share_current=None, share_previous=None) %}
 
                                     {% for comp in sections.kpi.comparison.areas %}
                                         {% if comp.area_key == row.area_key %}
@@ -2276,10 +2326,16 @@
                                     {% endfor %}
 
                                     {% set plant_current = sections.kpi.totals.plant.current_display | replace(',', '') | float %}
+                                    {% set plant_previous = sections.kpi.totals.plant.previous_display | replace(',', '') | float %}
                                     {% set area_current = row.current_display | replace(',', '') | float %}
+                                    {% set area_previous = row.previous_display | replace(',', '') | float %}
 
                                     {% if plant_current > 0 %}
                                         {% set area_ns.share_current = (area_current / plant_current) * 100 %}
+                                    {% endif %}
+
+                                    {% if plant_previous > 0 %}
+                                        {% set area_ns.share_previous = (area_previous / plant_previous) * 100 %}
                                     {% endif %}
 
                                 <tr>
@@ -2287,17 +2343,15 @@
 
                                     <td class="col-current">
                                         {{ row.current_display }}
+                                        {% if area_ns.share_current is not none %}
+                                        <span class="pct">({{ "%.2f"|format(area_ns.share_current) }}%)</span>
+                                        {% endif %}
                                     </td>
 
                                     <td class="col-previous">
                                         {{ row.previous_display }}
-                                    </td>
-
-                                    <td class="col-share">
-                                        {% if area_ns.share_current is not none %}
-                                            {{ "%.2f"|format(area_ns.share_current) }}%
-                                        {% else %}
-                                            -
+                                        {% if area_ns.share_previous is not none %}
+                                        <span class="pct">({{ "%.2f"|format(area_ns.share_previous) }}%)</span>
                                         {% endif %}
                                     </td>
 
@@ -2308,9 +2362,9 @@
                                     <td class="col-delta-pct {{ area_ns.comp.delta_pct_class if area_ns.comp else '' }}">
                                         {% if area_ns.comp %}
                                             {% if area_ns.comp.delta_pct_class == 'trend-up' %}
-                                                <span class="delta-arrow trend-up">▲</span>
+                                                <span class="delta-arrow trend-up">▼</span>
                                             {% elif area_ns.comp.delta_pct_class == 'trend-down' %}
-                                                <span class="delta-arrow trend-down">▼</span>
+                                                <span class="delta-arrow trend-down">▲</span>
                                             {% else %}
                                                 <span class="delta-arrow trend-neutral">•</span>
                                             {% endif %}
@@ -2319,8 +2373,6 @@
                                             -
                                         {% endif %}
                                     </td>
-
-                                    <td class="col-unit">{{ row.unit }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -2329,17 +2381,61 @@
                 </div>
             </div>
 
-            <div class="section-placeholder">
-                <p><strong>Comparison</strong></p>
-                <p>Plant delta: {{ sections.kpi.comparison.plant.delta_display }}</p>
-                <p>Area rows: {{ sections.kpi.comparison.areas | length }}</p>
-            </div>
+            <div class="kpi-daily-detail-block">
+                <h3 class="electricity-subsection-title">Daily KPI detail</h3>
 
-            <div class="section-placeholder">
-                <p><strong>Detail</strong></p>
-                <p>Coverage: {{ sections.kpi.coverage.coverage_display }}</p>
-                <p>Product rows: {{ sections.kpi.product_context.rows | length }}</p>
-                <p>Daily rows: {{ sections.kpi.daily_detail.rows | length }}</p>
+                <div class="kpi-daily-detail-table-wrap">
+                    <table class="kpi-daily-detail-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Source</th>
+                                <th>Plant KPI</th>
+                                <th>ICO KPI</th>
+                                <th>DIODE KPI</th>
+                                <th>SAKARI KPI</th>
+                                <th>Coverage Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.kpi.daily_detail.rows %}
+                                {% set row_class = 'kpi-row-ok' %}
+                                {% if row.status == 'Missing' %}
+                                    {% set row_class = 'kpi-row-missing' %}
+                                {% elif row.status == 'Partial' %}
+                                    {% set row_class = 'kpi-row-partial' %}
+                                {% endif %}
+
+                                {% set badge_class = 'kpi-status-ok' %}
+                                {% if row.status == 'Missing' %}
+                                    {% set badge_class = 'kpi-status-missing' %}
+                                {% elif row.status == 'Partial' %}
+                                    {% set badge_class = 'kpi-status-partial' %}
+                                {% endif %}
+
+                            <tr class="{{ row_class }}">
+                                <td class="col-date">{{ row.date_display }}</td>
+
+                                <td>
+                                    <span class="kpi-status-badge {{ badge_class }}">
+                                        {{ row.status }}
+                                    </span>
+                                </td>
+
+                                <td class="col-source">{{ row.source_display }}</td>
+
+                                <td class="col-plant">{{ row.plant_kpi_display }}</td>
+                                <td class="col-ico">{{ row.ico_kpi_display }}</td>
+                                <td class="col-diode">{{ row.diode_kpi_display }}</td>
+                                <td class="col-sakari">{{ row.sakari_kpi_display }}</td>
+
+                                <td class="col-note">{{ row.coverage_note_display }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
         {% endif %}
