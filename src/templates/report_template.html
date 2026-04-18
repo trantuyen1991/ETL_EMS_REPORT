@@ -1085,6 +1085,112 @@
             }
         }
         /* ==========================================================================
+        Utility comparison / coverage
+        ========================================================================== */
+
+        .utility-coverage-block {
+            margin-bottom: 12px;
+        }
+
+        .utility-coverage-banner {
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: #f8fafc;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+
+        .utility-coverage-title {
+            margin: 0 0 6px 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-coverage-text {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .utility-coverage-text strong {
+            color: var(--text-dark);
+        }
+
+        .utility-comparison-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .utility-comparison-table {
+            width: 100%;
+            min-width: 860px;
+            border-collapse: collapse;
+        }
+
+        .utility-comparison-table th,
+        .utility-comparison-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .utility-comparison-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .utility-comparison-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .utility-comparison-table .col-utility {
+            min-width: 180px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-comparison-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .utility-comparison-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .utility-comparison-table .col-delta,
+        .utility-comparison-table .col-delta-pct {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 700px) {
+            .utility-comparison-table {
+                min-width: 760px;
+            }
+
+            .utility-comparison-table th,
+            .utility-comparison-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .utility-comparison-table .col-utility {
+                min-width: 150px;
+            }
+        }
+        /* ==========================================================================
         Responsive
         ========================================================================== */
 
@@ -1735,13 +1841,66 @@
                 </div>
             </div>
 
-            <div class="section-placeholder">
-                <p><strong>Comparison / Coverage</strong></p>
-                <p>
-                    Coverage:
-                    {{ sections.utility.consumption.coverage.coverage_display
-                    if sections.utility.consumption.coverage else "-" }}
-                </p>
+            <div class="utility-coverage-block">
+                <h3 class="electricity-subsection-title">Comparison / Coverage</h3>
+
+                <div class="utility-coverage-banner">
+                    <p class="utility-coverage-title">Coverage summary</p>
+                    <p class="utility-coverage-text">
+                        <strong>Coverage:</strong>
+                        {{ sections.utility.consumption.coverage.coverage_display
+                        if sections.utility.consumption.coverage else "-" }}
+                        {% if sections.utility.consumption.coverage
+                            and sections.utility.consumption.coverage.coverage_note %}
+                        <br>
+                        {{ sections.utility.consumption.coverage.coverage_note }}
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="utility-comparison-table-wrap">
+                    <table class="utility-comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Utility</th>
+                                <th>{{ labels.current_period or "Current" }}</th>
+                                <th>{{ labels.previous_period or "Previous" }}</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.utility.consumption.totals.rows %}
+                            <tr>
+                                <td class="col-utility">{{ row.display_name }}</td>
+
+                                <td class="col-current">
+                                    {{ row.current_display }}
+                                </td>
+
+                                <td class="col-previous">
+                                    {{ row.previous_display }}
+                                </td>
+
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {% if row.delta_pct_class == 'trend-up' %}
+                                        <span class="delta-arrow trend-up">▲</span>
+                                    {% elif row.delta_pct_class == 'trend-down' %}
+                                        <span class="delta-arrow trend-down">▼</span>
+                                    {% else %}
+                                        <span class="delta-arrow trend-neutral">•</span>
+                                    {% endif %}
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="section-placeholder">
