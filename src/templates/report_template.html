@@ -137,7 +137,7 @@
 
         .period-strip-table {
             display: grid;
-            grid-template-columns: 1.2fr 1.2fr 1.3fr 0.8fr 1fr;
+            grid-template-columns: 1fr 1fr 1.2fr 0.65fr 0.65fr 1fr;
             border: 1px solid #d1d5db;
             background: #ffffff;
         }
@@ -563,7 +563,8 @@
         .electricity-comparison-table .col-area {
             font-weight: 700;
             color: #1f2937;
-            min-width: 180px;
+            min-width: 140px;
+            white-space: nowrap;
         }
 
         .electricity-comparison-table .col-current {
@@ -600,6 +601,14 @@
 
         .electricity-comparison-table .trend-neutral {
             color: #6b7280;
+        }
+
+        .electricity-inline-ratio-table {
+            margin-left: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            white-space: nowrap;
         }
         /* ==========================================================================
         Responsive
@@ -649,10 +658,6 @@
                 font-size: 12px;
             }
 
-            /* .period-strip-table {
-                grid-template-columns: 1fr;
-            } */
-
             .period-strip-cell {
                 border-right: none;
                 border-bottom: 1px solid #d1d5db;
@@ -670,6 +675,14 @@
             .footer-right {
                 width: 100%;
                 text-align: left;
+            }
+
+            .electricity-comparison-table {
+                min-width: 680px;
+            }
+
+            .electricity-comparison-table .col-area {
+                min-width: 120px;
             }
         }
 
@@ -738,6 +751,22 @@
                     <div class="period-strip-label">Total energy</div>
                     <div class="period-strip-value">
                         {{ summary.electricity_snapshot.current_display }}
+                    </div>
+                </div>
+
+                {% set meter_ns = namespace(active=0, total=0) %}
+                {% for row in sections.electricity.comparison.rows %}
+                    {% if row.active_total_display and '/' in row.active_total_display %}
+                        {% set parts = row.active_total_display.split('/') %}
+                        {% set meter_ns.active = meter_ns.active + (parts[0] | int) %}
+                        {% set meter_ns.total = meter_ns.total + (parts[1] | int) %}
+                    {% endif %}
+                {% endfor %}
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Meter active / total</div>
+                    <div class="period-strip-value">
+                        {{ meter_ns.active }}/{{ meter_ns.total }}
                     </div>
                 </div>
 
@@ -924,16 +953,16 @@
             <div class="electricity-comparison-block">
                 <div class="electricity-comparison-table-wrap">
                     <table class="electricity-comparison-table">
-                        <thead>
-                            <tr>
-                                <th>Workshop</th>
-                                <th>Current</th>
-                                <th>Previous</th>
-                                <th>Delta</th>
-                                <th>Delta %</th>
-                                <th>Meter count</th>
-                            </tr>
-                        </thead>
+                    <thead>
+                        <tr>
+                            <th>Area</th>
+                            <th>{{ labels.current_period or "Current" }}</th>
+                            <th>{{ labels.previous_period or "Previous" }}</th>
+                            <th>Delta</th>
+                            <th>Delta %</th>
+                            <th>Meter Active / Total</th>
+                        </tr>
+                    </thead>
                         <tbody>
                             {% for row in sections.electricity.comparison.rows %}
                             <tr>
@@ -941,10 +970,20 @@
 
                                 <td class="col-current">
                                     {{ row.current_display }}
+                                    {% if row.current_ratio_display and row.current_ratio_display != "-" %}
+                                    <span class="electricity-inline-ratio-table">
+                                        ({{ row.current_ratio_display }})
+                                    </span>
+                                    {% endif %}
                                 </td>
 
                                 <td class="col-previous">
                                     {{ row.previous_display }}
+                                    {% if row.previous_ratio_display and row.previous_ratio_display != "-" %}
+                                    <span class="electricity-inline-ratio-table">
+                                        ({{ row.previous_ratio_display }})
+                                    </span>
+                                    {% endif %}
                                 </td>
 
                                 <td class="col-delta {{ row.delta_class }}">
@@ -953,9 +992,9 @@
 
                                 <td class="col-delta-pct {{ row.delta_pct_class }}">
                                     {% if row.delta_pct_class == 'trend-up' %}
-                                        <span class="delta-arrow trend-up">▲</span>
+                                        <span class="delta-arrow trend-up">▼</span>
                                     {% elif row.delta_pct_class == 'trend-down' %}
-                                        <span class="delta-arrow trend-down">▼</span>
+                                        <span class="delta-arrow trend-down">▲</span>
                                     {% else %}
                                         <span class="delta-arrow trend-neutral">•</span>
                                     {% endif %}
@@ -963,7 +1002,7 @@
                                 </td>
 
                                 <td class="col-meter-count">
-                                    {{ row.meter_count }}
+                                    {{ row.active_total_display }}
                                 </td>
                             </tr>
                             {% endfor %}
