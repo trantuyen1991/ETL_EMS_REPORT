@@ -928,7 +928,25 @@
         .electricity-daily-detail-table tbody tr:nth-child(even) .sticky-date-col {
             background: #fcfcfc;
         }
+        .electricity-daily-detail-table td {
+            text-align: right;
+        }
 
+        .electricity-daily-detail-table .col-date {
+            text-align: left;
+        }
+
+        /* Daily detail cell states */
+        .electricity-daily-detail-table .value-zero {
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        .electricity-daily-detail-table .value-max {
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 700;
+        }
         /* ==========================================================================
         Responsive
         ========================================================================== */
@@ -1503,7 +1521,9 @@
                                 <tr>
                                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                                     {% for cell in row.cells %}
-                                    <td class="col-value">{{ cell.display }}</td>
+                                    <td class="col-value {{ cell.cell_class }} {% if cell.is_row_max %}value-max{% endif %}">
+                                        {{ cell.display }}
+                                    </td>
                                     {% endfor %}
                                 </tr>
                                 {% endfor %}

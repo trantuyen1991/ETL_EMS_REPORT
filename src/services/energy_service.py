@@ -119,11 +119,37 @@ class EnergyService:
             dt_value = self._to_date(row.get("dt"))
 
             cells = []
+
+            # Build row max value first for highlight
+            numeric_values = []
             for column in meter_columns:
+                raw_value = row.get(column)
+                if isinstance(raw_value, (int, float)):
+                    numeric_values.append(float(raw_value))
+
+            row_max_value = max(numeric_values) if numeric_values else None
+
+            for column in meter_columns:
+                raw_value = row.get(column)
+
+                cell_class = ""
+                is_row_max = False
+
+                if isinstance(raw_value, (int, float)):
+                    numeric_value = float(raw_value)
+
+                    if numeric_value == 0:
+                        cell_class = "value-zero"
+
+                    if row_max_value is not None and numeric_value == row_max_value and numeric_value > 0:
+                        is_row_max = True
+
                 cells.append({
                     "key": column,
-                    "raw_value": row.get(column),
-                    "display": self._fmt_or_dash(row.get(column)),
+                    "raw_value": raw_value,
+                    "display": self._fmt_or_dash(raw_value),
+                    "cell_class": cell_class,
+                    "is_row_max": is_row_max,
                 })
 
             daily_rows.append({
