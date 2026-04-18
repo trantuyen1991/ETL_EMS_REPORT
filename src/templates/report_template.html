@@ -856,6 +856,80 @@
             background: #fcfcfc;
         }
         /* ==========================================================================
+        Electricity daily detail tables
+        ========================================================================== */
+
+        .electricity-daily-detail-block {
+            margin-top: 16px;
+        }
+
+        .electricity-daily-detail-table-block {
+            margin-bottom: 18px;
+        }
+
+        .electricity-daily-detail-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .electricity-daily-detail-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .electricity-daily-detail-table th,
+        .electricity-daily-detail-table td {
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 12.5px;
+        }
+
+        .electricity-daily-detail-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .electricity-daily-detail-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .electricity-daily-detail-table .col-date {
+            min-width: 150px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .electricity-daily-detail-table .col-value {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .electricity-daily-detail-table .sticky-date-col {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--bg-card);
+        }
+
+        .electricity-daily-detail-table thead .sticky-date-col {
+            background: var(--bg-header);
+            z-index: 4;
+        }
+
+        .electricity-daily-detail-table tbody tr:nth-child(even) .sticky-date-col {
+            background: #fcfcfc;
+        }
+
+        /* ==========================================================================
         Responsive
         ========================================================================== */
 
@@ -958,6 +1032,19 @@
 
             .electricity-daily-summary-table .col-top1-meter {
                 min-width: 60px;
+            }
+            .electricity-daily-detail-table {
+                min-width: 860px;
+            }
+
+            .electricity-daily-detail-table th,
+            .electricity-daily-detail-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .electricity-daily-detail-table .col-date {
+                min-width: 130px;
             }
         }
 
@@ -1389,7 +1476,43 @@
                         </tbody>
                     </table>
                 </div>
-            </div>           
+            </div> 
+            
+            <div class="electricity-daily-detail-block">
+                <h3 class="electricity-subsection-title">Daily detail tables</h3>
+
+                {% for table in sections.electricity.daily_detail_tables %}
+                <div class="electricity-daily-detail-table-block">
+                    <h4 class="electricity-subsection-title">{{ table.title }}</h4>
+
+                    <div class="electricity-daily-detail-table-wrap">
+                        <table class="electricity-daily-detail-table">
+                            <thead>
+                                <tr>
+                                    {% for column in table.columns %}
+                                        {% if column.is_date %}
+                                        <th class="col-date sticky-date-col">{{ column.display_name }}</th>
+                                        {% else %}
+                                        <th>{{ column.display_name }}</th>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in table.rows %}
+                                <tr>
+                                    <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                    {% for cell in row.cells %}
+                                    <td class="col-value">{{ cell.display }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>            
         </section>
         {% endif %}
 
