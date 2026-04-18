@@ -942,22 +942,55 @@
             font-weight: 500;
         }
 
-        .electricity-daily-detail-table .value-max {
+        /* .electricity-daily-detail-table .value-max {
             background: #eff6ff;
             color: #1d4ed8;
             font-weight: 700;
-        }
+        } */
         .electricity-daily-detail-table td {
             transition: all 0.15s ease;
         }
 
-        .electricity-daily-detail-table .value-zero {
+        /* .electricity-daily-detail-table .value-zero {
             color: #cbd5f5;
             font-weight: 500;
-        }
+        } */
         tbody tr:hover td {
             background: #e8eef4;
         }
+        .electricity-daily-detail-table .value-zero {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .electricity-daily-detail-table .value-max {
+            background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
+            color: #1d4ed8;
+            font-weight: 700;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .electricity-daily-detail-table tbody tr:hover td {
+            background-image: none;
+            filter: brightness(0.985);
+        }
+        /* Daily detail heatmap */
+        .electricity-daily-detail-table .heat-1 {
+            background: #f8fbff;
+        }
+
+        .electricity-daily-detail-table .heat-2 {
+            background: #f1f7ff;
+        }
+
+        .electricity-daily-detail-table .heat-3 {
+            background: #e8f2ff;
+        }
+
+        .electricity-daily-detail-table .heat-4 {
+            background: #deecff;
+        }
+
         /* ==========================================================================
         Responsive
         ========================================================================== */
@@ -1532,7 +1565,7 @@
                                 <tr>
                                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                                     {% for cell in row.cells %}
-                                    <td class="col-value {{ cell.cell_class }} {% if cell.is_row_max %}value-max{% endif %}">
+                                    <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}">
                                         {{ cell.display }}
                                     </td>
                                     {% endfor %}
