@@ -320,16 +320,25 @@ class EnergyService:
                 top_meter_value = 0.0
                 average_per_active = 0.0
 
+            # --- compute percentage ---
+            top_1_pct = None
+
+            if total_energy and top_meter_value:
+                if total_energy > 0:
+                    top_1_pct = top_meter_value / total_energy
+
             result.append({
                 "date": dt_value,
                 "date_display": self._format_date_with_weekday(dt_value),
                 "total_energy_display": self._fmt(total_energy),
                 "top_1_meter": top_meter_name,
                 "top_1_value_display": self._fmt(top_meter_value),
+                "top_1_pct_display": self._fmt_pct(top_1_pct) if top_1_pct is not None else None,
                 "active_meter_count": active_meter_count,
                 "average_per_active_display": self._fmt(average_per_active),
                 "total_meter_count": total_meter_count,
                 "inactive_meter_count": inactive_meter_count,
+                "avg_per_active_display": self._fmt(row.get("avg_per_active")),
             })
 
         return result
@@ -377,3 +386,9 @@ class EnergyService:
         if value is None:
             return "-"
         return f"{value.isoformat()} ({value.strftime('%a')})"
+
+    def _fmt_pct(self, val):
+        """Format ratio to percent display."""
+        if val is None:
+            return "-"
+        return f"{float(val) * 100:.2f}%"
