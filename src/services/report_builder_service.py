@@ -299,6 +299,105 @@ class ReportBuilderService:
             "coverage": coverage,
         }
 
+    def _build_v3_electricity_area_stats(
+        self,
+        energy_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Dict[str, Any]]:
+        """
+        Build additional V3 electricity area stats for rendering.
+
+        This helper calculates:
+        - current share ratio by area
+        - previous share ratio by area
+        - active meter count / total meter count for current period
+
+        Args:
+            energy_object: Prepared energy domain object.
+
+        Returns:
+            Dict[str, Dict[str, Any]]: Area stats keyed by area_key.
+
+        Example:
+            stats = self._build_v3_electricity_area_stats(energy_object)
+        """
+        if not energy_object:
+            return {}
+
+        current_summary = energy_object.get("current", {}).get("summary", {})
+        previous_summary = energy_object.get("previous", {}).get("summary", {})
+        current_tables = energy_object.get("current", {}).get("daily_tables", [])
+
+        current_table_lookup = {
+            table.get("area_key"): table
+            for table in current_tables
+        }
+
+        plant_current_total = 0.0
+        plant_previous_total = 0.0
+
+        for area_key in ["diode", "ico", "sakari"]:
+            plant_current_total += float(
+                current_summary.get(area_key, {}).get("total_energy", 0.0) or 0.0
+            )
+            plant_previous_total += float(
+                previous_summary.get(area_key, {}).get("total_energy", 0.0) or 0.0
+            )
+
+        stats: Dict[str, Dict[str, Any]] = {}
+
+        for area_key in ["diode", "ico", "sakari"]:
+            current_value = float(
+                current_summary.get(area_key, {}).get("total_energy", 0.0) or 0.0
+            )
+            previous_value = float(
+                previous_summary.get(area_key, {}).get("total_energy", 0.0) or 0.0
+            )
+
+            current_ratio = (
+                current_value / plant_current_total
+                if plant_current_total > 0
+                else None
+            )
+            previous_ratio = (
+                previous_value / plant_previous_total
+                if plant_previous_total > 0
+                else None
+            )
+
+            table = current_table_lookup.get(area_key, {})
+            meter_columns = table.get("meter_columns", [])
+            total_meter_count = len(meter_columns)
+
+            active_meter_count = 0
+            for meter_key in meter_columns:
+                has_positive_value = False
+
+                for row in table.get("rows", []):
+                    for cell in row.get("cells", []):
+                        if cell.get("key") != meter_key:
+                            continue
+
+                        raw_value = cell.get("raw_value")
+                        if isinstance(raw_value, (int, float)) and float(raw_value) > 0:
+                            has_positive_value = True
+                            break
+
+                    if has_positive_value:
+                        break
+
+                if has_positive_value:
+                    active_meter_count += 1
+
+            stats[area_key] = {
+                "current_ratio_display": self._fmt_pct(current_ratio),
+                "previous_ratio_display": self._fmt_pct(previous_ratio),
+                "active_meter_count": active_meter_count,
+                "total_meter_count": total_meter_count,
+                "active_total_display": f"{active_meter_count}/{total_meter_count}",
+            }
+
+        return stats
+
     def _build_v3_electricity_section(
         self,
         energy_object: Optional[Dict[str, Any]],
@@ -342,6 +441,7 @@ class ReportBuilderService:
 
         current_summary = energy_object.get("current", {}).get("summary", {})
         comparison_summary = energy_object.get("comparison", {}).get("summary", {})
+        area_stats = self._build_v3_electricity_area_stats(energy_object)
 
         total_rows: list[dict[str, Any]] = []
         comparison_rows: list[dict[str, Any]] = []
@@ -373,6 +473,9 @@ class ReportBuilderService:
                 "delta_class": self._consumption_trend_class(comparison_item.get("delta")),
                 "delta_pct_class": self._consumption_trend_class(comparison_item.get("delta_pct")),
                 "meter_count": comparison_item.get("meter_count", 0),
+                "current_ratio_display": area_stats.get(area_key, {}).get("current_ratio_display", "-"),
+                "previous_ratio_display": area_stats.get(area_key, {}).get("previous_ratio_display", "-"),
+                "active_total_display": area_stats.get(area_key, {}).get("active_total_display", "-"),
             })
 
         top10_rows: list[dict[str, Any]] = []
