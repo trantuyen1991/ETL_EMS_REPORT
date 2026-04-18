@@ -1191,6 +1191,96 @@
             }
         }
         /* ==========================================================================
+        Utility daily detail
+        ========================================================================== */
+
+        .utility-detail-block {
+            margin-top: 16px;
+        }
+
+        .utility-detail-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .utility-detail-table {
+            width: 100%;
+            min-width: 860px;
+            border-collapse: collapse;
+        }
+
+        .utility-detail-table th,
+        .utility-detail-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .utility-detail-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .utility-detail-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .utility-detail-table .col-date {
+            min-width: 150px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-detail-table .col-value {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .utility-detail-table .value-zero {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .utility-detail-table .sticky-date-col {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--bg-card);
+        }
+
+        .utility-detail-table thead .sticky-date-col {
+            background: var(--bg-header);
+            z-index: 4;
+        }
+
+        .utility-detail-table tbody tr:nth-child(even) .sticky-date-col {
+            background: #fcfcfc;
+        }
+
+        @media (max-width: 700px) {
+            .utility-detail-table {
+                min-width: 760px;
+            }
+
+            .utility-detail-table th,
+            .utility-detail-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .utility-detail-table .col-date {
+                min-width: 130px;
+            }
+        }
+        /* ==========================================================================
         Responsive
         ========================================================================== */
 
@@ -1903,10 +1993,34 @@
                 </div>
             </div>
 
-            <div class="section-placeholder">
-                <p><strong>Detail</strong></p>
-                <p>Columns: {{ sections.utility.consumption.detail.daily_columns | length }}</p>
-                <p>Rows: {{ sections.utility.consumption.detail.daily_rows | length }}</p>
+            <div class="utility-detail-block">
+                <h3 class="electricity-subsection-title">Daily utility detail</h3>
+
+                <div class="utility-detail-table-wrap">
+                    <table class="utility-detail-table">
+                        <thead>
+                            <tr>
+                                <th class="col-date sticky-date-col">Date</th>
+                                {% for column in sections.utility.consumption.detail.daily_columns %}
+                                <th>{{ column.display_name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.utility.consumption.detail.daily_rows %}
+                            <tr>
+                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+
+                                {% for cell in row.daily_values %}
+                                <td class="col-value {% if cell.display in ['0.00', '0', '-', '0.0'] %}value-zero{% endif %}">
+                                    {{ cell.display }}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
         {% endif %}
