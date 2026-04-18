@@ -679,6 +679,7 @@
             min-width: 120px;
             color: #475569;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .electricity-top10-table .col-current {
@@ -703,6 +704,57 @@
             line-height: 1.45;
         }
 
+        .electricity-top10-table .value {
+            font-weight: 700;
+        }
+
+        .electricity-top10-table .pct {
+            font-size: 12px;
+            color: #64748b;
+            margin-left: 4px;
+        }
+        /* ==========================================================================
+        Top 10 sticky columns
+        ========================================================================== */
+
+        .electricity-top10-table .sticky-rank {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: #ffffff;
+        }
+
+        .electricity-top10-table .sticky-meter {
+            position: sticky;
+            left: 40px; /* phải khớp gần với width cột rank */
+            z-index: 3;
+            background: #ffffff;
+        }
+
+        .electricity-top10-table thead .sticky-rank,
+        .electricity-top10-table thead .sticky-meter {
+            background: #f8fafc;
+            z-index: 4;
+        }
+
+        .electricity-top10-table tbody tr:nth-child(even) .sticky-rank,
+        .electricity-top10-table tbody tr:nth-child(even) .sticky-meter {
+            background: #fcfcfc;
+        }
+
+        .electricity-top10-table .col-rank {
+            width: 68px;
+            min-width: 68px;
+            text-align: center;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .electricity-top10-table .col-meter {
+            min-width: 220px;
+            font-weight: 700;
+            color: #1f2937;
+        }
         /* ==========================================================================
         Responsive
         ========================================================================== */
@@ -779,7 +831,13 @@
             }
 
             .electricity-top10-table {
-                min-width: 820px;
+                min-width: 680px;
+            }
+            .electricity-top10-table .col-area {
+                min-width: 55px;
+            }
+            .electricity-top10-table .col-meter {
+                min-width: 100px;
             }
         }
 
@@ -1115,8 +1173,8 @@
                     <table class="electricity-top10-table">
                         <thead>
                             <tr>
-                                <th>Rank</th>
-                                <th>Meter</th>
+                                <th class="col-rank sticky-rank">Rank</th>
+                                <th class="col-meter sticky-meter">Meter</th>
                                 <th>Area</th>
                                 <th>Current</th>
                                 <th>Previous</th>
@@ -1127,9 +1185,9 @@
                         <tbody>
                             {% for row in sections.electricity.top10.rows %}
                             <tr>
-                                <td class="col-rank">{{ row.rank }}</td>
+                                <td class="col-rank sticky-rank">{{ row.rank }}</td>
 
-                                <td class="col-meter">
+                                <td class="col-meter sticky-meter">
                                     {{ row.display_name }}
                                 </td>
 
@@ -1138,11 +1196,13 @@
                                 </td>
 
                                 <td class="col-current">
-                                    {{ row.current_display }}
+                                    <span class="value">{{ row.current_display }}</span>
+                                    <span class="pct">({{ row.current_pct_display }})</span>
                                 </td>
 
                                 <td class="col-previous">
-                                    {{ row.previous_display }}
+                                    <span class="value">{{ row.previous_display }}</span>
+                                    <span class="pct">({{ row.previous_pct_display }})</span>
                                 </td>
 
                                 <td class="col-delta {{ row.delta_class }}">

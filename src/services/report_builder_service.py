@@ -509,19 +509,19 @@ class ReportBuilderService:
             current_display = self._fmt(current_value)
             previous_display = self._fmt(previous_value)
 
-            if current_ratio is not None:
-                current_display = f"{current_display} ({self._fmt_pct(current_ratio)})"
-
-            if previous_ratio is not None:
-                previous_display = f"{previous_display} ({self._fmt_pct(previous_ratio)})"
+            current_pct_display = self._fmt_pct(current_ratio) if current_ratio is not None else "-"
+            previous_pct_display = self._fmt_pct(previous_ratio) if previous_ratio is not None else "-"
 
             top10_rows.append({
                 "rank": item.get("rank"),
                 "meter_key": item.get("meter_name"),
+                "meter_name": item.get("meter_name"),
                 "display_name": f"{item.get('area', '')} / {item.get('meter_name', '')}",
                 "area": item.get("area"),
                 "current_display": current_display,
+                "current_pct_display": current_pct_display,
                 "previous_display": previous_display,
+                "previous_pct_display": previous_pct_display,
                 "delta_display": self._fmt(item.get("delta")),
                 "delta_pct_display": self._fmt_pct(item.get("delta_pct")),
                 "delta_class": self._consumption_trend_class(item.get("delta")),
