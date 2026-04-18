@@ -1281,6 +1281,158 @@
             }
         }
         /* ==========================================================================
+        KPI total
+        ========================================================================== */
+
+        .kpi-total-block {
+            margin-bottom: 14px;
+        }
+
+        .kpi-total-grid {
+            display: grid;
+            grid-template-columns: 4fr 6fr;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-plant-card {
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+            padding: 14px 16px;
+        }
+
+        .kpi-plant-card-title {
+            margin: 0 0 12px 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-plant-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-plant-metric:last-child {
+            margin-bottom: 0;
+        }
+
+        .kpi-plant-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .kpi-plant-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: right;
+        }
+
+        .kpi-plant-value.current {
+            color: var(--brand);
+        }
+
+        .kpi-plant-value.previous {
+            color: var(--accent);
+        }
+
+        .kpi-coverage-note {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .kpi-area-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .kpi-area-table {
+            width: 100%;
+            min-width: 520px;
+            border-collapse: collapse;
+        }
+
+        .kpi-area-table th,
+        .kpi-area-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .kpi-area-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .kpi-area-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kpi-area-table .col-area {
+            min-width: 140px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-area-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .kpi-area-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .kpi-area-table .col-unit {
+            color: #475569;
+            font-weight: 600;
+        }
+        .kpi-area-table .col-share {
+            color: #64748b;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .kpi-area-table .col-delta,
+        .kpi-area-table .col-delta-pct {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .kpi-area-table .trend-up {
+            color: var(--trend-up);
+        }
+
+        .kpi-area-table .trend-down {
+            color: var(--trend-down);
+        }
+
+        .kpi-area-table .trend-neutral {
+            color: var(--trend-neutral);
+        }
+        @media (max-width: 900px) {
+            .kpi-total-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* ==========================================================================
         Responsive
         ========================================================================== */
 
@@ -2037,10 +2189,144 @@
                 {% endif %}
             </div>
 
-            <div class="section-placeholder">
-                <p><strong>Total</strong></p>
-                <p>Plant: {{ sections.kpi.totals.plant.current_display }}</p>
-                <p>Areas: {{ sections.kpi.totals.areas | length }}</p>
+            <div class="kpi-total-block">
+                <h3 class="electricity-subsection-title">KPI total</h3>
+
+                <div class="kpi-total-grid">
+                    <div class="kpi-plant-card">
+                        <h4 class="kpi-plant-card-title">Plant KPI</h4>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">{{ labels.current_period or "Current" }}</span>
+                            <span class="kpi-plant-value current">
+                                {{ sections.kpi.totals.plant.current_display }}
+                            </span>
+                        </div>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">{{ labels.previous_period or "Previous" }}</span>
+                            <span class="kpi-plant-value previous">
+                                {{ sections.kpi.totals.plant.previous_display }}
+                            </span>
+                        </div>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">Delta</span>
+                            <span class="kpi-plant-value {{ sections.kpi.comparison.plant.delta_class }}">
+                                {{ sections.kpi.comparison.plant.delta_display }}
+                            </span>
+                        </div>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">Delta %</span>
+                            <span class="kpi-plant-value {{ sections.kpi.comparison.plant.delta_pct_class }}">
+                                {% if sections.kpi.comparison.plant.delta_pct_class == 'trend-up' %}
+                                    <span class="delta-arrow trend-up">▲</span>
+                                {% elif sections.kpi.comparison.plant.delta_pct_class == 'trend-down' %}
+                                    <span class="delta-arrow trend-down">▼</span>
+                                {% else %}
+                                    <span class="delta-arrow trend-neutral">•</span>
+                                {% endif %}
+                                {{ sections.kpi.comparison.plant.delta_pct_display }}
+                            </span>
+                        </div>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">Coverage</span>
+                            <span class="kpi-plant-value">
+                                {{ sections.kpi.totals.plant.coverage_display }}
+                            </span>
+                        </div>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">Unit</span>
+                            <span class="kpi-plant-value">
+                                {{ sections.kpi.totals.plant.unit }}
+                            </span>
+                        </div>
+
+                        {% if sections.kpi.coverage.coverage_note %}
+                        <p class="kpi-coverage-note">
+                            {{ sections.kpi.coverage.coverage_note }}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="kpi-area-table-wrap">
+                        <table class="kpi-area-table">
+                            <thead>
+                                <tr>
+                                    <th>Area</th>
+                                    <th>{{ labels.current_period or "Current" }}</th>
+                                    <th>{{ labels.previous_period or "Previous" }}</th>
+                                    <th>% of Plant</th>
+                                    <th>Delta</th>
+                                    <th>Delta %</th>
+                                    <th>Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in sections.kpi.totals.areas %}
+                                    {% set area_ns = namespace(comp=None, share_current=None) %}
+
+                                    {% for comp in sections.kpi.comparison.areas %}
+                                        {% if comp.area_key == row.area_key %}
+                                            {% set area_ns.comp = comp %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% set plant_current = sections.kpi.totals.plant.current_display | replace(',', '') | float %}
+                                    {% set area_current = row.current_display | replace(',', '') | float %}
+
+                                    {% if plant_current > 0 %}
+                                        {% set area_ns.share_current = (area_current / plant_current) * 100 %}
+                                    {% endif %}
+
+                                <tr>
+                                    <td class="col-area">{{ row.area_name }}</td>
+
+                                    <td class="col-current">
+                                        {{ row.current_display }}
+                                    </td>
+
+                                    <td class="col-previous">
+                                        {{ row.previous_display }}
+                                    </td>
+
+                                    <td class="col-share">
+                                        {% if area_ns.share_current is not none %}
+                                            {{ "%.2f"|format(area_ns.share_current) }}%
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="col-delta {{ area_ns.comp.delta_class if area_ns.comp else '' }}">
+                                        {{ area_ns.comp.delta_display if area_ns.comp else "-" }}
+                                    </td>
+
+                                    <td class="col-delta-pct {{ area_ns.comp.delta_pct_class if area_ns.comp else '' }}">
+                                        {% if area_ns.comp %}
+                                            {% if area_ns.comp.delta_pct_class == 'trend-up' %}
+                                                <span class="delta-arrow trend-up">▲</span>
+                                            {% elif area_ns.comp.delta_pct_class == 'trend-down' %}
+                                                <span class="delta-arrow trend-down">▼</span>
+                                            {% else %}
+                                                <span class="delta-arrow trend-neutral">•</span>
+                                            {% endif %}
+                                            {{ area_ns.comp.delta_pct_display }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="col-unit">{{ row.unit }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div class="section-placeholder">
