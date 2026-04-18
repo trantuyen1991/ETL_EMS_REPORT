@@ -310,6 +310,20 @@
     </style>
 </head>
 <body class="bg-body-tertiary">
+    {% macro delta_arrow(delta_class) -%}
+        {%- if delta_class == 'trend-up' -%}
+            <span class="delta-arrow trend-up">▼</span>
+        {%- elif delta_class == 'trend-down' -%}
+            <span class="delta-arrow trend-down">▲</span>
+        {%- else -%}
+            <span class="delta-arrow trend-neutral">•</span>
+        {%- endif -%}
+    {%- endmacro %}
+
+    {% macro ratio_note(value) -%}
+        <span class="ratio-note">({{ value }})</span>
+    {%- endmacro %}
+
     <div class="container-fluid report-shell bg-white shadow-sm rounded-4 my-3 my-lg-4 px-3 px-lg-4 py-4">
 
         <!-- Header -->
@@ -412,13 +426,7 @@
                             <div class="d-flex justify-content-between align-items-baseline gap-3 py-1">
                                 <span class="metric-label">Delta %</span>
                                 <span class="metric-value d-inline-flex align-items-center gap-1 {{ summary.electricity_snapshot.delta_pct_class }}">
-                                    {% if summary.electricity_snapshot.delta_pct_class == 'trend-up' %}
-                                        <span class="delta-arrow trend-up">▼</span>
-                                    {% elif summary.electricity_snapshot.delta_pct_class == 'trend-down' %}
-                                        <span class="delta-arrow trend-down">▲</span>
-                                    {% else %}
-                                        <span class="delta-arrow trend-neutral">•</span>
-                                    {% endif %}
+                                    {{ delta_arrow(summary.electricity_snapshot.delta_pct_class) }}
                                     {{ summary.electricity_snapshot.delta_pct_display }}
                                 </span>
                             </div>
@@ -446,7 +454,7 @@
                                             {% endif %}
                                         {% endif %}
                                         {% if ns_current_ratio.value is not none %}
-                                        <span class="ratio-note">({{ "%.2f"|format(ns_current_ratio.value) }}%)</span>
+                                        {{ ratio_note("%.2f"|format(ns_current_ratio.value) ~ "%") }}
                                         {% endif %}
                                     {% endif %}
                                 </span>
@@ -466,7 +474,7 @@
                                             {% endif %}
                                         {% endif %}
                                         {% if ns_previous_ratio.value is not none %}
-                                        <span class="ratio-note">({{ "%.2f"|format(ns_previous_ratio.value) }}%)</span>
+                                        {{ ratio_note("%.2f"|format(ns_previous_ratio.value) ~ "%") }}
                                         {% endif %}
                                     {% endif %}
                                 </span>
@@ -489,13 +497,7 @@
                                 <span class="metric-label">Delta %</span>
                                 <span class="metric-value d-inline-flex align-items-center gap-1 {{ ns.match.delta_pct_class if ns.match else '' }}">
                                     {% if ns.match %}
-                                        {% if ns.match.delta_pct_class == 'trend-up' %}
-                                            <span class="delta-arrow trend-up">▼</span>
-                                        {% elif ns.match.delta_pct_class == 'trend-down' %}
-                                            <span class="delta-arrow trend-down">▲</span>
-                                        {% else %}
-                                            <span class="delta-arrow trend-neutral">•</span>
-                                        {% endif %}
+                                        {{ delta_arrow(ns.match.delta_pct_class) }}
                                         {{ ns.match.delta_pct_display }}
                                     {% else %}
                                         -
@@ -528,24 +530,18 @@
                                 <td class="fw-bold text-primary">
                                     {{ row.current_display }}
                                     {% if row.current_ratio_display and row.current_ratio_display != "-" %}
-                                    <span class="ratio-note">({{ row.current_ratio_display }})</span>
+                                    {{ ratio_note(row.current_ratio_display) }}
                                     {% endif %}
                                 </td>
                                 <td class="fw-bold text-accent">
                                     {{ row.previous_display }}
                                     {% if row.previous_ratio_display and row.previous_ratio_display != "-" %}
-                                    <span class="ratio-note">({{ row.previous_ratio_display }})</span>
+                                    {{ ratio_note(row.previous_ratio_display) }}
                                     {% endif %}
                                 </td>
                                 <td class="fw-bold {{ row.delta_class }}">{{ row.delta_display }}</td>
                                 <td class="fw-bold {{ row.delta_pct_class }}">
-                                    {% if row.delta_pct_class == 'trend-up' %}
-                                        <span class="delta-arrow trend-up">▼</span>
-                                    {% elif row.delta_pct_class == 'trend-down' %}
-                                        <span class="delta-arrow trend-down">▲</span>
-                                    {% else %}
-                                        <span class="delta-arrow trend-neutral">•</span>
-                                    {% endif %}
+                                    {{ delta_arrow(row.delta_pct_class) }}
                                     {{ row.delta_pct_display }}
                                 </td>
                                 <td class="fw-semibold text-secondary">{{ row.active_total_display }}</td>
@@ -580,21 +576,15 @@
                                     <td class="fw-semibold text-secondary">{{ row.area }}</td>
                                     <td class="fw-bold text-primary">
                                         <span>{{ row.current_display }}</span>
-                                        <span class="ratio-note">({{ row.current_pct_display }})</span>
+                                        {{ ratio_note(row.current_pct_display) }}
                                     </td>
                                     <td class="fw-bold text-accent">
                                         <span>{{ row.previous_display }}</span>
-                                        <span class="ratio-note">({{ row.previous_pct_display }})</span>
+                                        {{ ratio_note(row.previous_pct_display) }}
                                     </td>
                                     <td class="fw-bold {{ row.delta_class }}">{{ row.delta_display }}</td>
                                     <td class="fw-bold {{ row.delta_pct_class }}">
-                                        {% if row.delta_pct_class == 'trend-up' %}
-                                            <span class="delta-arrow trend-up">▼</span>
-                                        {% elif row.delta_pct_class == 'trend-down' %}
-                                            <span class="delta-arrow trend-down">▲</span>
-                                        {% else %}
-                                            <span class="delta-arrow trend-neutral">•</span>
-                                        {% endif %}
+                                        {{ delta_arrow(row.delta_pct_class) }}
                                         {{ row.delta_pct_display }}
                                     </td>
                                 </tr>
@@ -635,7 +625,7 @@
                                     <td class="fw-bold text-primary">
                                         <span>{{ row.top_1_value_display }}</span>
                                         {% if row.top_1_pct_display %}
-                                        <span class="ratio-note">({{ row.top_1_pct_display }})</span>
+                                        {{ ratio_note(row.top_1_pct_display) }}
                                         {% endif %}
                                     </td>
                                     <td class="fw-semibold text-secondary">{{ row.active_meter_count }}</td>
