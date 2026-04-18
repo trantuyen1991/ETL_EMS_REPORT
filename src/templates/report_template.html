@@ -970,10 +970,6 @@
             border-bottom: 2px solid #3b82f6;
         }
 
-        .electricity-daily-detail-table tbody tr:hover td {
-            background-image: none;
-            filter: brightness(0.985);
-        }
         /* Daily detail heatmap */
         .electricity-daily-detail-table .heat-1 {
             background: #f8fbff;
@@ -990,7 +986,104 @@
         .electricity-daily-detail-table .heat-4 {
             background: #deecff;
         }
+        /* ==========================================================================
+        Utility total summary
+        ========================================================================== */
 
+        .utility-total-block {
+            margin-bottom: 14px;
+        }
+
+        .utility-total-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .utility-total-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .utility-total-table th,
+        .utility-total-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .utility-total-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .utility-total-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .utility-total-table .col-utility {
+            min-width: 180px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-total-table .col-unit {
+            min-width: 70px;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .utility-total-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .utility-total-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .utility-total-table .col-delta,
+        .utility-total-table .col-delta-pct {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .utility-total-table .trend-up {
+            color: var(--trend-up);
+        }
+
+        .utility-total-table .trend-down {
+            color: var(--trend-down);
+        }
+
+        .utility-total-table .trend-neutral {
+            color: var(--trend-neutral);
+        }
+
+        @media (max-width: 700px) {
+            .utility-total-table {
+                min-width: 760px;
+            }
+
+            .utility-total-table th,
+            .utility-total-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .utility-total-table .col-utility {
+                min-width: 150px;
+            }
+        }
         /* ==========================================================================
         Responsive
         ========================================================================== */
@@ -1592,9 +1685,54 @@
                 {% endif %}
             </div>
 
-            <div class="section-placeholder">
-                <p><strong>Total</strong></p>
-                <p>Rows: {{ sections.utility.consumption.totals.rows | length }}</p>
+            <div class="utility-total-block">
+                <h3 class="electricity-subsection-title">Utility summary</h3>
+
+                <div class="utility-total-table-wrap">
+                    <table class="utility-total-table">
+                        <thead>
+                            <tr>
+                                <th>Utility</th>
+                                <th>Unit</th>
+                                <th>{{ labels.current_period or "Current" }}</th>
+                                <th>{{ labels.previous_period or "Previous" }}</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.utility.consumption.totals.rows %}
+                            <tr>
+                                <td class="col-utility">{{ row.display_name }}</td>
+                                <td class="col-unit">{{ row.unit }}</td>
+
+                                <td class="col-current">
+                                    {{ row.current_display }}
+                                </td>
+
+                                <td class="col-previous">
+                                    {{ row.previous_display }}
+                                </td>
+
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {% if row.delta_pct_class == 'trend-up' %}
+                                        <span class="delta-arrow trend-up">▼</span>
+                                    {% elif row.delta_pct_class == 'trend-down' %}
+                                        <span class="delta-arrow trend-down">▲</span>
+                                    {% else %}
+                                        <span class="delta-arrow trend-neutral">•</span>
+                                    {% endif %}
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="section-placeholder">
