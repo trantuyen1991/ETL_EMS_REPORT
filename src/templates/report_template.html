@@ -610,6 +610,99 @@
             color: #6b7280;
             white-space: nowrap;
         }
+
+        /* ==========================================================================
+        Electricity top 10 table
+        ========================================================================== */
+
+        .electricity-detail-block {
+            margin-top: 14px;
+        }
+
+        .electricity-subsection-title {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .electricity-top10-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #d9e1ea;
+            border-radius: 10px;
+            background: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .electricity-top10-table {
+            width: 100%;
+            min-width: 960px;
+            border-collapse: collapse;
+        }
+
+        .electricity-top10-table th,
+        .electricity-top10-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+            font-size: 13px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .electricity-top10-table thead th {
+            background: #f8fafc;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .electricity-top10-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .electricity-top10-table .col-rank {
+            width: 70px;
+            text-align: center;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .electricity-top10-table .col-meter {
+            min-width: 220px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .electricity-top10-table .col-area {
+            min-width: 120px;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .electricity-top10-table .col-current {
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .electricity-top10-table .col-previous {
+            color: #7c3aed;
+            font-weight: 700;
+        }
+
+        .electricity-top10-table .col-delta,
+        .electricity-top10-table .col-delta-pct {
+            font-weight: 700;
+        }
+
+        .electricity-top10-note {
+            margin: 0;
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.45;
+        }
+
         /* ==========================================================================
         Responsive
         ========================================================================== */
@@ -683,6 +776,10 @@
 
             .electricity-comparison-table .col-area {
                 min-width: 120px;
+            }
+
+            .electricity-top10-table {
+                min-width: 820px;
             }
         }
 
@@ -1011,11 +1108,67 @@
                 </div>
             </div>
 
-            <div class="section-placeholder">
-                <p><strong>Detail</strong></p>
-                <p>Top 10: {{ sections.electricity.top10.rows | length }}</p>
-                <p>Daily Summary: {{ sections.electricity.daily_summary.rows | length }}</p>
-                <p>Daily Tables: {{ sections.electricity.daily_detail_tables | length }}</p>
+            <div class="electricity-detail-block">
+                <h3 class="electricity-subsection-title">Top 10 meters</h3>
+
+                <div class="electricity-top10-wrap">
+                    <table class="electricity-top10-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Meter</th>
+                                <th>Area</th>
+                                <th>Current</th>
+                                <th>Previous</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.electricity.top10.rows %}
+                            <tr>
+                                <td class="col-rank">{{ row.rank }}</td>
+
+                                <td class="col-meter">
+                                    {{ row.display_name }}
+                                </td>
+
+                                <td class="col-area">
+                                    {{ row.area }}
+                                </td>
+
+                                <td class="col-current">
+                                    {{ row.current_display }}
+                                </td>
+
+                                <td class="col-previous">
+                                    {{ row.previous_display }}
+                                </td>
+
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {% if row.delta_pct_class == 'trend-up' %}
+                                        <span class="delta-arrow trend-up">▼</span>
+                                    {% elif row.delta_pct_class == 'trend-down' %}
+                                        <span class="delta-arrow trend-down">▲</span>
+                                    {% else %}
+                                        <span class="delta-arrow trend-neutral">•</span>
+                                    {% endif %}
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="electricity-top10-note">
+                    Top 10 meters are sorted by current-period consumption.
+                    Configured total-station meters will be excluded in the next refinement step.
+                </p>
             </div>
         </section>
         {% endif %}
