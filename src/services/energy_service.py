@@ -129,11 +129,16 @@ class EnergyService:
 
             row_max_value = max(numeric_values) if numeric_values else None
 
+            sorted_values = sorted(numeric_values, reverse=True)
+            top_values = set(sorted_values[:2])  # top 2
+
             for column in meter_columns:
                 raw_value = row.get(column)
 
                 cell_class = ""
                 is_row_max = False
+                
+                
 
                 if isinstance(raw_value, (int, float)):
                     numeric_value = float(raw_value)
@@ -141,8 +146,8 @@ class EnergyService:
                     if numeric_value == 0:
                         cell_class = "value-zero"
 
-                    if row_max_value is not None and numeric_value == row_max_value and numeric_value > 0:
-                        is_row_max = True
+                    if row_max_value is not None:
+                        is_row_max = numeric_value in top_values and numeric_value > 0
 
                 cells.append({
                     "key": column,
