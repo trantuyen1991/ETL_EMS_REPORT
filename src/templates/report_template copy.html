@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ meta.report_title or "Energy Consumption Report" }}</title>
+
+    {% if context_mode == "pdf" %}
+    <link
+        rel="stylesheet"
+        href="assets/vendor/bootstrap/bootstrap.min.css"
+    >
+    {% else %}
+    <link
+        rel="stylesheet"
+        href="assets/vendor/bootstrap/bootstrap.min.css"
+        id="bootstrap-local-css"
+    >
+    <script>
+        (function () {
+            function ensureBootstrapCss() {
+                var testEl = document.createElement("div");
+                testEl.className = "d-none";
+                document.head.appendChild(testEl);
+
+                var applied = window.getComputedStyle(testEl).display === "none";
+                document.head.removeChild(testEl);
+
+                if (!applied) {
+                    var cdnLink = document.createElement("link");
+                    cdnLink.rel = "stylesheet";
+                    cdnLink.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
+                    document.head.appendChild(cdnLink);
+                }
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", ensureBootstrapCss);
+            } else {
+                ensureBootstrapCss();
+            }
+        })();
+    </script>
+    {% endif %}
+
+    <style>
+        /* ==========================================================================
+           Base
+           ========================================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #222;
+            background: #ffffff;
+        }
+
+        body {
+            padding: 24px;
+        }
+
+        .report-container {
+            width: 100%;
+        }
+
+        h1, h2, h3, h4, p {
+            margin-top: 0;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .muted {
+            color: #666;
+        }
+
+        .page-break-before {
+            page-break-before: always;
+        }
+
+        .avoid-break {
+            page-break-inside: avoid;
+        }
+
+        /* ==========================================================================
+           Header
+           ========================================================================== */
+
+        .report-header {
+            margin-bottom: 20px;
+        }
+
+        .header-top {
+            display: table;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .header-top-left,
+        .header-top-right {
+            display: table-cell;
+            vertical-align: top;
+        }
+
+        .header-top-left {
+            width: 60%;
+            padding-right: 16px;
+        }
+
+        .header-top-right {
+            width: 40%;
+        }
+
+        .report-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .report-subtitle {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 0;
+        }
+
+        .report-meta-box {
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fafafa;
+        }
+
+        .meta-row {
+            margin-bottom: 6px;
+        }
+
+        .meta-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .meta-label {
+            display: inline-block;
+            min-width: 90px;
+            font-weight: 700;
+        }
+
+        .meta-value {
+            color: #222;
+        }
+
+        .period-summary-card {
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fcfcfc;
+        }
+
+        .period-grid {
+            display: table;
+            width: 100%;
+        }
+
+        .period-item {
+            display: table-cell;
+            width: 25%;
+            padding-right: 12px;
+            vertical-align: top;
+        }
+
+        .period-item:last-child {
+            padding-right: 0;
+        }
+
+        .period-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .period-value {
+            display: block;
+            font-size: 12px;
+            color: #222;
+        }
+
+        .report-table td,
+        .report-table th {
+            white-space: nowrap;
+        }
+        .text-truncate {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* ==========================================================================
+           Sections
+           ========================================================================== */
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 0;
+        }
+
+        .section-block {
+            margin-bottom: 18px;
+        }
+
+        .subsection-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        /* ==========================================================================
+           Alerts / Coverage
+           ========================================================================== */
+
+        .alert-banner {
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+        }
+
+        .alert-warning {
+            border: 1px solid #e0c97a;
+            background: #fff8dd;
+        }
+
+        .alert-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .alert-message {
+            margin-bottom: 10px;
+        }
+
+        .alert-grid {
+            margin-bottom: 8px;
+        }
+
+        .alert-item {
+            margin-bottom: 4px;
+        }
+
+        .alert-label {
+            display: inline-block;
+            min-width: 120px;
+            font-weight: 700;
+        }
+
+        .alert-value {
+            font-weight: 700;
+        }
+
+        .alert-note {
+            color: #6b5a1f;
+            margin-bottom: 4px;
+        }
+
+        .coverage-box {
+            border: 1px solid #e0c97a;
+            background: #fff8dd;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .coverage-box-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .coverage-range-list {
+            margin-top: 6px;
+        }
+
+        .badge-range {
+            display: inline-block;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid #d6c27a;
+            background: #fffdf1;
+            font-size: 11px;
+        }
+
+        /* ==========================================================================
+           Cards
+           ========================================================================== */
+
+        .card-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-item {
+            flex: 1 1 calc(25% - 12px);
+            min-width: 220px;
+        }
+
+        .metric-card,
+        .utility-card {
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            background: #fafafa;
+            padding: 12px;
+            page-break-inside: avoid;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .utility-card-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .utility-card-cell {
+            flex: 1 1 calc(25% - 12px);
+            min-width: 220px;
+        }
+
+        .utility-card-header {
+            margin-bottom: 10px;
+        }
+
+        .utility-name {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .utility-unit {
+            font-size: 11px;
+            color: #666;
+            margin-left: 6px;
+        }
+
+        .value-row {
+            margin-bottom: 4px;
+        }
+
+        .value-row .label {
+            display: inline-block;
+            min-width: 70px;
+            color: #666;
+        }
+
+        .value-row .value {
+            font-weight: 700;
+        }
+
+        .utility-card-note {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #7a5b00;
+        }
+
+        /* ==========================================================================
+           Tables
+           ========================================================================== */
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .report-table th,
+        .report-table td {
+            border: 1px solid #d9d9d9;
+            padding: 8px 10px;
+            vertical-align: middle;
+        }
+
+        .report-table th {
+            background: #f3f4f6;
+            font-weight: 700;
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background: #fcfcfc;
+        }
+
+        .compact-table th,
+        .compact-table td {
+            padding: 6px 8px;
+        }
+
+        /* ==========================================================================
+           Trend / Status
+           ========================================================================== */
+
+        .trend-up {
+            color: #0f7b35;
+            font-weight: 700;
+        }
+
+        .trend-down {
+            color: #b42318;
+            font-weight: 700;
+        }
+
+        .trend-neutral {
+            color: #666;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            display: inline-block;
+            min-width: 70px;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-ok {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #b7dfba;
+        }
+
+        .status-partial {
+            background: #fff4db;
+            color: #8a5a00;
+            border: 1px solid #e3c37f;
+        }
+
+        .status-missing {
+            background: #fdecec;
+            color: #a61b1b;
+            border: 1px solid #e4aaaa;
+        }
+
+        .row-ok {
+            background: #ffffff !important;
+        }
+
+        .row-partial {
+            background: #fff9e8 !important;
+        }
+
+        .row-missing {
+            background: #fff0f0 !important;
+        }
+
+        /* ==========================================================================
+           Notes / Footer
+           ========================================================================== */
+
+        .notes-list {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .notes-list li {
+            margin-bottom: 4px;
+        }
+
+        .report-footer {
+            margin-top: 24px;
+            padding-top: 10px;
+            border-top: 1px solid #d9d9d9;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .footer-left,
+        .footer-right {
+            display: inline-block;
+            width: 49%;
+            vertical-align: top;
+        }
+
+        .footer-right {
+            text-align: right;
+        }
+        .energy-table-scroll {
+            width: 100%;
+            max-width: 100%;
+            max-height: 420px;
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .energy-dynamic-table {
+            min-width: 1200px;
+            border-collapse: collapse;
+        }
+
+        .energy-dynamic-table th,
+        .energy-dynamic-table td {
+            white-space: nowrap;
+            padding: 6px 8px;
+            font-size: 11px;
+        }
+        .report-table thead th {
+            position: sticky;
+            top: 0;
+            background: #f3f4f6;
+            z-index: 2;
+        }
+
+        .sticky-date {
+            position: sticky;
+            left: 0;
+            background: #fff;
+            z-index: 1;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 420px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .report-table {
+            min-width: 720px;
+        }
+
+        .report-table thead th {
+            position: sticky;
+            top: 0;
+            background: #f3f4f6;
+            z-index: 2;
+        }
+
+        .sticky-date {
+            position: sticky;
+            left: 0;
+            background: #fff;
+            z-index: 1;
+        }
+
+        @media (max-width: 992px) {
+            body {
+                padding: 16px;
+            }
+
+            .report-title {
+                font-size: 20px;
+            }
+
+            .metric-value {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 12px;
+            }
+
+            .report-title {
+                font-size: 18px;
+            }
+
+            .report-subtitle,
+            .section-subtitle,
+            .muted,
+            .meta-value,
+            .period-value {
+                font-size: 11px;
+            }
+
+            .metric-card,
+            .utility-card,
+            .report-meta-box,
+            .period-summary-card {
+                padding: 10px;
+            }
+
+            .metric-value {
+                font-size: 16px;
+            }
+
+            .report-table th,
+            .report-table td {
+                padding: 6px 8px;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+        }
+        /* ==========================================================================
+           Print
+           ========================================================================== */
+
+        @media print {
+            body {
+                padding: 12mm;
+            }
+
+            .report-header,
+            .section,
+            .metric-card,
+            .utility-card,
+            .coverage-box {
+                page-break-inside: avoid;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tfoot {
+                display: table-footer-group;
+            }
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 420px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+        }
+        /* ===============================
+        Responsive
+        =============================== */
+
+        @media (max-width: 992px) {
+            .card-item {
+                flex: 1 1 calc(50% - 12px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .card-item {
+                flex: 1 1 100%;
+            }
+
+            .report-title {
+                font-size: 18px;
+            }
+
+            .metric-value {
+                font-size: 16px;
+            }
+        }
+    </style>
+
+    <style>
+        /* =========================
+        V3 HEADER / SECTION STYLE
+        ========================= */
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f4f6f8;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2937;
+        }
+
+        .report-container {
+            max-width: 1480px;
+            margin: 0 auto;
+            padding: 24px;
+            background: #ffffff;
+        }
+
+        /* =========================
+        REPORT HEADER
+        ========================= */
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        .report-header-left {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .report-title {
+            margin: 0 0 6px 0;
+            font-size: 34px;
+            font-weight: 700;
+            line-height: 1.15;
+            color: #111827;
+            letter-spacing: 0.2px;
+        }
+
+        .report-subtitle {
+            margin: 0;
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .report-header-right {
+            flex: 0 0 420px;
+            background: #f8fafc;
+            border: 1px solid #dbe3ea;
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .report-meta-grid {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            row-gap: 10px;
+            column-gap: 12px;
+            align-items: center;
+        }
+
+        .report-meta-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .report-meta-value {
+            font-size: 13px;
+            color: #111827;
+            word-break: break-word;
+        }
+
+        /* =========================
+        PERIOD BAR
+        ========================= */
+
+        .period-strip {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+
+        .period-card {
+            background: #f8fafc;
+            border: 1px solid #dbe3ea;
+            border-radius: 8px;
+            padding: 12px 14px;
+            min-height: 74px;
+        }
+
+        .period-card-label {
+            margin: 0 0 8px 0;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #6b7280;
+        }
+
+        .period-card-value {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #111827;
+        }
+
+        /* =========================
+        REPORT SECTION
+        ========================= */
+
+        .report-section {
+            margin-bottom: 28px;
+            padding-top: 6px;
+        }
+
+        .section-header {
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dbe3ea;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .section-subtitle {
+            margin: 8px 0 0 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* =========================
+        PLACEHOLDER BLOCK
+        ========================= */
+
+        .section-placeholder {
+            background: #fcfcfd;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+
+        .section-placeholder p {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .section-placeholder p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* =========================
+        FOOTER
+        ========================= */
+
+        .report-footer {
+            margin-top: 30px;
+            padding-top: 12px;
+            border-top: 1px solid #dbe3ea;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        /* =========================
+        SECTION HEADER - V3 STYLE
+        ========================= */
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        /* dấu I bên trái */
+        .section-header::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 22px;
+            background: #2563eb; /* xanh giống mẫu */
+            border-radius: 2px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1f2937;
+            letter-spacing: 0.3px;
+
+            /* ❌ bỏ uppercase */
+            text-transform: none;
+        }
+
+        .section-subtitle {
+            margin-left: 14px; /* lệch nhẹ so với thanh I */
+            font-size: 13px;
+            color: #6b7280;
+        }
+        /* =========================
+        HEADER V3 (CENTER STYLE)
+        ========================= */
+
+        .report-header-v3 {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .report-small-title {
+            margin: 0;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+        }
+
+        .report-main-title {
+            margin: 6px 0 4px 0;
+            font-size: 32px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .report-meta-line {
+            margin: 0;
+            font-size: 13px;
+            color: #4b5563;
+        }
+
+        /* =========================
+        TEXT / LABEL STYLE
+        ========================= */
+
+        .label-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+
+            /* ❌ bỏ uppercase */
+            text-transform: none;
+        }
+
+        .value-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .muted-text {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .period-card-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+
+            /* ❌ bỏ uppercase */
+            text-transform: none;
+        }
+
+        .period-card-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+        }
+        /* =========================
+        RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1100px) {
+            .report-header {
+                flex-direction: column;
+            }
+
+            .report-header-right {
+                flex: 1 1 auto;
+            }
+
+            .period-strip {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+            .report-container {
+                padding: 16px;
+            }
+
+            .report-title {
+                font-size: 26px;
+            }
+
+            .section-header h2 {
+                font-size: 24px;
+            }
+
+            .period-strip {
+                grid-template-columns: 1fr;
+            }
+
+            .report-meta-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* =========================
+        PERIOD STRIP - V1 STYLE
+        ========================= */
+
+        .period-strip-v1 {
+            margin-bottom: 24px;
+        }
+
+        .period-strip-table {
+            display: grid;
+            grid-template-columns: 1.2fr 1.2fr 1.3fr 0.8fr 1fr;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+        }
+
+        .period-strip-cell {
+            padding: 10px 12px;
+            border-right: 1px solid #d1d5db;
+            min-height: 64px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .period-strip-cell:last-child {
+            border-right: none;
+        }
+
+        .period-strip-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 6px;
+            text-transform: none;
+        }
+
+        .period-strip-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.3;
+        }
+
+        @media (max-width: 1100px) {
+            .period-strip-table {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .period-strip-cell:nth-child(2n) {
+                border-right: none;
+            }
+        }
+
+        /* @media (max-width: 700px) {
+            .period-strip-table {
+                grid-template-columns: 1fr;
+            }
+
+            .period-strip-cell {
+                border-right: none;
+                border-bottom: 1px solid #d1d5db;
+            }
+
+            .period-strip-cell:last-child {
+                border-bottom: none;
+            }
+        } */
+        /* =========================
+        SECTION HEADER - UPDATED
+        ========================= */
+
+        .section-header {
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #dbe3ea;
+        }
+
+        .section-header-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header-symbol {
+            width: 4px;
+            height: 22px;
+            background: #2563eb;
+            border-radius: 2px;
+            flex: 0 0 auto;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #2563eb;
+            letter-spacing: 0.2px;
+            text-transform: none;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            margin: 8px 0 0 14px;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+        .report-header-divider {
+            height: 2px;
+            background: #d1d5db;
+            margin: 10px 0 18px 0;
+        }      
+    </style>
+</head>
+<body>
+    <div class="report-container">
+
+        <!-- ==========================================================
+             Header
+             ========================================================== -->
+        <div class="report-header-top">
+            <p class="report-small-title">{{ meta.report_title }}</p>
+        </div>
+        <header class="report-header-v3"> 
+            <div class="report-header-center">
+                <h1 class="report-main-title">{{ meta.workshop_name }}</h1>
+
+                <p class="report-meta-line">
+                    Created: {{ generated_at }}
+                </p>
+            </div>
+
+        </header>
+
+        <div class="report-header-divider"></div>
+
+        {% if not flags.is_daily_report %}
+        <div class="period-strip-v1">
+            <div class="period-strip-table">
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Start date</div>
+                    <div class="period-strip-value">{{ period.start_date }}</div>
+                </div>
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">End date</div>
+                    <div class="period-strip-value">{{ period.end_date }}</div>
+                </div>
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Total energy</div>
+                    <div class="period-strip-value">
+                        {{ summary.electricity_snapshot.current_display }}
+                    </div>
+                </div>
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Total days</div>
+                    <div class="period-strip-value">
+                        {{ summary.electricity_snapshot.total_days }}
+                    </div>
+                </div>
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Average / day</div>
+                    <div class="period-strip-value">
+                        {{ summary.electricity_snapshot.average_per_day_display }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %} 
+        <!-- ========================= -->
+        <!-- V3 MAIN SECTION LAYOUT -->
+        <!-- ========================= -->
+
+        {% if flags.show_electricity_section %}
+        <section class="report-section">
+            <div class="section-header">
+                <div class="section-header-title-row">
+                    <h2>{{ sections.electricity.title }}</h2>
+                </div>
+                {% if sections.electricity.subtitle %}
+                <p class="section-subtitle">{{ sections.electricity.subtitle }}</p>
+                {% endif %}
+            </div>
+
+            <div class="section-placeholder">
+                <p><strong>Total</strong></p>
+                <p>Rows: {{ sections.electricity.totals.rows | length }}</p>
+            </div>
+
+            <div class="section-placeholder">
+                <p><strong>Comparison</strong></p>
+                <p>Rows: {{ sections.electricity.comparison.rows | length }}</p>
+            </div>
+
+            <div class="section-placeholder">
+                <p><strong>Detail</strong></p>
+                <p>Top 10: {{ sections.electricity.top10.rows | length }}</p>
+                <p>Daily Summary: {{ sections.electricity.daily_summary.rows | length }}</p>
+                <p>Daily Tables: {{ sections.electricity.daily_detail_tables | length }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if flags.show_utility_section %}
+        <section class="report-section">
+            <div class="section-header">
+                <div class="section-header-title-row">
+                    <h2>{{ sections.utility.title }}</h2>
+                </div>
+                {% if sections.utility.subtitle %}
+                <p class="section-subtitle">{{ sections.utility.subtitle }}</p>
+                {% endif %}
+            </div>
+
+            <div class="section-placeholder">
+                <p><strong>Total</strong></p>
+                <p>Rows: {{ sections.utility.consumption.totals.rows | length }}</p>
+            </div>
+
+            <div class="section-placeholder">
+                <p><strong>Comparison / Coverage</strong></p>
+                <p>
+                    Coverage:
+                    {{ sections.utility.consumption.coverage.coverage_display
+                    if sections.utility.consumption.coverage else "-" }}
+                </p>
+            </div>
+
+            <div class="section-placeholder">
+                <p><strong>Detail</strong></p>
+                <p>Columns: {{ sections.utility.consumption.detail.daily_columns | length }}</p>
+                <p>Rows: {{ sections.utility.consumption.detail.daily_rows | length }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if flags.show_kpi_section %}
+        <section class="report-section">
+            <div class="section-header">
+                <div class="section-header-title-row">
+                    <h2>{{ sections.kpi.title }}</h2>
+                </div>
+                {% if sections.kpi.subtitle %}
+                <p class="section-subtitle">{{ sections.kpi.subtitle }}</p>
+                {% endif %}
+            </div>
+
+            <div class="section-placeholder">
+                <p><strong>Total</strong></p>
+                <p>Plant: {{ sections.kpi.totals.plant.current_display }}</p>
+                <p>Areas: {{ sections.kpi.totals.areas | length }}</p>
+            </div>
+
+            <div class="section-placeholder">
+                <p><strong>Comparison</strong></p>
+                <p>Plant delta: {{ sections.kpi.comparison.plant.delta_display }}</p>
+                <p>Area rows: {{ sections.kpi.comparison.areas | length }}</p>
+            </div>
+
+            <div class="section-placeholder">
+                <p><strong>Detail</strong></p>
+                <p>Coverage: {{ sections.kpi.coverage.coverage_display }}</p>
+                <p>Product rows: {{ sections.kpi.product_context.rows | length }}</p>
+                <p>Daily rows: {{ sections.kpi.daily_detail.rows | length }}</p>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- ==========================================================
+             Footer
+             ========================================================== -->
+        <footer class="report-footer">
+            <div class="footer-left">
+                {{ meta.report_title or "Energy Consumption Report" }} - {{ version or "v2" }}
+            </div>
+            <div class="footer-right">
+                Generated from database-backed reporting context
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

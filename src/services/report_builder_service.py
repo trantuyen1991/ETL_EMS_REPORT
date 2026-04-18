@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from src.utils.logger import get_logger
 
@@ -54,6 +54,658 @@ class ReportBuilderService:
         logger.info("Report context V2 built successfully")
 
         return context
+    
+    def build_report_context_v3(
+        self,
+        *,
+        meta: Dict[str, Any],
+        period: Dict[str, Any],
+        energy_object: Optional[Dict[str, Any]],
+        kpi_object: Optional[Dict[str, Any]],
+        utility_object: Optional[Dict[str, Any]],
+        mode: str = "html",
+    ) -> Dict[str, Any]:
+        """
+        Build the initial V3 report context skeleton.
+
+        This step only creates the root V3 contract and copies the most basic
+        input metadata. Detailed mapping for summary/sections will be added
+        incrementally in the next steps.
+
+        Args:
+            meta: Base report metadata.
+            period: Period metadata prepared by main flow.
+            energy_object: Prepared energy domain object.
+            kpi_object: Prepared KPI domain object.
+            utility_object: Prepared utility domain object.
+            mode: Render mode such as html or pdf.
+
+        Returns:
+            Dict[str, Any]: Initial V3 report context.
+
+        Example:
+            context = report_builder.build_report_context_v3(
+                meta=meta,
+                period=period_info,
+                energy_object=energy_object,
+                kpi_object=kpi_object,
+                utility_object=utility_object,
+                mode="html",
+            )
+        """
+        v3_period_block = self._build_v3_period_block(
+            period=period,
+            kpi_object=kpi_object,
+        )
+
+        v3_summary_block = self._build_v3_summary_block(
+            energy_object=energy_object,
+            utility_object=utility_object,
+            kpi_object=kpi_object,
+        )
+
+        v3_electricity_section = self._build_v3_electricity_section(
+            energy_object=energy_object,
+        ) 
+
+        v3_utility_section = self._build_v3_utility_section(
+            utility_object=utility_object,
+        )
+
+        v3_kpi_section = self._build_v3_kpi_section(
+            kpi_object=kpi_object,
+        )
+
+        notes = self._build_notes(kpi_object, utility_object)
+
+        report_context: Dict[str, Any] = {
+            "meta": {
+                "report_title": meta.get("report_title", ""),
+                "report_subtitle": "Automatic Report",
+                "workshop_name": meta.get("workshop_name", ""),
+                "energy_unit": meta.get("energy_unit", "kWh"),
+                "kpi_unit": meta.get("kpi_unit", "kWh/Ton"),
+            },
+            "period": v3_period_block["period"],
+            "flags": v3_period_block["flags"],
+            "labels": v3_period_block["labels"],
+            "summary": v3_summary_block,
+            "sections": {
+                "electricity": v3_electricity_section,
+                "utility": v3_utility_section,
+                "kpi": v3_kpi_section,
+            },
+            "notes": notes,
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "version": "v3",
+            "context_mode": mode,
+        }
+
+        logger.info("Report context V3 skeleton built successfully")
+
+        return report_context
+
+    def _build_v3_period_block(
+        self,
+        period: Dict[str, Any],
+        kpi_object: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Build V3 period, flags, and labels block from period metadata.
+
+        Business rules:
+        - daily   -> Today / Yesterday
+        - weekly  -> This Week / Previous Week
+        - monthly -> This Month / Previous Month
+        - weekly/monthly should show total days and average per day
+        - daily should hide total days and average per day
+
+        Args:
+            period: Period metadata prepared by main flow.
+            kpi_object: Prepared KPI domain object for coverage warning flag.
+
+        Returns:
+            Dict[str, Any]: Combined V3 period-related block.
+
+        Example:
+            block = self._build_v3_period_block(period=period_info, kpi_object=kpi_object)
+        """
+        period_type = str(period.get("type") or "").strip().lower()
+
+        is_daily_report = period_type == "daily"
+        is_weekly_report = period_type == "weekly"
+        is_monthly_report = period_type == "monthly"
+
+        if is_monthly_report:
+            priority = 3
+            current_period_title = "This Month"
+            previous_period_title = "Previous Month"
+            show_total_days = True
+            show_average_per_day = True
+        elif is_weekly_report:
+            priority = 2
+            current_period_title = "This Week"
+            previous_period_title = "Previous Week"
+            show_total_days = True
+            show_average_per_day = True
+        else:
+            priority = 1
+            current_period_title = "Today"
+            previous_period_title = "Yesterday"
+            show_total_days = False
+            show_average_per_day = False
+
+        has_coverage_warning = False
+        if kpi_object:
+            coverage = (
+                kpi_object.get("current", {})
+                .get("coverage", {})
+            )
+            has_coverage_warning = not coverage.get("is_full_coverage", True)
+
+        return {
+            "period": {
+                "type": period_type,
+                "priority": priority,
+                "start_date": period.get("start_date", ""),
+                "end_date": period.get("end_date", ""),
+                "previous_start_date": period.get("previous_start_date", ""),
+                "previous_end_date": period.get("previous_end_date", ""),
+                "label": period.get("label", ""),
+                "comparison_label": period.get("comparison_label", ""),
+                "current_period_title": current_period_title,
+                "previous_period_title": previous_period_title,
+                "show_total_days": show_total_days,
+                "show_average_per_day": show_average_per_day,
+            },
+            "flags": {
+                "has_coverage_warning": has_coverage_warning,
+                "show_electricity_section": True,
+                "show_utility_section": True,
+                "show_kpi_section": True,
+                "show_energy_snapshot": True,
+                "show_kpi_snapshot": True,
+                "show_utility_snapshot": True,
+                "show_total_days": show_total_days,
+                "show_average_per_day": show_average_per_day,
+                "show_product_context": False,
+                "show_sensor_monitoring": False,
+                "is_daily_report": is_daily_report,
+                "is_weekly_report": is_weekly_report,
+                "is_monthly_report": is_monthly_report,
+            },
+            "labels": {
+                "report_section_1": "ELECTRICITY CONSUMPTION",
+                "report_section_2": "UTILITY USAGE",
+                "report_section_3": "ENERGY KPI",
+                "current_period": current_period_title,
+                "previous_period": previous_period_title,
+                "total_label": "Total",
+                "comparison_label": "Comparison",
+                "detail_label": "Detail",
+            },
+        }
+
+    def _build_v3_summary_block(
+        self,
+        *,
+        energy_object: Optional[Dict[str, Any]],
+        utility_object: Optional[Dict[str, Any]],
+        kpi_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """
+        Build V3 summary block using existing V2 helper methods.
+
+        Reuse existing snapshot/coverage builders first so the V3 contract
+        can be connected quickly without changing the underlying business logic.
+
+        Args:
+            energy_object: Prepared energy domain object.
+            utility_object: Prepared utility domain object.
+            kpi_object: Prepared KPI domain object.
+
+        Returns:
+            Dict[str, Any]: V3 summary block.
+
+        Example:
+            summary = self._build_v3_summary_block(
+                energy_object=energy_object,
+                utility_object=utility_object,
+                kpi_object=kpi_object,
+            )
+        """
+        electricity_snapshot: Dict[str, Any] = {}
+        utility_snapshot_rows: list[dict[str, Any]] = []
+        kpi_snapshot: Dict[str, Any] = {}
+        kpi_area_snapshot_rows: list[dict[str, Any]] = []
+        coverage: Dict[str, Any] = {}
+
+        if energy_object:
+            electricity_snapshot = self._build_energy_snapshot(energy_object)
+
+        if utility_object:
+            utility_snapshot_rows = self._build_utility_snapshot(utility_object)
+
+        if kpi_object:
+            kpi_snapshot = self._build_kpi_snapshot(kpi_object)
+            kpi_area_snapshot_rows = self._build_kpi_area_snapshot_rows(kpi_object)
+            coverage = self._build_global_coverage(kpi_object)
+
+        return {
+            "electricity_snapshot": electricity_snapshot,
+            "utility_snapshot_rows": utility_snapshot_rows,
+            "kpi_snapshot": kpi_snapshot,
+            "kpi_area_snapshot_rows": kpi_area_snapshot_rows,
+            "coverage": coverage,
+        }
+
+    def _build_v3_electricity_section(
+        self,
+        energy_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """
+        Build V3 electricity section from energy object.
+
+        This version reuses the existing energy object contract and maps it
+        into the new V3 section structure:
+        - totals
+        - comparison
+        - top10
+        - daily summary
+        - daily detail tables
+
+        Args:
+            energy_object: Prepared energy domain object.
+
+        Returns:
+            Dict[str, Any]: V3 electricity section.
+
+        Example:
+            section = self._build_v3_electricity_section(energy_object)
+        """
+        if not energy_object:
+            return {
+                "title": "ELECTRICITY CONSUMPTION",
+                "subtitle": "Total, comparison, top meters, and daily detail.",
+                "totals": {"rows": []},
+                "comparison": {"rows": []},
+                "top10": {"rows": [], "excluded_meter_rules": {}},
+                "daily_summary": {"title": "Daily Summary Table", "rows": []},
+                "daily_detail_tables": [],
+            }
+
+        area_display_order = [
+            ("diode", "DIODE Workshop"),
+            ("ico", "ICO Workshop"),
+            ("sakari", "SAKARI Workshop"),
+        ]
+
+        current_summary = energy_object.get("current", {}).get("summary", {})
+        comparison_summary = energy_object.get("comparison", {}).get("summary", {})
+
+        total_rows: list[dict[str, Any]] = []
+        comparison_rows: list[dict[str, Any]] = []
+
+        for area_key, area_name in area_display_order:
+            current_item = current_summary.get(area_key, {})
+            comparison_item = comparison_summary.get(area_key, {})
+
+            total_rows.append({
+                "area_key": area_key,
+                "area_name": area_name,
+                "current_display": self._fmt(current_item.get("total_energy")),
+                "previous_display": self._fmt(
+                    energy_object.get("previous", {})
+                    .get("summary", {})
+                    .get(area_key, {})
+                    .get("total_energy")
+                ),
+                "meter_count": current_item.get("meter_count", 0),
+            })
+
+            comparison_rows.append({
+                "area_key": area_key,
+                "area_name": area_name,
+                "current_display": self._fmt(comparison_item.get("current")),
+                "previous_display": self._fmt(comparison_item.get("previous")),
+                "delta_display": self._fmt(comparison_item.get("delta")),
+                "delta_pct_display": self._fmt_pct(comparison_item.get("delta_pct")),
+                "delta_class": self._consumption_trend_class(comparison_item.get("delta")),
+                "delta_pct_class": self._consumption_trend_class(comparison_item.get("delta_pct")),
+                "meter_count": comparison_item.get("meter_count", 0),
+            })
+
+        top10_rows: list[dict[str, Any]] = []
+        current_total_all_areas = 0.0
+        previous_total_all_areas = 0.0
+
+        for area_key in ["diode", "ico", "sakari"]:
+            current_total_all_areas += float(
+                current_summary.get(area_key, {}).get("total_energy", 0.0) or 0.0
+            )
+            previous_total_all_areas += float(
+                energy_object.get("previous", {})
+                .get("summary", {})
+                .get(area_key, {})
+                .get("total_energy", 0.0) or 0.0
+            )
+
+        for item in energy_object.get("comparison", {}).get("top10_meters", []):
+            current_value = item.get("current")
+            previous_value = item.get("previous")
+
+            current_ratio = None
+            previous_ratio = None
+
+            if current_total_all_areas > 0 and current_value is not None:
+                current_ratio = current_value / current_total_all_areas
+
+            if previous_total_all_areas > 0 and previous_value is not None:
+                previous_ratio = previous_value / previous_total_all_areas
+
+            current_display = self._fmt(current_value)
+            previous_display = self._fmt(previous_value)
+
+            if current_ratio is not None:
+                current_display = f"{current_display} ({self._fmt_pct(current_ratio)})"
+
+            if previous_ratio is not None:
+                previous_display = f"{previous_display} ({self._fmt_pct(previous_ratio)})"
+
+            top10_rows.append({
+                "rank": item.get("rank"),
+                "meter_key": item.get("meter_name"),
+                "display_name": f"{item.get('area', '')} / {item.get('meter_name', '')}",
+                "area": item.get("area"),
+                "current_display": current_display,
+                "previous_display": previous_display,
+                "delta_display": self._fmt(item.get("delta")),
+                "delta_pct_display": self._fmt_pct(item.get("delta_pct")),
+                "delta_class": self._consumption_trend_class(item.get("delta")),
+                "delta_pct_class": self._consumption_trend_class(item.get("delta_pct")),
+            })
+
+        daily_summary_rows = energy_object.get("current", {}).get("daily_summary_rows", [])
+        daily_detail_tables = energy_object.get("current", {}).get("daily_tables", [])
+
+        return {
+            "title": "ELECTRICITY CONSUMPTION",
+            "subtitle": "Total, comparison, top meters, and daily detail.",
+            "totals": {
+                "rows": total_rows,
+            },
+            "comparison": {
+                "rows": comparison_rows,
+            },
+            "top10": {
+                "rows": top10_rows,
+                "excluded_meter_rules": {},
+            },
+            "daily_summary": {
+                "title": "Daily Summary Table",
+                "rows": daily_summary_rows,
+            },
+            "daily_detail_tables": daily_detail_tables,
+        }
+
+    def _build_v3_utility_section(
+        self,
+        utility_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """
+        Build V3 utility section from utility object.
+
+        This version maps the current utility contract into the new V3 layout:
+        - consumption totals
+        - daily detail
+        - sensor monitoring placeholder
+
+        Args:
+            utility_object: Prepared utility domain object.
+
+        Returns:
+            Dict[str, Any]: V3 utility section.
+
+        Example:
+            section = self._build_v3_utility_section(utility_object)
+        """
+        if not utility_object:
+            return {
+                "title": "UTILITY USAGE",
+                "subtitle": "Consumption and sensor monitoring.",
+                "consumption": {
+                    "coverage": {},
+                    "totals": {"rows": []},
+                    "detail": {
+                        "daily_columns": [],
+                        "daily_rows": [],
+                    },
+                },
+                "sensor_monitoring": {
+                    "enabled": False,
+                    "catalog": {},
+                    "groups": [],
+                },
+            }
+
+        coverage = self._build_utility_coverage(utility_object)
+        total_rows = self._build_utility_snapshot(utility_object)
+        daily_columns = self._build_daily_columns(utility_object)
+        daily_rows = self._build_daily_rows(utility_object)
+
+        return {
+            "title": "UTILITY USAGE",
+            "subtitle": "Consumption and sensor monitoring.",
+            "consumption": {
+                "coverage": coverage,
+                "totals": {
+                    "rows": total_rows,
+                },
+                "detail": {
+                    "daily_columns": daily_columns,
+                    "daily_rows": daily_rows,
+                },
+            },
+            "sensor_monitoring": {
+                "enabled": False,
+                "catalog": {},
+                "groups": [],
+            },
+        }
+
+    def _build_v3_kpi_section(
+        self,
+        kpi_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """
+        Build V3 KPI section from KPI object.
+
+        This version maps the existing KPI contract into the new V3 layout:
+        - coverage
+        - totals
+        - comparison
+        - product context
+        - daily detail
+
+        Args:
+            kpi_object: Prepared KPI domain object.
+
+        Returns:
+            Dict[str, Any]: V3 KPI section.
+
+        Example:
+            section = self._build_v3_kpi_section(kpi_object)
+        """
+        if not kpi_object:
+            return {
+                "title": "ENERGY KPI",
+                "subtitle": "Energy intensity and production context.",
+                "coverage": {},
+                "totals": {
+                    "plant": {},
+                    "areas": [],
+                },
+                "comparison": {
+                    "plant": {},
+                    "areas": [],
+                },
+                "product_context": {
+                    "enabled": False,
+                    "title": "Production Context",
+                    "rows": [],
+                },
+                "daily_detail": {
+                    "title": "Daily KPI Detail",
+                    "rows": [],
+                },
+            }
+
+        current_summary = kpi_object.get("current", {}).get("summary", {})
+        previous_summary = kpi_object.get("previous", {}).get("summary", {})
+        current_coverage = kpi_object.get("current", {}).get("coverage", {})
+        comparison = kpi_object.get("comparison", {})
+
+        current_plant = current_summary.get("plant", {})
+        previous_plant = previous_summary.get("plant", {})
+        comparison_plant = comparison.get("plant", {})
+
+        coverage_block = {
+            "coverage_display": (
+                f"{current_coverage.get('coverage_days', 0)}/"
+                f"{current_coverage.get('report_total_days', 0)}"
+            ),
+            "coverage_note": self._map_kpi_coverage_note(
+                current_coverage.get("coverage_note")
+            ),
+            "uncovered_ranges": self._build_kpi_uncovered_ranges(
+                current_coverage.get("uncovered_ranges", [])
+            ),
+            "is_complete": current_coverage.get("is_full_coverage", False),
+        }
+
+        totals_plant = {
+            "current_display": self._fmt(current_plant.get("total_kpi")),
+            "previous_display": self._fmt(previous_plant.get("total_kpi")),
+            "coverage_display": (
+                f"{current_coverage.get('coverage_days', 0)}/"
+                f"{current_coverage.get('report_total_days', 0)}"
+            ),
+            "unit": "kWh/Ton",
+        }
+
+        totals_areas: list[dict[str, Any]] = []
+        product_rows: list[dict[str, Any]] = []
+        comparison_areas: list[dict[str, Any]] = []
+
+        area_display_order = [
+            ("ico", "ICO"),
+            ("diode", "DIODE"),
+            ("sakari", "SAKARI"),
+        ]
+
+        for area_key, area_name in area_display_order:
+            current_area = current_summary.get("areas", {}).get(area_key, {})
+            previous_area = previous_summary.get("areas", {}).get(area_key, {})
+            comparison_area = comparison.get("areas", {}).get(area_key, {})
+
+            totals_areas.append({
+                "area_key": area_key,
+                "area_name": area_name,
+                "current_display": self._fmt(current_area.get("kpi")),
+                "previous_display": self._fmt(previous_area.get("kpi")),
+                "unit": "kWh/Ton",
+            })
+
+            comparison_areas.append({
+                "area_key": area_key,
+                "area_name": area_name,
+                "current_display": self._fmt(comparison_area.get("current")),
+                "previous_display": self._fmt(comparison_area.get("previous")),
+                "delta_display": self._fmt(comparison_area.get("delta")),
+                "delta_pct_display": self._fmt_pct(comparison_area.get("delta_pct")),
+                "delta_class": self._consumption_trend_class(comparison_area.get("delta")),
+                "delta_pct_class": self._consumption_trend_class(comparison_area.get("delta_pct")),
+            })
+
+            current_prod = current_area.get("prod")
+            previous_prod = previous_area.get("prod")
+
+            if current_prod is None and previous_prod is None:
+                prod_delta = None
+                prod_delta_pct = None
+            else:
+                curr_val = current_prod or 0.0
+                prev_val = previous_prod or 0.0
+                prod_delta = curr_val - prev_val
+                prod_delta_pct = (prod_delta / prev_val) if prev_val != 0 else None
+
+            product_rows.append({
+                "level_name": area_name,
+                "current_prod_display": self._fmt(current_prod),
+                "previous_prod_display": self._fmt(previous_prod),
+                "delta_display": self._fmt(prod_delta),
+                "delta_pct_display": self._fmt_pct(prod_delta_pct),
+                "delta_class": "trend-neutral",
+                "delta_pct_class": "trend-neutral",
+            })
+
+        current_plant_prod = current_plant.get("total_prod")
+        previous_plant_prod = previous_plant.get("total_prod")
+
+        if current_plant_prod is None and previous_plant_prod is None:
+            plant_prod_delta = None
+            plant_prod_delta_pct = None
+        else:
+            curr_val = current_plant_prod or 0.0
+            prev_val = previous_plant_prod or 0.0
+            plant_prod_delta = curr_val - prev_val
+            plant_prod_delta_pct = (
+                (plant_prod_delta / prev_val) if prev_val != 0 else None
+            )
+
+        product_rows.insert(0, {
+            "level_name": "Plant",
+            "current_prod_display": self._fmt(current_plant_prod),
+            "previous_prod_display": self._fmt(previous_plant_prod),
+            "delta_display": self._fmt(plant_prod_delta),
+            "delta_pct_display": self._fmt_pct(plant_prod_delta_pct),
+            "delta_class": "trend-neutral",
+            "delta_pct_class": "trend-neutral",
+        })
+
+        comparison_block = {
+            "plant": {
+                "current_display": self._fmt(comparison_plant.get("current")),
+                "previous_display": self._fmt(comparison_plant.get("previous")),
+                "delta_display": self._fmt(comparison_plant.get("delta")),
+                "delta_pct_display": self._fmt_pct(comparison_plant.get("delta_pct")),
+                "delta_class": self._consumption_trend_class(comparison_plant.get("delta")),
+                "delta_pct_class": self._consumption_trend_class(comparison_plant.get("delta_pct")),
+            },
+            "areas": comparison_areas,
+        }
+
+        daily_detail = {
+            "title": "Daily KPI Detail",
+            "rows": self._build_kpi_daily_rows(kpi_object),
+        }
+
+        return {
+            "title": "ENERGY KPI",
+            "subtitle": "Energy intensity and production context.",
+            "coverage": coverage_block,
+            "totals": {
+                "plant": totals_plant,
+                "areas": totals_areas,
+            },
+            "comparison": comparison_block,
+            "product_context": {
+                "enabled": True,
+                "title": "Production Context",
+                "rows": product_rows,
+            },
+            "daily_detail": daily_detail,
+        }
 
     def _build_flags(self, kpi_object, utility_object) -> dict:
         """Build UI flags."""

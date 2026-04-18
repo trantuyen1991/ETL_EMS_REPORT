@@ -242,6 +242,8 @@ def _build_report_context(
     report_builder = ReportBuilderService()
 
     meta = {
+        "report_title": env_cfg.get("FILE_NAME_PREFIX", ""),
+        "report_subtitle": "Automatic Report",
         "workshop_name": env_cfg.get("WORKSHOP_NAME", ""),
         "energy_unit": env_cfg.get("ENERGY_UNIT", "kWh"),
         "kpi_unit": env_cfg.get("KPI_UNIT", "kWh/Ton"),
@@ -257,7 +259,7 @@ def _build_report_context(
         "previous_end_date": period.previous_end_date,
     }
 
-    report_context = report_builder.build_report_context(
+    report_context = report_builder.build_report_context_v3(
         meta=meta,
         period=period_info,
         energy_object=energy_object,
@@ -269,6 +271,85 @@ def _build_report_context(
     print(f"[TEST] report_context keys={report_context.keys()}")
     print(f"[TEST] sections={report_context['sections'].keys()}")
 
+    #1
+    # print(f"[TEST] period={report_context['period']}")
+    # print(f"[TEST] flags={report_context['flags']}")
+    # print(f"[TEST] labels={report_context['labels']}")
+    #2
+    # print(f"[TEST] utility_snapshot_rows={len(report_context['summary']['utility_snapshot_rows'])}")
+    # print(f"[TEST] kpi_area_snapshot_rows={len(report_context['summary']['kpi_area_snapshot_rows'])}")
+    # print(f"[TEST] coverage={report_context['summary']['coverage']}")
+    #3
+    # print(
+    #     f"[TEST] electricity totals rows="
+    #     f"{len(report_context['sections']['electricity']['totals']['rows'])}"
+    # )
+    # print(
+    #     f"[TEST] electricity comparison rows="
+    #     f"{len(report_context['sections']['electricity']['comparison']['rows'])}"
+    # )
+    # print(
+    #     f"[TEST] electricity top10 rows="
+    #     f"{len(report_context['sections']['electricity']['top10']['rows'])}"
+    # )
+    # print(
+    #     f"[TEST] electricity daily_summary rows="
+    #     f"{len(report_context['sections']['electricity']['daily_summary']['rows'])}"
+    # )
+    # print(
+    #     f"[TEST] electricity daily_detail_tables="
+    #     f"{len(report_context['sections']['electricity']['daily_detail_tables'])}"
+    # )
+    # print(
+    #     f"[TEST] electricity top10 sample="
+    #     f"{report_context['sections']['electricity']['top10']['rows'][0]}"
+    # )
+    #4
+    # print(
+    #     f"[TEST] utility totals rows="
+    #     f"{len(report_context['sections']['utility']['consumption']['totals']['rows'])}"
+    # )
+    # print(
+    #     f"[TEST] utility daily_columns="
+    #     f"{len(report_context['sections']['utility']['consumption']['detail']['daily_columns'])}"
+    # )
+    # print(
+    #     f"[TEST] utility daily_rows="
+    #     f"{len(report_context['sections']['utility']['consumption']['detail']['daily_rows'])}"
+    # )
+    # print(
+    #     f"[TEST] utility coverage="
+    #     f"{report_context['sections']['utility']['consumption']['coverage']}"
+    # )
+    # print(
+    #     f"[TEST] utility totals sample="
+    #     f"{report_context['sections']['utility']['consumption']['totals']['rows'][0]}"
+    # )
+    #5
+    print(
+        f"[TEST] kpi totals areas="
+        f"{len(report_context['sections']['kpi']['totals']['areas'])}"
+    )
+    print(
+        f"[TEST] kpi comparison areas="
+        f"{len(report_context['sections']['kpi']['comparison']['areas'])}"
+    )
+    print(
+        f"[TEST] kpi product_context rows="
+        f"{len(report_context['sections']['kpi']['product_context']['rows'])}"
+    )
+    print(
+        f"[TEST] kpi daily_detail rows="
+        f"{len(report_context['sections']['kpi']['daily_detail']['rows'])}"
+    )
+    print(
+        f"[TEST] kpi coverage="
+        f"{report_context['sections']['kpi']['coverage']}"
+    )
+    print(
+        f"[TEST] kpi comparison plant="
+        f"{report_context['sections']['kpi']['comparison']['plant']}"
+    )
     return report_context
 
 
