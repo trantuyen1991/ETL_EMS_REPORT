@@ -44,6 +44,42 @@
 
     <style>
         /* ==========================================================================
+        Tokens
+        ========================================================================== */
+
+        :root {
+            --bg-page: #f4f6f8;
+            --bg-card: #ffffff;
+            --bg-header: #f8fafc;
+            --bg-header-strong: #f3f4f6;
+
+            --border: #d1d5db;
+            --border-soft: #d9e1ea;
+            --border-row: #e5e7eb;
+
+            --text-main: #1f2937;
+            --text-dark: #111827;
+            --text-muted: #6b7280;
+            --text-subtle: #64748b;
+
+            --brand: #2563eb;
+            --accent: #7c3aed;
+
+            --trend-up: #0f7b35;
+            --trend-down: #b42318;
+            --trend-neutral: #666666;
+
+            --radius-md: 8px;
+            --radius-lg: 10px;
+
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 24px;
+        }
+
+        /* ==========================================================================
         Base
         ========================================================================== */
 
@@ -51,21 +87,26 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             font-family: Arial, Helvetica, sans-serif;
             font-size: 12px;
             line-height: 1.5;
-            color: #1f2937;
-            background: #f4f6f8;
+            color: var(--text-main);
+            background: var(--bg-page);
         }
 
         body {
             padding: 0;
         }
 
-        h1, h2, h3, h4, p {
+        h1,
+        h2,
+        h3,
+        h4,
+        p {
             margin-top: 0;
         }
 
@@ -80,8 +121,8 @@
         .report-container {
             max-width: 1480px;
             margin: 0 auto;
-            padding: 24px;
-            background: #ffffff;
+            padding: var(--space-xl);
+            background: var(--bg-card);
         }
 
         /* ==========================================================================
@@ -89,7 +130,7 @@
         ========================================================================== */
 
         .report-header-top {
-            margin-bottom: 8px;
+            margin-bottom: var(--space-sm);
         }
 
         .report-small-title {
@@ -97,8 +138,7 @@
             font-size: 12px;
             font-weight: 600;
             letter-spacing: 0.35px;
-            color: #6b7280;
-            text-transform: none;
+            color: var(--text-muted);
         }
 
         .report-header-v3 {
@@ -112,7 +152,7 @@
             font-weight: 800;
             line-height: 1.15;
             letter-spacing: 0.2px;
-            color: #111827;
+            color: var(--text-dark);
         }
 
         .report-meta-line {
@@ -123,29 +163,29 @@
 
         .report-header-divider {
             height: 2px;
-            background: #d1d5db;
-            margin: 12px 0 18px 0;
+            background: var(--border);
+            margin: var(--space-md) 0 18px 0;
         }
 
         /* ==========================================================================
-        Period strip (V1-like)
+        Period strip
         ========================================================================== */
 
         .period-strip-v1 {
-            margin-bottom: 24px;
+            margin-bottom: var(--space-xl);
         }
 
         .period-strip-table {
             display: grid;
             grid-template-columns: 1fr 1fr 1.2fr 0.65fr 0.65fr 1fr;
-            border: 1px solid #d1d5db;
-            background: #ffffff;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
         }
 
         .period-strip-cell {
             min-height: 64px;
-            padding: 10px 12px;
-            border-right: 1px solid #d1d5db;
+            padding: 10px var(--space-md);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -159,29 +199,28 @@
             margin-bottom: 6px;
             font-size: 11px;
             font-weight: 500;
-            color: #6b7280;
-            text-transform: none;
+            color: var(--text-muted);
         }
 
         .period-strip-value {
             font-size: 15px;
             font-weight: 700;
             line-height: 1.3;
-            color: #111827;
+            color: var(--text-dark);
         }
 
         /* ==========================================================================
-        Sections
+        Section shell
         ========================================================================== */
 
         .report-section {
             margin-bottom: 28px;
-            padding-top: 4px;
+            padding-top: var(--space-xs);
         }
 
         .section-header {
             margin-bottom: 14px;
-            padding-bottom: 8px;
+            padding-bottom: var(--space-sm);
             border-bottom: 2px solid #dbe3ea;
         }
 
@@ -194,7 +233,7 @@
         .section-header-symbol {
             width: 4px;
             height: 22px;
-            background: #2563eb;
+            background: var(--brand);
             border-radius: 2px;
             flex: 0 0 auto;
         }
@@ -205,28 +244,34 @@
             font-weight: 700;
             line-height: 1.2;
             letter-spacing: 0.2px;
-            color: #2563eb;
-            text-transform: none;
+            color: var(--brand);
         }
 
         .section-subtitle {
-            margin: 8px 0 0 14px;
+            margin: var(--space-sm) 0 0 14px;
             font-size: 13px;
             line-height: 1.45;
-            color: #6b7280;
+            color: var(--text-muted);
             font-weight: 500;
+        }
+
+        .section-unit {
+            margin-left: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4b5563;
         }
 
         .section-placeholder {
             background: #fcfcfd;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 12px 14px;
+            border: 1px solid var(--border-row);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) 14px;
             margin-bottom: 10px;
         }
 
         .section-placeholder p {
-            margin: 0 0 8px 0;
+            margin: 0 0 var(--space-sm) 0;
             font-size: 13px;
             color: #374151;
         }
@@ -234,94 +279,109 @@
         .section-placeholder p:last-child {
             margin-bottom: 0;
         }
-        .section-unit {
-            margin-left: 10px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #4b5563;
+
+        .electricity-subsection-title {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
         }
+
         /* ==========================================================================
-        Generic tables / future blocks
+        Generic card / table wrappers
         ========================================================================== */
 
-        .report-table {
+        .surface-card {
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .surface-table-wrap {
             width: 100%;
-            min-width: 720px;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .surface-table {
+            width: 100%;
             border-collapse: collapse;
-            border-spacing: 0;
         }
 
-        .report-table th,
-        .report-table td {
-            border: 1px solid #d9d9d9;
-            padding: 8px 10px;
+        .surface-table th,
+        .surface-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
             vertical-align: middle;
+            text-align: left;
             white-space: nowrap;
+            font-size: 13px;
         }
 
-        .report-table th {
-            background: #f3f4f6;
+        .surface-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .surface-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .value {
             font-weight: 700;
         }
 
-        .report-table tbody tr:nth-child(even) {
-            background: #fcfcfc;
-        }
-
-        .report-table thead th {
-            position: sticky;
-            top: 0;
-            background: #f3f4f6;
-            z-index: 2;
-        }
-
-        .table-wrapper {
-            width: 100%;
-            max-width: 100%;
-            max-height: 420px;
-            overflow-x: auto;
-            overflow-y: auto;
-            border: 1px solid #d9d9d9;
-            border-radius: 8px;
-            background: #ffffff;
-        }
-
-        .sticky-date {
-            position: sticky;
-            left: 0;
-            background: #ffffff;
-            z-index: 1;
-        }
-
-        .energy-dynamic-table {
-            min-width: 1200px;
-            border-collapse: collapse;
-        }
-
-        .energy-dynamic-table th,
-        .energy-dynamic-table td {
+        .pct,
+        .electricity-inline-ratio,
+        .electricity-inline-ratio-table {
+            margin-left: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-subtle);
             white-space: nowrap;
-            padding: 6px 8px;
-            font-size: 11px;
         }
 
         /* ==========================================================================
-        Trends / status
+        Trend / status
         ========================================================================== */
 
         .trend-up {
-            color: #0f7b35;
+            color: var(--trend-up);
             font-weight: 700;
         }
 
         .trend-down {
-            color: #b42318;
+            color: var(--trend-down);
             font-weight: 700;
         }
 
         .trend-neutral {
-            color: #666666;
+            color: var(--trend-neutral);
             font-weight: 700;
+        }
+
+        .delta-arrow {
+            font-size: 10px;
+            margin-right: 4px;
+            display: inline-block;
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .delta-arrow.trend-up {
+            color: var(--trend-up);
+        }
+
+        .delta-arrow.trend-down {
+            color: var(--trend-down);
+        }
+
+        .delta-arrow.trend-neutral {
+            color: var(--trend-neutral);
         }
 
         .status-badge {
@@ -365,30 +425,6 @@
         }
 
         /* ==========================================================================
-        Footer
-        ========================================================================== */
-
-        .report-footer {
-            margin-top: 30px;
-            padding-top: 12px;
-            border-top: 1px solid #dbe3ea;
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            font-size: 11px;
-            color: #6b7280;
-        }
-
-        .footer-left,
-        .footer-right {
-            width: 49%;
-        }
-
-        .footer-right {
-            text-align: right;
-        }
-
-        /* ==========================================================================
         Electricity total cards
         ========================================================================== */
 
@@ -396,29 +432,34 @@
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 14px;
-            margin-bottom: 12px;
+            margin-bottom: var(--space-md);
         }
 
         .electricity-total-card {
-            border: 1px solid #d9e1ea;
-            border-radius: 10px;
-            background: #ffffff;
-            padding: 14px 16px;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+            padding: 14px var(--space-lg);
+        }
+
+        .electricity-total-card:first-child {
+            background: #f8fbff;
+            border-color: #cfe0ff;
         }
 
         .electricity-total-card-title {
-            margin: 0 0 12px 0;
+            margin: 0 0 var(--space-md) 0;
             font-size: 15px;
             font-weight: 700;
-            color: #1f2937;
+            color: var(--text-main);
         }
 
         .electricity-total-metric {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            gap: 12px;
-            margin-bottom: 8px;
+            gap: var(--space-md);
+            margin-bottom: var(--space-sm);
         }
 
         .electricity-total-metric:last-child {
@@ -428,109 +469,46 @@
         .electricity-total-label {
             font-size: 12px;
             font-weight: 600;
-            color: #6b7280;
+            color: var(--text-muted);
         }
 
         .electricity-total-value {
             font-size: 14px;
             font-weight: 700;
-            color: #111827;
+            color: var(--text-dark);
             text-align: right;
         }
 
         .electricity-total-value.current {
-            color: #2563eb;
+            color: var(--brand);
         }
 
         .electricity-total-value.previous {
-            color: #7c3aed;
+            color: var(--accent);
         }
 
         .electricity-total-value.delta,
         .electricity-total-value.delta-pct {
-            font-weight: 700;
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            font-weight: 700;
         }
 
-        .electricity-total-value.delta.trend-up,
-        .electricity-total-value.delta-pct.trend-up {
-            color: #0f7b35;
-        }
-
-        .electricity-total-value.delta.trend-down,
-        .electricity-total-value.delta-pct.trend-down {
-            color: #b42318;
-        }
-
-        .electricity-total-value.delta.trend-neutral,
-        .electricity-total-value.delta-pct.trend-neutral {
-            color: #6b7280;
-        }
-
-        .electricity-total-card:first-child {
-            background: #f8fbff;
-            border-color: #cfe0ff;
-        }
         /* ==========================================================================
-        Electricity total ratio display
-        ========================================================================== */
-
-        .electricity-inline-ratio {
-            margin-left: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #6b7280;
-        }
-        /* ==========================================================================
-        Delta arrow indicator
-        ========================================================================== */
-
-        .delta-arrow {
-            font-size: 12px;
-            margin-right: 4px;
-            display: inline-block;
-            transform: translateY(-1px);
-        }
-
-        /* màu theo trend (đồng bộ với value) */
-        .delta-arrow.trend-up {
-            color: #0f7b35;
-        }
-
-        .delta-arrow.trend-down {
-            color: #b42318;
-        }
-
-        .delta-arrow.trend-neutral {
-            color: #6b7280;
-        }
-        .delta-arrow {
-            font-size: 10px;
-            opacity: 0.9;
-        }
-        /* ==========================================================================
-        Electricity comparison table
+        Electricity comparison
         ========================================================================== */
 
         .electricity-comparison-block {
-            margin-bottom: 12px;
-        }
-
-        .electricity-comparison-title {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            font-weight: 700;
-            color: #1f2937;
+            margin-bottom: var(--space-md);
         }
 
         .electricity-comparison-table-wrap {
             width: 100%;
             overflow-x: auto;
-            border: 1px solid #d9e1ea;
-            border-radius: 10px;
-            background: #ffffff;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
         }
 
         .electricity-comparison-table {
@@ -542,14 +520,14 @@
         .electricity-comparison-table th,
         .electricity-comparison-table td {
             padding: 10px 12px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border-row);
             text-align: left;
             vertical-align: middle;
             font-size: 13px;
         }
 
         .electricity-comparison-table thead th {
-            background: #f8fafc;
+            background: var(--bg-header);
             font-size: 12px;
             font-weight: 700;
             color: #475569;
@@ -561,77 +539,50 @@
         }
 
         .electricity-comparison-table .col-area {
-            font-weight: 700;
-            color: #1f2937;
             min-width: 140px;
+            font-weight: 700;
+            color: var(--text-main);
             white-space: nowrap;
         }
 
         .electricity-comparison-table .col-current {
-            color: #2563eb;
+            color: var(--brand);
             font-weight: 700;
             white-space: nowrap;
         }
 
         .electricity-comparison-table .col-previous {
-            color: #7c3aed;
+            color: var(--accent);
             font-weight: 700;
             white-space: nowrap;
         }
 
         .electricity-comparison-table .col-delta,
-        .electricity-comparison-table .col-delta-pct {
-            font-weight: 700;
+        .electricity-comparison-table .col-delta-pct,
+        .electricity-comparison-table .col-meter-count {
             white-space: nowrap;
+            font-weight: 700;
         }
 
         .electricity-comparison-table .col-meter-count {
             color: #475569;
             font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .electricity-comparison-table .trend-up {
-            color: #0f7b35;
-        }
-
-        .electricity-comparison-table .trend-down {
-            color: #b42318;
-        }
-
-        .electricity-comparison-table .trend-neutral {
-            color: #6b7280;
-        }
-
-        .electricity-inline-ratio-table {
-            margin-left: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #6b7280;
-            white-space: nowrap;
         }
 
         /* ==========================================================================
-        Electricity top 10 table
+        Electricity detail - Top 10
         ========================================================================== */
 
         .electricity-detail-block {
             margin-top: 14px;
         }
 
-        .electricity-subsection-title {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            font-weight: 700;
-            color: #1f2937;
-        }
-
         .electricity-top10-wrap {
             width: 100%;
             overflow-x: auto;
-            border: 1px solid #d9e1ea;
-            border-radius: 10px;
-            background: #ffffff;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
             margin-bottom: 10px;
         }
 
@@ -644,7 +595,7 @@
         .electricity-top10-table th,
         .electricity-top10-table td {
             padding: 10px 12px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border-row);
             vertical-align: middle;
             font-size: 13px;
             text-align: left;
@@ -652,7 +603,7 @@
         }
 
         .electricity-top10-table thead th {
-            background: #f8fafc;
+            background: var(--bg-header);
             font-size: 12px;
             font-weight: 700;
             color: #475569;
@@ -663,16 +614,17 @@
         }
 
         .electricity-top10-table .col-rank {
-            width: 70px;
+            width: 68px;
+            min-width: 68px;
             text-align: center;
             font-weight: 700;
-            color: #1f2937;
+            color: var(--text-main);
         }
 
         .electricity-top10-table .col-meter {
             min-width: 220px;
             font-weight: 700;
-            color: #1f2937;
+            color: var(--text-main);
         }
 
         .electricity-top10-table .col-area {
@@ -683,12 +635,12 @@
         }
 
         .electricity-top10-table .col-current {
-            color: #2563eb;
+            color: var(--brand);
             font-weight: 700;
         }
 
         .electricity-top10-table .col-previous {
-            color: #7c3aed;
+            color: var(--accent);
             font-weight: 700;
         }
 
@@ -700,40 +652,27 @@
         .electricity-top10-note {
             margin: 0;
             font-size: 12px;
-            color: #6b7280;
+            color: var(--text-muted);
             line-height: 1.45;
         }
-
-        .electricity-top10-table .value {
-            font-weight: 700;
-        }
-
-        .electricity-top10-table .pct {
-            font-size: 12px;
-            color: #64748b;
-            margin-left: 4px;
-        }
-        /* ==========================================================================
-        Top 10 sticky columns
-        ========================================================================== */
 
         .electricity-top10-table .sticky-rank {
             position: sticky;
             left: 0;
             z-index: 3;
-            background: #ffffff;
+            background: var(--bg-card);
         }
 
         .electricity-top10-table .sticky-meter {
             position: sticky;
-            left: 40px; /* phải khớp gần với width cột rank */
+            left: 40px;
             z-index: 3;
-            background: #ffffff;
+            background: var(--bg-card);
         }
 
         .electricity-top10-table thead .sticky-rank,
         .electricity-top10-table thead .sticky-meter {
-            background: #f8fafc;
+            background: var(--bg-header);
             z-index: 4;
         }
 
@@ -742,34 +681,21 @@
             background: #fcfcfc;
         }
 
-        .electricity-top10-table .col-rank {
-            width: 68px;
-            min-width: 68px;
-            text-align: center;
-            font-weight: 700;
-            color: #1f2937;
-        }
-
-        .electricity-top10-table .col-meter {
-            min-width: 220px;
-            font-weight: 700;
-            color: #1f2937;
-        }
         /* ==========================================================================
-        Electricity daily summary
+        Electricity detail - Daily summary
         ========================================================================== */
 
         .electricity-daily-summary-block {
-            margin-top: 16px;
+            margin-top: var(--space-lg);
             margin-bottom: 14px;
         }
 
         .electricity-daily-summary-wrap {
             width: 100%;
             overflow-x: auto;
-            border: 1px solid #d9e1ea;
-            border-radius: 10px;
-            background: #ffffff;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
         }
 
         .electricity-daily-summary-table {
@@ -781,7 +707,7 @@
         .electricity-daily-summary-table th,
         .electricity-daily-summary-table td {
             padding: 10px 12px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border-row);
             vertical-align: middle;
             font-size: 13px;
             text-align: left;
@@ -789,7 +715,7 @@
         }
 
         .electricity-daily-summary-table thead th {
-            background: #f8fafc;
+            background: var(--bg-header);
             font-size: 12px;
             font-weight: 700;
             color: #475569;
@@ -802,20 +728,20 @@
         .electricity-daily-summary-table .col-date {
             min-width: 150px;
             font-weight: 700;
-            color: #1f2937;
+            color: var(--text-main);
         }
 
         .electricity-daily-summary-table .col-total-energy,
         .electricity-daily-summary-table .col-top1-value,
         .electricity-daily-summary-table .col-avg-active {
-            color: #2563eb;
+            color: var(--brand);
             font-weight: 700;
         }
 
         .electricity-daily-summary-table .col-top1-meter {
             min-width: 100px;
             font-weight: 600;
-            color: #1f2937;
+            color: var(--text-main);
         }
 
         .electricity-daily-summary-table .col-active,
@@ -825,10 +751,212 @@
             color: #475569;
         }
 
-        .electricity-daily-summary-table .pct {
+        /* ==========================================================================
+        Legacy generic tables (keep for next sections)
+        ========================================================================== */
+
+        .report-table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .report-table th,
+        .report-table td {
+            border: 1px solid #d9d9d9;
+            padding: 8px 10px;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .report-table th {
+            background: var(--bg-header-strong);
+            font-weight: 700;
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background: #fcfcfc;
+        }
+
+        .report-table thead th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-header-strong);
+            z-index: 2;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            max-width: 100%;
+            max-height: 420px;
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid #d9d9d9;
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
+        }
+
+        .sticky-date {
+            position: sticky;
+            left: 0;
+            background: var(--bg-card);
+            z-index: 1;
+        }
+
+        .energy-dynamic-table {
+            min-width: 1200px;
+            border-collapse: collapse;
+        }
+
+        .energy-dynamic-table th,
+        .energy-dynamic-table td {
+            white-space: nowrap;
+            padding: 6px 8px;
+            font-size: 11px;
+        }
+
+        /* ==========================================================================
+        Footer
+        ========================================================================== */
+
+        .report-footer {
+            margin-top: 30px;
+            padding-top: 12px;
+            border-top: 1px solid #dbe3ea;
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-md);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .footer-left,
+        .footer-right {
+            width: 49%;
+        }
+
+        .footer-right {
+            text-align: right;
+        }
+        /* Daily summary sticky date column */
+        .electricity-daily-summary-table .sticky-date-col {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: #ffffff;
+        }
+
+        .electricity-daily-summary-table thead .sticky-date-col {
+            background: #f8fafc;
+            z-index: 4;
+        }
+
+        .electricity-daily-summary-table tbody tr:nth-child(even) .sticky-date-col {
+            background: #fcfcfc;
+        }
+        /* ==========================================================================
+        Electricity daily detail tables
+        ========================================================================== */
+
+        .electricity-daily-detail-block {
+            margin-top: 16px;
+        }
+
+        .electricity-daily-detail-table-block {
+            margin-bottom: 18px;
+        }
+
+        .electricity-daily-detail-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .electricity-daily-detail-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .electricity-daily-detail-table th,
+        .electricity-daily-detail-table td {
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 12.5px;
+        }
+
+        .electricity-daily-detail-table thead th {
+            background: var(--bg-header);
             font-size: 12px;
-            color: #64748b;
-            margin-left: 4px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .electricity-daily-detail-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .electricity-daily-detail-table .col-date {
+            min-width: 150px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .electricity-daily-detail-table .col-value {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .electricity-daily-detail-table .sticky-date-col {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--bg-card);
+        }
+
+        .electricity-daily-detail-table thead .sticky-date-col {
+            background: var(--bg-header);
+            z-index: 4;
+        }
+
+        .electricity-daily-detail-table tbody tr:nth-child(even) .sticky-date-col {
+            background: #fcfcfc;
+        }
+        .electricity-daily-detail-table td {
+            text-align: right;
+        }
+
+        .electricity-daily-detail-table .col-date {
+            text-align: left;
+        }
+
+        /* Daily detail cell states */
+        .electricity-daily-detail-table .value-zero {
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        .electricity-daily-detail-table .value-max {
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+        .electricity-daily-detail-table td {
+            transition: all 0.15s ease;
+        }
+
+        .electricity-daily-detail-table .value-zero {
+            color: #cbd5f5;
+            font-weight: 500;
+        }
+        tbody tr:hover td {
+            background: #e8eef4;
         }
         /* ==========================================================================
         Responsive
@@ -854,7 +982,7 @@
 
         @media (max-width: 700px) {
             .report-container {
-                padding: 16px;
+                padding: var(--space-lg);
             }
 
             .report-small-title {
@@ -880,7 +1008,7 @@
 
             .period-strip-cell {
                 border-right: none;
-                border-bottom: 1px solid #d1d5db;
+                border-bottom: 1px solid var(--border);
             }
 
             .period-strip-cell:last-child {
@@ -908,9 +1036,11 @@
             .electricity-top10-table {
                 min-width: 680px;
             }
+
             .electricity-top10-table .col-area {
                 min-width: 55px;
             }
+
             .electricity-top10-table .col-meter {
                 min-width: 60px;
             }
@@ -928,8 +1058,22 @@
             .electricity-daily-summary-table .col-date {
                 min-width: 130px;
             }
+
             .electricity-daily-summary-table .col-top1-meter {
                 min-width: 60px;
+            }
+            .electricity-daily-detail-table {
+                min-width: 860px;
+            }
+
+            .electricity-daily-detail-table th,
+            .electricity-daily-detail-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .electricity-daily-detail-table .col-date {
+                min-width: 130px;
             }
         }
 
@@ -1330,7 +1474,7 @@
                     <table class="electricity-daily-summary-table">
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th class="col-date sticky-date-col">Date</th>
                                 <th>Total energy</th>
                                 <th>Top 1 meter</th>
                                 <th>Top 1 value</th>
@@ -1343,7 +1487,7 @@
                         <tbody>
                             {% for row in sections.electricity.daily_summary.rows %}
                             <tr>
-                                <td class="col-date">{{ row.date_display }}</td>
+                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                                 <td class="col-total-energy">{{ row.total_energy_display }}</td>
                                 <td class="col-top1-meter">{{ row.top_1_meter }}</td>
                                 <td class="col-top1-value">
@@ -1361,7 +1505,45 @@
                         </tbody>
                     </table>
                 </div>
-            </div>           
+            </div> 
+            
+            <div class="electricity-daily-detail-block">
+                <h3 class="electricity-subsection-title">Daily detail tables</h3>
+
+                {% for table in sections.electricity.daily_detail_tables %}
+                <div class="electricity-daily-detail-table-block">
+                    <h4 class="electricity-subsection-title">{{ table.title }}</h4>
+
+                    <div class="electricity-daily-detail-table-wrap">
+                        <table class="electricity-daily-detail-table">
+                            <thead>
+                                <tr>
+                                    {% for column in table.columns %}
+                                        {% if column.is_date %}
+                                        <th class="col-date sticky-date-col">{{ column.display_name }}</th>
+                                        {% else %}
+                                        <th>{{ column.display_name }}</th>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in table.rows %}
+                                <tr>
+                                    <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                    {% for cell in row.cells %}
+                                    <td class="col-value {{ cell.cell_class }} {% if cell.is_row_max %}value-max{% endif %}">
+                                        {{ cell.display }}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>            
         </section>
         {% endif %}
 

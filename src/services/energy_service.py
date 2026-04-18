@@ -120,25 +120,21 @@ class EnergyService:
 
             cells = []
 
-            # Build row max value first for highlight
             numeric_values = []
             for column in meter_columns:
                 raw_value = row.get(column)
                 if isinstance(raw_value, (int, float)):
                     numeric_values.append(float(raw_value))
 
-            row_max_value = max(numeric_values) if numeric_values else None
-
-            sorted_values = sorted(numeric_values, reverse=True)
-            top_values = set(sorted_values[:2])  # top 2
+            positive_values = [value for value in numeric_values if value > 0]
+            row_max_value = max(positive_values) if positive_values else None
 
             for column in meter_columns:
                 raw_value = row.get(column)
 
                 cell_class = ""
+                heat_class = ""
                 is_row_max = False
-                
-                
 
                 if isinstance(raw_value, (int, float)):
                     numeric_value = float(raw_value)
@@ -146,14 +142,27 @@ class EnergyService:
                     if numeric_value == 0:
                         cell_class = "value-zero"
 
-                    if row_max_value is not None:
-                        is_row_max = numeric_value in top_values and numeric_value > 0
+                    if row_max_value is not None and numeric_value == row_max_value and numeric_value > 0:
+                        is_row_max = True
+
+                    if row_max_value is not None and row_max_value > 0 and numeric_value > 0:
+                        ratio = numeric_value / row_max_value
+
+                        if ratio >= 0.85:
+                            heat_class = "heat-4"
+                        elif ratio >= 0.60:
+                            heat_class = "heat-3"
+                        elif ratio >= 0.35:
+                            heat_class = "heat-2"
+                        elif ratio >= 0.15:
+                            heat_class = "heat-1"
 
                 cells.append({
                     "key": column,
                     "raw_value": raw_value,
                     "display": self._fmt_or_dash(raw_value),
                     "cell_class": cell_class,
+                    "heat_class": heat_class,
                     "is_row_max": is_row_max,
                 })
 
