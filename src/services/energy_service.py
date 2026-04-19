@@ -67,6 +67,7 @@ class EnergyService:
         report_end: date,
     ) -> dict[str, Any]:
         """Build one period energy object."""
+        metadata = get_energy_area_metadata()
         filtered_area_rows = {
             area: self._filter_rows_in_period(rows, report_start, report_end)
             for area, rows in area_rows.items()
@@ -105,34 +106,60 @@ class EnergyService:
                 area_tables["ico"],
                 area_tables["sakari"],
             ],
-            "anomalies": self._build_energy_anomalies(area_tables),
+            "anomalies": self._build_energy_anomalies(
+                area_tables=area_tables,
+                kpi_summary=kpi_summary,
+                metadata=metadata,
+            ),
         }
     
     def _build_energy_anomalies(
         self,
         area_tables: dict[str, dict[str, Any]],
+        kpi_summary: dict[str, Any],
+        metadata: dict[str, dict[str, Any]],
     ) -> list[dict[str, Any]]:
-        """Build anomaly rows for electricity analysis."""
+        """Build anomaly rows for electricity analysis with topology-aware logic.
+
+        Args:
+            area_tables: Daily energy tables per area.
+            kpi_summary: KPI summary (current or previous).
+            metadata: Area metadata configuration.
+
+        Returns:
+            List of anomaly records.
+        """
         anomalies: list[dict[str, Any]] = []
 
         for area_key, table in area_tables.items():
+            area_meta = metadata.get(area_key, {})
+            downstream_areas = area_meta.get("downstream_areas", [])
+
             for row in table.get("rows", []):
                 dt_value = row.get("date")
+
                 official_daily_total = float(row.get("official_daily_total") or 0.0)
                 main_feeder_total = float(row.get("main_feeder_total") or 0.0)
                 submeter_total = float(row.get("submeter_total") or 0.0)
                 unknown_load = float(row.get("unknown_load") or 0.0)
 
-                unknown_ratio = None
-                if official_daily_total > 0:
-                    unknown_ratio = unknown_load / official_daily_total
+                # =========================
+                # Ratio calculations
+                # =========================
+                unknown_ratio = (
+                    unknown_load / official_daily_total
+                    if official_daily_total > 0 else None
+                )
 
                 feeder_gap = main_feeder_total - official_daily_total
-                feeder_gap_ratio = None
-                if official_daily_total > 0:
-                    feeder_gap_ratio = feeder_gap / official_daily_total
+                feeder_gap_ratio = (
+                    feeder_gap / official_daily_total
+                    if official_daily_total > 0 else None
+                )
 
-                # Rule 1: Negative unknown load
+                # =========================
+                # Rule 1: Negative unknown
+                # =========================
                 if unknown_load < 0:
                     anomalies.append({
                         "area_key": area_key,
@@ -145,44 +172,85 @@ class EnergyService:
                         "submeter_total": submeter_total,
                         "unknown_load": unknown_load,
                         "unknown_ratio": round(unknown_ratio, 4) if unknown_ratio is not None else None,
-                        "message": "Unknown load is negative. Submeter total is greater than official daily total.",
+                        "message": "Unknown load is negative. Submeter total exceeds official total.",
                     })
 
-                # Rule 2: Unknown load too high
-                if unknown_ratio is not None and unknown_ratio > 0.30:
-                    anomalies.append({
-                        "area_key": area_key,
-                        "date": dt_value,
-                        "date_display": self._format_date_with_weekday(dt_value),
-                        "rule_code": "HIGH_UNKNOWN_LOAD",
-                        "severity": "warning",
-                        "official_daily_total": official_daily_total,
-                        "main_feeder_total": main_feeder_total,
-                        "submeter_total": submeter_total,
-                        "unknown_load": unknown_load,
-                        "unknown_ratio": round(unknown_ratio, 4) if unknown_ratio is not None else None,
-                        "message": "Unknown load is greater than 30% of official daily total.",
-                    })
+                # =========================
+                # Rule 2: High unknown load
+                # =========================
+                if unknown_ratio is not None:
+                    if unknown_ratio > 0.5:
+                        severity = "critical"
+                    elif unknown_ratio > 0.3:
+                        severity = "warning"
+                    else:
+                        severity = None
 
-                # Rule 3: Main feeder total differs too much from official total
+                    if severity:
+                        anomalies.append({
+                            "area_key": area_key,
+                            "date": dt_value,
+                            "date_display": self._format_date_with_weekday(dt_value),
+                            "rule_code": "HIGH_UNKNOWN_LOAD",
+                            "severity": severity,
+                            "official_daily_total": official_daily_total,
+                            "main_feeder_total": main_feeder_total,
+                            "submeter_total": submeter_total,
+                            "unknown_load": unknown_load,
+                            "unknown_ratio": round(unknown_ratio, 4),
+                            "message": "Unknown load exceeds acceptable threshold.",
+                        })
+
+                # =========================
+                # Rule 3: Feeder vs official gap
+                # =========================
                 if feeder_gap_ratio is not None and abs(feeder_gap_ratio) > 0.20:
+
+                    # Calculate expected gap from downstream areas
+                    expected_gap = 0.0
+                    for child_area in downstream_areas:
+                        child_total = (
+                            kpi_summary.get("areas", {})
+                            .get(child_area, {})
+                            .get("energy")
+                        )
+                        if child_total:
+                            expected_gap += float(child_total)
+
+                    gap_diff = abs(feeder_gap - expected_gap)
+
+                    is_expected_topology = (
+                        downstream_areas
+                        and expected_gap > 0
+                        and gap_diff / expected_gap < 0.05  # tolerance 5%
+                    )
+
+                    if is_expected_topology:
+                        rule_code = "FEEDER_TOPOLOGY_FLOW"
+                        severity = "info"
+                        message = "Feeder supplies downstream area(s), gap is expected."
+                    else:
+                        rule_code = "FEEDER_OFFICIAL_GAP"
+                        severity = "warning"
+                        message = "Main feeder total differs significantly from official total."
+
                     anomalies.append({
                         "area_key": area_key,
                         "date": dt_value,
                         "date_display": self._format_date_with_weekday(dt_value),
-                        "rule_code": "FEEDER_OFFICIAL_GAP",
-                        "severity": "info",
+                        "rule_code": rule_code,
+                        "severity": severity,
                         "official_daily_total": official_daily_total,
                         "main_feeder_total": main_feeder_total,
                         "submeter_total": submeter_total,
                         "unknown_load": unknown_load,
                         "feeder_gap": round(feeder_gap, 4),
                         "feeder_gap_ratio": round(feeder_gap_ratio, 4),
-                        "message": "Main feeder total differs from official daily total by more than 20%.",
+                        "expected_gap": round(expected_gap, 4),
+                        "message": message,
                     })
 
         return anomalies
-
     def _extract_meter_columns(
         self,
         rows: list[dict[str, Any]],
