@@ -8,6 +8,7 @@ from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+from src.config.energy_metadata import get_energy_area_metadata
 
 class EnergyService:
     """Service for energy summary, comparison, top meter, and daily detail."""
@@ -110,15 +111,31 @@ class EnergyService:
         rows: list[dict[str, Any]],
     ) -> dict[str, Any]:
         """Build one dynamic daily energy table."""
+        area_metadata = get_energy_area_metadata()
+        area_meta = area_metadata.get(area_key, {})
+
+        main_feeder_columns = list(area_meta.get("main_feeders", []))
+        exclude_from_top10 = list(area_meta.get("exclude_from_top10", []))
+
         meter_columns = self._extract_meter_columns(rows)
 
-        columns = [
-            {"key": "dt", "display_name": "Date", "is_date": True},
-            *[
-                {"key": column, "display_name": column, "is_date": False}
-                for column in meter_columns
-            ],
+        submeter_columns = [
+            column
+            for column in meter_columns
+            if column not in main_feeder_columns
         ]
+
+        columns = [{"key": "dt", "display_name": "Date", "is_date": True}]
+
+        for column in meter_columns:
+            meter_role = "main_feeder" if column in main_feeder_columns else "submeter"
+
+            columns.append({
+                "key": column,
+                "display_name": column,
+                "is_date": False,
+                "meter_role": meter_role,
+            })
 
         daily_rows: list[dict[str, Any]] = []
 
@@ -164,6 +181,8 @@ class EnergyService:
                         elif ratio >= 0.15:
                             heat_class = "heat-1"
 
+                meter_role = "main_feeder" if column in main_feeder_columns else "submeter"
+
                 cells.append({
                     "key": column,
                     "raw_value": raw_value,
@@ -171,8 +190,8 @@ class EnergyService:
                     "cell_class": cell_class,
                     "heat_class": heat_class,
                     "is_row_max": is_row_max,
+                    "meter_role": meter_role,
                 })
-
             daily_rows.append({
                 "date": dt_value,
                 "date_display": self._format_date_with_weekday(dt_value),
@@ -185,7 +204,11 @@ class EnergyService:
             "columns": columns,
             "rows": daily_rows,
             "meter_columns": meter_columns,
+            "main_feeder_columns": main_feeder_columns,
+            "submeter_columns": submeter_columns,
+            "exclude_from_top10": exclude_from_top10,
             "meter_count": len(meter_columns),
+            "submeter_count": len(submeter_columns),
         }
 
     def build_energy_summary(
