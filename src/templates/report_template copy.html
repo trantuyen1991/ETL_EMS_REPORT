@@ -1,286 +1,1772 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ meta.report_title or "Energy Consumption Report" }}</title>
+
+    {% if context_mode == "pdf" %}
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-        crossorigin="anonymous"
+        href="assets/vendor/bootstrap/bootstrap.min.css"
     >
+    {% else %}
+    <link
+        rel="stylesheet"
+        href="assets/vendor/bootstrap/bootstrap.min.css"
+        id="bootstrap-local-css"
+    >
+    <script>
+        (function () {
+            function ensureBootstrapCss() {
+                var testEl = document.createElement("div");
+                testEl.className = "d-none";
+                document.head.appendChild(testEl);
+
+                var applied = window.getComputedStyle(testEl).display === "none";
+                document.head.removeChild(testEl);
+
+                if (!applied) {
+                    var cdnLink = document.createElement("link");
+                    cdnLink.rel = "stylesheet";
+                    cdnLink.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
+                    document.head.appendChild(cdnLink);
+                }
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", ensureBootstrapCss);
+            } else {
+                ensureBootstrapCss();
+            }
+        })();
+    </script>
+    {% endif %}
 
     <style>
+        /* ==========================================================================
+        Tokens
+        ========================================================================== */
+
+        :root {
+            --bg-page: #f4f6f8;
+            --bg-card: #ffffff;
+            --bg-header: #f8fafc;
+            --bg-header-strong: #f3f4f6;
+
+            --border: #d1d5db;
+            --border-soft: #d9e1ea;
+            --border-row: #e5e7eb;
+
+            --text-main: #1f2937;
+            --text-dark: #111827;
+            --text-muted: #6b7280;
+            --text-subtle: #64748b;
+
+            --brand: #2563eb;
+            --accent: #7c3aed;
+
+            --trend-up: #0f7b35;
+            --trend-down: #b42318;
+            --trend-neutral: #666666;
+
+            --radius-md: 8px;
+            --radius-lg: 10px;
+
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 24px;
+        }
+
+        /* ==========================================================================
+        Base
+        ========================================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
         body {
+            margin: 0;
+            padding: 0;
             font-family: Arial, Helvetica, sans-serif;
             font-size: 12px;
             line-height: 1.5;
-            color: #1f2937;
-            background: #f4f6f8;
+            color: var(--text-main);
+            background: var(--bg-page);
         }
 
-        .report-shell {
+        body {
+            padding: 0;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        p {
+            margin-top: 0;
+        }
+
+        .page-break-before {
+            page-break-before: always;
+        }
+
+        .avoid-break {
+            page-break-inside: avoid;
+        }
+
+        .report-container {
             max-width: 1480px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+            background: var(--bg-card);
+        }
+
+        /* ==========================================================================
+        Header
+        ========================================================================== */
+
+        .report-header-top {
+            margin-bottom: var(--space-sm);
+        }
+
+        .report-small-title {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.35px;
+            color: var(--text-muted);
+        }
+
+        .report-header-v3 {
+            text-align: center;
+            margin-bottom: 10px;
         }
 
         .report-main-title {
-            font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+            margin: 0 0 6px 0;
+            font-size: 32px;
+            font-weight: 800;
             line-height: 1.15;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.2px;
+            color: var(--text-dark);
         }
 
-        .report-divider {
-            border: 0;
-            border-top: 2px solid #d1d5db;
-            opacity: 1;
+        .report-meta-line {
+            margin: 0;
+            font-size: 13px;
+            color: #4b5563;
         }
 
-        .section-rule {
-            width: 4px;
-            height: 22px;
-            border-radius: 999px;
-            background: var(--bs-primary);
-            flex: 0 0 auto;
+        .report-header-divider {
+            height: 2px;
+            background: var(--border);
+            margin: var(--space-md) 0 18px 0;
         }
 
-        .period-strip-grid {
+        /* ==========================================================================
+        Period strip
+        ========================================================================== */
+
+        .period-strip-v1 {
+            margin-bottom: var(--space-xl);
+        }
+
+        .period-strip-table {
             display: grid;
             grid-template-columns: 1fr 1fr 1.2fr 0.65fr 0.65fr 1fr;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
         }
 
-        .period-strip-card {
-            min-height: 82px;
-            padding: 1rem;
-            border-right: 1px solid var(--bs-border-color);
+        .period-strip-cell {
+            min-height: 64px;
+            padding: 10px var(--space-md);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        .period-strip-card:last-child {
-            border-right: 0;
+        .period-strip-cell:last-child {
+            border-right: none;
         }
 
-        .period-label {
-            margin-bottom: 0.375rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--bs-secondary-color);
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
+        .period-strip-label {
+            margin-bottom: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
         }
 
-        .period-value {
-            font-size: 0.95rem;
+        .period-strip-value {
+            font-size: 15px;
             font-weight: 700;
-            color: var(--bs-emphasis-color);
+            line-height: 1.3;
+            color: var(--text-dark);
         }
 
-        .metric-card {
-            border: 1px solid #d9e1ea;
-            border-radius: 1rem;
+        /* ==========================================================================
+        Section shell
+        ========================================================================== */
+
+        .report-section {
+            margin-bottom: 28px;
+            padding-top: var(--space-xs);
         }
 
-        .metric-card-primary {
+        .section-header {
+            margin-bottom: 14px;
+            padding-bottom: var(--space-sm);
+            border-bottom: 2px solid #dbe3ea;
+        }
+
+        .section-header-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header-symbol {
+            width: 4px;
+            height: 22px;
+            background: var(--brand);
+            border-radius: 2px;
+            flex: 0 0 auto;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: 0.2px;
+            color: var(--brand);
+        }
+
+        .section-subtitle {
+            margin: var(--space-sm) 0 0 14px;
+            font-size: 13px;
+            line-height: 1.45;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .section-unit {
+            margin-left: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .section-placeholder {
+            background: #fcfcfd;
+            border: 1px solid var(--border-row);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) 14px;
+            margin-bottom: 10px;
+        }
+
+        .section-placeholder p {
+            margin: 0 0 var(--space-sm) 0;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .section-placeholder p:last-child {
+            margin-bottom: 0;
+        }
+
+        .electricity-subsection-title {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* ==========================================================================
+        Generic card / table wrappers
+        ========================================================================== */
+
+        .surface-card {
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .surface-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .surface-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .surface-table th,
+        .surface-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .surface-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .surface-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .value {
+            font-weight: 700;
+        }
+
+        .pct,
+        .electricity-inline-ratio,
+        .electricity-inline-ratio-table {
+            margin-left: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-subtle);
+            white-space: nowrap;
+        }
+
+        /* ==========================================================================
+        Trend / status
+        ========================================================================== */
+
+        .trend-up {
+            color: var(--trend-up);
+            font-weight: 700;
+        }
+
+        .trend-down {
+            color: var(--trend-down);
+            font-weight: 700;
+        }
+
+        .trend-neutral {
+            color: var(--trend-neutral);
+            font-weight: 700;
+        }
+
+        .delta-arrow {
+            font-size: 10px;
+            margin-right: 4px;
+            display: inline-block;
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .delta-arrow.trend-up {
+            color: var(--trend-up);
+        }
+
+        .delta-arrow.trend-down {
+            color: var(--trend-down);
+        }
+
+        .delta-arrow.trend-neutral {
+            color: var(--trend-neutral);
+        }
+
+        .status-badge {
+            display: inline-block;
+            min-width: 70px;
+            text-align: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-ok {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #b7dfba;
+        }
+
+        .status-partial {
+            background: #fff4db;
+            color: #8a5a00;
+            border: 1px solid #e3c37f;
+        }
+
+        .status-missing {
+            background: #fdecec;
+            color: #a61b1b;
+            border: 1px solid #e4aaaa;
+        }
+
+        .row-ok {
+            background: #ffffff !important;
+        }
+
+        .row-partial {
+            background: #fff9e8 !important;
+        }
+
+        .row-missing {
+            background: #fff0f0 !important;
+        }
+
+        /* ==========================================================================
+        Electricity total cards
+        ========================================================================== */
+
+        .electricity-total-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: var(--space-md);
+        }
+
+        .electricity-total-card {
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+            padding: 14px var(--space-lg);
+        }
+
+        .electricity-total-card:first-child {
             background: #f8fbff;
             border-color: #cfe0ff;
         }
 
-        .metric-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #6b7280;
-        }
-
-        .metric-value {
-            font-size: 0.95rem;
+        .electricity-total-card-title {
+            margin: 0 0 var(--space-md) 0;
+            font-size: 15px;
             font-weight: 700;
-            text-align: right;
+            color: var(--text-main);
         }
 
-        .metric-value.previous,
-        .text-accent {
-            color: #6f42c1 !important;
+        .electricity-total-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: var(--space-md);
+            margin-bottom: var(--space-sm);
         }
 
-        .ratio-note {
-            margin-left: 0.25rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #64748b;
-            white-space: nowrap;
-        }
-
-        .subsection-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--bs-emphasis-color);
-        }
-
-        .table-shell {
-            border: 1px solid #d9e1ea;
-            border-radius: 1rem;
-            background: #ffffff;
-            overflow: hidden;
-        }
-
-        .table-report {
+        .electricity-total-metric:last-child {
             margin-bottom: 0;
         }
 
-        .table-report th,
-        .table-report td {
-            padding: 0.65rem 0.75rem;
+        .electricity-total-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .electricity-total-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: right;
+        }
+
+        .electricity-total-value.current {
+            color: var(--brand);
+        }
+
+        .electricity-total-value.previous {
+            color: var(--accent);
+        }
+
+        .electricity-total-value.delta,
+        .electricity-total-value.delta-pct {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 700;
+        }
+
+        /* ==========================================================================
+        Electricity comparison
+        ========================================================================== */
+
+        .electricity-comparison-block {
+            margin-bottom: var(--space-md);
+        }
+
+        .electricity-comparison-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .electricity-comparison-table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        .electricity-comparison-table th,
+        .electricity-comparison-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            text-align: left;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .electricity-comparison-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            white-space: nowrap;
+        }
+
+        .electricity-comparison-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .electricity-comparison-table .col-area {
+            min-width: 140px;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .electricity-comparison-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .electricity-comparison-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .electricity-comparison-table .col-delta,
+        .electricity-comparison-table .col-delta-pct,
+        .electricity-comparison-table .col-meter-count {
+            white-space: nowrap;
+            font-weight: 700;
+        }
+
+        .electricity-comparison-table .col-meter-count {
+            color: #475569;
+            font-weight: 600;
+        }
+
+        /* ==========================================================================
+        Electricity detail - Top 10
+        ========================================================================== */
+
+        .electricity-detail-block {
+            margin-top: 14px;
+        }
+
+        .electricity-top10-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+            margin-bottom: 10px;
+        }
+
+        .electricity-top10-table {
+            width: 100%;
+            min-width: 960px;
+            border-collapse: collapse;
+        }
+
+        .electricity-top10-table th,
+        .electricity-top10-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            font-size: 13px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .electricity-top10-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .electricity-top10-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .electricity-top10-table .col-rank {
+            width: 68px;
+            min-width: 68px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .electricity-top10-table .col-meter {
+            min-width: 220px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .electricity-top10-table .col-area {
+            min-width: 120px;
+            color: #475569;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .electricity-top10-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .electricity-top10-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .electricity-top10-table .col-delta,
+        .electricity-top10-table .col-delta-pct {
+            font-weight: 700;
+        }
+
+        .electricity-top10-note {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .electricity-top10-table .sticky-rank {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--bg-card);
+        }
+
+        .electricity-top10-table .sticky-meter {
+            position: sticky;
+            left: 40px;
+            z-index: 3;
+            background: var(--bg-card);
+        }
+
+        .electricity-top10-table thead .sticky-rank,
+        .electricity-top10-table thead .sticky-meter {
+            background: var(--bg-header);
+            z-index: 4;
+        }
+
+        .electricity-top10-table tbody tr:nth-child(even) .sticky-rank,
+        .electricity-top10-table tbody tr:nth-child(even) .sticky-meter {
+            background: #fcfcfc;
+        }
+
+        /* ==========================================================================
+        Electricity detail - Daily summary
+        ========================================================================== */
+
+        .electricity-daily-summary-block {
+            margin-top: var(--space-lg);
+            margin-bottom: 14px;
+        }
+
+        .electricity-daily-summary-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .electricity-daily-summary-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .electricity-daily-summary-table th,
+        .electricity-daily-summary-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            font-size: 13px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .electricity-daily-summary-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .electricity-daily-summary-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .electricity-daily-summary-table .col-date {
+            min-width: 150px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .electricity-daily-summary-table .col-total-energy,
+        .electricity-daily-summary-table .col-top1-value,
+        .electricity-daily-summary-table .col-avg-active {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .electricity-daily-summary-table .col-top1-meter {
+            min-width: 100px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .electricity-daily-summary-table .col-active,
+        .electricity-daily-summary-table .col-total,
+        .electricity-daily-summary-table .col-inactive {
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* ==========================================================================
+        Legacy generic tables (keep for next sections)
+        ========================================================================== */
+
+        .report-table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .report-table th,
+        .report-table td {
+            border: 1px solid #d9d9d9;
+            padding: 8px 10px;
             vertical-align: middle;
             white-space: nowrap;
         }
 
-        .table-report thead th {
-            background: #f8fafc !important;
-            color: #475569;
-            font-size: 0.75rem;
+        .report-table th {
+            background: var(--bg-header-strong);
             font-weight: 700;
-            border-bottom: 1px solid #e5e7eb;
         }
 
-        .table-comparison {
-            min-width: 760px;
+        .report-table tbody tr:nth-child(even) {
+            background: #fcfcfc;
         }
 
-        .table-top10 {
-            min-width: 960px;
+        .report-table thead th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-header-strong);
+            z-index: 2;
         }
 
-        .table-daily-summary {
-            min-width: 980px;
+        .table-wrapper {
+            width: 100%;
+            max-width: 100%;
+            max-height: 420px;
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid #d9d9d9;
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
         }
 
-        .table-daily-detail {
-            min-width: 980px;
+        .sticky-date {
+            position: sticky;
+            left: 0;
+            background: var(--bg-card);
+            z-index: 1;
         }
 
-        .sticky-col-left-1,
-        .sticky-date-col {
+        .energy-dynamic-table {
+            min-width: 1200px;
+            border-collapse: collapse;
+        }
+
+        .energy-dynamic-table th,
+        .energy-dynamic-table td {
+            white-space: nowrap;
+            padding: 6px 8px;
+            font-size: 11px;
+        }
+
+        /* ==========================================================================
+        Footer
+        ========================================================================== */
+
+        .report-footer {
+            margin-top: 30px;
+            padding-top: 12px;
+            border-top: 1px solid #dbe3ea;
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-md);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .footer-left,
+        .footer-right {
+            width: 49%;
+        }
+
+        .footer-right {
+            text-align: right;
+        }
+        /* Daily summary sticky date column */
+        .electricity-daily-summary-table .sticky-date-col {
             position: sticky;
             left: 0;
             z-index: 3;
-            background: #ffffff !important;
+            background: #ffffff;
         }
 
-        .sticky-col-left-2 {
-            position: sticky;
-            left: 68px;
-            z-index: 3;
-            background: #ffffff !important;
-        }
-
-        .table-report thead .sticky-col-left-1,
-        .table-report thead .sticky-col-left-2,
-        .table-report thead .sticky-date-col {
+        .electricity-daily-summary-table thead .sticky-date-col {
+            background: #f8fafc;
             z-index: 4;
-            background: #f8fafc !important;
         }
 
-        .table-striped > tbody > tr:nth-of-type(even) > .sticky-col-left-1,
-        .table-striped > tbody > tr:nth-of-type(even) > .sticky-col-left-2,
-        .table-striped > tbody > tr:nth-of-type(even) > .sticky-date-col {
-            background: var(--bs-table-striped-bg) !important;
+        .electricity-daily-summary-table tbody tr:nth-child(even) .sticky-date-col {
+            background: #fcfcfc;
+        }
+        /* ==========================================================================
+        Electricity daily detail tables
+        ========================================================================== */
+
+        .electricity-daily-detail-block {
+            margin-top: 16px;
         }
 
-        .delta-arrow {
-            font-size: 0.7rem;
-            margin-right: 0.25rem;
+        .electricity-daily-detail-table-block {
+            margin-bottom: 18px;
+        }
+
+        .electricity-daily-detail-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .electricity-daily-detail-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .electricity-daily-detail-table th,
+        .electricity-daily-detail-table td {
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 12.5px;
+        }
+
+        .electricity-daily-detail-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .electricity-daily-detail-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .electricity-daily-detail-table .col-date {
+            min-width: 150px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .electricity-daily-detail-table .col-value {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .electricity-daily-detail-table .sticky-date-col {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--bg-card);
+        }
+
+        .electricity-daily-detail-table thead .sticky-date-col {
+            background: var(--bg-header);
+            z-index: 4;
+        }
+
+        .electricity-daily-detail-table tbody tr:nth-child(even) .sticky-date-col {
+            background: #fcfcfc;
+        }
+        .electricity-daily-detail-table td {
+            text-align: right;
+        }
+
+        .electricity-daily-detail-table .col-date {
+            text-align: left;
+        }
+
+        /* Daily detail cell states */
+        .electricity-daily-detail-table .value-zero {
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        /* .electricity-daily-detail-table .value-max {
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 700;
+        } */
+        .electricity-daily-detail-table td {
+            transition: all 0.15s ease;
+        }
+
+        /* .electricity-daily-detail-table .value-zero {
+            color: #cbd5f5;
+            font-weight: 500;
+        } */
+        tbody tr:hover td {
+            background: #e8eef4;
+        }
+        .electricity-daily-detail-table .value-zero {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .electricity-daily-detail-table .value-max {
+            background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
+            color: #1d4ed8;
+            font-weight: 700;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        /* Daily detail heatmap */
+        .electricity-daily-detail-table .heat-1 {
+            background: #f8fbff;
+        }
+
+        .electricity-daily-detail-table .heat-2 {
+            background: #f1f7ff;
+        }
+
+        .electricity-daily-detail-table .heat-3 {
+            background: #e8f2ff;
+        }
+
+        .electricity-daily-detail-table .heat-4 {
+            background: #deecff;
+        }
+        /* ==========================================================================
+        Utility total summary
+        ========================================================================== */
+
+        .utility-total-block {
+            margin-bottom: 14px;
+        }
+
+        .utility-total-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .utility-total-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .utility-total-table th,
+        .utility-total-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .utility-total-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .utility-total-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .utility-total-table .col-utility {
+            min-width: 180px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-total-table .col-unit {
+            min-width: 70px;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .utility-total-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .utility-total-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .utility-total-table .col-delta,
+        .utility-total-table .col-delta-pct {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .utility-total-table .trend-up {
+            color: var(--trend-up);
+        }
+
+        .utility-total-table .trend-down {
+            color: var(--trend-down);
+        }
+
+        .utility-total-table .trend-neutral {
+            color: var(--trend-neutral);
+        }
+
+        @media (max-width: 700px) {
+            .utility-total-table {
+                min-width: 760px;
+            }
+
+            .utility-total-table th,
+            .utility-total-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .utility-total-table .col-utility {
+                min-width: 150px;
+            }
+        }
+        /* ==========================================================================
+        Utility comparison / coverage
+        ========================================================================== */
+
+        .utility-coverage-block {
+            margin-bottom: 12px;
+        }
+
+        .utility-coverage-banner {
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: #f8fafc;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+
+        .utility-coverage-title {
+            margin: 0 0 6px 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-coverage-text {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .utility-coverage-text strong {
+            color: var(--text-dark);
+        }
+
+        .utility-comparison-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .utility-comparison-table {
+            width: 100%;
+            min-width: 860px;
+            border-collapse: collapse;
+        }
+
+        .utility-comparison-table th,
+        .utility-comparison-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .utility-comparison-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .utility-comparison-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .utility-comparison-table .col-utility {
+            min-width: 180px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-comparison-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .utility-comparison-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .utility-comparison-table .col-delta,
+        .utility-comparison-table .col-delta-pct {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 700px) {
+            .utility-comparison-table {
+                min-width: 760px;
+            }
+
+            .utility-comparison-table th,
+            .utility-comparison-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .utility-comparison-table .col-utility {
+                min-width: 150px;
+            }
+        }
+        /* ==========================================================================
+        Utility daily detail
+        ========================================================================== */
+
+        .utility-detail-block {
+            margin-top: 16px;
+        }
+
+        .utility-detail-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .utility-detail-table {
+            width: 100%;
+            min-width: 860px;
+            border-collapse: collapse;
+        }
+
+        .utility-detail-table th,
+        .utility-detail-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .utility-detail-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .utility-detail-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .utility-detail-table .col-date {
+            min-width: 150px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-detail-table .col-value {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .utility-detail-table .value-zero {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .utility-detail-table .sticky-date-col {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--bg-card);
+        }
+
+        .utility-detail-table thead .sticky-date-col {
+            background: var(--bg-header);
+            z-index: 4;
+        }
+
+        .utility-detail-table tbody tr:nth-child(even) .sticky-date-col {
+            background: #fcfcfc;
+        }
+
+        @media (max-width: 700px) {
+            .utility-detail-table {
+                min-width: 760px;
+            }
+
+            .utility-detail-table th,
+            .utility-detail-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .utility-detail-table .col-date {
+                min-width: 130px;
+            }
+        }
+        /* ==========================================================================
+        KPI total
+        ========================================================================== */
+
+        .kpi-total-block {
+            margin-bottom: 14px;
+        }
+
+        .kpi-total-grid {
+            display: grid;
+            grid-template-columns: 3fr 7fr;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-plant-card {
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: #f8fbff;
+            border-color: #cfe0ff;
+            padding: 14px 16px;
+        }
+
+        .kpi-plant-card-title {
+            margin: 0 0 12px 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-plant-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-plant-metric:last-child {
+            margin-bottom: 0;
+        }
+
+        .kpi-plant-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .kpi-plant-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: right;
+        }
+
+        .kpi-plant-value.current {
+            color: var(--brand);
+        }
+
+        .kpi-plant-value.previous {
+            color: var(--accent);
+        }
+
+        .kpi-coverage-note {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .kpi-area-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .kpi-area-table {
+            width: 100%;
+            min-width: 520px;
+            border-collapse: collapse;
+        }
+
+        .kpi-area-table th,
+        .kpi-area-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .kpi-area-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .kpi-area-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kpi-area-table .col-area {
+            min-width: 140px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-area-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .kpi-area-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .kpi-area-table .col-unit {
+            color: #475569;
+            font-weight: 600;
+        }
+        .kpi-area-table .col-delta,
+        .kpi-area-table .col-delta-pct {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .kpi-area-table .trend-up {
+            color: var(--trend-up);
+        }
+
+        .kpi-area-table .trend-down {
+            color: var(--trend-down);
+        }
+
+        .kpi-area-table .trend-neutral {
+            color: var(--trend-neutral);
+        }
+        .kpi-area-table .pct {
+            margin-left: 4px;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        @media (max-width: 900px) {
+            .kpi-total-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* ==========================================================================
+        KPI daily detail
+        ========================================================================== */
+
+        .kpi-daily-detail-block {
+            margin-top: 16px;
+        }
+
+        .kpi-daily-detail-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .kpi-daily-detail-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .kpi-daily-detail-table th,
+        .kpi-daily-detail-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .kpi-daily-detail-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .kpi-daily-detail-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kpi-daily-detail-table .col-date {
+            min-width: 140px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-daily-detail-table .col-source {
+            min-width: 80px;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .kpi-daily-detail-table .col-plant,
+        .kpi-daily-detail-table .col-ico,
+        .kpi-daily-detail-table .col-diode,
+        .kpi-daily-detail-table .col-sakari {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .kpi-daily-detail-table .col-note {
+            min-width: 220px;
+            color: #475569;
+            white-space: normal;
+        }
+
+        .kpi-status-badge {
             display: inline-block;
-            transform: translateY(-1px);
+            min-width: 84px;
+            text-align: center;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid transparent;
         }
 
-        .trend-up {
-            color: #0f7b35 !important;
+        .kpi-status-ok {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border-color: #b7dfba;
         }
 
-        .trend-down {
-            color: #b42318 !important;
+        .kpi-status-missing {
+            background: #fdecec;
+            color: #a61b1b;
+            border-color: #e4aaaa;
         }
 
-        .trend-neutral {
-            color: #666666 !important;
+        .kpi-status-partial {
+            background: #fff4db;
+            color: #8a5a00;
+            border-color: #e3c37f;
         }
 
-        .value-zero {
-            color: #cbd5e1 !important;
-            font-weight: 500 !important;
+        .kpi-row-ok {
+            background: #ffffff;
         }
 
-        .value-max {
-            background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%) !important;
-            color: #1d4ed8 !important;
-            font-weight: 700 !important;
-            border-bottom: 2px solid #3b82f6 !important;
+        .kpi-row-missing {
+            background: #fff0f0;
         }
 
-        .heat-1 {
-            background: #f8fbff !important;
+        .kpi-row-partial {
+            background: #fff9e8;
         }
 
-        .heat-2 {
-            background: #f1f7ff !important;
+        @media (max-width: 700px) {
+            .kpi-daily-detail-table {
+                min-width: 920px;
+            }
+
+            .kpi-daily-detail-table th,
+            .kpi-daily-detail-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .kpi-daily-detail-table .col-date {
+                min-width: 130px;
+            }
+        }
+        /* ==========================================================================
+        KPI product context
+        ========================================================================== */
+
+        .kpi-product-block {
+            margin-top: 16px;
         }
 
-        .heat-3 {
-            background: #e8f2ff !important;
+        .kpi-product-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
         }
 
-        .heat-4 {
-            background: #deecff !important;
+        .kpi-product-table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
         }
 
-        .page-break-before {
-            page-break-before: always;
-            break-before: page;
+        .kpi-product-table th,
+        .kpi-product-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
         }
 
-        .avoid-break,
-        .table-shell,
-        .card {
-            page-break-inside: avoid;
-            break-inside: avoid;
+        .kpi-product-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
         }
 
-        .report-footer {
-            color: var(--bs-secondary-color);
+        .kpi-product-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
-        @media (max-width: 1199.98px) {
-            .period-strip-grid {
+        .kpi-product-table .col-level {
+            min-width: 140px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-product-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .kpi-product-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .kpi-product-table .col-delta,
+        .kpi-product-table .col-delta-pct {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .kpi-product-table .trend-up {
+            color: var(--trend-up);
+        }
+
+        .kpi-product-table .trend-down {
+            color: var(--trend-down);
+        }
+
+        .kpi-product-table .trend-neutral {
+            color: var(--trend-neutral);
+        }
+
+        @media (max-width: 700px) {
+            .kpi-product-table {
+                min-width: 720px;
+            }
+
+            .kpi-product-table th,
+            .kpi-product-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .kpi-product-table .col-level {
+                min-width: 120px;
+            }
+        }
+        /* ==========================================================================
+        Responsive
+        ========================================================================== */
+
+        @media (max-width: 1100px) {
+            .period-strip-table {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .period-strip-card {
-                border-bottom: 1px solid var(--bs-border-color);
+            .period-strip-cell:nth-child(2n) {
+                border-right: none;
             }
 
-            .period-strip-card:nth-child(2n) {
-                border-right: 0;
+            .electricity-total-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .period-strip-card:nth-last-child(-n + 2) {
-                border-bottom: 0;
+            .electricity-inline-ratio {
+                display: none;
             }
         }
 
-        @media (max-width: 575.98px) {
-            .period-strip-grid {
-                grid-template-columns: 1fr;
+        @media (max-width: 700px) {
+            .report-container {
+                padding: var(--space-lg);
             }
 
-            .period-strip-card {
-                border-right: 0;
-                border-bottom: 1px solid var(--bs-border-color);
+            .report-small-title {
+                font-size: 11px;
             }
 
-            .period-strip-card:last-child {
-                border-bottom: 0;
+            .report-main-title {
+                font-size: 24px;
+            }
+
+            .report-meta-line {
+                font-size: 12px;
+            }
+
+            .section-header h2 {
+                font-size: 18px;
+            }
+
+            .section-subtitle {
+                margin: 6px 0 0 14px;
+                font-size: 12px;
+            }
+
+            .period-strip-cell {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .period-strip-cell:last-child {
+                border-bottom: none;
+            }
+
+            .report-footer {
+                flex-direction: column;
+            }
+
+            .footer-left,
+            .footer-right {
+                width: 100%;
+                text-align: left;
+            }
+
+            .electricity-comparison-table {
+                min-width: 680px;
+            }
+
+            .electricity-comparison-table .col-area {
+                min-width: 120px;
+            }
+
+            .electricity-top10-table {
+                min-width: 680px;
+            }
+
+            .electricity-top10-table .col-area {
+                min-width: 55px;
+            }
+
+            .electricity-top10-table .col-meter {
+                min-width: 60px;
+            }
+
+            .electricity-daily-summary-table {
+                min-width: 680px;
+            }
+
+            .electricity-daily-summary-table th,
+            .electricity-daily-summary-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .electricity-daily-summary-table .col-date {
+                min-width: 130px;
+            }
+
+            .electricity-daily-summary-table .col-top1-meter {
+                min-width: 60px;
+            }
+            .electricity-daily-detail-table {
+                min-width: 860px;
+            }
+
+            .electricity-daily-detail-table th,
+            .electricity-daily-detail-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .electricity-daily-detail-table .col-date {
+                min-width: 130px;
             }
         }
 
@@ -289,14 +1775,15 @@
                 background: #ffffff;
             }
 
-            .report-shell {
+            .report-container {
                 max-width: none;
-                margin: 0 !important;
-                box-shadow: none !important;
+                padding: 0;
             }
 
-            .table-responsive {
-                overflow: visible !important;
+            .report-section,
+            .section-placeholder,
+            .table-wrapper {
+                page-break-inside: avoid;
             }
 
             thead {
@@ -309,53 +1796,46 @@
         }
     </style>
 </head>
-<body class="bg-body-tertiary">
-    {% macro delta_arrow(delta_class) -%}
-        {%- if delta_class == 'trend-up' -%}
-            <span class="delta-arrow trend-up">▼</span>
-        {%- elif delta_class == 'trend-down' -%}
-            <span class="delta-arrow trend-down">▲</span>
-        {%- else -%}
-            <span class="delta-arrow trend-neutral">•</span>
-        {%- endif -%}
-    {%- endmacro %}
+<body>
+    <div class="report-container">
 
-    {% macro ratio_note(value) -%}
-        <span class="ratio-note">({{ value }})</span>
-    {%- endmacro %}
-
-    <div class="container-fluid report-shell bg-white shadow-sm rounded-4 my-3 my-lg-4 px-3 px-lg-4 py-4">
-
-        <!-- Header -->
-        <div class="mb-2">
-            <p class="mb-0 text-body-secondary fw-semibold text-uppercase small">{{ meta.report_title }}</p>
+        <!-- ==========================================================
+             Header
+             ========================================================== -->
+        <div class="report-header-top">
+            <p class="report-small-title">{{ meta.report_title }}</p>
         </div>
+        <header class="report-header-v3"> 
+            <div class="report-header-center">
+                <h1 class="report-main-title">{{ meta.workshop_name }}</h1>
 
-        <header class="text-center mb-3">
-            <div>
-                <h1 class="report-main-title display-6 fw-bold mb-2 text-dark">{{ meta.workshop_name }}</h1>
-                <p class="mb-0 small text-secondary">Created: {{ generated_at }}</p>
+                <p class="report-meta-line">
+                    Created: {{ generated_at }}
+                </p>
             </div>
+
         </header>
 
-        <hr class="report-divider my-3 my-lg-4">
+        <div class="report-header-divider"></div>
 
         {% if not flags.is_daily_report %}
-        <div class="mb-4">
-            <div class="period-strip-grid border rounded-4 overflow-hidden bg-white">
-                <div class="period-strip-card">
-                    <div class="period-label">Start date</div>
-                    <div class="period-value">{{ period.start_date }}</div>
+        <div class="period-strip-v1">
+            <div class="period-strip-table">
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Start date</div>
+                    <div class="period-strip-value">{{ period.start_date }}</div>
                 </div>
 
-                <div class="period-strip-card">
-                    <div class="period-label">End date</div>
-                    <div class="period-value">{{ period.end_date }}</div>
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">End date</div>
+                    <div class="period-strip-value">{{ period.end_date }}</div>
                 </div>
 
-                <div class="period-strip-card">
-                    <div class="period-label">Total energy</div>
-                    <div class="period-value">{{ summary.electricity_snapshot.current_display }}</div>
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Total energy</div>
+                    <div class="period-strip-value">
+                        {{ summary.electricity_snapshot.current_display }}
+                    </div>
                 </div>
 
                 {% set meter_ns = namespace(active=0, total=0) %}
@@ -367,184 +1847,247 @@
                     {% endif %}
                 {% endfor %}
 
-                <div class="period-strip-card">
-                    <div class="period-label">Meter active / total</div>
-                    <div class="period-value">{{ meter_ns.active }}/{{ meter_ns.total }}</div>
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Meter active / total</div>
+                    <div class="period-strip-value">
+                        {{ meter_ns.active }}/{{ meter_ns.total }}
+                    </div>
                 </div>
 
-                <div class="period-strip-card">
-                    <div class="period-label">Total days</div>
-                    <div class="period-value">{{ summary.electricity_snapshot.total_days }}</div>
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Total days</div>
+                    <div class="period-strip-value">
+                        {{ summary.electricity_snapshot.total_days }}
+                    </div>
                 </div>
 
-                <div class="period-strip-card">
-                    <div class="period-label">Average / day</div>
-                    <div class="period-value">{{ summary.electricity_snapshot.average_per_day_display }}</div>
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Average / day</div>
+                    <div class="period-strip-value">
+                        {{ summary.electricity_snapshot.average_per_day_display }}
+                    </div>
                 </div>
             </div>
         </div>
-        {% endif %}
+        {% endif %} 
+        <!-- ========================= -->
+        <!-- V3 MAIN SECTION LAYOUT -->
+        <!-- ========================= -->
 
         {% if flags.show_electricity_section %}
-        <section class="mb-4 pt-1">
-            <div class="border-bottom border-2 pb-2 mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="section-rule"></span>
-                    <h2 class="h4 mb-0 text-primary">{{ sections.electricity.title }}</h2>
+        <section class="report-section">
+            <div class="section-header">
+                <div class="section-header-title-row">
+                    <span class="section-header-symbol"></span>
+                    <h2>{{ sections.electricity.title }}</h2>
                 </div>
                 {% if sections.electricity.subtitle %}
-                <p class="small text-body-secondary fw-medium mb-0 mt-2 ms-3">
+                <p class="section-subtitle">
                     {{ sections.electricity.subtitle }}
                     {% if meta.energy_unit %}
-                    <span class="fw-semibold text-body">Unit: {{ meta.energy_unit }}</span>
+                    <span class="section-unit">Unit: {{ meta.energy_unit }}</span>
                     {% endif %}
                 </p>
                 {% endif %}
             </div>
 
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3 mb-3">
-                <div class="col">
-                    <div class="card h-100 shadow-sm metric-card metric-card-primary">
-                        <div class="card-body">
-                            <h3 class="card-title h6 text-uppercase text-body fw-bold mb-3">Total</h3>
+            <div class="electricity-total-grid">
 
-                            <div class="d-flex justify-content-between align-items-baseline gap-3 py-1">
-                                <span class="metric-label">{{ labels.current_period or "Current" }}</span>
-                                <span class="metric-value text-primary">{{ summary.electricity_snapshot.current_display }}</span>
-                            </div>
+                <!-- Plant total card -->
+                <div class="electricity-total-card">
+                    <h3 class="electricity-total-card-title">Total</h3>
 
-                            <div class="d-flex justify-content-between align-items-baseline gap-3 py-1">
-                                <span class="metric-label">{{ labels.previous_period or "Previous" }}</span>
-                                <span class="metric-value previous">{{ summary.electricity_snapshot.previous_display }}</span>
-                            </div>
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">
+                            {{ labels.current_period or "Current" }}
+                        </span>
+                        <span class="electricity-total-value current">
+                            {{ summary.electricity_snapshot.current_display }}
+                        </span>
+                    </div>
 
-                            <div class="d-flex justify-content-between align-items-baseline gap-3 py-1">
-                                <span class="metric-label">Delta</span>
-                                <span class="metric-value {{ summary.electricity_snapshot.delta_class }}">{{ summary.electricity_snapshot.delta_display }}</span>
-                            </div>
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">
+                            {{ labels.previous_period or "Previous" }}
+                        </span>
+                        <span class="electricity-total-value previous">
+                            {{ summary.electricity_snapshot.previous_display }}
+                        </span>
+                    </div>
 
-                            <div class="d-flex justify-content-between align-items-baseline gap-3 py-1">
-                                <span class="metric-label">Delta %</span>
-                                <span class="metric-value d-inline-flex align-items-center gap-1 {{ summary.electricity_snapshot.delta_pct_class }}">
-                                    {{ delta_arrow(summary.electricity_snapshot.delta_pct_class) }}
-                                    {{ summary.electricity_snapshot.delta_pct_display }}
-                                </span>
-                            </div>
-                        </div>
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">Delta</span>
+                        <span class="electricity-total-value delta {{ summary.electricity_snapshot.delta_class }}">
+                            {{ summary.electricity_snapshot.delta_display }}
+                        </span>
+                    </div>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">Delta %</span>
+                        <span class="electricity-total-value delta-pct {{ summary.electricity_snapshot.delta_pct_class }}">
+
+                            {% if summary.electricity_snapshot.delta_pct_class == 'trend-up' %}
+                                <span class="delta-arrow trend-up">▼</span>
+                            {% elif summary.electricity_snapshot.delta_pct_class == 'trend-down' %}
+                                <span class="delta-arrow trend-down">▲</span>
+                            {% else %}
+                                <span class="delta-arrow trend-neutral">•</span>
+                            {% endif %}
+
+                            {{ summary.electricity_snapshot.delta_pct_display }}
+
+                        </span>
                     </div>
                 </div>
 
+                <!-- Area cards -->
                 {% for row in sections.electricity.totals.rows %}
-                <div class="col">
-                    <div class="card h-100 shadow-sm metric-card">
-                        <div class="card-body">
-                            <h3 class="card-title h6 text-uppercase text-body fw-bold mb-3">{{ row.area_name }}</h3>
+                <div class="electricity-total-card">
+                    <h3 class="electricity-total-card-title">{{ row.area_name }}</h3>
 
-                            <div class="d-flex justify-content-between align-items-baseline gap-3 py-1">
-                                <span class="metric-label">{{ labels.current_period or "Current" }}</span>
-                                <span class="metric-value text-primary">
-                                    {{ row.current_display }}
-                                    {% if summary.electricity_snapshot.current_display != "-" %}
-                                        {% set ns_current_ratio = namespace(value=None) %}
-                                        {% if summary.electricity_snapshot.current_display %}
-                                            {% set total_current = summary.electricity_snapshot.current_display | replace(',', '') | float %}
-                                            {% set area_current = row.current_display | replace(',', '') | float %}
-                                            {% if total_current > 0 %}
-                                                {% set ns_current_ratio.value = (area_current / total_current) * 100 %}
-                                            {% endif %}
-                                        {% endif %}
-                                        {% if ns_current_ratio.value is not none %}
-                                        {{ ratio_note("%.2f"|format(ns_current_ratio.value) ~ "%") }}
-                                        {% endif %}
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">
+                            {{ labels.current_period or "Current" }}
+                        </span>
+                        <span class="electricity-total-value current">
+                            {{ row.current_display }}
+                            {% if summary.electricity_snapshot.current_display != "-" %}
+                                {% set ns_current_ratio = namespace(value=None) %}
+                                {% if summary.electricity_snapshot.current_display %}
+                                    {% set total_current = summary.electricity_snapshot.current_display
+                                        | replace(',', '') | float %}
+                                    {% set area_current = row.current_display | replace(',', '') | float %}
+                                    {% if total_current > 0 %}
+                                        {% set ns_current_ratio.value = (area_current / total_current) * 100 %}
                                     {% endif %}
-                                </span>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-baseline gap-3 py-1">
-                                <span class="metric-label">{{ labels.previous_period or "Previous" }}</span>
-                                <span class="metric-value previous">
-                                    {{ row.previous_display }}
-                                    {% if summary.electricity_snapshot.previous_display != "-" %}
-                                        {% set ns_previous_ratio = namespace(value=None) %}
-                                        {% if summary.electricity_snapshot.previous_display %}
-                                            {% set total_previous = summary.electricity_snapshot.previous_display | replace(',', '') | float %}
-                                            {% set area_previous = row.previous_display | replace(',', '') | float %}
-                                            {% if total_previous > 0 %}
-                                                {% set ns_previous_ratio.value = (area_previous / total_previous) * 100 %}
-                                            {% endif %}
-                                        {% endif %}
-                                        {% if ns_previous_ratio.value is not none %}
-                                        {{ ratio_note("%.2f"|format(ns_previous_ratio.value) ~ "%") }}
-                                        {% endif %}
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                            {% set comparison_rows = sections.electricity.comparison.rows %}
-                            {% set ns = namespace(match=None) %}
-                            {% for comp in comparison_rows %}
-                                {% if comp.area_key == row.area_key %}
-                                    {% set ns.match = comp %}
                                 {% endif %}
-                            {% endfor %}
-
-                            <div class="d-flex justify-content-between align-items-baseline gap-3 py-1">
-                                <span class="metric-label">Delta</span>
-                                <span class="metric-value {{ ns.match.delta_class if ns.match else '' }}">{{ ns.match.delta_display if ns.match else "-" }}</span>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-baseline gap-3 py-1">
-                                <span class="metric-label">Delta %</span>
-                                <span class="metric-value d-inline-flex align-items-center gap-1 {{ ns.match.delta_pct_class if ns.match else '' }}">
-                                    {% if ns.match %}
-                                        {{ delta_arrow(ns.match.delta_pct_class) }}
-                                        {{ ns.match.delta_pct_display }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
+                                {% if ns_current_ratio.value is not none %}
+                                <span class="electricity-inline-ratio">
+                                    ({{ "%.2f"|format(ns_current_ratio.value) }}%)
                                 </span>
-                            </div>
-                        </div>
+                                {% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">
+                            {{ labels.previous_period or "Previous" }}
+                        </span>
+                        <span class="electricity-total-value previous">
+                            {{ row.previous_display }}
+                            {% if summary.electricity_snapshot.previous_display != "-" %}
+                                {% set ns_previous_ratio = namespace(value=None) %}
+                                {% if summary.electricity_snapshot.previous_display %}
+                                    {% set total_previous = summary.electricity_snapshot.previous_display
+                                        | replace(',', '') | float %}
+                                    {% set area_previous = row.previous_display | replace(',', '') | float %}
+                                    {% if total_previous > 0 %}
+                                        {% set ns_previous_ratio.value = (area_previous / total_previous) * 100 %}
+                                    {% endif %}
+                                {% endif %}
+                                {% if ns_previous_ratio.value is not none %}
+                                <span class="electricity-inline-ratio">
+                                    ({{ "%.2f"|format(ns_previous_ratio.value) }}%)
+                                </span>
+                                {% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    {% set comparison_rows = sections.electricity.comparison.rows %}
+                    {% set ns = namespace(match=None) %}
+                    {% for comp in comparison_rows %}
+                        {% if comp.area_key == row.area_key %}
+                            {% set ns.match = comp %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">Delta</span>
+                        <span class="electricity-total-value delta {{ ns.match.delta_class if ns.match else '' }}">
+                            {{ ns.match.delta_display if ns.match else "-" }}
+                        </span>
+                    </div>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">Delta %</span>
+                        <span class="electricity-total-value delta-pct {{ ns.match.delta_pct_class if ns.match else '' }}">
+
+                            {% if ns.match %}
+                                {% if ns.match.delta_pct_class == 'trend-up' %}
+                                    <span class="delta-arrow trend-up">▼</span>
+                                {% elif ns.match.delta_pct_class == 'trend-down' %}
+                                    <span class="delta-arrow trend-down">▲</span>
+                                {% else %}
+                                    <span class="delta-arrow trend-neutral">•</span>
+                                {% endif %}
+
+                                {{ ns.match.delta_pct_display }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </span>
                     </div>
                 </div>
                 {% endfor %}
             </div>
 
-            <div class="table-shell shadow-sm mb-3">
-                <div class="table-responsive">
-                    <table class="table table-sm table-hover table-striped align-middle table-report table-comparison">
-                        <thead>
-                            <tr>
-                                <th>Area</th>
-                                <th>{{ labels.current_period or "Current" }}</th>
-                                <th>{{ labels.previous_period or "Previous" }}</th>
-                                <th>Delta</th>
-                                <th>Delta %</th>
-                                <th>Meter Active / Total</th>
-                            </tr>
-                        </thead>
+            <div class="electricity-comparison-block">
+                <div class="electricity-comparison-table-wrap">
+                    <table class="electricity-comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Area</th>
+                            <th>{{ labels.current_period or "Current" }}</th>
+                            <th>{{ labels.previous_period or "Previous" }}</th>
+                            <th>Delta</th>
+                            <th>Delta %</th>
+                            <th>Meter Active / Total</th>
+                        </tr>
+                    </thead>
                         <tbody>
                             {% for row in sections.electricity.comparison.rows %}
                             <tr>
-                                <td class="fw-bold text-body">{{ row.area_name }}</td>
-                                <td class="fw-bold text-primary">
+                                <td class="col-area">{{ row.area_name }}</td>
+
+                                <td class="col-current">
                                     {{ row.current_display }}
                                     {% if row.current_ratio_display and row.current_ratio_display != "-" %}
-                                    {{ ratio_note(row.current_ratio_display) }}
+                                    <span class="electricity-inline-ratio-table">
+                                        ({{ row.current_ratio_display }})
+                                    </span>
                                     {% endif %}
                                 </td>
-                                <td class="fw-bold text-accent">
+
+                                <td class="col-previous">
                                     {{ row.previous_display }}
                                     {% if row.previous_ratio_display and row.previous_ratio_display != "-" %}
-                                    {{ ratio_note(row.previous_ratio_display) }}
+                                    <span class="electricity-inline-ratio-table">
+                                        ({{ row.previous_ratio_display }})
+                                    </span>
                                     {% endif %}
                                 </td>
-                                <td class="fw-bold {{ row.delta_class }}">{{ row.delta_display }}</td>
-                                <td class="fw-bold {{ row.delta_pct_class }}">
-                                    {{ delta_arrow(row.delta_pct_class) }}
+
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {% if row.delta_pct_class == 'trend-up' %}
+                                        <span class="delta-arrow trend-up">▼</span>
+                                    {% elif row.delta_pct_class == 'trend-down' %}
+                                        <span class="delta-arrow trend-down">▲</span>
+                                    {% else %}
+                                        <span class="delta-arrow trend-neutral">•</span>
+                                    {% endif %}
                                     {{ row.delta_pct_display }}
                                 </td>
-                                <td class="fw-semibold text-secondary">{{ row.active_total_display }}</td>
+
+                                <td class="col-meter-count">
+                                    {{ row.active_total_display }}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -552,232 +2095,496 @@
                 </div>
             </div>
 
-            <div class="mt-3">
-                <h3 class="subsection-title mb-3">Top 10 meters</h3>
-                <div class="table-shell shadow-sm mb-2">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover table-striped align-middle table-report table-top10">
-                            <thead>
-                                <tr>
-                                    <th class="text-center sticky-col-left-1">Rank</th>
-                                    <th class="sticky-col-left-2">Meter</th>
-                                    <th>Area</th>
-                                    <th>Current</th>
-                                    <th>Previous</th>
-                                    <th>Delta</th>
-                                    <th>Delta %</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for row in sections.electricity.top10.rows %}
-                                <tr>
-                                    <td class="text-center fw-bold text-body sticky-col-left-1">{{ row.rank }}</td>
-                                    <td class="fw-bold text-body sticky-col-left-2">{{ row.display_name }}</td>
-                                    <td class="fw-semibold text-secondary">{{ row.area }}</td>
-                                    <td class="fw-bold text-primary">
-                                        <span>{{ row.current_display }}</span>
-                                        {{ ratio_note(row.current_pct_display) }}
-                                    </td>
-                                    <td class="fw-bold text-accent">
-                                        <span>{{ row.previous_display }}</span>
-                                        {{ ratio_note(row.previous_pct_display) }}
-                                    </td>
-                                    <td class="fw-bold {{ row.delta_class }}">{{ row.delta_display }}</td>
-                                    <td class="fw-bold {{ row.delta_pct_class }}">
-                                        {{ delta_arrow(row.delta_pct_class) }}
-                                        {{ row.delta_pct_display }}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="electricity-detail-block">
+                <h3 class="electricity-subsection-title">Top 10 meters</h3>
+
+                <div class="electricity-top10-wrap">
+                    <table class="electricity-top10-table">
+                        <thead>
+                            <tr>
+                                <th class="col-rank sticky-rank">Rank</th>
+                                <th class="col-meter sticky-meter">Meter</th>
+                                <th>Area</th>
+                                <th>Current</th>
+                                <th>Previous</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.electricity.top10.rows %}
+                            <tr>
+                                <td class="col-rank sticky-rank">{{ row.rank }}</td>
+
+                                <td class="col-meter sticky-meter">
+                                    {{ row.display_name }}
+                                </td>
+
+                                <td class="col-area">
+                                    {{ row.area }}
+                                </td>
+
+                                <td class="col-current">
+                                    <span class="value">{{ row.current_display }}</span>
+                                    <span class="pct">({{ row.current_pct_display }})</span>
+                                </td>
+
+                                <td class="col-previous">
+                                    <span class="value">{{ row.previous_display }}</span>
+                                    <span class="pct">({{ row.previous_pct_display }})</span>
+                                </td>
+
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {% if row.delta_pct_class == 'trend-up' %}
+                                        <span class="delta-arrow trend-up">▼</span>
+                                    {% elif row.delta_pct_class == 'trend-down' %}
+                                        <span class="delta-arrow trend-down">▲</span>
+                                    {% else %}
+                                        <span class="delta-arrow trend-neutral">•</span>
+                                    {% endif %}
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <p class="small text-body-secondary mb-0">
+
+                <p class="electricity-top10-note">
                     Top 10 meters are sorted by current-period consumption.
                     Configured total-station meters will be excluded in the next refinement step.
                 </p>
             </div>
 
-            <div class="mt-4 mb-3">
-                <h3 class="subsection-title mb-3">Daily summary</h3>
-                <div class="table-shell shadow-sm">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover table-striped align-middle table-report table-daily-summary">
+            <div class="electricity-daily-summary-block">
+                <h3 class="electricity-subsection-title">Daily summary</h3>
+
+                <div class="electricity-daily-summary-wrap">
+                    <table class="electricity-daily-summary-table">
+                        <thead>
+                            <tr>
+                                <th class="col-date sticky-date-col">Date</th>
+                                <th>Total energy</th>
+                                <th>Top 1 meter</th>
+                                <th>Top 1 value</th>
+                                <th>Active meter</th>
+                                <th>Avg / active</th>
+                                <th>Total meter</th>
+                                <th>Inactive meter</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.electricity.daily_summary.rows %}
+                            <tr>
+                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                <td class="col-total-energy">{{ row.total_energy_display }}</td>
+                                <td class="col-top1-meter">{{ row.top_1_meter }}</td>
+                                <td class="col-top1-value">
+                                    <span class="value">{{ row.top_1_value_display }}</span>
+                                    {% if row.top_1_pct_display %}
+                                    <span class="pct">({{ row.top_1_pct_display }})</span>
+                                    {% endif %}
+                                </td>
+                                <td class="col-active">{{ row.active_meter_count }}</td>
+                                <td class="col-avg-active">{{ row.average_per_active_display }}</td>
+                                <td class="col-total">{{ row.total_meter_count }}</td>
+                                <td class="col-inactive">{{ row.inactive_meter_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div> 
+            
+            <div class="electricity-daily-detail-block">
+                <h3 class="electricity-subsection-title">Daily detail tables</h3>
+
+                {% for table in sections.electricity.daily_detail_tables %}
+                <div class="electricity-daily-detail-table-block">
+                    <h4 class="electricity-subsection-title">{{ table.title }}</h4>
+
+                    <div class="electricity-daily-detail-table-wrap">
+                        <table class="electricity-daily-detail-table">
                             <thead>
                                 <tr>
-                                    <th class="sticky-date-col">Date</th>
-                                    <th>Total energy</th>
-                                    <th>Top 1 meter</th>
-                                    <th>Top 1 value</th>
-                                    <th>Active meter</th>
-                                    <th>Avg / active</th>
-                                    <th>Total meter</th>
-                                    <th>Inactive meter</th>
+                                    {% for column in table.columns %}
+                                        {% if column.is_date %}
+                                        <th class="col-date sticky-date-col">{{ column.display_name }}</th>
+                                        {% else %}
+                                        <th>{{ column.display_name }}</th>
+                                        {% endif %}
+                                    {% endfor %}
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for row in sections.electricity.daily_summary.rows %}
+                                {% for row in table.rows %}
                                 <tr>
-                                    <td class="fw-bold text-body sticky-date-col">{{ row.date_display }}</td>
-                                    <td class="fw-bold text-primary">{{ row.total_energy_display }}</td>
-                                    <td class="fw-semibold text-body">{{ row.top_1_meter }}</td>
-                                    <td class="fw-bold text-primary">
-                                        <span>{{ row.top_1_value_display }}</span>
-                                        {% if row.top_1_pct_display %}
-                                        {{ ratio_note(row.top_1_pct_display) }}
-                                        {% endif %}
+                                    <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                    {% for cell in row.cells %}
+                                    <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}">
+                                        {{ cell.display }}
                                     </td>
-                                    <td class="fw-semibold text-secondary">{{ row.active_meter_count }}</td>
-                                    <td class="fw-bold text-primary">{{ row.average_per_active_display }}</td>
-                                    <td class="fw-semibold text-secondary">{{ row.total_meter_count }}</td>
-                                    <td class="fw-semibold text-secondary">{{ row.inactive_meter_count }}</td>
+                                    {% endfor %}
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-
-            <div class="mt-4">
-                <h3 class="subsection-title mb-3">Daily detail tables</h3>
-
-                {% for table in sections.electricity.daily_detail_tables %}
-                <div class="mb-4 avoid-break">
-                    <h4 class="subsection-title mb-3">{{ table.title }}</h4>
-                    <div class="table-shell shadow-sm">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover table-striped align-middle table-report table-daily-detail">
-                                <thead>
-                                    <tr>
-                                        {% for column in table.columns %}
-                                            {% if column.is_date %}
-                                            <th class="sticky-date-col">{{ column.display_name }}</th>
-                                            {% else %}
-                                            <th>{{ column.display_name }}</th>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for row in table.rows %}
-                                    <tr>
-                                        <td class="fw-bold text-body sticky-date-col">{{ row.date_display }}</td>
-                                        {% for cell in row.cells %}
-                                        <td class="text-end fw-bold text-primary {{ cell.cell_class }} {% if cell.is_row_max %}value-max{% endif %}">
-                                            {{ cell.display }}
-                                        </td>
-                                        {% endfor %}
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
                 {% endfor %}
-            </div>
+            </div>            
         </section>
         {% endif %}
 
         {% if flags.show_utility_section %}
-        <section class="mb-4 pt-1">
-            <div class="border-bottom border-2 pb-2 mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="section-rule"></span>
-                    <h2 class="h4 mb-0 text-primary">{{ sections.utility.title }}</h2>
+        <section class="report-section">
+            <div class="section-header">
+                <div class="section-header-title-row">
+                    <span class="section-header-symbol"></span>
+                    <h2>{{ sections.utility.title }}</h2>
                 </div>
                 {% if sections.utility.subtitle %}
-                <p class="small text-body-secondary fw-medium mb-0 mt-2 ms-3">{{ sections.utility.subtitle }}</p>
+                <p class="section-subtitle">{{ sections.utility.subtitle }}</p>
                 {% endif %}
             </div>
 
-            <div class="row row-cols-1 row-cols-lg-3 g-3">
-                <div class="col">
-                    <div class="card h-100 shadow-sm metric-card">
-                        <div class="card-body">
-                            <h3 class="card-title h6 text-uppercase text-body fw-bold mb-3">Total</h3>
-                            <p class="mb-1 text-body">Rows: <span class="fw-semibold">{{ sections.utility.consumption.totals.rows | length }}</span></p>
-                        </div>
-                    </div>
-                </div>
+            <div class="utility-total-block">
+                <h3 class="electricity-subsection-title">Utility summary</h3>
 
-                <div class="col">
-                    <div class="card h-100 shadow-sm metric-card">
-                        <div class="card-body">
-                            <h3 class="card-title h6 text-uppercase text-body fw-bold mb-3">Comparison / Coverage</h3>
-                            <p class="mb-1 text-body">
-                                Coverage:
-                                <span class="fw-semibold">{{ sections.utility.consumption.coverage.coverage_display if sections.utility.consumption.coverage else "-" }}</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <div class="utility-total-table-wrap">
+                    <table class="utility-total-table">
+                        <thead>
+                            <tr>
+                                <th>Utility</th>
+                                <th>Unit</th>
+                                <th>{{ labels.current_period or "Current" }}</th>
+                                <th>{{ labels.previous_period or "Previous" }}</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.utility.consumption.totals.rows %}
+                            <tr>
+                                <td class="col-utility">{{ row.display_name }}</td>
+                                <td class="col-unit">{{ row.unit }}</td>
 
-                <div class="col">
-                    <div class="card h-100 shadow-sm metric-card">
-                        <div class="card-body">
-                            <h3 class="card-title h6 text-uppercase text-body fw-bold mb-3">Detail</h3>
-                            <p class="mb-1 text-body">Columns: <span class="fw-semibold">{{ sections.utility.consumption.detail.daily_columns | length }}</span></p>
-                            <p class="mb-0 text-body">Rows: <span class="fw-semibold">{{ sections.utility.consumption.detail.daily_rows | length }}</span></p>
-                        </div>
-                    </div>
+                                <td class="col-current">
+                                    {{ row.current_display }}
+                                </td>
+
+                                <td class="col-previous">
+                                    {{ row.previous_display }}
+                                </td>
+
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {% if row.delta_pct_class == 'trend-up' %}
+                                        <span class="delta-arrow trend-up">▼</span>
+                                    {% elif row.delta_pct_class == 'trend-down' %}
+                                        <span class="delta-arrow trend-down">▲</span>
+                                    {% else %}
+                                        <span class="delta-arrow trend-neutral">•</span>
+                                    {% endif %}
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="utility-detail-block">
+                <h3 class="electricity-subsection-title">Daily utility detail</h3>
+
+                <div class="utility-detail-table-wrap">
+                    <table class="utility-detail-table">
+                        <thead>
+                            <tr>
+                                <th class="col-date sticky-date-col">Date</th>
+                                {% for column in sections.utility.consumption.detail.daily_columns %}
+                                <th>{{ column.display_name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.utility.consumption.detail.daily_rows %}
+                            <tr>
+                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+
+                                {% for cell in row.daily_values %}
+                                <td class="col-value {% if cell.display in ['0.00', '0', '-', '0.0'] %}value-zero{% endif %}">
+                                    {{ cell.display }}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
         {% endif %}
 
         {% if flags.show_kpi_section %}
-        <section class="mb-4 pt-1">
-            <div class="border-bottom border-2 pb-2 mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="section-rule"></span>
-                    <h2 class="h4 mb-0 text-primary">{{ sections.kpi.title }}</h2>
+        <section class="report-section">
+            <div class="section-header">
+                <div class="section-header-title-row">
+                    <span class="section-header-symbol"></span>
+                    <h2>{{ sections.kpi.title }}</h2>
                 </div>
                 {% if sections.kpi.subtitle %}
-                <p class="small text-body-secondary fw-medium mb-0 mt-2 ms-3">{{ sections.kpi.subtitle }}</p>
+                <p class="section-subtitle">{{ sections.kpi.subtitle }}</p>
                 {% endif %}
             </div>
 
-            <div class="row row-cols-1 row-cols-lg-3 g-3">
-                <div class="col">
-                    <div class="card h-100 shadow-sm metric-card">
-                        <div class="card-body">
-                            <h3 class="card-title h6 text-uppercase text-body fw-bold mb-3">Total</h3>
-                            <p class="mb-1 text-body">Plant: <span class="fw-semibold">{{ sections.kpi.totals.plant.current_display }}</span></p>
-                            <p class="mb-0 text-body">Areas: <span class="fw-semibold">{{ sections.kpi.totals.areas | length }}</span></p>
+            <div class="kpi-total-block">
+                <h3 class="electricity-subsection-title">KPI total</h3>
+
+                <div class="kpi-total-grid">
+                    <div class="kpi-plant-card">
+                        <h4 class="kpi-plant-card-title">Plant KPI</h4>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">{{ labels.current_period or "Current" }}</span>
+                            <span class="kpi-plant-value current">
+                                {{ sections.kpi.totals.plant.current_display }}
+                            </span>
                         </div>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">{{ labels.previous_period or "Previous" }}</span>
+                            <span class="kpi-plant-value previous">
+                                {{ sections.kpi.totals.plant.previous_display }}
+                            </span>
+                        </div>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">Delta</span>
+                            <span class="kpi-plant-value {{ sections.kpi.comparison.plant.delta_class }}">
+                                {{ sections.kpi.comparison.plant.delta_display }}
+                            </span>
+                        </div>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">Delta %</span>
+                            <span class="kpi-plant-value {{ sections.kpi.comparison.plant.delta_pct_class }}">
+                                {% if sections.kpi.comparison.plant.delta_pct_class == 'trend-up' %}
+                                    <span class="delta-arrow trend-up">▼</span>
+                                {% elif sections.kpi.comparison.plant.delta_pct_class == 'trend-down' %}
+                                    <span class="delta-arrow trend-down">▲</span>
+                                {% else %}
+                                    <span class="delta-arrow trend-neutral">•</span>
+                                {% endif %}
+                                {{ sections.kpi.comparison.plant.delta_pct_display }}
+                            </span>
+                        </div>
+
+                        <div class="kpi-plant-metric">
+                            <span class="kpi-plant-label">Coverage</span>
+                            <span class="kpi-plant-value">
+                                {{ sections.kpi.totals.plant.coverage_display }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-area-table-wrap">
+                        <table class="kpi-area-table">
+                            <thead>
+                                <tr>
+                                    <th>Area</th>
+                                    <th>{{ labels.current_period or "Current" }}</th>
+                                    <th>{{ labels.previous_period or "Previous" }}</th>
+                                    <th>Delta</th>
+                                    <th>Delta %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in sections.kpi.totals.areas %}
+                                    {% set area_ns = namespace(comp=None, share_current=None, share_previous=None) %}
+
+                                    {% for comp in sections.kpi.comparison.areas %}
+                                        {% if comp.area_key == row.area_key %}
+                                            {% set area_ns.comp = comp %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% set plant_current = sections.kpi.totals.plant.current_display | replace(',', '') | float %}
+                                    {% set plant_previous = sections.kpi.totals.plant.previous_display | replace(',', '') | float %}
+                                    {% set area_current = row.current_display | replace(',', '') | float %}
+                                    {% set area_previous = row.previous_display | replace(',', '') | float %}
+
+                                    {% if plant_current > 0 %}
+                                        {% set area_ns.share_current = (area_current / plant_current) * 100 %}
+                                    {% endif %}
+
+                                    {% if plant_previous > 0 %}
+                                        {% set area_ns.share_previous = (area_previous / plant_previous) * 100 %}
+                                    {% endif %}
+
+                                <tr>
+                                    <td class="col-area">{{ row.area_name }}</td>
+
+                                    <td class="col-current">
+                                        {{ row.current_display }}
+                                        {% if area_ns.share_current is not none %}
+                                        <span class="pct">({{ "%.2f"|format(area_ns.share_current) }}%)</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="col-previous">
+                                        {{ row.previous_display }}
+                                        {% if area_ns.share_previous is not none %}
+                                        <span class="pct">({{ "%.2f"|format(area_ns.share_previous) }}%)</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="col-delta {{ area_ns.comp.delta_class if area_ns.comp else '' }}">
+                                        {{ area_ns.comp.delta_display if area_ns.comp else "-" }}
+                                    </td>
+
+                                    <td class="col-delta-pct {{ area_ns.comp.delta_pct_class if area_ns.comp else '' }}">
+                                        {% if area_ns.comp %}
+                                            {% if area_ns.comp.delta_pct_class == 'trend-up' %}
+                                                <span class="delta-arrow trend-up">▼</span>
+                                            {% elif area_ns.comp.delta_pct_class == 'trend-down' %}
+                                                <span class="delta-arrow trend-down">▲</span>
+                                            {% else %}
+                                                <span class="delta-arrow trend-neutral">•</span>
+                                            {% endif %}
+                                            {{ area_ns.comp.delta_pct_display }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+            </div>
 
-                <div class="col">
-                    <div class="card h-100 shadow-sm metric-card">
-                        <div class="card-body">
-                            <h3 class="card-title h6 text-uppercase text-body fw-bold mb-3">Comparison</h3>
-                            <p class="mb-1 text-body">Plant delta: <span class="fw-semibold">{{ sections.kpi.comparison.plant.delta_display }}</span></p>
-                            <p class="mb-0 text-body">Area rows: <span class="fw-semibold">{{ sections.kpi.comparison.areas | length }}</span></p>
-                        </div>
-                    </div>
+            {% if sections.kpi.product_context.enabled %}
+            <div class="kpi-product-block">
+                <h3 class="electricity-subsection-title">
+                    {{ sections.kpi.product_context.title }}
+                </h3>
+
+                <div class="kpi-product-table-wrap">
+                    <table class="kpi-product-table">
+                        <thead>
+                            <tr>
+                                <th class="col-level">Level</th>
+                                <th class="col-current">{{ labels.current_period or "Current" }} Product</th>
+                                <th class="col-previous">{{ labels.previous_period or "Previous" }} Product</th>
+                                <th class="col-delta">Delta</th>
+                                <th class="col-delta-pct">Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.kpi.product_context.rows %}
+                            <tr>
+                                <td class="col-level">{{ row.level_name }}</td>
+                                <td class="col-current">{{ row.current_prod_display }}</td>
+                                <td class="col-previous">{{ row.previous_prod_display }}</td>
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+            {% endif %}
 
-                <div class="col">
-                    <div class="card h-100 shadow-sm metric-card">
-                        <div class="card-body">
-                            <h3 class="card-title h6 text-uppercase text-body fw-bold mb-3">Detail</h3>
-                            <p class="mb-1 text-body">Coverage: <span class="fw-semibold">{{ sections.kpi.coverage.coverage_display }}</span></p>
-                            <p class="mb-1 text-body">Product rows: <span class="fw-semibold">{{ sections.kpi.product_context.rows | length }}</span></p>
-                            <p class="mb-0 text-body">Daily rows: <span class="fw-semibold">{{ sections.kpi.daily_detail.rows | length }}</span></p>
-                        </div>
-                    </div>
+            <div class="kpi-daily-detail-block">
+                <h3 class="electricity-subsection-title">Daily KPI detail</h3>
+
+                <div class="kpi-daily-detail-table-wrap">
+                    <table class="kpi-daily-detail-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Source</th>
+
+                                <th>Plant Prod</th>
+                                <th>ICO Prod</th>
+                                <th>DIODE Prod</th>
+                                <th>SAKARI Prod</th>
+
+                                <th>Plant Engy</th>
+                                <th>ICO Engy</th>
+                                <th>DIODE Engy</th>
+                                <th>SAKARI Engy</th>
+
+                                <th>Plant KPI</th>
+                                <th>ICO KPI</th>
+                                <th>DIODE KPI</th>
+                                <th>SAKARI KPI</th>
+
+                                <th>Coverage Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.kpi.daily_detail.rows %}
+                            <tr class="{{ row.row_class }}">
+                                <td>{{ row.date_display }}</td>
+                                <td>
+                                    <span class="status-pill {{ row.status_class }}">
+                                        {{ row.status }}
+                                    </span>
+                                </td>
+                                <td>{{ row.time_frame_source or "-" }}</td>
+
+                                <td>{{ row.plant_prod_display }}</td>
+                                <td>{{ row.ico_prod_display }}</td>
+                                <td>{{ row.diode_prod_display }}</td>
+                                <td>{{ row.sakari_prod_display }}</td>
+
+                                <td>{{ row.plant_energy_display }}</td>
+                                <td>{{ row.ico_energy_display }}</td>
+                                <td>{{ row.diode_energy_display }}</td>
+                                <td>{{ row.sakari_energy_display }}</td>
+
+                                <td>{{ row.plant_kpi_display }}</td>
+                                <td>{{ row.ico_kpi_display }}</td>
+                                <td>{{ row.diode_kpi_display }}</td>
+                                <td>{{ row.sakari_kpi_display }}</td>
+
+                                <td>{{ row.coverage_note or "" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
         {% endif %}
 
-        <footer class="report-footer d-flex flex-column flex-md-row justify-content-between gap-2 pt-3 mt-4 border-top small">
-            <div>{{ meta.report_title or "Energy Consumption Report" }} - {{ version or "v2" }}</div>
-            <div class="text-md-end">Generated from database-backed reporting context</div>
+        <!-- ==========================================================
+             Footer
+             ========================================================== -->
+        <footer class="report-footer">
+            <div class="footer-left">
+                {{ meta.report_title or "Energy Consumption Report" }} - {{ version or "v2" }}
+            </div>
+            <div class="footer-right">
+                Generated from database-backed reporting context
+            </div>
         </footer>
     </div>
 </body>

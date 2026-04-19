@@ -1,0 +1,76 @@
+
+
+        <!-- ==========================================================
+             Header
+             ========================================================== -->
+        <div class="report-header-top">
+            <p class="report-small-title">{{ meta.report_title }}</p>
+        </div>
+
+        <header class="report-header-v3">
+            <div class="report-header-center">
+                <h1 class="report-main-title">{{ meta.workshop_name }}</h1>
+                <p class="report-meta-line">
+                    Created: {{ generated_at }}
+                </p>
+            </div>
+        </header>
+
+        <div class="report-header-divider"></div>
+
+        {% if not flags.is_daily_report %}
+        <div class="period-strip-v1">
+            <div class="period-strip-table">
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Start date</div>
+                    <div class="period-strip-value">{{ period.start_date }}</div>
+                </div>
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">End date</div>
+                    <div class="period-strip-value">{{ period.end_date }}</div>
+                </div>
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Total energy</div>
+                    <div class="period-strip-value">
+                        {{ summary.electricity_snapshot.current_display }}
+                    </div>
+                </div>
+
+                {% set meter_ns = namespace(active=0, total=0) %}
+                {% for row in sections.electricity.comparison.rows %}
+                    {% if row.active_total_display and '/' in row.active_total_display %}
+                        {% set parts = row.active_total_display.split('/') %}
+                        {% set meter_ns.active = meter_ns.active + (parts[0] | int) %}
+                        {% set meter_ns.total = meter_ns.total + (parts[1] | int) %}
+                    {% endif %}
+                {% endfor %}
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Meter active / total</div>
+                    <div class="period-strip-value">
+                        {{ meter_ns.active }}/{{ meter_ns.total }}
+                    </div>
+                </div>
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Total days</div>
+                    <div class="period-strip-value">
+                        {{ summary.electricity_snapshot.total_days }}
+                    </div>
+                </div>
+
+                <div class="period-strip-cell">
+                    <div class="period-strip-label">Average / day</div>
+                    <div class="period-strip-value">
+                        {{ summary.electricity_snapshot.average_per_day_display }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ========================= -->
+        <!-- V3 MAIN SECTION LAYOUT -->
+        <!-- ========================= -->

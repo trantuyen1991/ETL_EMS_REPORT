@@ -217,22 +217,26 @@ def _build_energy_object(
         ),
     }
 
+    current_area_columns = {
+        "diode": repos["diode_energy"].get_meter_columns(),
+        "ico": repos["ico_energy"].get_meter_columns(),
+        "sakari": repos["sakari_energy"].get_meter_columns(),
+    }
+
     energy_object = energy_service.build_full_energy_object(
         current_area_rows=current_area_rows,
         previous_area_rows=previous_area_rows,
-
+        current_area_columns=current_area_columns,
+        previous_area_columns=current_area_columns,
         current_kpi_summary=kpi_object["current"]["summary"],
         previous_kpi_summary=kpi_object["previous"]["summary"],
         current_kpi_rows=kpi_object["current"]["selected_rows"],
         previous_kpi_rows=kpi_object["previous"]["selected_rows"],
-
         report_start=period.start_date,
         report_end=period.end_date,
         previous_start=period.previous_start_date,
         previous_end=period.previous_end_date,
     )
-    print(f"[TEST] anomaly_count={len(energy_object['current']['anomalies'])}")
-    print(f"[TEST] anomaly_sample={energy_object['current']['anomalies'][:3]}")
     return energy_object
 
 def _build_report_context(
@@ -382,7 +386,7 @@ def run_dev_test() -> None:
     #
     renderer = TemplateRenderingService("src/templates")
 
-    html = renderer.render("report_template.html", report_context)
+    html = renderer.render("report/view/report_view.html", report_context)
 
     with open("output/reports/debug.html", "w", encoding="utf-8") as f:
         f.write(html)

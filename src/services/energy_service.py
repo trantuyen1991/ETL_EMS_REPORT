@@ -365,7 +365,7 @@ class EnergyService:
         submeter_columns = [
             column
             for column in base_meter_columns
-            if column not in exclude_from_top10
+             if column not in exclude_from_top10
         ]
 
         columns = [{"key": "dt", "display_name": "Date", "is_date": True}]
@@ -426,7 +426,7 @@ class EnergyService:
 
             row_numeric_map: dict[str, float] = {}
 
-            for column in meter_columns:
+            for column in base_meter_columns:
                 raw_value = source_row.get(column)
                 if isinstance(raw_value, (int, float)):
                     row_numeric_map[column] = float(raw_value)
@@ -437,7 +437,7 @@ class EnergyService:
             positive_values = [value for value in row_numeric_map.values() if value > 0]
             row_max_value = max(positive_values) if positive_values else None
 
-            for column in meter_columns:
+            for column in base_meter_columns:
                 raw_value = source_row.get(column)
 
                 cell_class = ""
@@ -526,12 +526,12 @@ class EnergyService:
             "title": f"{area_key.upper()} Daily Energy Detail",
             "columns": columns,
             "rows": daily_rows,
-            "meter_columns": meter_columns + [unknown_load_key],
+            "meter_columns": base_meter_columns + [unknown_load_key],
             "main_feeder_columns": main_feeder_columns,
             "submeter_columns": submeter_columns,
             "exclude_from_top10": exclude_from_top10,
             "exclude_from_detail": exclude_from_detail,
-            "meter_count": len(meter_columns) + 1,
+            "meter_count": len(base_meter_columns) + 1,
             "submeter_count": len(submeter_columns) + 1,
         }
 

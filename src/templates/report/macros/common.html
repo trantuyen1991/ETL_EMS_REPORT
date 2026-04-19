@@ -1,0 +1,13 @@
+{% macro delta_arrow(delta_class) -%}
+    {%- if delta_class == 'trend-up' -%}
+        <span class="delta-arrow trend-up">▼</span>
+    {%- elif delta_class == 'trend-down' -%}
+        <span class="delta-arrow trend-down">▲</span>
+    {%- else -%}
+        <span class="delta-arrow trend-neutral">•</span>
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro ratio_note(value) -%}
+    <span class="electricity-inline-ratio">({{ value }})</span>
+{%- endmacro %}

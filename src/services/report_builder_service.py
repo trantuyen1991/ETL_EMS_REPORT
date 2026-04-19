@@ -516,7 +516,7 @@ class ReportBuilderService:
                 "rank": item.get("rank"),
                 "meter_key": item.get("meter_name"),
                 "meter_name": item.get("meter_name"),
-                "display_name": f"{item.get('area', '')} / {item.get('meter_name', '')}",
+                "display_name": item.get("meter_name"),
                 "area": item.get("area"),
                 "current_display": current_display,
                 "current_pct_display": current_pct_display,
@@ -748,8 +748,8 @@ class ReportBuilderService:
                 "previous_prod_display": self._fmt(previous_prod),
                 "delta_display": self._fmt(prod_delta),
                 "delta_pct_display": self._fmt_pct(prod_delta_pct),
-                "delta_class": "trend-neutral",
-                "delta_pct_class": "trend-neutral",
+                "delta_class": self._trend_class(prod_delta),
+                "delta_pct_class": self._trend_class(prod_delta_pct),
             })
 
         current_plant_prod = current_plant.get("total_prod")
@@ -772,8 +772,8 @@ class ReportBuilderService:
             "previous_prod_display": self._fmt(previous_plant_prod),
             "delta_display": self._fmt(plant_prod_delta),
             "delta_pct_display": self._fmt_pct(plant_prod_delta_pct),
-            "delta_class": "trend-neutral",
-            "delta_pct_class": "trend-neutral",
+            "delta_class": self._trend_class(plant_prod_delta),
+            "delta_pct_class": self._trend_class(plant_prod_delta_pct),
         })
 
         comparison_block = {

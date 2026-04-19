@@ -1,0 +1,83 @@
+{% import "report/macros/common.html" as report %}
+{% if flags.show_utility_section %}
+        <section class="report-section">
+            <div class="pdf-section-opening">
+                <div class="section-header">
+                    <div class="section-header-title-row">
+                        <span class="section-header-symbol"></span>
+                        <h2>{{ sections.utility.title }}</h2>
+                    </div>
+                    {% if sections.utility.subtitle %}
+                    <p class="section-subtitle">{{ sections.utility.subtitle }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="utility-total-block">
+                <h3 class="electricity-subsection-title">Utility summary</h3>
+
+                <div class="utility-total-table-wrap report-table-wrap">
+                    <table class="utility-total-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th>Utility</th>
+                                <th>Unit</th>
+                                <th>{{ labels.current_period or "Current" }}</th>
+                                <th>{{ labels.previous_period or "Previous" }}</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.utility.consumption.totals.rows %}
+                            <tr>
+                                <td class="col-utility">{{ row.display_name }}</td>
+                                <td class="col-unit">{{ row.unit }}</td>
+
+                                <td class="col-current">{{ row.current_display }}</td>
+                                <td class="col-previous">{{ row.previous_display }}</td>
+
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {{ report.delta_arrow(row.delta_pct_class) }}
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="utility-detail-block pdf-landscape-block">
+                <h3 class="electricity-subsection-title">Daily utility detail</h3>
+
+                <div class="utility-detail-table-wrap report-table-wrap">
+                    <table class="utility-detail-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th class="col-date sticky-date-col">Date</th>
+                                {% for column in sections.utility.consumption.detail.daily_columns %}
+                                <th>{{ column.display_name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.utility.consumption.detail.daily_rows %}
+                            <tr>
+                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                {% for cell in row.daily_values %}
+                                <td class="col-value {% if cell.display in ['0.00', '0', '-', '0.0'] %}value-zero{% endif %}">
+                                    {{ cell.display }}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        {% endif %}
