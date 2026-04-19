@@ -33,7 +33,7 @@ def get_energy_area_metadata() -> Dict[str, Dict[str, Any]]:
         "diode": {
             "display_name": "DIODE",
             "main_feeders": ["DIODEMSB1", "DIODEMSB2"],
-            "exclude_from_top10": ["DIODEMSB1", "DIODEMSB2"],
+            "exclude_from_top10": ["DIODEMSB1", "DIODEMSB2", "HCP01", "HCP03", "DIODEAC1", "DIODEAC2"],
             "official_kpi_energy_key": "DIODE_engy",
             "unknown_load_key": "DIODE_unknown_load",
             "unknown_load_display_name": "DIODE Unknown Load",

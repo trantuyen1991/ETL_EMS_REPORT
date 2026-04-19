@@ -307,11 +307,15 @@ class EnergyService:
         area_tables: dict[str, dict[str, Any]],
         kpi_summary: dict[str, Any],
     ) -> dict[str, Any]:
-        """Build per-area total summary using KPI summary as official source."""
+        """Build per-area summary with feeder/submeter/unknown breakdown."""
         result: dict[str, Any] = {}
 
         kpi_areas = kpi_summary.get("areas", {})
         kpi_plant = kpi_summary.get("plant", {})
+
+        plant_main_feeder_total = 0.0
+        plant_submeter_total = 0.0
+        plant_unknown_total = 0.0
 
         for area_key, table in area_tables.items():
             official_total = (
@@ -319,17 +323,43 @@ class EnergyService:
                 .get("energy")
             )
 
+            main_feeder_total = sum(
+                float(row.get("main_feeder_total") or 0.0)
+                for row in table["rows"]
+            )
+
+            submeter_total = sum(
+                float(row.get("submeter_total") or 0.0)
+                for row in table["rows"]
+            )
+
+            unknown_total = sum(
+                float(row.get("unknown_load") or 0.0)
+                for row in table["rows"]
+            )
+
+            plant_main_feeder_total += main_feeder_total
+            plant_submeter_total += submeter_total
+            plant_unknown_total += unknown_total
+
             result[area_key] = {
                 "total_energy": round(float(official_total), 4) if official_total is not None else None,
+                "main_feeder_total": round(main_feeder_total, 4),
+                "submeter_total": round(submeter_total, 4),
+                "unknown_load_total": round(unknown_total, 4),
                 "meter_count": table["meter_count"],
+                "submeter_count": table["submeter_count"],
                 "row_count": len(table["rows"]),
             }
 
         result["plant"] = {
             "total_energy": round(float(kpi_plant.get("total_energy")), 4)
-            if kpi_plant.get("total_energy") is not None
-            else None,
+            if kpi_plant.get("total_energy") is not None else None,
+            "main_feeder_total": round(plant_main_feeder_total, 4),
+            "submeter_total": round(plant_submeter_total, 4),
+            "unknown_load_total": round(plant_unknown_total, 4),
             "meter_count": 0,
+            "submeter_count": 0,
             "row_count": max((len(table["rows"]) for table in area_tables.values()), default=0),
         }
 
@@ -480,14 +510,23 @@ class EnergyService:
         rows_by_date: dict[date, list[tuple[str, float]]] = {}
 
         for table in area_tables.values():
+            main_feeder_columns = set(table.get("exclude_from_top10", []))
+
             for row in table["rows"]:
                 dt_value = row["date"]
                 rows_by_date.setdefault(dt_value, [])
 
                 for cell in row["cells"]:
+                    cell_key = cell.get("key")
+                    meter_role = cell.get("meter_role")
+
+                    # Exclude main feeders from top-1 daily meter logic
+                    if meter_role == "main_feeder" or cell_key in main_feeder_columns:
+                        continue
+
                     raw_value = cell["raw_value"]
                     numeric_value = float(raw_value) if isinstance(raw_value, (int, float)) else 0.0
-                    rows_by_date[dt_value].append((cell["key"], numeric_value))
+                    rows_by_date[dt_value].append((cell_key, numeric_value))
 
         result: list[dict[str, Any]] = []
 

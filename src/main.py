@@ -238,6 +238,7 @@ def _build_energy_object(
     print(
         f"[TEST] sample daily summary={energy_object['current']['daily_summary_rows'][0]}"
     )
+    print(f"[TEST] summary current={energy_object['current']['summary']}")
     return energy_object
 
 def _build_report_context(
