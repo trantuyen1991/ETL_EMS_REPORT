@@ -1560,6 +1560,98 @@
             }
         }
         /* ==========================================================================
+        KPI product context
+        ========================================================================== */
+
+        .kpi-product-block {
+            margin-top: 16px;
+        }
+
+        .kpi-product-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .kpi-product-table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
+        }
+
+        .kpi-product-table th,
+        .kpi-product-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .kpi-product-table thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .kpi-product-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kpi-product-table .col-level {
+            min-width: 140px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-product-table .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .kpi-product-table .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .kpi-product-table .col-delta,
+        .kpi-product-table .col-delta-pct {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .kpi-product-table .trend-up {
+            color: var(--trend-up);
+        }
+
+        .kpi-product-table .trend-down {
+            color: var(--trend-down);
+        }
+
+        .kpi-product-table .trend-neutral {
+            color: var(--trend-neutral);
+        }
+
+        @media (max-width: 700px) {
+            .kpi-product-table {
+                min-width: 720px;
+            }
+
+            .kpi-product-table th,
+            .kpi-product-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .kpi-product-table .col-level {
+                min-width: 120px;
+            }
+        }
+        /* ==========================================================================
         Responsive
         ========================================================================== */
 
@@ -2381,6 +2473,43 @@
                 </div>
             </div>
 
+            {% if sections.kpi.product_context.enabled %}
+            <div class="kpi-product-block">
+                <h3 class="electricity-subsection-title">
+                    {{ sections.kpi.product_context.title }}
+                </h3>
+
+                <div class="kpi-product-table-wrap">
+                    <table class="kpi-product-table">
+                        <thead>
+                            <tr>
+                                <th class="col-level">Level</th>
+                                <th class="col-current">{{ labels.current_period or "Current" }} Product</th>
+                                <th class="col-previous">{{ labels.previous_period or "Previous" }} Product</th>
+                                <th class="col-delta">Delta</th>
+                                <th class="col-delta-pct">Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.kpi.product_context.rows %}
+                            <tr>
+                                <td class="col-level">{{ row.level_name }}</td>
+                                <td class="col-current">{{ row.current_prod_display }}</td>
+                                <td class="col-previous">{{ row.previous_prod_display }}</td>
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="kpi-daily-detail-block">
                 <h3 class="electricity-subsection-title">Daily KPI detail</h3>
 
@@ -2391,46 +2520,52 @@
                                 <th>Date</th>
                                 <th>Status</th>
                                 <th>Source</th>
+
+                                <th>Plant Prod</th>
+                                <th>ICO Prod</th>
+                                <th>DIODE Prod</th>
+                                <th>SAKARI Prod</th>
+
+                                <th>Plant Engy</th>
+                                <th>ICO Engy</th>
+                                <th>DIODE Engy</th>
+                                <th>SAKARI Engy</th>
+
                                 <th>Plant KPI</th>
                                 <th>ICO KPI</th>
                                 <th>DIODE KPI</th>
                                 <th>SAKARI KPI</th>
+
                                 <th>Coverage Note</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for row in sections.kpi.daily_detail.rows %}
-                                {% set row_class = 'kpi-row-ok' %}
-                                {% if row.status == 'Missing' %}
-                                    {% set row_class = 'kpi-row-missing' %}
-                                {% elif row.status == 'Partial' %}
-                                    {% set row_class = 'kpi-row-partial' %}
-                                {% endif %}
-
-                                {% set badge_class = 'kpi-status-ok' %}
-                                {% if row.status == 'Missing' %}
-                                    {% set badge_class = 'kpi-status-missing' %}
-                                {% elif row.status == 'Partial' %}
-                                    {% set badge_class = 'kpi-status-partial' %}
-                                {% endif %}
-
-                            <tr class="{{ row_class }}">
-                                <td class="col-date">{{ row.date_display }}</td>
-
+                            <tr class="{{ row.row_class }}">
+                                <td>{{ row.date_display }}</td>
                                 <td>
-                                    <span class="kpi-status-badge {{ badge_class }}">
+                                    <span class="status-pill {{ row.status_class }}">
                                         {{ row.status }}
                                     </span>
                                 </td>
+                                <td>{{ row.time_frame_source or "-" }}</td>
 
-                                <td class="col-source">{{ row.source_display }}</td>
+                                <td>{{ row.plant_prod_display }}</td>
+                                <td>{{ row.ico_prod_display }}</td>
+                                <td>{{ row.diode_prod_display }}</td>
+                                <td>{{ row.sakari_prod_display }}</td>
 
-                                <td class="col-plant">{{ row.plant_kpi_display }}</td>
-                                <td class="col-ico">{{ row.ico_kpi_display }}</td>
-                                <td class="col-diode">{{ row.diode_kpi_display }}</td>
-                                <td class="col-sakari">{{ row.sakari_kpi_display }}</td>
+                                <td>{{ row.plant_energy_display }}</td>
+                                <td>{{ row.ico_energy_display }}</td>
+                                <td>{{ row.diode_energy_display }}</td>
+                                <td>{{ row.sakari_energy_display }}</td>
 
-                                <td class="col-note">{{ row.coverage_note_display }}</td>
+                                <td>{{ row.plant_kpi_display }}</td>
+                                <td>{{ row.ico_kpi_display }}</td>
+                                <td>{{ row.diode_kpi_display }}</td>
+                                <td>{{ row.sakari_kpi_display }}</td>
+
+                                <td>{{ row.coverage_note or "" }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

@@ -1140,10 +1140,22 @@ class ReportBuilderService:
                 "date": row.get("dt"),
                 "date_display": self._format_date_with_weekday(row.get("dt")),
                 "time_frame_source": row.get("time_frame_source"),
+
+                "plant_prod_display": self._fmt_or_dash(row.get("prod")),
+                "ico_prod_display": self._fmt_or_dash(row.get("ico_prod")),
+                "diode_prod_display": self._fmt_or_dash(row.get("diode_prod")),
+                "sakari_prod_display": self._fmt_or_dash(row.get("sakari_prod")),
+
+                "plant_energy_display": self._fmt_or_dash(row.get("energy")),
+                "ico_energy_display": self._fmt_or_dash(row.get("ico_energy")),
+                "diode_energy_display": self._fmt_or_dash(row.get("diode_energy")),
+                "sakari_energy_display": self._fmt_or_dash(row.get("sakari_energy")),
+
                 "plant_kpi_display": self._fmt_or_dash(row.get("kpi")),
                 "ico_kpi_display": self._fmt_or_dash(row.get("ico_kpi")),
                 "diode_kpi_display": self._fmt_or_dash(row.get("diode_kpi")),
                 "sakari_kpi_display": self._fmt_or_dash(row.get("sakari_kpi")),
+
                 "status": status,
                 "status_class": status_class,
                 "row_class": row_class,
