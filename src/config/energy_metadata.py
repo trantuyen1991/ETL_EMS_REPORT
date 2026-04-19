@@ -36,7 +36,9 @@ def get_energy_area_metadata() -> Dict[str, Dict[str, Any]]:
             "exclude_from_top10": ["DIODEMSB1", "DIODEMSB2", "HCP01", "HCP03", "DIODEAC1", "DIODEAC2"],
             "official_kpi_energy_key": "DIODE_engy",
             "unknown_load_key": "DIODE_unknown_load",
-            "unknown_load_display_name": "DIODE Unknown Load",
+            "unknown_load_display_name": "DIODE Residual Load",
+            "exclude_from_detail": ["DIODEAC1", "DIODEAC2"],
+            "downstream_areas": [],
         },
         "ico": {
             "display_name": "ICO",
@@ -44,7 +46,8 @@ def get_energy_area_metadata() -> Dict[str, Dict[str, Any]]:
             "exclude_from_top10": ["ICOMSB1", "ICOMSB2", "DBADH"],
             "official_kpi_energy_key": "ICO_engy",
             "unknown_load_key": "ICO_unknown_load",
-            "unknown_load_display_name": "ICO Unknown Load",
+            "unknown_load_display_name": "ICO Residual Load",
+            "exclude_from_detail": [],
             "downstream_areas": ["sakari"],  # ICO cấp cho SAKARI
         },
         "sakari": {
@@ -53,7 +56,9 @@ def get_energy_area_metadata() -> Dict[str, Dict[str, Any]]:
             "exclude_from_top10": ["DBADH"],
             "official_kpi_energy_key": "SAKARI_engy",
             "unknown_load_key": "SAKARI_unknown_load",
-            "unknown_load_display_name": "SAKARI Unknown Load",
+            "unknown_load_display_name": "SAKARI Residual Load",
+            "exclude_from_detail": [],
+            "downstream_areas": [],
         },
     }
 

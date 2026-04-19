@@ -51,6 +51,74 @@
             page-break-after: avoid;
         }
 
+        .report-header-top {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .report-small-title {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 10.5px;
+            color: #1d4ed8;
+            background: #eef5ff;
+            border: 1px solid #c9dcff;
+        }
+
+        .report-header-v3 {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .report-header-center {
+            padding: 14px 16px 12px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+            border: 1px solid #dbeafe;
+            box-shadow: none;
+        }
+
+        .report-main-title {
+            color: #1639a6;
+            font-size: 30px;
+            margin-bottom: 4px;
+        }
+
+        .report-meta-line {
+            color: #475569;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .report-header-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #cbd5e1, transparent);
+            margin: 12px 0 14px;
+        }
+
+        .period-strip-v1 {
+            margin-bottom: 18px;
+        }
+
+        .period-strip-table {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #dbeafe;
+            background: #ffffff;
+        }
+
+        .period-strip-cell {
+            background: #ffffff;
+        }
+
+        .period-strip-cell:nth-child(odd) {
+            background: #f8fbff;
+        }
+
         .report-section {
             margin-bottom: 12px;
             padding-top: 0;
@@ -125,6 +193,13 @@
             margin-bottom: 10px;
         }
 
+        .electricity-total-value-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1px;
+        }
+
         .pdf-electricity-highlight .section-header {
             background: linear-gradient(180deg, #eef5ff 0%, #f7fbff 100%);
             border: 1px solid #c9dcff;
@@ -161,6 +236,14 @@
         .electricity-total-value,
         .kpi-plant-value {
             font-size: 11px;
+        }
+
+        .electricity-total-ratio {
+            display: block;
+            font-size: 8px;
+            font-weight: 600;
+            line-height: 1.05;
+            color: #6b7280;
         }
 
         .section-header {
