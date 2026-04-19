@@ -1,0 +1,335 @@
+{% import "report/macros/common.html" as report %}
+{% if flags.show_electricity_section %}
+        <section class="report-section pdf-electricity-highlight">
+            <div class="section-header">
+                <div class="section-header-title-row">
+                    <span class="section-header-symbol"></span>
+                    <h2>{{ sections.electricity.title }}</h2>
+                </div>
+                {% if meta.energy_unit %}
+                <div class="section-meta-row">
+                    <span class="section-unit-badge">Unit: {{ meta.energy_unit }}</span>
+                </div>
+                {% endif %}
+                {% if sections.electricity.subtitle %}
+                <p class="section-subtitle">{{ sections.electricity.subtitle }}</p>
+                {% endif %}
+            </div>
+
+            <div class="electricity-total-grid">
+                <div class="electricity-total-card">
+                    <h3 class="electricity-total-card-title">Total</h3>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">
+                            {{ labels.current_period or "Current" }}
+                        </span>
+                        <span class="electricity-total-value current">
+                            {{ summary.electricity_snapshot.current_display }}
+                        </span>
+                    </div>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">
+                            {{ labels.previous_period or "Previous" }}
+                        </span>
+                        <span class="electricity-total-value previous">
+                            {{ summary.electricity_snapshot.previous_display }}
+                        </span>
+                    </div>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">Delta</span>
+                        <span class="electricity-total-value delta {{ summary.electricity_snapshot.delta_class }}">
+                            {{ summary.electricity_snapshot.delta_display }}
+                        </span>
+                    </div>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">Delta %</span>
+                        <span class="electricity-total-value delta-pct {{ summary.electricity_snapshot.delta_pct_class }}">
+                            {{ report.delta_arrow(summary.electricity_snapshot.delta_pct_class) }}
+                            {{ summary.electricity_snapshot.delta_pct_display }}
+                        </span>
+                    </div>
+                </div>
+
+                {% for row in sections.electricity.totals.rows %}
+                <div class="electricity-total-card">
+                    <h3 class="electricity-total-card-title">{{ row.area_name }}</h3>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">
+                            {{ labels.current_period or "Current" }}
+                        </span>
+                        <span class="electricity-total-value current">
+                            {{ row.current_display }}
+                            {% if summary.electricity_snapshot.current_display != "-" %}
+                                {% set ns_current_ratio = namespace(value=None) %}
+                                {% if summary.electricity_snapshot.current_display %}
+                                    {% set total_current = summary.electricity_snapshot.current_display | replace(',', '') | float %}
+                                    {% set area_current = row.current_display | replace(',', '') | float %}
+                                    {% if total_current > 0 %}
+                                        {% set ns_current_ratio.value = (area_current / total_current) * 100 %}
+                                    {% endif %}
+                                {% endif %}
+                                {% if ns_current_ratio.value is not none %}
+                                {{ report.ratio_note("%.2f"|format(ns_current_ratio.value) ~ "%") }}
+                                {% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">
+                            {{ labels.previous_period or "Previous" }}
+                        </span>
+                        <span class="electricity-total-value previous">
+                            {{ row.previous_display }}
+                            {% if summary.electricity_snapshot.previous_display != "-" %}
+                                {% set ns_previous_ratio = namespace(value=None) %}
+                                {% if summary.electricity_snapshot.previous_display %}
+                                    {% set total_previous = summary.electricity_snapshot.previous_display | replace(',', '') | float %}
+                                    {% set area_previous = row.previous_display | replace(',', '') | float %}
+                                    {% if total_previous > 0 %}
+                                        {% set ns_previous_ratio.value = (area_previous / total_previous) * 100 %}
+                                    {% endif %}
+                                {% endif %}
+                                {% if ns_previous_ratio.value is not none %}
+                                {{ report.ratio_note("%.2f"|format(ns_previous_ratio.value) ~ "%") }}
+                                {% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    {% set comparison_rows = sections.electricity.comparison.rows %}
+                    {% set ns = namespace(match=None) %}
+                    {% for comp in comparison_rows %}
+                        {% if comp.area_key == row.area_key %}
+                            {% set ns.match = comp %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">Delta</span>
+                        <span class="electricity-total-value delta {{ ns.match.delta_class if ns.match else '' }}">
+                            {{ ns.match.delta_display if ns.match else "-" }}
+                        </span>
+                    </div>
+
+                    <div class="electricity-total-metric">
+                        <span class="electricity-total-label">Delta %</span>
+                        <span class="electricity-total-value delta-pct {{ ns.match.delta_pct_class if ns.match else '' }}">
+                            {% if ns.match %}
+                                {% if ns.match.delta_pct_class == 'trend-up' %}
+                                    <span class="delta-arrow trend-up">▼</span>
+                                {% elif ns.match.delta_pct_class == 'trend-down' %}
+                                    <span class="delta-arrow trend-down">▲</span>
+                                {% else %}
+                                    <span class="delta-arrow trend-neutral">•</span>
+                                {% endif %}
+                                {{ ns.match.delta_pct_display }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="electricity-comparison-block">
+                <div class="electricity-comparison-table-wrap report-table-wrap">
+                    <table class="electricity-comparison-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th>Area</th>
+                                <th>{{ labels.current_period or "Current" }}</th>
+                                <th>{{ labels.previous_period or "Previous" }}</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                                <th>Meter Active / Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.electricity.comparison.rows %}
+                            <tr>
+                                <td class="col-area">{{ row.area_name }}</td>
+
+                                <td class="col-current">
+                                    {{ row.current_display }}
+                                    {% if row.current_ratio_display and row.current_ratio_display != "-" %}
+                                    {{ report.ratio_note(row.current_ratio_display) }}
+                                    {% endif %}
+                                </td>
+
+                                <td class="col-previous">
+                                    {{ row.previous_display }}
+                                    {% if row.previous_ratio_display and row.previous_ratio_display != "-" %}
+                                    {{ report.ratio_note(row.previous_ratio_display) }}
+                                    {% endif %}
+                                </td>
+
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {{ report.delta_arrow(row.delta_pct_class) }}
+                                    {{ row.delta_pct_display }}
+                                </td>
+
+                                <td class="col-meter-count">
+                                    {{ row.active_total_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="electricity-detail-block">
+                <h3 class="electricity-subsection-title">Top 10 meters</h3>
+
+                <div class="electricity-top10-wrap report-table-wrap">
+                    <table class="electricity-top10-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th class="col-rank sticky-rank">Rank</th>
+                                <th class="col-meter sticky-meter">Meter</th>
+                                <th>Area</th>
+                                <th>Current</th>
+                                <th>Previous</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.electricity.top10.rows %}
+                            <tr>
+                                <td class="col-rank sticky-rank">{{ row.rank }}</td>
+                                <td class="col-meter sticky-meter">{{ row.meter_name }}</td>
+                                <td class="col-area">{{ row.area }}</td>
+
+                                <td class="col-current">
+                                    <span class="value">{{ row.current_display }}</span>
+                                    {{ report.ratio_note(row.current_pct_display) }}
+                                </td>
+
+                                <td class="col-previous">
+                                    <span class="value">{{ row.previous_display }}</span>
+                                    {{ report.ratio_note(row.previous_pct_display) }}
+                                </td>
+
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {{ report.delta_arrow(row.delta_pct_class) }}
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="electricity-top10-note">
+                    Top 10 meters are sorted by current-period consumption.
+                    Configured feeder and excluded meters are filtered by area rules.
+                </p>
+            </div>
+
+            <div class="electricity-daily-summary-block">
+                <h3 class="electricity-subsection-title">Daily summary</h3>
+
+                <div class="electricity-daily-summary-wrap report-table-wrap">
+                    <table class="electricity-daily-summary-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th class="col-date sticky-date-col">Date</th>
+                                <th>Total energy</th>
+                                <th>Top 1 meter</th>
+                                <th>Top 1 value</th>
+                                <th>Active meter</th>
+                                <th>Avg / active</th>
+                                <th>Total meter</th>
+                                <th>Inactive meter</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.electricity.daily_summary.rows %}
+                            <tr>
+                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                <td class="col-total-energy">{{ row.total_energy_display }}</td>
+                                <td class="col-top1-meter">{{ row.top_1_meter }}</td>
+                                <td class="col-top1-value">
+                                    <span class="value">{{ row.top_1_value_display }}</span>
+                                    {% if row.top_1_pct_display %}
+                                    {{ report.ratio_note(row.top_1_pct_display) }}
+                                    {% endif %}
+                                </td>
+                                <td class="col-active">{{ row.active_meter_count }}</td>
+                                <td class="col-avg-active">{{ row.average_per_active_display }}</td>
+                                <td class="col-total">{{ row.total_meter_count }}</td>
+                                <td class="col-inactive">{{ row.inactive_meter_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="electricity-daily-detail-block pdf-landscape-block">
+                <h3 class="electricity-subsection-title">Daily detail tables</h3>
+
+                {% set chunk_size = 14 %}
+                {% for table in sections.electricity.daily_detail_tables %}
+                    {% set meter_columns = table.columns[1:] %}
+                    {% set total_chunks = ((meter_columns|length + chunk_size - 1) // chunk_size) %}
+
+                    {% for chunk_index in range(total_chunks) %}
+                        {% set start = chunk_index * chunk_size %}
+                        {% set end = start + chunk_size %}
+                        {% set column_chunk = meter_columns[start:end] %}
+
+                <div class="electricity-daily-detail-table-block {% if not (loop.first and chunk_index == 0) %}pdf-keep-together{% endif %}">
+                    <h4 class="electricity-subsection-title">
+                        {{ table.title }}
+                        {% if total_chunks > 1 %}
+                            (Part {{ chunk_index + 1 }}/{{ total_chunks }})
+                        {% endif %}
+                    </h4>
+
+                    <div class="electricity-daily-detail-table-wrap report-table-wrap">
+                        <table class="electricity-daily-detail-table report-table-ui">
+                            <thead>
+                                <tr>
+                                    <th class="col-date sticky-date-col">Date</th>
+                                    {% for column in column_chunk %}
+                                    <th>{{ column.display_name }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in table.rows %}
+                                <tr>
+                                    <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                    {% for cell in row.cells[start:end] %}
+                                    <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}">
+                                        {{ cell.display }}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}

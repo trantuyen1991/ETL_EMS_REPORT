@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ meta.report_title or "Energy Consumption Report" }}</title>
+
+    <style>
+        {% include "assets/report.css" %}
+    </style>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 10mm 8mm;
+        }
+
+        @page landscape-page {
+            size: A4 landscape;
+            margin: 8mm;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+        }
+
+        body {
+            font-size: 10.5px;
+            line-height: 1.35;
+            color: #0f172a;
+        }
+
+        .report-container {
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .report-header-top,
+        .report-header-v3,
+        .report-header-divider,
+        .period-strip-v1,
+        .section-header,
+        .electricity-subsection-title {
+            break-after: avoid;
+            page-break-after: avoid;
+        }
+
+        .report-section {
+            margin-bottom: 12px;
+            padding-top: 0;
+            break-inside: auto !important;
+            page-break-inside: auto !important;
+        }
+
+        .report-table-wrap,
+        .surface-table-wrap,
+        .electricity-total-card,
+        .kpi-plant-card {
+            box-shadow: none !important;
+        }
+
+        .report-table-wrap,
+        .surface-table-wrap {
+            overflow: visible !important;
+            max-height: none !important;
+            border-radius: 8px;
+        }
+
+        .report-table-ui,
+        .surface-table,
+        .period-strip-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .report-table-ui thead,
+        .surface-table thead {
+            display: table-header-group;
+        }
+
+        .report-table-ui tfoot,
+        .surface-table tfoot {
+            display: table-footer-group;
+        }
+
+        .report-table-ui th,
+        .report-table-ui td,
+        .surface-table th,
+        .surface-table td {
+            padding: 5px 6px !important;
+            font-size: 9px !important;
+            line-height: 1.25;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .report-table-ui thead th,
+        .surface-table thead th {
+            position: static !important;
+            top: auto !important;
+            left: auto !important;
+            z-index: auto !important;
+            font-size: 8.5px !important;
+            background: #f8fafc !important;
+            box-shadow: none !important;
+        }
+
+        .sticky-date-col,
+        .sticky-rank,
+        .sticky-meter {
+            position: static !important;
+            left: auto !important;
+            background: inherit !important;
+        }
+
+        .electricity-total-grid,
+        .kpi-total-grid {
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .pdf-electricity-highlight .section-header {
+            background: linear-gradient(180deg, #eef5ff 0%, #f7fbff 100%);
+            border: 1px solid #c9dcff;
+            border-left: 5px solid #2c63c7;
+            border-radius: 12px;
+            padding: 10px 14px 8px;
+            box-shadow: none;
+        }
+
+        .pdf-electricity-highlight .section-header h2 {
+            font-size: 18px;
+        }
+
+        .pdf-electricity-highlight .section-subtitle {
+            margin-left: 0;
+        }
+
+        .pdf-electricity-highlight .section-meta-row {
+            margin-left: 0;
+        }
+
+        .electricity-total-card,
+        .kpi-plant-card {
+            padding: 9px 10px;
+            border-radius: 8px;
+        }
+
+        .electricity-total-card-title,
+        .kpi-plant-card-title,
+        .electricity-subsection-title {
+            margin-bottom: 8px;
+        }
+
+        .electricity-total-value,
+        .kpi-plant-value {
+            font-size: 11px;
+        }
+
+        .section-header {
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+        }
+
+        .section-header h2 {
+            font-size: 16px;
+        }
+
+        .section-subtitle {
+            font-size: 10px;
+        }
+
+        .status-pill {
+            min-width: 58px;
+            padding: 2px 6px;
+            font-size: 8px;
+        }
+
+        .value,
+        .electricity-inline-ratio,
+        .electricity-inline-ratio-table,
+        .pct {
+            display: inline;
+            white-space: nowrap;
+        }
+
+        .electricity-inline-ratio,
+        .electricity-inline-ratio-table,
+        .pct {
+            font-size: 7px !important;
+            margin-left: 2px !important;
+        }
+
+        .electricity-comparison-table .col-current,
+        .electricity-comparison-table .col-previous,
+        .electricity-top10-table .col-current,
+        .electricity-top10-table .col-previous,
+        .electricity-daily-summary-table .col-top1-value,
+        .electricity-daily-summary-table .col-total-energy,
+        .electricity-daily-summary-table .col-avg-active {
+            white-space: nowrap;
+        }
+
+        .electricity-top10-table,
+        .electricity-daily-summary-table,
+        .electricity-daily-detail-table,
+        .utility-total-table,
+        .utility-detail-table,
+        .kpi-area-table,
+        .kpi-product-table,
+        .kpi-daily-detail-table {
+            min-width: 0 !important;
+        }
+
+        .electricity-daily-detail-table td,
+        .utility-detail-table td,
+        .kpi-daily-detail-table td {
+            text-align: center;
+        }
+
+        .electricity-daily-detail-table th,
+        .electricity-daily-detail-table td {
+            white-space: nowrap;
+        }
+
+        .electricity-daily-detail-table .col-date,
+        .utility-detail-table .col-date,
+        .kpi-daily-detail-table td:first-child {
+            text-align: left;
+        }
+
+        .pdf-section-opening,
+        .pdf-keep-together,
+        .utility-total-block,
+        .kpi-total-block,
+        .kpi-product-block,
+        .electricity-detail-block,
+        .electricity-daily-summary-block {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .pdf-landscape-block {
+            page: landscape-page;
+            break-before: page;
+            page-break-before: always;
+        }
+
+        .pdf-landscape-block .report-table-ui th,
+        .pdf-landscape-block .report-table-ui td {
+            padding: 4px 5px !important;
+            font-size: 8px !important;
+        }
+
+        .pdf-landscape-block .section-header,
+        .pdf-landscape-block .electricity-subsection-title {
+            break-after: avoid;
+            page-break-after: avoid;
+        }
+
+        .pdf-landscape-block .col-date {
+            min-width: 78px !important;
+        }
+
+        .electricity-daily-detail-block,
+        .electricity-daily-detail-table-block,
+        .utility-detail-block,
+        .kpi-daily-detail-block {
+            break-inside: auto;
+            page-break-inside: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
