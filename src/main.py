@@ -182,6 +182,7 @@ def _build_utility_object(
 def _build_energy_object(
     repos: dict[str, EnergyDataRepository],
     period,
+    kpi_object: dict[str, Any],
 ) -> dict[str, Any]:
     """Build the full energy object for current and previous period."""
     energy_service = EnergyService()
@@ -219,6 +220,10 @@ def _build_energy_object(
     energy_object = energy_service.build_full_energy_object(
         current_area_rows=current_area_rows,
         previous_area_rows=previous_area_rows,
+
+        current_kpi_summary=kpi_object["current"]["summary"],
+        previous_kpi_summary=kpi_object["previous"]["summary"],
+
         report_start=period.start_date,
         report_end=period.end_date,
         previous_start=period.previous_start_date,
@@ -366,7 +371,7 @@ def run_dev_test() -> None:
 
     kpi_object = _build_kpi_object(repos, period)
     utility_object = _build_utility_object(repos, period)
-    energy_object = _build_energy_object(repos, period)
+    energy_object = _build_energy_object(repos, period, kpi_object)
 
     report_context = _build_report_context(
         env_cfg=env_cfg,

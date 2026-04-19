@@ -16,6 +16,8 @@ class EnergyService:
         self,
         current_area_rows: dict[str, list[dict[str, Any]]],
         previous_area_rows: dict[str, list[dict[str, Any]]],
+        current_kpi_summary: dict[str, Any],
+        previous_kpi_summary: dict[str, Any],
         report_start: date,
         report_end: date,
         previous_start: date,
@@ -24,12 +26,14 @@ class EnergyService:
         """Build full energy object for V2 report."""
         current_obj = self.build_energy_report_object(
             area_rows=current_area_rows,
+            kpi_summary=current_kpi_summary,   
             report_start=report_start,
             report_end=report_end,
         )
 
         previous_obj = self.build_energy_report_object(
             area_rows=previous_area_rows,
+            kpi_summary=previous_kpi_summary,  
             report_start=previous_start,
             report_end=previous_end,
         )
@@ -56,6 +60,7 @@ class EnergyService:
     def build_energy_report_object(
         self,
         area_rows: dict[str, list[dict[str, Any]]],
+        kpi_summary: dict[str, Any],
         report_start: date,
         report_end: date,
     ) -> dict[str, Any]:
