@@ -288,7 +288,7 @@
         }
 
         /* ==========================================================================
-        Generic card / table wrappers
+        Generic cards / wrappers
         ========================================================================== */
 
         .surface-card {
@@ -330,6 +330,98 @@
         .surface-table tbody tr:last-child td {
             border-bottom: none;
         }
+
+        /* ==========================================================================
+        Reusable report table system
+        ========================================================================== */
+
+        .report-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+        }
+
+        .report-table-ui {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .report-table-ui th,
+        .report-table-ui td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-row);
+            vertical-align: middle;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .report-table-ui thead th {
+            background: var(--bg-header);
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .report-table-ui tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .report-table-ui .col-date {
+            min-width: 150px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .report-table-ui .col-current {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        .report-table-ui .col-previous {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .report-table-ui .col-delta,
+        .report-table-ui .col-delta-pct {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .report-table-ui .col-unit,
+        .report-table-ui .col-source,
+        .report-table-ui .col-area-light {
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .report-table-ui .sticky-date-col {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--bg-card);
+        }
+
+        .report-table-ui thead .sticky-date-col {
+            background: var(--bg-header);
+            z-index: 4;
+        }
+
+        .report-table-ui tbody tr:nth-child(even) .sticky-date-col {
+            background: #fcfcfc;
+        }
+
+        .report-table-ui .value-zero {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        /* ==========================================================================
+        Values / inline helpers
+        ========================================================================== */
 
         .value {
             font-weight: 700;
@@ -384,32 +476,33 @@
             color: var(--trend-neutral);
         }
 
-        .status-badge {
+        .status-pill {
             display: inline-block;
-            min-width: 70px;
+            min-width: 84px;
             text-align: center;
-            padding: 3px 8px;
+            padding: 3px 10px;
             border-radius: 999px;
             font-size: 11px;
             font-weight: 700;
+            border: 1px solid transparent;
         }
 
         .status-ok {
             background: #e8f5e9;
             color: #1b5e20;
-            border: 1px solid #b7dfba;
+            border-color: #b7dfba;
         }
 
         .status-partial {
             background: #fff4db;
             color: #8a5a00;
-            border: 1px solid #e3c37f;
+            border-color: #e3c37f;
         }
 
         .status-missing {
             background: #fdecec;
             color: #a61b1b;
-            border: 1px solid #e4aaaa;
+            border-color: #e4aaaa;
         }
 
         .row-ok {
@@ -422,6 +515,18 @@
 
         .row-missing {
             background: #fff0f0 !important;
+        }
+
+        .kpi-row-ok {
+            background: #ffffff;
+        }
+
+        .kpi-row-missing {
+            background: #fff0f0;
+        }
+
+        .kpi-row-partial {
+            background: #fff9e8;
         }
 
         /* ==========================================================================
@@ -503,39 +608,8 @@
             margin-bottom: var(--space-md);
         }
 
-        .electricity-comparison-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
-        }
-
         .electricity-comparison-table {
-            width: 100%;
             min-width: 760px;
-            border-collapse: collapse;
-        }
-
-        .electricity-comparison-table th,
-        .electricity-comparison-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-row);
-            text-align: left;
-            vertical-align: middle;
-            font-size: 13px;
-        }
-
-        .electricity-comparison-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-            white-space: nowrap;
-        }
-
-        .electricity-comparison-table tbody tr:last-child td {
-            border-bottom: none;
         }
 
         .electricity-comparison-table .col-area {
@@ -545,28 +619,10 @@
             white-space: nowrap;
         }
 
-        .electricity-comparison-table .col-current {
-            color: var(--brand);
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .electricity-comparison-table .col-previous {
-            color: var(--accent);
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .electricity-comparison-table .col-delta,
-        .electricity-comparison-table .col-delta-pct,
         .electricity-comparison-table .col-meter-count {
             white-space: nowrap;
-            font-weight: 700;
-        }
-
-        .electricity-comparison-table .col-meter-count {
-            color: #475569;
             font-weight: 600;
+            color: #475569;
         }
 
         /* ==========================================================================
@@ -578,39 +634,11 @@
         }
 
         .electricity-top10-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
             margin-bottom: 10px;
         }
 
         .electricity-top10-table {
-            width: 100%;
             min-width: 960px;
-            border-collapse: collapse;
-        }
-
-        .electricity-top10-table th,
-        .electricity-top10-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-row);
-            vertical-align: middle;
-            font-size: 13px;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        .electricity-top10-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .electricity-top10-table tbody tr:last-child td {
-            border-bottom: none;
         }
 
         .electricity-top10-table .col-rank {
@@ -632,21 +660,6 @@
             color: #475569;
             font-weight: 600;
             white-space: nowrap;
-        }
-
-        .electricity-top10-table .col-current {
-            color: var(--brand);
-            font-weight: 700;
-        }
-
-        .electricity-top10-table .col-previous {
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .electricity-top10-table .col-delta,
-        .electricity-top10-table .col-delta-pct {
-            font-weight: 700;
         }
 
         .electricity-top10-note {
@@ -690,44 +703,13 @@
             margin-bottom: 14px;
         }
 
-        .electricity-daily-summary-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
-        }
-
         .electricity-daily-summary-table {
-            width: 100%;
             min-width: 980px;
-            border-collapse: collapse;
         }
 
-        .electricity-daily-summary-table th,
-        .electricity-daily-summary-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-row);
-            vertical-align: middle;
-            font-size: 13px;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        .electricity-daily-summary-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .electricity-daily-summary-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .electricity-daily-summary-table .col-date {
-            min-width: 150px;
-            font-weight: 700;
+        .electricity-daily-summary-table .col-top1-meter {
+            min-width: 100px;
+            font-weight: 600;
             color: var(--text-main);
         }
 
@@ -736,12 +718,6 @@
         .electricity-daily-summary-table .col-avg-active {
             color: var(--brand);
             font-weight: 700;
-        }
-
-        .electricity-daily-summary-table .col-top1-meter {
-            min-width: 100px;
-            font-weight: 600;
-            color: var(--text-main);
         }
 
         .electricity-daily-summary-table .col-active,
@@ -817,45 +793,6 @@
         }
 
         /* ==========================================================================
-        Footer
-        ========================================================================== */
-
-        .report-footer {
-            margin-top: 30px;
-            padding-top: 12px;
-            border-top: 1px solid #dbe3ea;
-            display: flex;
-            justify-content: space-between;
-            gap: var(--space-md);
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .footer-left,
-        .footer-right {
-            width: 49%;
-        }
-
-        .footer-right {
-            text-align: right;
-        }
-        /* Daily summary sticky date column */
-        .electricity-daily-summary-table .sticky-date-col {
-            position: sticky;
-            left: 0;
-            z-index: 3;
-            background: #ffffff;
-        }
-
-        .electricity-daily-summary-table thead .sticky-date-col {
-            background: #f8fafc;
-            z-index: 4;
-        }
-
-        .electricity-daily-summary-table tbody tr:nth-child(even) .sticky-date-col {
-            background: #fcfcfc;
-        }
-        /* ==========================================================================
         Electricity daily detail tables
         ========================================================================== */
 
@@ -867,45 +804,23 @@
             margin-bottom: 18px;
         }
 
-        .electricity-daily-detail-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
-        }
-
         .electricity-daily-detail-table {
-            width: 100%;
             min-width: 980px;
-            border-collapse: collapse;
         }
 
         .electricity-daily-detail-table th,
         .electricity-daily-detail-table td {
             padding: 9px 10px;
-            border-bottom: 1px solid var(--border-row);
-            vertical-align: middle;
-            text-align: left;
-            white-space: nowrap;
             font-size: 12.5px;
         }
 
-        .electricity-daily-detail-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .electricity-daily-detail-table tbody tr:last-child td {
-            border-bottom: none;
+        .electricity-daily-detail-table td {
+            text-align: right;
+            transition: all 0.15s ease;
         }
 
         .electricity-daily-detail-table .col-date {
-            min-width: 150px;
-            font-weight: 700;
-            color: var(--text-main);
+            text-align: left;
         }
 
         .electricity-daily-detail-table .col-value {
@@ -913,51 +828,6 @@
             font-weight: 700;
         }
 
-        .electricity-daily-detail-table .sticky-date-col {
-            position: sticky;
-            left: 0;
-            z-index: 3;
-            background: var(--bg-card);
-        }
-
-        .electricity-daily-detail-table thead .sticky-date-col {
-            background: var(--bg-header);
-            z-index: 4;
-        }
-
-        .electricity-daily-detail-table tbody tr:nth-child(even) .sticky-date-col {
-            background: #fcfcfc;
-        }
-        .electricity-daily-detail-table td {
-            text-align: right;
-        }
-
-        .electricity-daily-detail-table .col-date {
-            text-align: left;
-        }
-
-        /* Daily detail cell states */
-        .electricity-daily-detail-table .value-zero {
-            color: #9ca3af;
-            font-weight: 500;
-        }
-
-        /* .electricity-daily-detail-table .value-max {
-            background: #eff6ff;
-            color: #1d4ed8;
-            font-weight: 700;
-        } */
-        .electricity-daily-detail-table td {
-            transition: all 0.15s ease;
-        }
-
-        /* .electricity-daily-detail-table .value-zero {
-            color: #cbd5f5;
-            font-weight: 500;
-        } */
-        tbody tr:hover td {
-            background: #e8eef4;
-        }
         .electricity-daily-detail-table .value-zero {
             color: #cbd5e1;
             font-weight: 500;
@@ -968,6 +838,10 @@
             color: #1d4ed8;
             font-weight: 700;
             border-bottom: 2px solid #3b82f6;
+        }
+
+        .electricity-daily-detail-table tbody tr:hover td {
+            background: #e8eef4;
         }
 
         /* Daily detail heatmap */
@@ -986,47 +860,26 @@
         .electricity-daily-detail-table .heat-4 {
             background: #deecff;
         }
+
         /* ==========================================================================
-        Utility total summary
+        Utility
         ========================================================================== */
 
-        .utility-total-block {
+        .utility-total-block,
+        .utility-detail-block {
             margin-bottom: 14px;
         }
 
-        .utility-total-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
+        .utility-detail-block {
+            margin-top: 16px;
         }
 
         .utility-total-table {
-            width: 100%;
             min-width: 980px;
-            border-collapse: collapse;
         }
 
-        .utility-total-table th,
-        .utility-total-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-row);
-            vertical-align: middle;
-            text-align: left;
-            white-space: nowrap;
-            font-size: 13px;
-        }
-
-        .utility-total-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .utility-total-table tbody tr:last-child td {
-            border-bottom: none;
+        .utility-detail-table {
+            min-width: 860px;
         }
 
         .utility-total-table .col-utility {
@@ -1037,206 +890,6 @@
 
         .utility-total-table .col-unit {
             min-width: 70px;
-            color: #475569;
-            font-weight: 600;
-        }
-
-        .utility-total-table .col-current {
-            color: var(--brand);
-            font-weight: 700;
-        }
-
-        .utility-total-table .col-previous {
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .utility-total-table .col-delta,
-        .utility-total-table .col-delta-pct {
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .utility-total-table .trend-up {
-            color: var(--trend-up);
-        }
-
-        .utility-total-table .trend-down {
-            color: var(--trend-down);
-        }
-
-        .utility-total-table .trend-neutral {
-            color: var(--trend-neutral);
-        }
-
-        @media (max-width: 700px) {
-            .utility-total-table {
-                min-width: 760px;
-            }
-
-            .utility-total-table th,
-            .utility-total-table td {
-                padding: 8px 10px;
-                font-size: 12px;
-            }
-
-            .utility-total-table .col-utility {
-                min-width: 150px;
-            }
-        }
-        /* ==========================================================================
-        Utility comparison / coverage
-        ========================================================================== */
-
-        .utility-coverage-block {
-            margin-bottom: 12px;
-        }
-
-        .utility-coverage-banner {
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: #f8fafc;
-            padding: 12px 14px;
-            margin-bottom: 12px;
-        }
-
-        .utility-coverage-title {
-            margin: 0 0 6px 0;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .utility-coverage-text {
-            margin: 0;
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.45;
-        }
-
-        .utility-coverage-text strong {
-            color: var(--text-dark);
-        }
-
-        .utility-comparison-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
-        }
-
-        .utility-comparison-table {
-            width: 100%;
-            min-width: 860px;
-            border-collapse: collapse;
-        }
-
-        .utility-comparison-table th,
-        .utility-comparison-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-row);
-            vertical-align: middle;
-            text-align: left;
-            white-space: nowrap;
-            font-size: 13px;
-        }
-
-        .utility-comparison-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .utility-comparison-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .utility-comparison-table .col-utility {
-            min-width: 180px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .utility-comparison-table .col-current {
-            color: var(--brand);
-            font-weight: 700;
-        }
-
-        .utility-comparison-table .col-previous {
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .utility-comparison-table .col-delta,
-        .utility-comparison-table .col-delta-pct {
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        @media (max-width: 700px) {
-            .utility-comparison-table {
-                min-width: 760px;
-            }
-
-            .utility-comparison-table th,
-            .utility-comparison-table td {
-                padding: 8px 10px;
-                font-size: 12px;
-            }
-
-            .utility-comparison-table .col-utility {
-                min-width: 150px;
-            }
-        }
-        /* ==========================================================================
-        Utility daily detail
-        ========================================================================== */
-
-        .utility-detail-block {
-            margin-top: 16px;
-        }
-
-        .utility-detail-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
-        }
-
-        .utility-detail-table {
-            width: 100%;
-            min-width: 860px;
-            border-collapse: collapse;
-        }
-
-        .utility-detail-table th,
-        .utility-detail-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-row);
-            vertical-align: middle;
-            text-align: left;
-            white-space: nowrap;
-            font-size: 13px;
-        }
-
-        .utility-detail-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .utility-detail-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .utility-detail-table .col-date {
-            min-width: 150px;
-            font-weight: 700;
-            color: var(--text-main);
         }
 
         .utility-detail-table .col-value {
@@ -1244,42 +897,6 @@
             font-weight: 700;
         }
 
-        .utility-detail-table .value-zero {
-            color: #cbd5e1;
-            font-weight: 500;
-        }
-
-        .utility-detail-table .sticky-date-col {
-            position: sticky;
-            left: 0;
-            z-index: 3;
-            background: var(--bg-card);
-        }
-
-        .utility-detail-table thead .sticky-date-col {
-            background: var(--bg-header);
-            z-index: 4;
-        }
-
-        .utility-detail-table tbody tr:nth-child(even) .sticky-date-col {
-            background: #fcfcfc;
-        }
-
-        @media (max-width: 700px) {
-            .utility-detail-table {
-                min-width: 760px;
-            }
-
-            .utility-detail-table th,
-            .utility-detail-table td {
-                padding: 8px 10px;
-                font-size: 12px;
-            }
-
-            .utility-detail-table .col-date {
-                min-width: 130px;
-            }
-        }
         /* ==========================================================================
         KPI total
         ========================================================================== */
@@ -1350,39 +967,8 @@
             line-height: 1.45;
         }
 
-        .kpi-area-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
-        }
-
         .kpi-area-table {
-            width: 100%;
             min-width: 520px;
-            border-collapse: collapse;
-        }
-
-        .kpi-area-table th,
-        .kpi-area-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-row);
-            vertical-align: middle;
-            text-align: left;
-            white-space: nowrap;
-            font-size: 13px;
-        }
-
-        .kpi-area-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .kpi-area-table tbody tr:last-child td {
-            border-bottom: none;
         }
 
         .kpi-area-table .col-area {
@@ -1391,37 +977,6 @@
             color: var(--text-main);
         }
 
-        .kpi-area-table .col-current {
-            color: var(--brand);
-            font-weight: 700;
-        }
-
-        .kpi-area-table .col-previous {
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .kpi-area-table .col-unit {
-            color: #475569;
-            font-weight: 600;
-        }
-        .kpi-area-table .col-delta,
-        .kpi-area-table .col-delta-pct {
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .kpi-area-table .trend-up {
-            color: var(--trend-up);
-        }
-
-        .kpi-area-table .trend-down {
-            color: var(--trend-down);
-        }
-
-        .kpi-area-table .trend-neutral {
-            color: var(--trend-neutral);
-        }
         .kpi-area-table .pct {
             margin-left: 4px;
             font-size: 12px;
@@ -1429,136 +984,7 @@
             font-weight: 600;
             white-space: nowrap;
         }
-        @media (max-width: 900px) {
-            .kpi-total-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        /* ==========================================================================
-        KPI daily detail
-        ========================================================================== */
 
-        .kpi-daily-detail-block {
-            margin-top: 16px;
-        }
-
-        .kpi-daily-detail-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
-        }
-
-        .kpi-daily-detail-table {
-            width: 100%;
-            min-width: 980px;
-            border-collapse: collapse;
-        }
-
-        .kpi-daily-detail-table th,
-        .kpi-daily-detail-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-row);
-            vertical-align: middle;
-            text-align: left;
-            white-space: nowrap;
-            font-size: 13px;
-        }
-
-        .kpi-daily-detail-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .kpi-daily-detail-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .kpi-daily-detail-table .col-date {
-            min-width: 140px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .kpi-daily-detail-table .col-source {
-            min-width: 80px;
-            color: #475569;
-            font-weight: 600;
-        }
-
-        .kpi-daily-detail-table .col-plant,
-        .kpi-daily-detail-table .col-ico,
-        .kpi-daily-detail-table .col-diode,
-        .kpi-daily-detail-table .col-sakari {
-            color: var(--brand);
-            font-weight: 700;
-        }
-
-        .kpi-daily-detail-table .col-note {
-            min-width: 220px;
-            color: #475569;
-            white-space: normal;
-        }
-
-        .kpi-status-badge {
-            display: inline-block;
-            min-width: 84px;
-            text-align: center;
-            padding: 3px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
-            border: 1px solid transparent;
-        }
-
-        .kpi-status-ok {
-            background: #e8f5e9;
-            color: #1b5e20;
-            border-color: #b7dfba;
-        }
-
-        .kpi-status-missing {
-            background: #fdecec;
-            color: #a61b1b;
-            border-color: #e4aaaa;
-        }
-
-        .kpi-status-partial {
-            background: #fff4db;
-            color: #8a5a00;
-            border-color: #e3c37f;
-        }
-
-        .kpi-row-ok {
-            background: #ffffff;
-        }
-
-        .kpi-row-missing {
-            background: #fff0f0;
-        }
-
-        .kpi-row-partial {
-            background: #fff9e8;
-        }
-
-        @media (max-width: 700px) {
-            .kpi-daily-detail-table {
-                min-width: 920px;
-            }
-
-            .kpi-daily-detail-table th,
-            .kpi-daily-detail-table td {
-                padding: 8px 10px;
-                font-size: 12px;
-            }
-
-            .kpi-daily-detail-table .col-date {
-                min-width: 130px;
-            }
-        }
         /* ==========================================================================
         KPI product context
         ========================================================================== */
@@ -1567,39 +993,8 @@
             margin-top: 16px;
         }
 
-        .kpi-product-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
-        }
-
         .kpi-product-table {
-            width: 100%;
             min-width: 720px;
-            border-collapse: collapse;
-        }
-
-        .kpi-product-table th,
-        .kpi-product-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-row);
-            vertical-align: middle;
-            text-align: left;
-            white-space: nowrap;
-            font-size: 13px;
-        }
-
-        .kpi-product-table thead th {
-            background: var(--bg-header);
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .kpi-product-table tbody tr:last-child td {
-            border-bottom: none;
         }
 
         .kpi-product-table .col-level {
@@ -1608,49 +1003,48 @@
             color: var(--text-main);
         }
 
-        .kpi-product-table .col-current {
-            color: var(--brand);
-            font-weight: 700;
+        /* ==========================================================================
+        KPI daily detail
+        ========================================================================== */
+
+        .kpi-daily-detail-block {
+            margin-top: 16px;
         }
 
-        .kpi-product-table .col-previous {
-            color: var(--accent);
-            font-weight: 700;
+        .kpi-daily-detail-table {
+            min-width: 1400px;
         }
 
-        .kpi-product-table .col-delta,
-        .kpi-product-table .col-delta-pct {
-            font-weight: 700;
-            white-space: nowrap;
+        .kpi-daily-detail-table .col-note {
+            min-width: 220px;
+            color: #475569;
+            white-space: normal;
         }
 
-        .kpi-product-table .trend-up {
-            color: var(--trend-up);
+        /* ==========================================================================
+        Footer
+        ========================================================================== */
+
+        .report-footer {
+            margin-top: 30px;
+            padding-top: 12px;
+            border-top: 1px solid #dbe3ea;
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-md);
+            font-size: 11px;
+            color: var(--text-muted);
         }
 
-        .kpi-product-table .trend-down {
-            color: var(--trend-down);
+        .footer-left,
+        .footer-right {
+            width: 49%;
         }
 
-        .kpi-product-table .trend-neutral {
-            color: var(--trend-neutral);
+        .footer-right {
+            text-align: right;
         }
 
-        @media (max-width: 700px) {
-            .kpi-product-table {
-                min-width: 720px;
-            }
-
-            .kpi-product-table th,
-            .kpi-product-table td {
-                padding: 8px 10px;
-                font-size: 12px;
-            }
-
-            .kpi-product-table .col-level {
-                min-width: 120px;
-            }
-        }
         /* ==========================================================================
         Responsive
         ========================================================================== */
@@ -1670,6 +1064,12 @@
 
             .electricity-inline-ratio {
                 display: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .kpi-total-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -1742,31 +1142,25 @@
                 min-width: 680px;
             }
 
-            .electricity-daily-summary-table th,
-            .electricity-daily-summary-table td {
-                padding: 8px 10px;
-                font-size: 12px;
-            }
-
-            .electricity-daily-summary-table .col-date {
-                min-width: 130px;
-            }
-
             .electricity-daily-summary-table .col-top1-meter {
                 min-width: 60px;
             }
+
             .electricity-daily-detail-table {
                 min-width: 860px;
             }
 
-            .electricity-daily-detail-table th,
-            .electricity-daily-detail-table td {
-                padding: 8px 10px;
-                font-size: 12px;
+            .utility-total-table,
+            .utility-detail-table {
+                min-width: 760px;
             }
 
-            .electricity-daily-detail-table .col-date {
-                min-width: 130px;
+            .kpi-product-table {
+                min-width: 720px;
+            }
+
+            .kpi-daily-detail-table {
+                min-width: 920px;
             }
         }
 
@@ -1805,15 +1199,14 @@
         <div class="report-header-top">
             <p class="report-small-title">{{ meta.report_title }}</p>
         </div>
-        <header class="report-header-v3"> 
+
+        <header class="report-header-v3">
             <div class="report-header-center">
                 <h1 class="report-main-title">{{ meta.workshop_name }}</h1>
-
                 <p class="report-meta-line">
                     Created: {{ generated_at }}
                 </p>
             </div>
-
         </header>
 
         <div class="report-header-divider"></div>
@@ -1869,7 +1262,8 @@
                 </div>
             </div>
         </div>
-        {% endif %} 
+        {% endif %}
+
         <!-- ========================= -->
         <!-- V3 MAIN SECTION LAYOUT -->
         <!-- ========================= -->
@@ -1892,8 +1286,6 @@
             </div>
 
             <div class="electricity-total-grid">
-
-                <!-- Plant total card -->
                 <div class="electricity-total-card">
                     <h3 class="electricity-total-card-title">Total</h3>
 
@@ -1925,7 +1317,6 @@
                     <div class="electricity-total-metric">
                         <span class="electricity-total-label">Delta %</span>
                         <span class="electricity-total-value delta-pct {{ summary.electricity_snapshot.delta_pct_class }}">
-
                             {% if summary.electricity_snapshot.delta_pct_class == 'trend-up' %}
                                 <span class="delta-arrow trend-up">▼</span>
                             {% elif summary.electricity_snapshot.delta_pct_class == 'trend-down' %}
@@ -1933,14 +1324,11 @@
                             {% else %}
                                 <span class="delta-arrow trend-neutral">•</span>
                             {% endif %}
-
                             {{ summary.electricity_snapshot.delta_pct_display }}
-
                         </span>
                     </div>
                 </div>
 
-                <!-- Area cards -->
                 {% for row in sections.electricity.totals.rows %}
                 <div class="electricity-total-card">
                     <h3 class="electricity-total-card-title">{{ row.area_name }}</h3>
@@ -1954,8 +1342,7 @@
                             {% if summary.electricity_snapshot.current_display != "-" %}
                                 {% set ns_current_ratio = namespace(value=None) %}
                                 {% if summary.electricity_snapshot.current_display %}
-                                    {% set total_current = summary.electricity_snapshot.current_display
-                                        | replace(',', '') | float %}
+                                    {% set total_current = summary.electricity_snapshot.current_display | replace(',', '') | float %}
                                     {% set area_current = row.current_display | replace(',', '') | float %}
                                     {% if total_current > 0 %}
                                         {% set ns_current_ratio.value = (area_current / total_current) * 100 %}
@@ -1979,8 +1366,7 @@
                             {% if summary.electricity_snapshot.previous_display != "-" %}
                                 {% set ns_previous_ratio = namespace(value=None) %}
                                 {% if summary.electricity_snapshot.previous_display %}
-                                    {% set total_previous = summary.electricity_snapshot.previous_display
-                                        | replace(',', '') | float %}
+                                    {% set total_previous = summary.electricity_snapshot.previous_display | replace(',', '') | float %}
                                     {% set area_previous = row.previous_display | replace(',', '') | float %}
                                     {% if total_previous > 0 %}
                                         {% set ns_previous_ratio.value = (area_previous / total_previous) * 100 %}
@@ -2013,7 +1399,6 @@
                     <div class="electricity-total-metric">
                         <span class="electricity-total-label">Delta %</span>
                         <span class="electricity-total-value delta-pct {{ ns.match.delta_pct_class if ns.match else '' }}">
-
                             {% if ns.match %}
                                 {% if ns.match.delta_pct_class == 'trend-up' %}
                                     <span class="delta-arrow trend-up">▼</span>
@@ -2022,12 +1407,10 @@
                                 {% else %}
                                     <span class="delta-arrow trend-neutral">•</span>
                                 {% endif %}
-
                                 {{ ns.match.delta_pct_display }}
                             {% else %}
                                 -
                             {% endif %}
-
                         </span>
                     </div>
                 </div>
@@ -2035,18 +1418,18 @@
             </div>
 
             <div class="electricity-comparison-block">
-                <div class="electricity-comparison-table-wrap">
-                    <table class="electricity-comparison-table">
-                    <thead>
-                        <tr>
-                            <th>Area</th>
-                            <th>{{ labels.current_period or "Current" }}</th>
-                            <th>{{ labels.previous_period or "Previous" }}</th>
-                            <th>Delta</th>
-                            <th>Delta %</th>
-                            <th>Meter Active / Total</th>
-                        </tr>
-                    </thead>
+                <div class="electricity-comparison-table-wrap report-table-wrap">
+                    <table class="electricity-comparison-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th>Area</th>
+                                <th>{{ labels.current_period or "Current" }}</th>
+                                <th>{{ labels.previous_period or "Previous" }}</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                                <th>Meter Active / Total</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             {% for row in sections.electricity.comparison.rows %}
                             <tr>
@@ -2098,8 +1481,8 @@
             <div class="electricity-detail-block">
                 <h3 class="electricity-subsection-title">Top 10 meters</h3>
 
-                <div class="electricity-top10-wrap">
-                    <table class="electricity-top10-table">
+                <div class="electricity-top10-wrap report-table-wrap">
+                    <table class="electricity-top10-table report-table-ui">
                         <thead>
                             <tr>
                                 <th class="col-rank sticky-rank">Rank</th>
@@ -2115,14 +1498,8 @@
                             {% for row in sections.electricity.top10.rows %}
                             <tr>
                                 <td class="col-rank sticky-rank">{{ row.rank }}</td>
-
-                                <td class="col-meter sticky-meter">
-                                    {{ row.display_name }}
-                                </td>
-
-                                <td class="col-area">
-                                    {{ row.area }}
-                                </td>
+                                <td class="col-meter sticky-meter">{{ row.display_name }}</td>
+                                <td class="col-area">{{ row.area }}</td>
 
                                 <td class="col-current">
                                     <span class="value">{{ row.current_display }}</span>
@@ -2163,8 +1540,8 @@
             <div class="electricity-daily-summary-block">
                 <h3 class="electricity-subsection-title">Daily summary</h3>
 
-                <div class="electricity-daily-summary-wrap">
-                    <table class="electricity-daily-summary-table">
+                <div class="electricity-daily-summary-wrap report-table-wrap">
+                    <table class="electricity-daily-summary-table report-table-ui">
                         <thead>
                             <tr>
                                 <th class="col-date sticky-date-col">Date</th>
@@ -2198,8 +1575,8 @@
                         </tbody>
                     </table>
                 </div>
-            </div> 
-            
+            </div>
+
             <div class="electricity-daily-detail-block">
                 <h3 class="electricity-subsection-title">Daily detail tables</h3>
 
@@ -2207,8 +1584,8 @@
                 <div class="electricity-daily-detail-table-block">
                     <h4 class="electricity-subsection-title">{{ table.title }}</h4>
 
-                    <div class="electricity-daily-detail-table-wrap">
-                        <table class="electricity-daily-detail-table">
+                    <div class="electricity-daily-detail-table-wrap report-table-wrap">
+                        <table class="electricity-daily-detail-table report-table-ui">
                             <thead>
                                 <tr>
                                     {% for column in table.columns %}
@@ -2236,7 +1613,7 @@
                     </div>
                 </div>
                 {% endfor %}
-            </div>            
+            </div>
         </section>
         {% endif %}
 
@@ -2255,8 +1632,8 @@
             <div class="utility-total-block">
                 <h3 class="electricity-subsection-title">Utility summary</h3>
 
-                <div class="utility-total-table-wrap">
-                    <table class="utility-total-table">
+                <div class="utility-total-table-wrap report-table-wrap">
+                    <table class="utility-total-table report-table-ui">
                         <thead>
                             <tr>
                                 <th>Utility</th>
@@ -2273,13 +1650,8 @@
                                 <td class="col-utility">{{ row.display_name }}</td>
                                 <td class="col-unit">{{ row.unit }}</td>
 
-                                <td class="col-current">
-                                    {{ row.current_display }}
-                                </td>
-
-                                <td class="col-previous">
-                                    {{ row.previous_display }}
-                                </td>
+                                <td class="col-current">{{ row.current_display }}</td>
+                                <td class="col-previous">{{ row.previous_display }}</td>
 
                                 <td class="col-delta {{ row.delta_class }}">
                                     {{ row.delta_display }}
@@ -2305,8 +1677,8 @@
             <div class="utility-detail-block">
                 <h3 class="electricity-subsection-title">Daily utility detail</h3>
 
-                <div class="utility-detail-table-wrap">
-                    <table class="utility-detail-table">
+                <div class="utility-detail-table-wrap report-table-wrap">
+                    <table class="utility-detail-table report-table-ui">
                         <thead>
                             <tr>
                                 <th class="col-date sticky-date-col">Date</th>
@@ -2319,7 +1691,6 @@
                             {% for row in sections.utility.consumption.detail.daily_rows %}
                             <tr>
                                 <td class="col-date sticky-date-col">{{ row.date_display }}</td>
-
                                 {% for cell in row.daily_values %}
                                 <td class="col-value {% if cell.display in ['0.00', '0', '-', '0.0'] %}value-zero{% endif %}">
                                     {{ cell.display }}
@@ -2396,8 +1767,8 @@
                         </div>
                     </div>
 
-                    <div class="kpi-area-table-wrap">
-                        <table class="kpi-area-table">
+                    <div class="kpi-area-table-wrap report-table-wrap">
+                        <table class="kpi-area-table report-table-ui">
                             <thead>
                                 <tr>
                                     <th>Area</th>
@@ -2479,8 +1850,8 @@
                     {{ sections.kpi.product_context.title }}
                 </h3>
 
-                <div class="kpi-product-table-wrap">
-                    <table class="kpi-product-table">
+                <div class="kpi-product-table-wrap report-table-wrap">
+                    <table class="kpi-product-table report-table-ui">
                         <thead>
                             <tr>
                                 <th class="col-level">Level</th>
@@ -2513,8 +1884,8 @@
             <div class="kpi-daily-detail-block">
                 <h3 class="electricity-subsection-title">Daily KPI detail</h3>
 
-                <div class="kpi-daily-detail-table-wrap">
-                    <table class="kpi-daily-detail-table">
+                <div class="kpi-daily-detail-table-wrap report-table-wrap">
+                    <table class="kpi-daily-detail-table report-table-ui">
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -2565,7 +1936,7 @@
                                 <td>{{ row.diode_kpi_display }}</td>
                                 <td>{{ row.sakari_kpi_display }}</td>
 
-                                <td>{{ row.coverage_note or "" }}</td>
+                                <td class="col-note">{{ row.coverage_note or "" }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
