@@ -47,6 +47,7 @@ class EnergyService:
             "top10_meters": self.build_top10_comparison(
                 current_top10=current_obj["top10_meters"],
                 previous_area_rows=previous_area_rows,
+                previous_kpi_summary=previous_kpi_summary,
                 report_start=previous_start,
                 report_end=previous_end,
             ),
@@ -71,8 +72,21 @@ class EnergyService:
             for area, rows in area_rows.items()
         }
 
+        kpi_daily_lookup = self._build_kpi_daily_energy_lookup(
+            kpi_summary=kpi_summary,
+            report_start=report_start,
+            report_end=report_end,
+        )
+
         area_tables = {
-            area: self.build_daily_energy_table(area, rows)
+            area: self.build_daily_energy_table(
+                area_key=area,
+                rows=rows,
+                area_daily_energy_lookup={
+                    dt_value: daily_item.get(area)
+                    for dt_value, daily_item in kpi_daily_lookup.items()
+                },
+            )
             for area, rows in filtered_area_rows.items()
         }
 
@@ -109,6 +123,7 @@ class EnergyService:
         self,
         area_key: str,
         rows: list[dict[str, Any]],
+        area_daily_energy_lookup: dict[date, float | None],
     ) -> dict[str, Any]:
         """Build one dynamic daily energy table."""
         area_metadata = get_energy_area_metadata()
@@ -168,8 +183,10 @@ class EnergyService:
                     elif column in submeter_columns:
                         submeter_total += value
 
-            # Temporary formula for current step
-            unknown_load = main_feeder_total - submeter_total
+            official_daily_total = area_daily_energy_lookup.get(dt_value)
+            official_daily_total_value = float(official_daily_total) if official_daily_total is not None else 0.0
+
+            unknown_load = official_daily_total_value - submeter_total
 
             # Build row numeric map including unknown load
             row_numeric_map: dict[str, float] = {}
@@ -261,6 +278,7 @@ class EnergyService:
             daily_rows.append({
                 "date": dt_value,
                 "date_display": self._format_date_with_weekday(dt_value),
+                "official_daily_total": official_daily_total_value,
                 "main_feeder_total": main_feeder_total,
                 "submeter_total": submeter_total,
                 "unknown_load": unknown_load,
@@ -402,18 +420,28 @@ class EnergyService:
         self,
         current_top10: list[dict[str, Any]],
         previous_area_rows: dict[str, list[dict[str, Any]]],
+        previous_kpi_summary: dict[str, Any],
         report_start: date,
         report_end: date,
     ) -> list[dict[str, Any]]:
         """Attach previous-period values to current top 10 meters."""
+        previous_kpi_daily_lookup = self._build_kpi_daily_energy_lookup(
+            kpi_summary=previous_kpi_summary,
+            report_start=report_start,
+            report_end=report_end,
+        )
+
         previous_tables = {
             area: self.build_daily_energy_table(
-                area,
-                self._filter_rows_in_period(rows, report_start, report_end),
+                area_key=area,
+                rows=self._filter_rows_in_period(rows, report_start, report_end),
+                area_daily_energy_lookup={
+                    dt_value: daily_item.get(area)
+                    for dt_value, daily_item in previous_kpi_daily_lookup.items()
+                },
             )
             for area, rows in previous_area_rows.items()
         }
-
         previous_lookup: dict[tuple[str, str], float] = {}
 
         for area_key, table in previous_tables.items():
@@ -549,3 +577,43 @@ class EnergyService:
         if val is None:
             return "-"
         return f"{float(val) * 100:.2f}%"
+
+    def _build_kpi_daily_energy_lookup(
+        self,
+        kpi_summary: dict[str, Any],
+        report_start: date,
+        report_end: date,
+    ) -> dict[date, dict[str, float | None]]:
+        """Build a simple daily KPI energy lookup using period average as proxy."""
+        plant_total = kpi_summary.get("plant", {}).get("total_energy")
+
+        area_totals = {
+            "diode": kpi_summary.get("areas", {}).get("diode", {}).get("energy"),
+            "ico": kpi_summary.get("areas", {}).get("ico", {}).get("energy"),
+            "sakari": kpi_summary.get("areas", {}).get("sakari", {}).get("energy"),
+        }
+
+        total_days = (report_end - report_start).days + 1
+        if total_days <= 0:
+            return {}
+
+        plant_daily = (float(plant_total) / total_days) if plant_total is not None else None
+
+        area_daily = {
+            area_key: (float(total_value) / total_days) if total_value is not None else None
+            for area_key, total_value in area_totals.items()
+        }
+
+        result: dict[date, dict[str, float | None]] = {}
+
+        current_day = report_start
+        while current_day <= report_end:
+            result[current_day] = {
+                "plant_total_energy": plant_daily,
+                "diode": area_daily["diode"],
+                "ico": area_daily["ico"],
+                "sakari": area_daily["sakari"],
+            }
+            current_day = current_day.fromordinal(current_day.toordinal() + 1)
+
+        return result
