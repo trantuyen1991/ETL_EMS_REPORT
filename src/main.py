@@ -229,16 +229,8 @@ def _build_energy_object(
         previous_start=period.previous_start_date,
         previous_end=period.previous_end_date,
     )
-    print(
-        f"[TEST] sample official_daily_total={energy_object['current']['daily_tables'][0]['rows'][0]['official_daily_total']}"
-    )
-    print(
-        f"[TEST] sample unknown={energy_object['current']['daily_tables'][0]['rows'][0]['unknown_load']}"
-    )
-    print(
-        f"[TEST] sample daily summary={energy_object['current']['daily_summary_rows'][0]}"
-    )
-    print(f"[TEST] summary current={energy_object['current']['summary']}")
+    print(f"[TEST] anomaly_count={len(energy_object['current']['anomalies'])}")
+    print(f"[TEST] anomaly_sample={energy_object['current']['anomalies'][:3]}")
     return energy_object
 
 def _build_report_context(

@@ -105,7 +105,84 @@ class EnergyService:
                 area_tables["ico"],
                 area_tables["sakari"],
             ],
+            "anomalies": self._build_energy_anomalies(area_tables),
         }
+    
+    def _build_energy_anomalies(
+        self,
+        area_tables: dict[str, dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Build anomaly rows for electricity analysis."""
+        anomalies: list[dict[str, Any]] = []
+
+        for area_key, table in area_tables.items():
+            for row in table.get("rows", []):
+                dt_value = row.get("date")
+                official_daily_total = float(row.get("official_daily_total") or 0.0)
+                main_feeder_total = float(row.get("main_feeder_total") or 0.0)
+                submeter_total = float(row.get("submeter_total") or 0.0)
+                unknown_load = float(row.get("unknown_load") or 0.0)
+
+                unknown_ratio = None
+                if official_daily_total > 0:
+                    unknown_ratio = unknown_load / official_daily_total
+
+                feeder_gap = main_feeder_total - official_daily_total
+                feeder_gap_ratio = None
+                if official_daily_total > 0:
+                    feeder_gap_ratio = feeder_gap / official_daily_total
+
+                # Rule 1: Negative unknown load
+                if unknown_load < 0:
+                    anomalies.append({
+                        "area_key": area_key,
+                        "date": dt_value,
+                        "date_display": self._format_date_with_weekday(dt_value),
+                        "rule_code": "NEGATIVE_UNKNOWN_LOAD",
+                        "severity": "warning",
+                        "official_daily_total": official_daily_total,
+                        "main_feeder_total": main_feeder_total,
+                        "submeter_total": submeter_total,
+                        "unknown_load": unknown_load,
+                        "unknown_ratio": round(unknown_ratio, 4) if unknown_ratio is not None else None,
+                        "message": "Unknown load is negative. Submeter total is greater than official daily total.",
+                    })
+
+                # Rule 2: Unknown load too high
+                if unknown_ratio is not None and unknown_ratio > 0.30:
+                    anomalies.append({
+                        "area_key": area_key,
+                        "date": dt_value,
+                        "date_display": self._format_date_with_weekday(dt_value),
+                        "rule_code": "HIGH_UNKNOWN_LOAD",
+                        "severity": "warning",
+                        "official_daily_total": official_daily_total,
+                        "main_feeder_total": main_feeder_total,
+                        "submeter_total": submeter_total,
+                        "unknown_load": unknown_load,
+                        "unknown_ratio": round(unknown_ratio, 4) if unknown_ratio is not None else None,
+                        "message": "Unknown load is greater than 30% of official daily total.",
+                    })
+
+                # Rule 3: Main feeder total differs too much from official total
+                if feeder_gap_ratio is not None and abs(feeder_gap_ratio) > 0.20:
+                    anomalies.append({
+                        "area_key": area_key,
+                        "date": dt_value,
+                        "date_display": self._format_date_with_weekday(dt_value),
+                        "rule_code": "FEEDER_OFFICIAL_GAP",
+                        "severity": "info",
+                        "official_daily_total": official_daily_total,
+                        "main_feeder_total": main_feeder_total,
+                        "submeter_total": submeter_total,
+                        "unknown_load": unknown_load,
+                        "feeder_gap": round(feeder_gap, 4),
+                        "feeder_gap_ratio": round(feeder_gap_ratio, 4),
+                        "message": "Main feeder total differs from official daily total by more than 20%.",
+                    })
+
+        return anomalies
+
     def _extract_meter_columns(
         self,
         rows: list[dict[str, Any]],
