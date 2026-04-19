@@ -155,7 +155,7 @@
                     <table class="kpi-daily-detail-table report-table-ui">
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th class="col-date">Date</th>
                                 <th>Status</th>
                                 <th>Source</th>
 
@@ -179,7 +179,7 @@
                         <tbody>
                             {% for row in sections.kpi.daily_detail.rows %}
                             <tr class="{{ row.row_class }}">
-                                <td>{{ row.date_display }}</td>
+                                <td class="col-date">{{ row.date_display }}</td>
                                 <td>
                                     <span class="status-pill {{ row.status_class }}">
                                         {{ row.status }}
