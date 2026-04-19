@@ -19,8 +19,8 @@ class EnergyService:
         previous_area_rows: dict[str, list[dict[str, Any]]],
         current_kpi_summary: dict[str, Any],
         previous_kpi_summary: dict[str, Any],
-        current_kpi_rows: dict[str, Any],
-        previous_kpi_rows: dict[str, Any],
+        current_kpi_rows: list[dict[str, Any]],
+        previous_kpi_rows: list[dict[str, Any]],
         report_start: date,
         report_end: date,
         previous_start: date,
@@ -51,7 +51,7 @@ class EnergyService:
             "top10_meters": self.build_top10_comparison(
                 current_top10=current_obj["top10_meters"],
                 previous_area_rows=previous_area_rows,
-                previous_kpi_summary=previous_kpi_summary,
+                previous_kpi_rows=previous_kpi_rows,
                 report_start=previous_start,
                 report_end=previous_end,
             ),
@@ -67,7 +67,7 @@ class EnergyService:
         self,
         area_rows: dict[str, list[dict[str, Any]]],
         kpi_summary: dict[str, Any],
-        kpi_rows: dict[str, Any],
+        kpi_rows: list[dict[str, Any]],
         report_start: date,
         report_end: date,
     ) -> dict[str, Any]:
@@ -83,8 +83,9 @@ class EnergyService:
             report_start=report_start,
             report_end=report_end,
         )
-        print(f"[TEST] kpi_daily_lookup_keys={list(kpi_daily_lookup.keys())[:3]}")
-        print(f"[TEST] kpi_daily_lookup_sample={list(kpi_daily_lookup.items())[:3]}")
+
+        period_days = sorted(kpi_daily_lookup.keys())
+
         area_tables = {
             area: self.build_daily_energy_table(
                 area_key=area,
@@ -93,6 +94,7 @@ class EnergyService:
                     dt_value: daily_item.get(area)
                     for dt_value, daily_item in kpi_daily_lookup.items()
                 },
+                period_days=period_days,
             )
             for area, rows in filtered_area_rows.items()
         }
@@ -331,17 +333,25 @@ class EnergyService:
         area_key: str,
         rows: list[dict[str, Any]],
         area_daily_energy_lookup: dict[date, float | None],
+        period_days: list[date],
     ) -> dict[str, Any]:
-        """Build one dynamic daily energy table."""
+        """Build one dynamic daily energy table with dense daily rows."""
         area_metadata = get_energy_area_metadata()
         area_meta = area_metadata.get(area_key, {})
 
         main_feeder_columns = list(area_meta.get("main_feeders", []))
         exclude_from_top10 = list(area_meta.get("exclude_from_top10", []))
+        exclude_from_detail = list(area_meta.get("exclude_from_detail", []))
         unknown_load_key = area_meta.get("unknown_load_key", "unknown_load")
         unknown_load_display_name = area_meta.get("unknown_load_display_name", "Unknown Load")
 
-        meter_columns = self._extract_meter_columns(rows)
+        raw_meter_columns = self._extract_meter_columns(rows)
+
+        meter_columns = [
+            column
+            for column in raw_meter_columns
+            if column not in exclude_from_detail
+        ]
 
         submeter_columns = [
             column
@@ -353,7 +363,6 @@ class EnergyService:
 
         for column in meter_columns:
             meter_role = "main_feeder" if column in main_feeder_columns else "submeter"
-
             columns.append({
                 "key": column,
                 "display_name": column,
@@ -361,7 +370,6 @@ class EnergyService:
                 "meter_role": meter_role,
             })
 
-        # Append unknown load column ONLY ONCE
         columns.append({
             "key": unknown_load_key,
             "display_name": unknown_load_display_name,
@@ -369,21 +377,28 @@ class EnergyService:
             "meter_role": "unknown",
         })
 
+        rows_by_date = {
+            self._to_date(row.get("dt")): row
+            for row in rows
+            if self._to_date(row.get("dt")) is not None
+        }
+
         daily_rows: list[dict[str, Any]] = []
 
-        for row in sorted(rows, key=lambda item: self._to_date(item.get("dt"))):
-            dt_value = self._to_date(row.get("dt"))
+        for dt_value in period_days:
+            source_row = rows_by_date.get(dt_value, {})
 
             cells: list[dict[str, Any]] = []
             main_feeder_total = 0.0
             submeter_total = 0.0
+            has_any_raw_data = False
 
-            # First pass: calculate feeder/submeter totals
             for column in meter_columns:
-                raw_value = row.get(column)
+                raw_value = source_row.get(column)
 
                 if isinstance(raw_value, (int, float)):
                     value = float(raw_value)
+                    has_any_raw_data = True
 
                     if column in main_feeder_columns:
                         main_feeder_total += value
@@ -391,26 +406,30 @@ class EnergyService:
                         submeter_total += value
 
             official_daily_total = area_daily_energy_lookup.get(dt_value)
-            official_daily_total_value = float(official_daily_total) if official_daily_total is not None else 0.0
+            official_daily_total_value = (
+                float(official_daily_total) if official_daily_total is not None else None
+            )
 
-            unknown_load = official_daily_total_value - submeter_total
+            if official_daily_total_value is None and not has_any_raw_data:
+                unknown_load = None
+            else:
+                unknown_load = (official_daily_total_value or 0.0) - submeter_total
 
-            # Build row numeric map including unknown load
             row_numeric_map: dict[str, float] = {}
 
             for column in meter_columns:
-                raw_value = row.get(column)
+                raw_value = source_row.get(column)
                 if isinstance(raw_value, (int, float)):
                     row_numeric_map[column] = float(raw_value)
 
-            row_numeric_map[unknown_load_key] = float(unknown_load)
+            if unknown_load is not None:
+                row_numeric_map[unknown_load_key] = float(unknown_load)
 
             positive_values = [value for value in row_numeric_map.values() if value > 0]
             row_max_value = max(positive_values) if positive_values else None
 
-            # Build normal meter cells
             for column in meter_columns:
-                raw_value = row.get(column)
+                raw_value = source_row.get(column)
 
                 cell_class = ""
                 heat_class = ""
@@ -449,28 +468,28 @@ class EnergyService:
                     "meter_role": meter_role,
                 })
 
-            # Build unknown load cell as a normal meter-like cell
             unknown_cell_class = ""
             unknown_heat_class = ""
             unknown_is_row_max = False
 
-            if unknown_load == 0:
-                unknown_cell_class = "value-zero"
+            if isinstance(unknown_load, (int, float)):
+                if float(unknown_load) == 0:
+                    unknown_cell_class = "value-zero"
 
-            if row_max_value is not None and unknown_load == row_max_value and unknown_load > 0:
-                unknown_is_row_max = True
+                if row_max_value is not None and float(unknown_load) == row_max_value and float(unknown_load) > 0:
+                    unknown_is_row_max = True
 
-            if row_max_value is not None and row_max_value > 0 and unknown_load > 0:
-                ratio = unknown_load / row_max_value
+                if row_max_value is not None and row_max_value > 0 and float(unknown_load) > 0:
+                    ratio = float(unknown_load) / row_max_value
 
-                if ratio >= 0.85:
-                    unknown_heat_class = "heat-4"
-                elif ratio >= 0.60:
-                    unknown_heat_class = "heat-3"
-                elif ratio >= 0.35:
-                    unknown_heat_class = "heat-2"
-                elif ratio >= 0.15:
-                    unknown_heat_class = "heat-1"
+                    if ratio >= 0.85:
+                        unknown_heat_class = "heat-4"
+                    elif ratio >= 0.60:
+                        unknown_heat_class = "heat-3"
+                    elif ratio >= 0.35:
+                        unknown_heat_class = "heat-2"
+                    elif ratio >= 0.15:
+                        unknown_heat_class = "heat-1"
 
             cells.append({
                 "key": unknown_load_key,
@@ -486,8 +505,8 @@ class EnergyService:
                 "date": dt_value,
                 "date_display": self._format_date_with_weekday(dt_value),
                 "official_daily_total": official_daily_total_value,
-                "main_feeder_total": main_feeder_total,
-                "submeter_total": submeter_total,
+                "main_feeder_total": main_feeder_total if has_any_raw_data else None,
+                "submeter_total": submeter_total if has_any_raw_data else None,
                 "unknown_load": unknown_load,
                 "unknown_load_key": unknown_load_key,
                 "cells": cells,
@@ -502,6 +521,7 @@ class EnergyService:
             "main_feeder_columns": main_feeder_columns,
             "submeter_columns": submeter_columns,
             "exclude_from_top10": exclude_from_top10,
+            "exclude_from_detail": exclude_from_detail,
             "meter_count": len(meter_columns) + 1,
             "submeter_count": len(submeter_columns) + 1,
         }
@@ -657,16 +677,18 @@ class EnergyService:
         self,
         current_top10: list[dict[str, Any]],
         previous_area_rows: dict[str, list[dict[str, Any]]],
-        previous_kpi_summary: dict[str, Any],
+        previous_kpi_rows: list[dict[str, Any]],
         report_start: date,
         report_end: date,
     ) -> list[dict[str, Any]]:
         """Attach previous-period values to current top 10 meters."""
-        previous_kpi_daily_lookup = self._build_kpi_daily_energy_lookup(
-            kpi_summary=previous_kpi_summary,
+        previous_kpi_daily_lookup = self._build_kpi_daily_energy_lookup_from_rows(
+            kpi_rows=previous_kpi_rows,
             report_start=report_start,
             report_end=report_end,
         )
+
+        period_days = sorted(previous_kpi_daily_lookup.keys())
 
         previous_tables = {
             area: self.build_daily_energy_table(
@@ -676,6 +698,7 @@ class EnergyService:
                     dt_value: daily_item.get(area)
                     for dt_value, daily_item in previous_kpi_daily_lookup.items()
                 },
+                period_days=period_days,
             )
             for area, rows in previous_area_rows.items()
         }
