@@ -17,6 +17,8 @@ class EnergyService:
         self,
         current_area_rows: dict[str, list[dict[str, Any]]],
         previous_area_rows: dict[str, list[dict[str, Any]]],
+        current_area_columns: dict[str, list[str]],
+        previous_area_columns: dict[str, list[str]],
         current_kpi_summary: dict[str, Any],
         previous_kpi_summary: dict[str, Any],
         current_kpi_rows: list[dict[str, Any]],
@@ -29,6 +31,7 @@ class EnergyService:
         """Build full energy object for V2 report."""
         current_obj = self.build_energy_report_object(
             area_rows=current_area_rows,
+            area_columns=current_area_columns,
             kpi_summary=current_kpi_summary,
             kpi_rows=current_kpi_rows,   
             report_start=report_start,
@@ -37,6 +40,7 @@ class EnergyService:
 
         previous_obj = self.build_energy_report_object(
             area_rows=previous_area_rows,
+            area_columns=previous_area_columns,
             kpi_summary=previous_kpi_summary,
             kpi_rows=previous_kpi_rows,  
             report_start=previous_start,
@@ -52,6 +56,7 @@ class EnergyService:
                 current_top10=current_obj["top10_meters"],
                 previous_area_rows=previous_area_rows,
                 previous_kpi_rows=previous_kpi_rows,
+                area_columns=current_area_columns,
                 report_start=previous_start,
                 report_end=previous_end,
             ),
@@ -66,8 +71,10 @@ class EnergyService:
     def build_energy_report_object(
         self,
         area_rows: dict[str, list[dict[str, Any]]],
+        area_columns: dict[str, list[str]],
         kpi_summary: dict[str, Any],
         kpi_rows: list[dict[str, Any]],
+
         report_start: date,
         report_end: date,
     ) -> dict[str, Any]:
@@ -95,6 +102,7 @@ class EnergyService:
                     for dt_value, daily_item in kpi_daily_lookup.items()
                 },
                 period_days=period_days,
+                meter_columns=area_columns.get(area, []),
             )
             for area, rows in filtered_area_rows.items()
         }
@@ -332,6 +340,7 @@ class EnergyService:
         self,
         area_key: str,
         rows: list[dict[str, Any]],
+        meter_columns: list[str],
         area_daily_energy_lookup: dict[date, float | None],
         period_days: list[date],
     ) -> dict[str, Any]:
@@ -345,9 +354,9 @@ class EnergyService:
         unknown_load_key = area_meta.get("unknown_load_key", "unknown_load")
         unknown_load_display_name = area_meta.get("unknown_load_display_name", "Unknown Load")
 
-        raw_meter_columns = self._extract_meter_columns(rows)
+        raw_meter_columns = meter_columns
 
-        meter_columns = [
+        base_meter_columns = [
             column
             for column in raw_meter_columns
             if column not in exclude_from_detail
@@ -355,13 +364,13 @@ class EnergyService:
 
         submeter_columns = [
             column
-            for column in meter_columns
+            for column in base_meter_columns
             if column not in exclude_from_top10
         ]
 
         columns = [{"key": "dt", "display_name": "Date", "is_date": True}]
 
-        for column in meter_columns:
+        for column in base_meter_columns:
             meter_role = "main_feeder" if column in main_feeder_columns else "submeter"
             columns.append({
                 "key": column,
@@ -659,11 +668,16 @@ class EnergyService:
 
         for column in valid_columns:
             total = 0.0
+            has_numeric_data = False
 
             for row in table["rows"]:
                 for cell in row["cells"]:
                     if cell["key"] == column and isinstance(cell["raw_value"], (int, float)):
                         total += float(cell["raw_value"])
+                        has_numeric_data = True
+
+            if not has_numeric_data:
+                continue
 
             result.append({
                 "meter_name": column,
@@ -678,6 +692,7 @@ class EnergyService:
         current_top10: list[dict[str, Any]],
         previous_area_rows: dict[str, list[dict[str, Any]]],
         previous_kpi_rows: list[dict[str, Any]],
+        area_columns: dict[str, list[str]],
         report_start: date,
         report_end: date,
     ) -> list[dict[str, Any]]:
@@ -699,6 +714,7 @@ class EnergyService:
                     for dt_value, daily_item in previous_kpi_daily_lookup.items()
                 },
                 period_days=period_days,
+                meter_columns=area_columns.get(area, []),
             )
             for area, rows in previous_area_rows.items()
         }
