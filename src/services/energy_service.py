@@ -19,6 +19,8 @@ class EnergyService:
         previous_area_rows: dict[str, list[dict[str, Any]]],
         current_kpi_summary: dict[str, Any],
         previous_kpi_summary: dict[str, Any],
+        current_kpi_rows: dict[str, Any],
+        previous_kpi_rows: dict[str, Any],
         report_start: date,
         report_end: date,
         previous_start: date,
@@ -27,14 +29,16 @@ class EnergyService:
         """Build full energy object for V2 report."""
         current_obj = self.build_energy_report_object(
             area_rows=current_area_rows,
-            kpi_summary=current_kpi_summary,   
+            kpi_summary=current_kpi_summary,
+            kpi_rows=current_kpi_rows,   
             report_start=report_start,
             report_end=report_end,
         )
 
         previous_obj = self.build_energy_report_object(
             area_rows=previous_area_rows,
-            kpi_summary=previous_kpi_summary,  
+            kpi_summary=previous_kpi_summary,
+            kpi_rows=previous_kpi_rows,  
             report_start=previous_start,
             report_end=previous_end,
         )
@@ -63,6 +67,7 @@ class EnergyService:
         self,
         area_rows: dict[str, list[dict[str, Any]]],
         kpi_summary: dict[str, Any],
+        kpi_rows: dict[str, Any],
         report_start: date,
         report_end: date,
     ) -> dict[str, Any]:
@@ -73,11 +78,7 @@ class EnergyService:
             for area, rows in area_rows.items()
         }
 
-        kpi_daily_lookup = self._build_kpi_daily_energy_lookup(
-            kpi_summary=kpi_summary,
-            report_start=report_start,
-            report_end=report_end,
-        )
+        kpi_daily_lookup = self._build_kpi_daily_energy_lookup_from_rows(kpi_rows)
 
         area_tables = {
             area: self.build_daily_energy_table(
@@ -113,6 +114,42 @@ class EnergyService:
             ),
         }
     
+    def _build_kpi_daily_energy_lookup_from_rows(
+        self,
+        kpi_rows: list[dict[str, Any]],
+    ) -> dict[date, dict[str, float]]:
+        """Build daily KPI lookup from raw energy_kpi rows.
+
+        Args:
+            kpi_rows: Selected KPI rows (daily granularity).
+
+        Returns:
+            Dict[date, Dict[str, float]]:
+                {
+                    date: {
+                        "plant_total_energy": float,
+                        "diode": float,
+                        "ico": float,
+                        "sakari": float,
+                    }
+                }
+        """
+        result: dict[date, dict[str, float]] = {}
+
+        for row in kpi_rows:
+            dt_value = self._to_date(row.get("dt_start"))
+            if not dt_value:
+                continue
+
+            result[dt_value] = {
+                "plant_total_energy": float(row.get("Total_engy") or 0.0),
+                "diode": float(row.get("DIODE_engy") or 0.0),
+                "ico": float(row.get("ICO_engy") or 0.0),
+                "sakari": float(row.get("SAKARI_engy") or 0.0),
+            }
+
+        return result
+
     def _build_energy_anomalies(
         self,
         area_tables: dict[str, dict[str, Any]],

@@ -223,6 +223,8 @@ def _build_energy_object(
 
         current_kpi_summary=kpi_object["current"]["summary"],
         previous_kpi_summary=kpi_object["previous"]["summary"],
+        current_kpi_rows=kpi_object["current"]["selected_rows"],
+        previous_kpi_rows=kpi_object["previous"]["selected_rows"],
 
         report_start=period.start_date,
         report_end=period.end_date,
