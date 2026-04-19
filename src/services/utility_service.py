@@ -49,6 +49,8 @@ class UtilityService:
         timeseries = self._build_timeseries(
             rows=filtered_rows,
             utility_columns=utility_columns,
+            report_start=report_start,
+            report_end=report_end,
         )
 
         summary = self._build_summary(
@@ -179,21 +181,46 @@ class UtilityService:
         self,
         rows: List[Dict[str, Any]],
         utility_columns: List[str],
+        report_start: date,
+        report_end: date,
     ) -> List[Dict[str, Any]]:
-        """Build daily timeseries preserving each utility column."""
-        timeseries: List[Dict[str, Any]] = []
+        """Build dense daily timeseries preserving each utility column.
 
-        for row in sorted(rows, key=lambda item: self._to_date(item.get("dt"))):
+        Args:
+            rows: Filtered raw rows in period.
+            utility_columns: Ordered utility columns from metadata.
+            report_start: Inclusive report start date.
+            report_end: Inclusive report end date.
+
+        Returns:
+            List[Dict[str, Any]]: Dense daily timeseries rows for the whole period.
+        """
+        rows_by_date: Dict[date, Dict[str, Any]] = {}
+
+        for row in rows:
             dt = self._to_date(row.get("dt"))
             if dt is None:
                 continue
+            rows_by_date[dt] = row
 
-            timeseries_row: Dict[str, Any] = {"dt": dt}
+        timeseries: List[Dict[str, Any]] = []
+
+        current_day = report_start
+        while current_day <= report_end:
+            source_row = rows_by_date.get(current_day, {})
+
+            timeseries_row: Dict[str, Any] = {"dt": current_day}
 
             for column in utility_columns:
-                timeseries_row[column] = self._safe_number(row.get(column))
+                raw_value = source_row.get(column)
+                timeseries_row[column] = (
+                    self._safe_number(raw_value)
+                    if raw_value is not None
+                    else None
+                )
 
             timeseries.append(timeseries_row)
+            current_day = current_day.fromordinal(current_day.toordinal() + 1)
 
         return timeseries
 
