@@ -96,7 +96,10 @@ class EnergyService:
                 kpi_summary=kpi_summary,
             ),
             "top10_meters": self.build_top10_meters(area_tables),
-            "daily_summary_rows": self.build_daily_summary_rows(area_tables),
+            "daily_summary_rows": self.build_daily_summary_rows(
+                area_tables=area_tables,
+                kpi_daily_lookup=kpi_daily_lookup,
+            ),
             "daily_tables": [
                 area_tables["diode"],
                 area_tables["ico"],
@@ -471,6 +474,7 @@ class EnergyService:
     def build_daily_summary_rows(
         self,
         area_tables: dict[str, dict[str, Any]],
+        kpi_daily_lookup: dict[date, dict[str, float | None]],
     ) -> list[dict[str, Any]]:
         """Build one daily energy summary table across all three areas."""
         rows_by_date: dict[date, list[tuple[str, float]]] = {}
@@ -490,7 +494,13 @@ class EnergyService:
         for dt_value in sorted(rows_by_date.keys()):
             meter_values = rows_by_date[dt_value]
 
-            total_energy = sum(value for _, value in meter_values)
+            plant_daily_total = (
+                kpi_daily_lookup.get(dt_value, {}).get("plant_total_energy")
+            )
+            plant_daily_total_value = (
+                float(plant_daily_total) if plant_daily_total is not None else 0.0
+            )
+
             total_meter_count = len(meter_values)
 
             active_values = [(name, value) for name, value in meter_values if value > 0]
@@ -499,23 +509,23 @@ class EnergyService:
 
             if active_values:
                 top_meter_name, top_meter_value = max(active_values, key=lambda item: item[1])
-                average_per_active = total_energy / active_meter_count
             else:
                 top_meter_name = "-"
                 top_meter_value = 0.0
-                average_per_active = 0.0
 
-            # --- compute percentage ---
+            average_per_active = (
+                plant_daily_total_value / active_meter_count
+                if active_meter_count > 0 else 0.0
+            )
+
             top_1_pct = None
-
-            if total_energy and top_meter_value:
-                if total_energy > 0:
-                    top_1_pct = top_meter_value / total_energy
+            if plant_daily_total_value > 0 and top_meter_value > 0:
+                top_1_pct = top_meter_value / plant_daily_total_value
 
             result.append({
                 "date": dt_value,
                 "date_display": self._format_date_with_weekday(dt_value),
-                "total_energy_display": self._fmt(total_energy),
+                "total_energy_display": self._fmt(plant_daily_total_value),
                 "top_1_meter": top_meter_name,
                 "top_1_value_display": self._fmt(top_meter_value),
                 "top_1_pct_display": self._fmt_pct(top_1_pct) if top_1_pct is not None else None,
@@ -523,7 +533,7 @@ class EnergyService:
                 "average_per_active_display": self._fmt(average_per_active),
                 "total_meter_count": total_meter_count,
                 "inactive_meter_count": inactive_meter_count,
-                "avg_per_active_display": self._fmt(row.get("avg_per_active")),
+                "avg_per_active_display": self._fmt(average_per_active),
             })
 
         return result
