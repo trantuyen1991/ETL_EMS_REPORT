@@ -78,8 +78,13 @@ class EnergyService:
             for area, rows in area_rows.items()
         }
 
-        kpi_daily_lookup = self._build_kpi_daily_energy_lookup_from_rows(kpi_rows)
-
+        kpi_daily_lookup = self._build_kpi_daily_energy_lookup_from_rows(
+            kpi_rows=kpi_rows,
+            report_start=report_start,
+            report_end=report_end,
+        )
+        print(f"[TEST] kpi_daily_lookup_keys={list(kpi_daily_lookup.keys())[:3]}")
+        print(f"[TEST] kpi_daily_lookup_sample={list(kpi_daily_lookup.items())[:3]}")
         area_tables = {
             area: self.build_daily_energy_table(
                 area_key=area,
@@ -117,35 +122,52 @@ class EnergyService:
     def _build_kpi_daily_energy_lookup_from_rows(
         self,
         kpi_rows: list[dict[str, Any]],
-    ) -> dict[date, dict[str, float]]:
-        """Build daily KPI lookup from raw energy_kpi rows.
+        report_start: date,
+        report_end: date,
+    ) -> dict[date, dict[str, float | None]]:
+        """Build dense daily KPI lookup from raw energy_kpi rows.
 
         Args:
             kpi_rows: Selected KPI rows (daily granularity).
+            report_start: Inclusive report start date.
+            report_end: Inclusive report end date.
 
         Returns:
-            Dict[date, Dict[str, float]]:
+            Dict[date, Dict[str, float | None]]:
                 {
                     date: {
-                        "plant_total_energy": float,
-                        "diode": float,
-                        "ico": float,
-                        "sakari": float,
+                        "plant_total_energy": float | None,
+                        "diode": float | None,
+                        "ico": float | None,
+                        "sakari": float | None,
                     }
                 }
         """
-        result: dict[date, dict[str, float]] = {}
+        result: dict[date, dict[str, float | None]] = {}
+
+        current_day = report_start
+        while current_day <= report_end:
+            result[current_day] = {
+                "plant_total_energy": None,
+                "diode": None,
+                "ico": None,
+                "sakari": None,
+            }
+            current_day = current_day.fromordinal(current_day.toordinal() + 1)
 
         for row in kpi_rows:
             dt_value = self._to_date(row.get("dt_start"))
-            if not dt_value:
+            if dt_value is None:
+                continue
+
+            if dt_value not in result:
                 continue
 
             result[dt_value] = {
-                "plant_total_energy": float(row.get("Total_engy") or 0.0),
-                "diode": float(row.get("DIODE_engy") or 0.0),
-                "ico": float(row.get("ICO_engy") or 0.0),
-                "sakari": float(row.get("SAKARI_engy") or 0.0),
+                "plant_total_energy": float(row.get("Total_engy")) if row.get("Total_engy") is not None else None,
+                "diode": float(row.get("DIODE_engy")) if row.get("DIODE_engy") is not None else None,
+                "ico": float(row.get("ICO_engy")) if row.get("ICO_engy") is not None else None,
+                "sakari": float(row.get("SAKARI_engy")) if row.get("SAKARI_engy") is not None else None,
             }
 
         return result
