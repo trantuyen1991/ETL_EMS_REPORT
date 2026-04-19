@@ -116,13 +116,15 @@ class EnergyService:
 
         main_feeder_columns = list(area_meta.get("main_feeders", []))
         exclude_from_top10 = list(area_meta.get("exclude_from_top10", []))
+        unknown_load_key = area_meta.get("unknown_load_key", "unknown_load")
+        unknown_load_display_name = area_meta.get("unknown_load_display_name", "Unknown Load")
 
         meter_columns = self._extract_meter_columns(rows)
 
         submeter_columns = [
             column
             for column in meter_columns
-            if column not in main_feeder_columns
+            if column not in exclude_from_top10
         ]
 
         columns = [{"key": "dt", "display_name": "Date", "is_date": True}]
@@ -137,22 +139,52 @@ class EnergyService:
                 "meter_role": meter_role,
             })
 
+        # Append unknown load column ONLY ONCE
+        columns.append({
+            "key": unknown_load_key,
+            "display_name": unknown_load_display_name,
+            "is_date": False,
+            "meter_role": "unknown",
+        })
+
         daily_rows: list[dict[str, Any]] = []
 
         for row in sorted(rows, key=lambda item: self._to_date(item.get("dt"))):
             dt_value = self._to_date(row.get("dt"))
 
-            cells = []
+            cells: list[dict[str, Any]] = []
+            main_feeder_total = 0.0
+            submeter_total = 0.0
 
-            numeric_values = []
+            # First pass: calculate feeder/submeter totals
+            for column in meter_columns:
+                raw_value = row.get(column)
+
+                if isinstance(raw_value, (int, float)):
+                    value = float(raw_value)
+
+                    if column in main_feeder_columns:
+                        main_feeder_total += value
+                    elif column in submeter_columns:
+                        submeter_total += value
+
+            # Temporary formula for current step
+            unknown_load = main_feeder_total - submeter_total
+
+            # Build row numeric map including unknown load
+            row_numeric_map: dict[str, float] = {}
+
             for column in meter_columns:
                 raw_value = row.get(column)
                 if isinstance(raw_value, (int, float)):
-                    numeric_values.append(float(raw_value))
+                    row_numeric_map[column] = float(raw_value)
 
-            positive_values = [value for value in numeric_values if value > 0]
+            row_numeric_map[unknown_load_key] = float(unknown_load)
+
+            positive_values = [value for value in row_numeric_map.values() if value > 0]
             row_max_value = max(positive_values) if positive_values else None
 
+            # Build normal meter cells
             for column in meter_columns:
                 raw_value = row.get(column)
 
@@ -192,9 +224,47 @@ class EnergyService:
                     "is_row_max": is_row_max,
                     "meter_role": meter_role,
                 })
+
+            # Build unknown load cell as a normal meter-like cell
+            unknown_cell_class = ""
+            unknown_heat_class = ""
+            unknown_is_row_max = False
+
+            if unknown_load == 0:
+                unknown_cell_class = "value-zero"
+
+            if row_max_value is not None and unknown_load == row_max_value and unknown_load > 0:
+                unknown_is_row_max = True
+
+            if row_max_value is not None and row_max_value > 0 and unknown_load > 0:
+                ratio = unknown_load / row_max_value
+
+                if ratio >= 0.85:
+                    unknown_heat_class = "heat-4"
+                elif ratio >= 0.60:
+                    unknown_heat_class = "heat-3"
+                elif ratio >= 0.35:
+                    unknown_heat_class = "heat-2"
+                elif ratio >= 0.15:
+                    unknown_heat_class = "heat-1"
+
+            cells.append({
+                "key": unknown_load_key,
+                "raw_value": unknown_load,
+                "display": self._fmt_or_dash(unknown_load),
+                "cell_class": unknown_cell_class,
+                "heat_class": unknown_heat_class,
+                "is_row_max": unknown_is_row_max,
+                "meter_role": "unknown",
+            })
+
             daily_rows.append({
                 "date": dt_value,
                 "date_display": self._format_date_with_weekday(dt_value),
+                "main_feeder_total": main_feeder_total,
+                "submeter_total": submeter_total,
+                "unknown_load": unknown_load,
+                "unknown_load_key": unknown_load_key,
                 "cells": cells,
             })
 
@@ -203,12 +273,12 @@ class EnergyService:
             "title": f"{area_key.upper()} Daily Energy Detail",
             "columns": columns,
             "rows": daily_rows,
-            "meter_columns": meter_columns,
+            "meter_columns": meter_columns + [unknown_load_key],
             "main_feeder_columns": main_feeder_columns,
             "submeter_columns": submeter_columns,
             "exclude_from_top10": exclude_from_top10,
-            "meter_count": len(meter_columns),
-            "submeter_count": len(submeter_columns),
+            "meter_count": len(meter_columns) + 1,
+            "submeter_count": len(submeter_columns) + 1,
         }
 
     def build_energy_summary(

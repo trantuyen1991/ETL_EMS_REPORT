@@ -229,11 +229,8 @@ def _build_energy_object(
         previous_start=period.previous_start_date,
         previous_end=period.previous_end_date,
     )
-
-    print(f"[TEST] energy summary keys={energy_object['current']['summary'].keys()}")
-    print(f"[TEST] energy top10 rows={len(energy_object['current']['top10_meters'])}")
-    print(f"[TEST] energy daily summary rows={len(energy_object['current']['daily_summary_rows'])}")
-
+    print(f"[TEST] sample unknown={energy_object['current']['daily_tables'][0]['rows'][0]['unknown_load']}")
+    print(f"[TEST] top10 names={[item['meter_name'] for item in energy_object['current']['top10_meters']]}")
     return energy_object
 
 def _build_report_context(
