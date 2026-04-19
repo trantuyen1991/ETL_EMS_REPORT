@@ -45,6 +45,7 @@ def get_energy_area_metadata() -> Dict[str, Dict[str, Any]]:
             "official_kpi_energy_key": "ICO_engy",
             "unknown_load_key": "ICO_unknown_load",
             "unknown_load_display_name": "ICO Unknown Load",
+            "downstream_areas": ["sakari"],  # ICO cấp cho SAKARI
         },
         "sakari": {
             "display_name": "SAKARI",
