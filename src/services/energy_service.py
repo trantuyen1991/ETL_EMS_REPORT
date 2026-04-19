@@ -301,10 +301,18 @@ class EnergyService:
         area_key: str,
         table: dict[str, Any],
     ) -> list[dict[str, Any]]:
-        """Sum total energy per meter for one area table."""
+        """Sum total energy per meter for one area table excluding configured feeders."""
         result: list[dict[str, Any]] = []
 
-        for column in table["meter_columns"]:
+        excluded_columns = set(table.get("exclude_from_top10", []))
+
+        valid_columns = [
+            column
+            for column in table.get("meter_columns", [])
+            if column not in excluded_columns
+        ]
+
+        for column in valid_columns:
             total = 0.0
 
             for row in table["rows"]:
