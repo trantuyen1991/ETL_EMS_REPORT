@@ -76,7 +76,10 @@ class EnergyService:
         }
 
         return {
-            "summary": self.build_energy_summary(area_tables),
+            "summary": self.build_energy_summary(
+                area_tables=area_tables,
+                kpi_summary=kpi_summary,
+            ),
             "top10_meters": self.build_top10_meters(area_tables),
             "daily_summary_rows": self.build_daily_summary_rows(area_tables),
             "daily_tables": [
@@ -85,7 +88,6 @@ class EnergyService:
                 area_tables["sakari"],
             ],
         }
-
     def _extract_meter_columns(
         self,
         rows: list[dict[str, Any]],
@@ -189,24 +191,33 @@ class EnergyService:
     def build_energy_summary(
         self,
         area_tables: dict[str, dict[str, Any]],
+        kpi_summary: dict[str, Any],
     ) -> dict[str, Any]:
-        """Build per-area total summary."""
+        """Build per-area total summary using KPI summary as official source."""
         result: dict[str, Any] = {}
 
-        for area_key, table in area_tables.items():
-            total_energy = 0.0
+        kpi_areas = kpi_summary.get("areas", {})
+        kpi_plant = kpi_summary.get("plant", {})
 
-            for row in table["rows"]:
-                for cell in row["cells"]:
-                    value = cell["raw_value"]
-                    if isinstance(value, (int, float)):
-                        total_energy += float(value)
+        for area_key, table in area_tables.items():
+            official_total = (
+                kpi_areas.get(area_key, {})
+                .get("energy")
+            )
 
             result[area_key] = {
-                "total_energy": round(total_energy, 4),
+                "total_energy": round(float(official_total), 4) if official_total is not None else None,
                 "meter_count": table["meter_count"],
                 "row_count": len(table["rows"]),
             }
+
+        result["plant"] = {
+            "total_energy": round(float(kpi_plant.get("total_energy")), 4)
+            if kpi_plant.get("total_energy") is not None
+            else None,
+            "meter_count": 0,
+            "row_count": max((len(table["rows"]) for table in area_tables.values()), default=0),
+        }
 
         return result
 
