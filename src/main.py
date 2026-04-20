@@ -18,6 +18,7 @@ from src.services.energy_service import EnergyService
 from datetime import datetime
 from src.config.utility_metadata import get_utility_sensor_metadata
 from src.db.processvalue_repository import ProcessValueRepository
+from src.services.processvalue_service import ProcessValueService
 
 def _bootstrap() -> dict[str, Any]:
     """Bootstrap application runtime objects for development flow.
@@ -270,6 +271,22 @@ def _build_report_context(
     )
     print(f"[TEST] processvalue rows={len(rows)}")
     print(f"[TEST] processvalue first_row={rows[0] if rows else None}")
+    #
+    sensor_service = ProcessValueService()
+
+    daily_stats = sensor_service.aggregate_daily_sensor_stats(
+        rows=rows,
+        sensor_columns=sensor_columns,
+    )
+
+    first_day = sorted(daily_stats.keys())[0] if daily_stats else None
+
+    print(f"[TEST] processvalue daily_stats days={len(daily_stats)}")
+    print(f"[TEST] processvalue first_day={first_day}")
+    print(
+        f"[TEST] processvalue first_day_stats="
+        f"{daily_stats[first_day] if first_day else None}"
+    )
     return report_context
 
 
