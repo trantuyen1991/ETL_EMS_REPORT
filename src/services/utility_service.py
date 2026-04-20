@@ -28,6 +28,7 @@ class UtilityService:
         rows: List[Dict[str, Any]],
         report_start: date,
         report_end: date,
+        sensor_monitoring: Dict[str, Any] | None = None,
     ) -> Dict[str, Any]:
         """Build full utility object for report usage.
 
@@ -62,6 +63,11 @@ class UtilityService:
             "metadata": metadata,
             "summary": summary,
             "timeseries": timeseries,
+            "sensor_monitoring": sensor_monitoring or {
+                "enabled": False,
+                "metric_columns": [],
+                "daily_rows": [],
+            },
         }
 
     def build_utility_comparison(
@@ -122,6 +128,8 @@ class UtilityService:
         report_end,
         previous_start,
         previous_end,
+        current_sensor_monitoring: Dict[str, Any] | None = None,
+        previous_sensor_monitoring: Dict[str, Any] | None = None,
     ) -> dict:
         """
         Build full utility object including current, previous and comparison.
@@ -137,17 +145,18 @@ class UtilityService:
         Returns:
             dict: Full utility object.
         """
-
         current_obj = self.build_utility_report_object(
             rows=current_rows,
             report_start=report_start,
             report_end=report_end,
+            sensor_monitoring=current_sensor_monitoring,
         )
 
         previous_obj = self.build_utility_report_object(
             rows=previous_rows,
             report_start=previous_start,
             report_end=previous_end,
+            sensor_monitoring=previous_sensor_monitoring,
         )
 
         comparison = self.build_utility_comparison(

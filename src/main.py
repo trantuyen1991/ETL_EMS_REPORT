@@ -15,7 +15,7 @@ from src.utils.logger import get_logger, setup_logging
 from src.services.template_service import TemplateRenderingService
 from src.services.energy_service import EnergyService
 
-from datetime import datetime
+from datetime import datetime, date
 from src.config.utility_metadata import get_utility_sensor_metadata
 from src.db.processvalue_repository import ProcessValueRepository
 from src.services.processvalue_service import ProcessValueService
@@ -130,10 +130,48 @@ def _build_kpi_object(
 
     return kpi_object
 
+def _build_sensor_monitoring_context(
+    client: MySQLClient,
+    report_start: date,
+    report_end: date,
+) -> dict[str, Any]:
+    """Build utility sensor monitoring context for a report period."""
+    sensor_metadata = get_utility_sensor_metadata()
+    sensor_columns = list(sensor_metadata.keys())
+
+    repo = ProcessValueRepository(mysql_client=client)
+    sensor_service = ProcessValueService()
+    utility_service = UtilityService()
+
+    start_dt = datetime.combine(report_start, datetime.min.time())
+    end_dt_exclusive = datetime.combine(
+        report_end.fromordinal(report_end.toordinal() + 1),
+        datetime.min.time(),
+    )
+
+    rows = repo.fetch_sensor_rows(
+        start_dt=start_dt,
+        end_dt_exclusive=end_dt_exclusive,
+        sensor_columns=sensor_columns,
+    )
+
+    daily_stats = sensor_service.aggregate_daily_sensor_stats(
+        rows=rows,
+        sensor_columns=sensor_columns,
+    )
+
+    sensor_monitoring = utility_service.build_sensor_monitoring_context(
+        daily_stats=daily_stats,
+        report_start=report_start,
+        report_end=report_end,
+    )
+
+    return sensor_monitoring
 
 def _build_utility_object(
     repos: dict[str, EnergyDataRepository],
     period,
+    client: MySQLClient,
 ) -> dict[str, Any]:
     """Build the full utility object for current and previous period."""
     utility_repo = repos["utility_usage"]
@@ -147,6 +185,18 @@ def _build_utility_object(
         end_date=period.previous_end_date,
     )
 
+    current_sensor_monitoring = _build_sensor_monitoring_context(
+        client=client,
+        report_start=period.start_date,
+        report_end=period.end_date,
+    )
+
+    previous_sensor_monitoring = _build_sensor_monitoring_context(
+        client=client,
+        report_start=period.previous_start_date,
+        report_end=period.previous_end_date,
+    )
+
     utility_service = UtilityService()
 
     utility_object = utility_service.build_full_utility_object(
@@ -156,6 +206,8 @@ def _build_utility_object(
         report_end=period.end_date,
         previous_start=period.previous_start_date,
         previous_end=period.previous_end_date,
+        current_sensor_monitoring=current_sensor_monitoring,
+        previous_sensor_monitoring=previous_sensor_monitoring,
     )
 
     return utility_object
@@ -258,35 +310,6 @@ def _build_report_context(
         mode="html",
     )
 
-    # 6 Sensor
-    sensor_metadata = get_utility_sensor_metadata()
-    sensor_columns = list(sensor_metadata.keys())
-
-    repo = ProcessValueRepository(mysql_client=client)
-
-    rows = repo.fetch_sensor_rows(
-        start_dt=datetime(2024, 10, 28, 0, 0, 0),
-        end_dt_exclusive=datetime(2024, 10, 29, 0, 0, 0),
-        sensor_columns=sensor_columns,
-    )
-    print(f"[TEST] processvalue rows={len(rows)}")
-    print(f"[TEST] processvalue first_row={rows[0] if rows else None}")
-    #
-    sensor_service = ProcessValueService()
-
-    daily_stats = sensor_service.aggregate_daily_sensor_stats(
-        rows=rows,
-        sensor_columns=sensor_columns,
-    )
-
-    first_day = sorted(daily_stats.keys())[0] if daily_stats else None
-
-    print(f"[TEST] processvalue daily_stats days={len(daily_stats)}")
-    print(f"[TEST] processvalue first_day={first_day}")
-    print(
-        f"[TEST] processvalue first_day_stats="
-        f"{daily_stats[first_day] if first_day else None}"
-    )
     return report_context
 
 
@@ -302,7 +325,20 @@ def run_dev_test() -> None:
     _run_generic_source_smoke_test(repos, period)
 
     kpi_object = _build_kpi_object(repos, period)
-    utility_object = _build_utility_object(repos, period)
+
+    utility_object = _build_utility_object(
+        repos=repos,
+        period=period,
+        client=runtime["client"],
+    )
+    print(
+        f"[TEST] current sensor_monitoring keys="
+        f"{utility_object['current']['sensor_monitoring'].keys()}"
+    )
+    print(
+        f"[TEST] current sensor first_row="
+        f"{utility_object['current']['sensor_monitoring']['daily_rows'][0] if utility_object['current']['sensor_monitoring']['daily_rows'] else None}"
+    )
     energy_object = _build_energy_object(repos, period, kpi_object)
 
     report_context = _build_report_context(
