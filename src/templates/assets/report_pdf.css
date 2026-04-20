@@ -9,7 +9,7 @@
     }
 
     .kpi-total-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     }
 
     .pdf-two-chart-grid {
@@ -35,7 +35,7 @@
 
     .electricity-chart {
         width: 100% !important;
-        height: 200px !important;
+        height: 180px !important;
         overflow: hidden !important;
     }
 
@@ -50,9 +50,15 @@
     }
 
     .pdf-page-break-after {
-        break-after: page !important;
-        page-break-after: always !important;
+        break-after: auto !important;
+        page-break-after: auto !important;
         height: 0 !important;
+    }
+
+    .electricity-comparison-block,
+    .electricity-comparison-table-wrap {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
     }
 
     .report-header-center {

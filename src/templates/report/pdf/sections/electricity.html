@@ -394,6 +394,7 @@
                             const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
 
                             const chart = echarts.init(el, null, {
+                                renderer: "svg",
                                 width: width,
                                 height: height,
                             });
@@ -417,6 +418,9 @@
                                 const width = Math.max(1, Math.floor(target.clientWidth || target.getBoundingClientRect().width || 0));
                                 const height = Math.max(1, Math.floor(target.clientHeight || target.getBoundingClientRect().height || 0));
                                 chart.resize({ width: width, height: height });
+                                if (chart.getZr && chart.getZr()) {
+                                    chart.getZr().flush();
+                                }
                             });
                         }
 
