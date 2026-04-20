@@ -273,3 +273,140 @@ class UtilityService:
             return float(value)
         except Exception:
             return 0.0
+
+    def _fmt_or_dash(self, value: Any) -> str:
+        """Format number or return dash."""
+        if value is None:
+            return "-"
+        return f"{float(value):,.2f}"
+        
+    def _format_date_with_weekday(self, value: date | None) -> str:
+        """Format date with weekday."""
+        if value is None:
+            return "-"
+        return f"{value.isoformat()} ({value.strftime('%a')})"
+
+    def _get_sensor_monitoring_metric_config(self) -> list[dict[str, str]]:
+        """Return business-level metric mapping for utility sensor monitoring.
+
+        Returns:
+            list[dict[str, str]]: Ordered metric configuration for utility section.
+        """
+        return [
+            {
+                "key": "domestic_water",
+                "display_name": "Domestic Water",
+                "unit": "m³/h",
+                "source_sensor": "dom_waterflow",
+            },
+            {
+                "key": "ico_chilled_water",
+                "display_name": "ICO Chilled Water",
+                "unit": "kg/h",
+                "source_sensor": "ich_supflow",
+            },
+            {
+                "key": "diode_chilled_water",
+                "display_name": "DIODE Chilled Water",
+                "unit": "kg/h",
+                "source_sensor": "dch_supflow",
+            },
+            {
+                "key": "ico_air",
+                "display_name": "ICO Air",
+                "unit": "m³/h",
+                "source_sensor": "iac_airflow",
+            },
+            {
+                "key": "diode_air",
+                "display_name": "DIODE Air",
+                "unit": "m³/h",
+                "source_sensor": "dac_airflow",
+            },
+            {
+                "key": "steam",
+                "display_name": "Steam",
+                "unit": "m³/h",
+                "source_sensor": "boi_steamflow",
+            },
+            {
+                "key": "sakari_water",
+                "display_name": "Sakari Water",
+                "unit": "m³/h",
+                "source_sensor": "sak_waterflow",
+            },
+        ]
+
+    def build_sensor_monitoring_context(
+        self,
+        daily_stats: dict[date, dict[str, dict[str, float | None]]],
+        report_start: date,
+        report_end: date,
+    ) -> dict[str, Any]:
+        """Build backend context for utility sensor monitoring.
+
+        This context is designed to be UI-flexible and keeps both average and
+        maximum daily values for future rendering options.
+
+        Args:
+            daily_stats: Daily aggregated sensor stats from ProcessValueService.
+            report_start: Inclusive report start date.
+            report_end: Inclusive report end date.
+
+        Returns:
+            dict[str, Any]: Sensor monitoring context under utility section.
+        """
+        metric_config = self._get_sensor_monitoring_metric_config()
+
+        metric_columns = [
+            {
+                "key": item["key"],
+                "display_name": item["display_name"],
+                "unit": item["unit"],
+                "source_sensor": item["source_sensor"],
+            }
+            for item in metric_config
+        ]
+
+        period_days: list[date] = []
+        current_day = report_start
+        while current_day <= report_end:
+            period_days.append(current_day)
+            current_day = current_day.fromordinal(current_day.toordinal() + 1)
+
+        daily_rows: list[dict[str, Any]] = []
+
+        for dt_value in period_days:
+            day_stats = daily_stats.get(dt_value, {})
+            metrics: dict[str, Any] = {}
+
+            for item in metric_config:
+                metric_key = item["key"]
+                sensor_key = item["source_sensor"]
+                sensor_stats = day_stats.get(sensor_key, {})
+
+                avg_value = sensor_stats.get("avg")
+                max_value = sensor_stats.get("max")
+
+                metrics[metric_key] = {
+                    "key": metric_key,
+                    "display_name": item["display_name"],
+                    "unit": item["unit"],
+                    "source_sensor": sensor_key,
+                    "avg": avg_value,
+                    "max": max_value,
+                    "avg_display": self._fmt_or_dash(avg_value),
+                    "max_display": self._fmt_or_dash(max_value),
+                }
+
+            daily_rows.append({
+                "date": dt_value,
+                "date_display": self._format_date_with_weekday(dt_value),
+                "metrics": metrics,
+            })
+
+        return {
+            "enabled": True,
+            "metric_columns": metric_columns,
+            "daily_rows": daily_rows,
+        }
