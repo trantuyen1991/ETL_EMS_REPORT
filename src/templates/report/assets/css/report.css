@@ -604,7 +604,7 @@
 
         .electricity-total-card-title {
             margin: 0 0 var(--space-md) 0;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-main);
         }
@@ -629,13 +629,13 @@
         }
 
         .electricity-total-label {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--text-muted);
         }
 
         .electricity-total-value {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--text-dark);
             text-align: right;
@@ -666,6 +666,46 @@
             align-items: center;
             gap: 4px;
             font-weight: 700;
+        }
+
+        /* ==========================================================================
+        Electricity charts
+        ========================================================================== */
+
+        .electricity-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin: 14px 0 12px;
+        }
+
+        .electricity-chart-card {
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            background: var(--bg-card);
+            padding: 12px 14px 10px;
+            box-shadow: var(--shadow-card);
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .electricity-chart-card-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .electricity-chart-card-subtitle {
+            margin: 4px 0 10px;
+            font-size: 11.5px;
+            line-height: 1.35;
+            color: var(--text-muted);
+        }
+
+        .electricity-chart {
+            width: 100%;
+            height: 280px;
         }
 
         /* ==========================================================================
@@ -1189,6 +1229,14 @@
             .kpi-total-grid {
                 grid-template-columns: 1fr;
             }
+
+            .electricity-chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .electricity-chart {
+                height: 240px;
+            }
         }
 
         @media (max-width: 700px) {
@@ -1328,6 +1376,14 @@
 
             tfoot {
                 display: table-footer-group;
+            }
+
+            .electricity-chart-card {
+                box-shadow: none;
+            }
+
+            .electricity-chart {
+                height: 220px;
             }
         }
     

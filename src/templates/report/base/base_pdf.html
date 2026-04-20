@@ -8,6 +8,12 @@
     <style>
         {% include "assets/report.css" %}
     </style>
+    <script>
+        {% include "assets/vendor/echarts/echarts.min.js" %}
+    </script>
+    <style>
+        {% include "assets/report_pdf.css" %}
+    </style>
     <style>
         @page {
             size: A4 portrait;
@@ -231,7 +237,11 @@
 
         .electricity-total-value,
         .kpi-plant-value {
-            font-size: 11px;
+            font-size: 13.5px;
+        }
+
+        .electricity-total-label {
+            font-size: 8.5px;
         }
 
         .electricity-total-ratio {
@@ -370,5 +380,7 @@
     <div class="report-container">
         {% block content %}{% endblock %}
     </div>
+
+    {% block scripts %}{% endblock %}
 </body>
 </html>

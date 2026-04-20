@@ -1,0 +1,86 @@
+/* PDF-only overrides to keep print layout stable and separate from view styles. */
+@media print {
+    .period-strip-table {
+        grid-template-columns: 1fr 1fr 1.2fr 0.65fr 0.65fr 1fr !important;
+    }
+
+    .electricity-total-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+
+    .kpi-total-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    .electricity-chart-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    .pdf-chart-page-block {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .electricity-chart-card {
+        min-width: 0 !important;
+        overflow: hidden !important;
+        padding: 8px 10px 6px !important;
+    }
+
+    .electricity-chart {
+        height: 130px !important;
+        overflow: hidden !important;
+    }
+
+    .electricity-chart-card-title {
+        margin-bottom: 2px !important;
+        font-size: 13px !important;
+    }
+
+    .electricity-chart-card-subtitle {
+        margin: 2px 0 6px !important;
+        font-size: 10px !important;
+    }
+
+    .pdf-page-break-after {
+        break-after: page !important;
+        page-break-after: always !important;
+        height: 0 !important;
+    }
+
+    .report-header-center {
+        padding: 18px 18px 14px !important;
+    }
+
+    .report-header-v3,
+    .report-header-top,
+    .report-header-divider,
+    .period-strip-v1,
+    .section-header,
+    .electricity-subsection-title {
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+    }
+
+    .section-header {
+        margin-bottom: 16px !important;
+    }
+
+    .section-header h2 {
+        font-size: 20px !important;
+    }
+
+    .electricity-total-card,
+    .kpi-plant-card {
+        min-height: 0 !important;
+    }
+
+    .electricity-chart {
+        height: 280px !important;
+    }
+
+    .report-table-ui thead th {
+        position: static !important;
+    }
+}

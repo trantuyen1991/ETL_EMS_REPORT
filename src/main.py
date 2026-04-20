@@ -15,6 +15,10 @@ from src.utils.logger import get_logger, setup_logging
 from src.services.template_service import TemplateRenderingService
 from src.services.energy_service import EnergyService
 
+from datetime import datetime
+from src.config.utility_metadata import get_utility_sensor_metadata
+from src.db.processvalue_repository import ProcessValueRepository
+
 def _bootstrap() -> dict[str, Any]:
     """Bootstrap application runtime objects for development flow.
 
@@ -112,9 +116,6 @@ def _build_kpi_object(
         end_date=period.previous_end_date,
     )
 
-    print(f"[TEST] energy_kpi current_raw_rows={len(current_rows)}")
-    print(f"[TEST] energy_kpi previous_raw_rows={len(previous_rows)}")
-
     kpi_service = KPIService()
 
     kpi_object = kpi_service.build_full_kpi_object(
@@ -124,19 +125,6 @@ def _build_kpi_object(
         report_end=period.end_date,
         previous_start=period.previous_start_date,
         previous_end=period.previous_end_date,
-    )
-
-    print(f"[TEST] kpi comparison plant={kpi_object['comparison']['plant']}")
-    print(f"[TEST] kpi comparison areas={kpi_object['comparison']['areas']}")
-    print(
-        f"[TEST] kpi current coverage="
-        f"{kpi_object['current']['coverage']['coverage_days']}/"
-        f"{kpi_object['current']['coverage']['report_total_days']}"
-    )
-    print(
-        f"[TEST] kpi previous coverage="
-        f"{kpi_object['previous']['coverage']['coverage_days']}/"
-        f"{kpi_object['previous']['coverage']['report_total_days']}"
     )
 
     return kpi_object
@@ -167,14 +155,6 @@ def _build_utility_object(
         report_end=period.end_date,
         previous_start=period.previous_start_date,
         previous_end=period.previous_end_date,
-    )
-
-    print(f"[TEST] utility comparison keys={utility_object['comparison'].keys()}")
-
-    first_key = list(utility_object["comparison"].keys())[0]
-    print(
-        f"[TEST] utility comparison sample="
-        f"{first_key} -> {utility_object['comparison'][first_key]}"
     )
 
     return utility_object
@@ -245,6 +225,7 @@ def _build_report_context(
     energy_object: dict[str, Any],
     kpi_object: dict[str, Any],
     utility_object: dict[str, Any],
+    client: MySQLClient,
 ) -> dict[str, Any]:
     """Build the unified report context for V2."""
     report_builder = ReportBuilderService()
@@ -276,88 +257,19 @@ def _build_report_context(
         mode="html",
     )
 
-    print(f"[TEST] report_context keys={report_context.keys()}")
-    print(f"[TEST] sections={report_context['sections'].keys()}")
+    # 6 Sensor
+    sensor_metadata = get_utility_sensor_metadata()
+    sensor_columns = list(sensor_metadata.keys())
 
-    #1
-    # print(f"[TEST] period={report_context['period']}")
-    # print(f"[TEST] flags={report_context['flags']}")
-    # print(f"[TEST] labels={report_context['labels']}")
-    #2
-    # print(f"[TEST] utility_snapshot_rows={len(report_context['summary']['utility_snapshot_rows'])}")
-    # print(f"[TEST] kpi_area_snapshot_rows={len(report_context['summary']['kpi_area_snapshot_rows'])}")
-    # print(f"[TEST] coverage={report_context['summary']['coverage']}")
-    #3
-    # print(
-    #     f"[TEST] electricity totals rows="
-    #     f"{len(report_context['sections']['electricity']['totals']['rows'])}"
-    # )
-    # print(
-    #     f"[TEST] electricity comparison rows="
-    #     f"{len(report_context['sections']['electricity']['comparison']['rows'])}"
-    # )
-    # print(
-    #     f"[TEST] electricity top10 rows="
-    #     f"{len(report_context['sections']['electricity']['top10']['rows'])}"
-    # )
-    # print(
-    #     f"[TEST] electricity daily_summary rows="
-    #     f"{len(report_context['sections']['electricity']['daily_summary']['rows'])}"
-    # )
-    # print(
-    #     f"[TEST] electricity daily_detail_tables="
-    #     f"{len(report_context['sections']['electricity']['daily_detail_tables'])}"
-    # )
-    # print(
-    #     f"[TEST] electricity top10 sample="
-    #     f"{report_context['sections']['electricity']['top10']['rows'][0]}"
-    # )
-    #4
-    # print(
-    #     f"[TEST] utility totals rows="
-    #     f"{len(report_context['sections']['utility']['consumption']['totals']['rows'])}"
-    # )
-    # print(
-    #     f"[TEST] utility daily_columns="
-    #     f"{len(report_context['sections']['utility']['consumption']['detail']['daily_columns'])}"
-    # )
-    # print(
-    #     f"[TEST] utility daily_rows="
-    #     f"{len(report_context['sections']['utility']['consumption']['detail']['daily_rows'])}"
-    # )
-    # print(
-    #     f"[TEST] utility coverage="
-    #     f"{report_context['sections']['utility']['consumption']['coverage']}"
-    # )
-    # print(
-    #     f"[TEST] utility totals sample="
-    #     f"{report_context['sections']['utility']['consumption']['totals']['rows'][0]}"
-    # )
-    #5
-    print(
-        f"[TEST] kpi totals areas="
-        f"{len(report_context['sections']['kpi']['totals']['areas'])}"
+    repo = ProcessValueRepository(mysql_client=client)
+
+    rows = repo.fetch_sensor_rows(
+        start_dt=datetime(2024, 10, 28, 0, 0, 0),
+        end_dt_exclusive=datetime(2024, 10, 29, 0, 0, 0),
+        sensor_columns=sensor_columns,
     )
-    print(
-        f"[TEST] kpi comparison areas="
-        f"{len(report_context['sections']['kpi']['comparison']['areas'])}"
-    )
-    print(
-        f"[TEST] kpi product_context rows="
-        f"{len(report_context['sections']['kpi']['product_context']['rows'])}"
-    )
-    print(
-        f"[TEST] kpi daily_detail rows="
-        f"{len(report_context['sections']['kpi']['daily_detail']['rows'])}"
-    )
-    print(
-        f"[TEST] kpi coverage="
-        f"{report_context['sections']['kpi']['coverage']}"
-    )
-    print(
-        f"[TEST] kpi comparison plant="
-        f"{report_context['sections']['kpi']['comparison']['plant']}"
-    )
+    print(f"[TEST] processvalue rows={len(rows)}")
+    print(f"[TEST] processvalue first_row={rows[0] if rows else None}")
     return report_context
 
 
@@ -382,6 +294,7 @@ def run_dev_test() -> None:
         energy_object=energy_object,
         kpi_object=kpi_object,
         utility_object=utility_object,
+        client=runtime["client"],
     )
     #
     renderer = TemplateRenderingService("src/templates")

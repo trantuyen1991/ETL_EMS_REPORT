@@ -11,10 +11,18 @@
     <style>
         {% include "assets/report.css" %}
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+    <script>
+        if (!window.echarts) {
+            {% include "assets/vendor/echarts/echarts.min.js" %}
+        }
+    </script>
 </head>
 <body>
     <div class="report-container">
         {% block content %}{% endblock %}
     </div>
+
+    {% block scripts %}{% endblock %}
 </body>
 </html>

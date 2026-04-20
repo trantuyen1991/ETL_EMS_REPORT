@@ -142,6 +142,28 @@
                 {% endfor %}
             </div>
 
+            <div class="electricity-chart-grid">
+                <div class="electricity-chart-card">
+                    <h3 class="electricity-chart-card-title">
+                        {{ sections.electricity.charts.daily_trend.title }}
+                    </h3>
+                    <p class="electricity-chart-card-subtitle">
+                        {{ sections.electricity.charts.daily_trend.subtitle }}
+                    </p>
+                    <div id="electricity-daily-trend-chart" class="electricity-chart"></div>
+                </div>
+
+                <div class="electricity-chart-card">
+                    <h3 class="electricity-chart-card-title">
+                        {{ sections.electricity.charts.area_comparison.title }}
+                    </h3>
+                    <p class="electricity-chart-card-subtitle">
+                        {{ sections.electricity.charts.area_comparison.subtitle }}
+                    </p>
+                    <div id="electricity-area-comparison-chart" class="electricity-chart"></div>
+                </div>
+            </div>
+
             <div class="electricity-comparison-block">
                 <div class="electricity-comparison-table-wrap report-table-wrap">
                     <table class="electricity-comparison-table report-table-ui">
@@ -323,5 +345,52 @@
                 </div>
                 {% endfor %}
             </div>
+            <script>
+                (function () {
+                    function initElectricityCharts() {
+                        if (!window.echarts) {
+                            return;
+                        }
+
+                        const chartConfigs = [
+                            {
+                                id: "electricity-daily-trend-chart",
+                                option: {{ sections.electricity.charts.daily_trend.option | tojson }},
+                            },
+                            {
+                                id: "electricity-area-comparison-chart",
+                                option: {{ sections.electricity.charts.area_comparison.option | tojson }},
+                            },
+                        ];
+
+                        const charts = [];
+
+                        chartConfigs.forEach(function (config) {
+                            const el = document.getElementById(config.id);
+                            if (!el) {
+                                return;
+                            }
+
+                            const chart = echarts.init(el);
+                            chart.setOption(config.option, true);
+                            charts.push(chart);
+                        });
+
+                        if (charts.length > 0) {
+                            window.addEventListener("resize", function () {
+                                charts.forEach(function (chart) {
+                                    chart.resize();
+                                });
+                            });
+                        }
+                    }
+
+                    if (document.readyState === "loading") {
+                        document.addEventListener("DOMContentLoaded", initElectricityCharts);
+                    } else {
+                        initElectricityCharts();
+                    }
+                })();
+            </script>
         </section>
         {% endif %}

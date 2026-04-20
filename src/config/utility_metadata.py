@@ -214,6 +214,33 @@ UTILITY_SENSOR_METADATA: Dict[str, Dict[str, Any]] = {
         "source_column": "dom_waterflow",
         "stats": ["min", "avg", "max"],
     },
+    
+    "sak_waterflow": {
+        "display_name": "Sakari Water Flow",
+        "unit": "m³/h",
+        "group": "domestic_water",
+        "description": "Water flow for Sakari area.",
+        "source_column": "sak_waterflow",
+        "stats": ["min", "avg", "max"],
+    },
+
+    "ich_coolingcap": {
+        "display_name": "ICO Chiller Cooling Capacity",
+        "unit": "kW",
+        "group": "ico_chiller",
+        "description": "Cooling capacity of ICO chiller.",
+        "source_column": "ich_coolingcap",
+        "stats": ["min", "avg", "max"],
+    },
+
+    "dch_coolingcap": {
+        "display_name": "DIODE Chiller Cooling Capacity",
+        "unit": "kW",
+        "group": "diode_chiller",
+        "description": "Cooling capacity of DIODE chiller.",
+        "source_column": "dch_coolingcap",
+        "stats": ["min", "avg", "max"],
+    },
 }
 
 

@@ -429,6 +429,10 @@ class ReportBuilderService:
                 "totals": {"rows": []},
                 "comparison": {"rows": []},
                 "top10": {"rows": [], "excluded_meter_rules": {}},
+                "charts": {
+                    "daily_trend": {},
+                    "area_comparison": {},
+                },
                 "daily_summary": {"title": "Daily Summary Table", "rows": []},
                 "daily_detail_tables": [],
             }
@@ -530,6 +534,7 @@ class ReportBuilderService:
 
         daily_summary_rows = energy_object.get("current", {}).get("daily_summary_rows", [])
         daily_detail_tables = energy_object.get("current", {}).get("daily_tables", [])
+        charts = self._build_v3_electricity_charts(energy_object)
 
         return {
             "title": "ELECTRICITY CONSUMPTION",
@@ -544,12 +549,212 @@ class ReportBuilderService:
                 "rows": top10_rows,
                 "excluded_meter_rules": {},
             },
+            "charts": charts,
             "daily_summary": {
                 "title": "Daily Summary Table",
                 "rows": daily_summary_rows,
             },
             "daily_detail_tables": daily_detail_tables,
         }
+
+    def _build_v3_electricity_charts(
+        self,
+        energy_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build ECharts options for the electricity section."""
+        if not energy_object:
+            return {
+                "daily_trend": {},
+                "area_comparison": {},
+            }
+
+        current_daily_rows = sorted(
+            energy_object.get("current", {}).get("daily_summary_rows", []),
+            key=lambda row: row.get("date") or datetime.min.date(),
+        )
+        previous_daily_rows = sorted(
+            energy_object.get("previous", {}).get("daily_summary_rows", []),
+            key=lambda row: row.get("date") or datetime.min.date(),
+        )
+
+        max_daily_points = max(len(current_daily_rows), len(previous_daily_rows))
+        daily_labels = [f"D{index}" for index in range(1, max_daily_points + 1)]
+
+        current_daily_values = [
+            self._parse_display_number(row.get("total_energy_display"))
+            for row in current_daily_rows
+        ]
+        previous_daily_values = [
+            self._parse_display_number(row.get("total_energy_display"))
+            for row in previous_daily_rows
+        ]
+
+        if len(current_daily_values) < max_daily_points:
+            current_daily_values.extend([None] * (max_daily_points - len(current_daily_values)))
+        if len(previous_daily_values) < max_daily_points:
+            previous_daily_values.extend([None] * (max_daily_points - len(previous_daily_values)))
+
+        area_rows: list[dict[str, Any]] = []
+        for area_key, area_name in [
+            ("diode", "DIODE"),
+            ("ico", "ICO"),
+            ("sakari", "SAKARI"),
+        ]:
+            current_value = float(
+                energy_object.get("current", {})
+                .get("summary", {})
+                .get(area_key, {})
+                .get("total_energy", 0.0) or 0.0
+            )
+            previous_value = float(
+                energy_object.get("previous", {})
+                .get("summary", {})
+                .get(area_key, {})
+                .get("total_energy", 0.0) or 0.0
+            )
+
+            area_rows.append({
+                "area_name": area_name,
+                "current_value": current_value,
+                "previous_value": previous_value,
+            })
+
+        area_labels = [row["area_name"] for row in area_rows]
+        current_area_values = [row["current_value"] for row in area_rows]
+        previous_area_values = [row["previous_value"] for row in area_rows]
+
+        return {
+            "daily_trend": {
+                "title": "Daily trend",
+                "subtitle": "Current vs previous period",
+                "option": {
+                    "color": ["#2563eb", "#7c3aed"],
+                    "tooltip": {
+                        "trigger": "axis",
+                        "axisPointer": {"type": "line"},
+                    },
+                    "legend": {
+                        "top": 6,
+                        "left": 8,
+                        "itemWidth": 12,
+                        "itemHeight": 8,
+                    },
+                    "grid": {
+                        "left": 42,
+                        "right": 18,
+                        "top": 42,
+                        "bottom": 30,
+                        "containLabel": True,
+                    },
+                    "xAxis": {
+                        "type": "category",
+                        "boundaryGap": False,
+                        "data": daily_labels,
+                        "axisLabel": {"color": "#64748b"},
+                        "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                    },
+                    "yAxis": {
+                        "type": "value",
+                        "axisLabel": {"color": "#64748b"},
+                        "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                    },
+                    "series": [
+                        {
+                            "name": "Current period",
+                            "type": "line",
+                            "smooth": True,
+                            "symbol": "circle",
+                            "symbolSize": 7,
+                            "showSymbol": False,
+                            "lineStyle": {"width": 3, "color": "#2563eb"},
+                            "itemStyle": {"color": "#2563eb"},
+                            "areaStyle": {"color": "rgba(37, 99, 235, 0.12)"},
+                            "data": current_daily_values,
+                        },
+                        {
+                            "name": "Previous period",
+                            "type": "line",
+                            "smooth": True,
+                            "symbol": "circle",
+                            "symbolSize": 7,
+                            "showSymbol": False,
+                            "lineStyle": {"width": 2, "type": "dashed", "color": "#7c3aed"},
+                            "itemStyle": {"color": "#7c3aed"},
+                            "areaStyle": {"color": "rgba(124, 58, 237, 0.08)"},
+                            "data": previous_daily_values,
+                        },
+                    ],
+                },
+            },
+            "area_comparison": {
+                "title": "Area comparison",
+                "subtitle": "Current vs previous total by workshop",
+                "option": {
+                    "color": ["#2563eb", "#7c3aed"],
+                    "tooltip": {
+                        "trigger": "axis",
+                        "axisPointer": {"type": "shadow"},
+                    },
+                    "legend": {
+                        "top": 6,
+                        "left": 8,
+                        "itemWidth": 12,
+                        "itemHeight": 8,
+                    },
+                    "grid": {
+                        "left": 52,
+                        "right": 18,
+                        "top": 42,
+                        "bottom": 28,
+                        "containLabel": True,
+                    },
+                    "xAxis": {
+                        "type": "category",
+                        "data": area_labels,
+                        "axisLabel": {"color": "#64748b"},
+                        "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                    },
+                    "yAxis": {
+                        "type": "value",
+                        "axisLabel": {"color": "#64748b"},
+                        "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                    },
+                    "series": [
+                        {
+                            "name": "Current period",
+                            "type": "bar",
+                            "barMaxWidth": 26,
+                            "itemStyle": {"color": "#2563eb", "borderRadius": [6, 6, 0, 0]},
+                            "data": current_area_values,
+                        },
+                        {
+                            "name": "Previous period",
+                            "type": "bar",
+                            "barMaxWidth": 26,
+                            "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
+                            "data": previous_area_values,
+                        },
+                    ],
+                },
+            },
+        }
+
+    def _parse_display_number(self, value: Any) -> float | None:
+        """Parse a formatted numeric display string back to float."""
+        if value is None:
+            return None
+
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        text = str(value).strip()
+        if not text or text == "-":
+            return None
+
+        try:
+            return float(text.replace(",", ""))
+        except ValueError:
+            return None
 
     def _build_v3_utility_section(
         self,
