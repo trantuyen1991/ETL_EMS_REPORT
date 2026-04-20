@@ -640,10 +640,10 @@ class ReportBuilderService:
                         "itemHeight": 8,
                     },
                     "grid": {
-                        "left": 42,
-                        "right": 18,
-                        "top": 42,
-                        "bottom": 30,
+                        "left": 30,
+                        "right": 12,
+                        "top": 36,
+                        "bottom": 22,
                         "containLabel": True,
                     },
                     "xAxis": {
@@ -702,10 +702,10 @@ class ReportBuilderService:
                         "itemHeight": 8,
                     },
                     "grid": {
-                        "left": 52,
-                        "right": 18,
-                        "top": 42,
-                        "bottom": 28,
+                        "left": 32,
+                        "right": 12,
+                        "top": 36,
+                        "bottom": 22,
                         "containLabel": True,
                     },
                     "xAxis": {

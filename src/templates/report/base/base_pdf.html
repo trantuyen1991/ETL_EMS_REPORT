@@ -6,7 +6,7 @@
     <title>{{ meta.report_title or "Energy Consumption Report" }}</title>
 
     <style>
-        {% include "assets/report.css" %}
+        {% include "assets/report_pdf_base.css" %}
     </style>
     <script>
         {% include "assets/vendor/echarts/echarts.min.js" %}
@@ -374,6 +374,7 @@
             break-inside: auto;
             page-break-inside: auto;
         }
+
     </style>
 </head>
 <body>

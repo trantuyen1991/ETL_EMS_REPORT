@@ -1,4 +1,4 @@
-/* PDF-only overrides to keep print layout stable and separate from view styles. */
+/* PDF-only overrides to keep print layout stable on fixed A4 pages. */
 @media print {
     .period-strip-table {
         grid-template-columns: 1fr 1fr 1.2fr 0.65fr 0.65fr 1fr !important;
@@ -12,9 +12,14 @@
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     }
 
-    .electricity-chart-grid {
+    .pdf-two-chart-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
+    }
+
+    .pdf-single-chart-grid {
         grid-template-columns: 1fr !important;
-        gap: 8px !important;
+        gap: 6px !important;
     }
 
     .pdf-chart-page-block {
@@ -25,22 +30,23 @@
     .electricity-chart-card {
         min-width: 0 !important;
         overflow: hidden !important;
-        padding: 8px 10px 6px !important;
+        padding: 6px 8px 4px !important;
     }
 
     .electricity-chart {
-        height: 130px !important;
+        width: 100% !important;
+        height: 200px !important;
         overflow: hidden !important;
     }
 
     .electricity-chart-card-title {
-        margin-bottom: 2px !important;
-        font-size: 13px !important;
+        margin-bottom: 1px !important;
+        font-size: 12px !important;
     }
 
     .electricity-chart-card-subtitle {
-        margin: 2px 0 6px !important;
-        font-size: 10px !important;
+        margin: 1px 0 4px !important;
+        font-size: 9px !important;
     }
 
     .pdf-page-break-after {
@@ -74,10 +80,6 @@
     .electricity-total-card,
     .kpi-plant-card {
         min-height: 0 !important;
-    }
-
-    .electricity-chart {
-        height: 280px !important;
     }
 
     .report-table-ui thead th {

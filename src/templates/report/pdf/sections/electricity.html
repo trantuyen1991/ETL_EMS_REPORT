@@ -142,7 +142,7 @@
                 {% endfor %}
             </div>
 
-            <div class="electricity-chart-grid {% if not flags.is_daily_report %}pdf-chart-page-block{% endif %}">
+            <div class="electricity-chart-grid {% if not flags.is_daily_report %}pdf-two-chart-grid pdf-chart-page-block{% else %}pdf-single-chart-grid{% endif %}">
                 {% if not flags.is_daily_report %}
                 <div class="electricity-chart-card">
                     <h3 class="electricity-chart-card-title">
@@ -382,6 +382,7 @@
                         ];
 
                         const charts = [];
+                        const chartTargets = [];
 
                         chartConfigs.forEach(function (config) {
                             const el = document.getElementById(config.id);
@@ -403,14 +404,47 @@
                                 chart.getZr().flush();
                             }
                             charts.push(chart);
+                            chartTargets.push(el);
                         });
 
-                        if (charts.length > 0) {
-                            window.addEventListener("resize", function () {
-                                charts.forEach(function (chart) {
-                                    chart.resize();
-                                });
+                        function resizeCharts() {
+                            charts.forEach(function (chart, index) {
+                                const target = chartTargets[index];
+                                if (!chart || !target) {
+                                    return;
+                                }
+
+                                const width = Math.max(1, Math.floor(target.clientWidth || target.getBoundingClientRect().width || 0));
+                                const height = Math.max(1, Math.floor(target.clientHeight || target.getBoundingClientRect().height || 0));
+                                chart.resize({ width: width, height: height });
                             });
+                        }
+
+                        if (charts.length > 0) {
+                            window.addEventListener("resize", resizeCharts);
+
+                            window.addEventListener("beforeprint", resizeCharts);
+
+                            if (window.matchMedia) {
+                                const printMedia = window.matchMedia("print");
+                                if (printMedia && printMedia.addEventListener) {
+                                    printMedia.addEventListener("change", function (event) {
+                                        if (event.matches) {
+                                            resizeCharts();
+                                        }
+                                    });
+                                }
+                            }
+
+                            if (window.ResizeObserver) {
+                                const observer = new ResizeObserver(function () {
+                                    resizeCharts();
+                                });
+
+                                chartTargets.forEach(function (target) {
+                                    observer.observe(target);
+                                });
+                            }
                         }
 
                         window.__reportChartsReady = true;
