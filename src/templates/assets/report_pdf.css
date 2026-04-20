@@ -1,7 +1,7 @@
 /* PDF-only overrides to keep print layout stable on fixed A4 pages. */
 @media print {
     .period-strip-table {
-        grid-template-columns: 1fr 1fr 1.2fr 0.65fr 0.65fr 1fr !important;
+        grid-template-columns: 0.95fr 0.95fr 1.15fr 1fr 0.6fr 0.95fr !important;
     }
 
     .electricity-total-grid {
@@ -13,7 +13,7 @@
     }
 
     .pdf-two-chart-grid {
-        grid-template-columns: 1fr 1fr !important;
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) !important;
         gap: 6px !important;
     }
 
