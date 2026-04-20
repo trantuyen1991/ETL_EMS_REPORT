@@ -61,6 +61,39 @@
         page-break-inside: avoid !important;
     }
 
+    .utility-sensor-block {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        margin-top: 12px !important;
+    }
+
+    .utility-sensor-toggle-row {
+        display: none !important;
+    }
+
+    .utility-sensor-subtitle {
+        margin-bottom: 6px !important;
+        font-size: 9px !important;
+    }
+
+    .utility-sensor-table {
+        min-width: 940px !important;
+    }
+
+    .utility-sensor-table th,
+    .utility-sensor-table td {
+        padding: 4px 5px !important;
+        font-size: 8.5px !important;
+    }
+
+    .utility-sensor-col-name {
+        font-size: 9.5px !important;
+    }
+
+    .utility-sensor-col-unit {
+        font-size: 8px !important;
+    }
+
     .report-header-center {
         padding: 18px 18px 14px !important;
     }

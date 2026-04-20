@@ -78,5 +78,62 @@
                     </table>
                 </div>
             </div>
+
+            {% set sensor_monitoring = sections.utility.sensor_monitoring %}
+            {% if sensor_monitoring.enabled %}
+            <div class="utility-sensor-block">
+                <div class="utility-sensor-header">
+                    <div>
+                        <h3 class="electricity-subsection-title">
+                            {{ sensor_monitoring.title or "Sensor monitoring" }}
+                        </h3>
+                        {% if sensor_monitoring.subtitle %}
+                        <p class="utility-sensor-subtitle">{{ sensor_monitoring.subtitle }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="utility-sensor-table-wrap report-table-wrap">
+                    <table class="utility-sensor-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th class="col-date sticky-date-col">Date</th>
+                                {% for metric in sensor_monitoring.metric_columns %}
+                                <th>
+                                    <span class="utility-sensor-header-cell">
+                                        <span class="utility-sensor-col-name">{{ metric.display_name }}</span>
+                                        <span class="utility-sensor-col-unit">{{ metric.unit }}</span>
+                                    </span>
+                                </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sensor_monitoring.daily_rows %}
+                            {% set row_metrics = row.metrics %}
+                            <tr>
+                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                {% for metric in sensor_monitoring.metric_columns %}
+                                {% set metric_row = row_metrics[metric.key] if row_metrics and metric.key in row_metrics else None %}
+                                <td class="utility-sensor-cell">
+                                    <div class="utility-sensor-cell-stack">
+                                        <div class="utility-sensor-line utility-sensor-line-max">
+                                            <span class="utility-sensor-line-label">Max</span>
+                                            <span class="utility-sensor-line-value utility-sensor-line-value-max">{{ metric_row.max_display if metric_row else "-" }}</span>
+                                        </div>
+                                        <div class="utility-sensor-line utility-sensor-line-avg">
+                                            <span class="utility-sensor-line-label">Avg</span>
+                                            <span class="utility-sensor-line-value utility-sensor-line-value-avg">{{ metric_row.avg_display if metric_row else "-" }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
         </section>
         {% endif %}

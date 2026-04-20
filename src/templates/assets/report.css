@@ -1013,6 +1013,114 @@
             font-weight: 500;
         }
 
+        .utility-sensor-block {
+            margin-top: 16px;
+        }
+
+        .utility-sensor-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .utility-sensor-subtitle {
+            margin: 0 0 10px 0;
+            font-size: 11.5px;
+            line-height: 1.35;
+            color: var(--text-muted);
+        }
+
+        .utility-sensor-toggle-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .utility-sensor-toggle {
+            appearance: none;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #334155;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .utility-sensor-toggle.is-active {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #1e3a8a;
+        }
+
+        .utility-sensor-table {
+            min-width: 1080px;
+        }
+
+        .utility-sensor-table .col-date {
+            min-width: 150px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-sensor-header-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: flex-start;
+        }
+
+        .utility-sensor-col-name {
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .utility-sensor-col-unit {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .utility-sensor-cell {
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .utility-sensor-cell-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1px;
+        }
+
+        .utility-sensor-line {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .utility-sensor-line-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .utility-sensor-line-value {
+            font-weight: 700;
+        }
+
+        .utility-sensor-line-value-max {
+            color: var(--brand);
+        }
+
+        .utility-sensor-line-value-avg {
+            color: var(--accent);
+        }
+
         /* ==========================================================================
         KPI total
         ========================================================================== */

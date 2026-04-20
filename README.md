@@ -1,92 +1,137 @@
-# Energy Consumption PDF Reporting Tool
-
-# 1. README.md (bản hoàn chỉnh cho V1)
-
-# ETL EMS Energy Report Tool
+# Energy Consumption Reporting System
 
 ## Overview
 
-This project is an ETL-based reporting tool designed to extract, transform, and present energy consumption data from a MySQL database into structured reports.
+This project is a backend-driven reporting system that generates daily, weekly, and monthly energy reports from industrial data sources.
 
-The tool focuses on:
-- Aggregating energy data from raw meter readings
-- Generating clean, readable HTML reports
-- Exporting reports to PDF
-- Providing raw detail data in CSV format
-- Supporting structured logging for traceability
-
----
-
-## Current Version: v1 Scope
-
-### Data Source
-- MySQL database
-- Source object: `ems_db.diode_energy` (view/table)
-- Dynamic meter detection from columns
+The system:
+- extracts data from MySQL
+- builds a structured `report_context`
+- renders HTML reports (view + PDF)
+- exports PDF and CSV outputs
 
 ---
 
-### Implemented Features
+## Key Concepts
 
-#### 1. Data Aggregation
-- Daily aggregation of energy consumption
-- Total energy calculation
-- Dynamic meter handling (no hardcoded meter list)
+### 1. Context-Driven Architecture
 
-#### 2. Daily Summary Table
-Each row represents one day with:
-- Date
-- Total Energy
-- Top 1 Meter
-- Top 1 Value
-- Active Meter Count
-- Average per Active Meter
-- Total Meter Count
-- Inactive Meter Count
-
-#### 3. Comparison vs Previous Period
-- Automatically compares with previous period of equal duration
-- Metrics:
-  - Current Total
-  - Previous Total
-  - Delta
-  - Delta %
-  - Trend (Up/Down)
-
-#### 4. Report Output
-- HTML report (main format)
-- PDF export via Chromium (headless mode)
-- Raw detail export to CSV (full dataset)
-
-#### 5. Logging
-- Console + file logging
-- Structured logs for:
-  - ETL process
-  - Database operations
-  - File export
-  - Error handling
-
----
-
-## Output Files
-
-After running, the system generates:
-
-- HTML Report  
-- PDF Report  
-- Raw CSV Detail  
-
-Example output:
+Instead of rendering directly from raw data:
 
 ```
 
-output/
-└── reports/
-├── debug_report.html
-├── energy_report.pdf
-└── debug_report_raw_detail.csv
+Database → Services → report_context → Template → Output
 
 ```
+
+- All business logic is handled in backend services
+- Templates only render data (no calculations)
+
+---
+
+### 2. Multi-Section Report
+
+The report is divided into:
+
+- Electricity (energy consumption)
+- Utility (water, air, steam, sensors)
+- Energy KPI (kWh/Ton with production context)
+
+---
+
+### 3. Dual Template System
+
+| Template | Purpose |
+|--------|--------|
+| `report_view.html` | Responsive UI (mobile / desktop) |
+| `report_pdf.html` | A4 print layout |
+
+---
+
+## Current Version
+
+**Version: V3 (In Development)**
+
+---
+
+## Implemented Features
+
+### 1. Period Engine
+- Automatic period detection:
+  - Daily
+  - Weekly (week-end trigger)
+  - Monthly (month-end trigger)
+- Controlled by:
+```
+
+REPORT_ANCHOR_DATE (.env)
+
+```
+
+---
+
+### 2. Energy Section
+
+- Uses `energy_kpi` as source of truth
+- No recalculation from raw meters
+- Supports:
+- plant total
+- area breakdown (ICO, DIODE, SAKARI)
+- comparison vs previous period
+
+---
+
+### 3. KPI Section
+
+- KPI = Energy / Production (kWh/Ton)
+- Includes:
+- Plant KPI summary
+- Area KPI comparison
+- Daily KPI detail
+- Production context
+
+Rules:
+- coverage-first
+- no prorating
+- missing data handled explicitly
+
+---
+
+### 4. Utility Section
+
+Includes:
+
+#### 4.1 Aggregated Utility
+- water
+- air
+- steam
+
+#### 4.2 Sensor Monitoring (NEW)
+- data from `processvalue`
+- daily aggregation:
+- average (avg)
+- maximum (max)
+
+Example metrics:
+- Domestic Water
+- Chilled Water (ICO/DIODE)
+- Air (ICO/DIODE)
+- Steam
+- Sakari Water
+
+---
+
+### 5. Report Rendering
+
+- HTML (view)
+- HTML (PDF layout)
+- PDF export via Chromium (headless)
+
+---
+
+### 6. CSV Export (Planned)
+- raw detail data
+- same context as report
 
 ---
 
@@ -95,68 +140,72 @@ output/
 ```
 
 src/
-├── config/
-│   └── config_loader.py
-├── db/
-│   ├── mysql_client.py
-│   └── queries.py
-├── services/
-│   ├── aggregation_service.py
-│   ├── report_service.py
-│   ├── template_service.py
-│   ├── table_service.py
-│   ├── chart_service.py
-│   ├── csv_export_service.py
-│   ├── pdf_service.py
-│   └── file_naming_service.py
+├── config/            # metadata, data sources
+├── db/                # database access layer
+├── services/          # business logic
+├── templates/         # HTML templates
+│   ├── report/pdf/
+│   └── report/view/
 ├── utils/
-│   ├── logger.py
-│   ├── datetime_utils.py
-│   └── validation.py
 └── main.py
 
-config/
-├── .env
-├── .env.example
-├── app.yaml
-└── logging.yaml
+```
+
+Docs:
+
+```
 
 docs/
-└── project_status.md
+├── project_context.md
+├── project_status.md
+├── report_spec.md
+├── kpi_reporting_rules.md
+├── business_rules.md
+├── prompt_openclaw.md
 
-````
-
----
-
-## Requirements
-
-- Python 3.8+
-- MySQL database
-- Chromium / Google Chrome / Edge (for PDF export)
+```
 
 ---
 
-## Installation
+## Data Flow
 
-```bash
-pip install -r requirements.txt
-````
+### Step 1 – Extract
+- energy data
+- KPI data
+- processvalue (sensor data)
+
+### Step 2 – Transform
+- aggregation
+- comparison
+- coverage handling
+
+### Step 3 – Build Context
+
+```
+
+report_context = {
+electricity: {...},
+utility: {
+summary: {...},
+sensor_monitoring: {...}
+},
+kpi: {...}
+}
+
+```
+
+### Step 4 – Render
+- template → HTML
+- HTML → PDF
 
 ---
 
 ## Configuration
 
-### 1. Environment Variables
-
-Copy `.env.example`:
-
-```bash
-cp config/.env.example config/.env
-```
-
-Update values:
+### Environment (.env)
 
 ```
+
 MYSQL_HOST=
 MYSQL_PORT=
 MYSQL_DATABASE=
@@ -164,165 +213,56 @@ MYSQL_USER=
 MYSQL_PASSWORD=
 
 OUTPUT_DIR=
+REPORT_ANCHOR_DATE=
 
-LOG_LEVEL=INFO
+```
+
+---
+
+## Output
+
+Generated files:
+
+```
+
+output/reports/
+├── report_view.html
+├── report.pdf
+└── report.csv (future)
+
 ```
 
 ---
 
-### 2. YAML Config
+## Known Issues
 
-`config/app.yaml` controls:
-
-* chart type
-* PDF layout (A4, margins)
-* optional browser path override
-
----
-
-## Run
-
-```bash
-python3 -m src.main
-```
+- PDF chart rendering requires:
+  - disable animation
+  - resize before print
+- Chromium (snap) cannot write into hidden directories
+- large tables may need pagination handling
 
 ---
 
-## Notes
+## Development Notes
 
-* PDF export uses Chromium headless mode
-* On Ubuntu (snap), avoid writing into hidden folders (e.g. `.openclaw`)
-* Use a normal directory like:
-
-```
-/home/user/Reports
-```
+- Backend-first approach
+- context must be UI-agnostic
+- no business logic in template
 
 ---
 
-## Known Limitations (V1)
+## Future Roadmap
 
-* Chart section currently shows data (not fully embedded chart)
-* Only 1 data source is supported
-* No CLI arguments yet
-* XLSX export not implemented
-* No scheduling / automation yet
-
----
-
-## Planned for V2
-
-* Real embedded charts (ECharts)
-* CLI support (input date range)
-* XLSX export
-* Multi-source support
-* Batch job execution
-* Windows executable packaging
-* Improved file naming rules
-* Better visualization (trend charts, KPI cards)
+- CSV export
+- advanced charts (ECharts)
+- heatmap visualization (daily KPI / sensor)
+- dynamic UI (per period type)
+- Windows executable packaging
 
 ---
 
 ## Author
 
 Tuyen Tran
-
----
-
-## License
-
-MIT
-
-````
-
----
-
-# 2. docs/project_status.md (snapshot v1)
-
-Tạo file: `docs/project_status.md`
-
-```markdown
-# Project Status - V1
-
-## Version: v1.0.0 (Frozen)
-
----
-
-## Completed
-
-### Data Pipeline
-- MySQL connection
-- Dynamic column detection for meters
-- Raw data extraction
-
-### Aggregation
-- Daily aggregation logic
-- Total energy calculation
-- Top meter identification
-
-### Reporting
-- HTML report rendering (Jinja2)
-- Daily Summary Table
-- Comparison vs previous period
-
-### Export
-- CSV export (raw detail)
-- PDF export (Chromium headless)
-
-### Logging
-- Centralized logging setup
-- File + console logging
-- Logging integrated across services
-
----
-
-## Verified
-
-- End-to-end ETL flow working
-- Output files generated correctly:
-  - HTML
-  - CSV
-  - PDF
-- Logging working correctly
-- PDF export fixed (permission + path issues)
-
----
-
-## Known Issues / Limitations
-
-- Chart not embedded yet (data only)
-- No CLI interface
-- No XLSX export
-- Single data source only
-- No scheduler
-
----
-
-## Notes
-
-- OUTPUT_DIR must not be a restricted or hidden path when using Chromium (snap)
-- Logging should be initialized before any module execution
-
----
-
-## Next Phase (V2)
-
-- Chart integration
-- CLI input
-- Multi-report support
-- Windows packaging
-- Job scheduling (cron/systemd)
-
----
-
-## Status
-
-READY FOR V2 DEVELOPMENT 🚀
-````
-- Next: V2 (multi-source, KPI, utility, advanced reporting)
-
-See details:
-👉 docs/v2_roadmap.md
----
-
-
+```

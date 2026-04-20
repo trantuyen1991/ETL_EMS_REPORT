@@ -1,51 +1,376 @@
 # Project Context
 
 ## Project Name
-Energy Consumption PDF Reporting Tool
+Energy Consumption Reporting Tool
 
-## Objective
-Build a Python reporting tool that reads energy consumption data from MySQL, aggregates the data by day, week, month, and quarter, then generates charts and summary tables and exports the final result to a PDF file.
+## 1. Overview
 
-## Main Purpose
-The tool is used to create energy consumption reports for machines in a workshop. The reports must support multiple aggregation levels and must be suitable for sharing or printing as PDF documents.
+This project is an automated energy reporting system.
 
-## Data Source
-- Source database: MySQL
-- Data type: machine energy consumption data
-- Scope: machines in one workshop
+It collects data from multiple database sources, processes and aggregates it in backend services, builds a unified report context, and renders it into HTML and PDF outputs.
 
-## Output
-- Output format: PDF
-- Output content:
-  - report header
-  - export timestamp
-  - summary tables
-  - charts
-  - remarks or summary section if needed
+The system is designed to run once per day and generate a report based on dynamic period selection.
 
-## Output File Rules
-- The output PDF file is saved to a configured folder
-- The base file name is predefined
-- Only the export date/time part changes dynamically when the file is generated
+---
 
-## Technical Requirements
-- Language: Python
-- Configuration must be externalized
-- Logging and error handling are required
-- Code structure must be modular and maintainable
-- Avoid hard-coded values where possible
+## 2. High-Level Architecture
 
-## Chart Requirements
-- Use Apache ECharts
-- Use a local ECharts library file stored in the project
-- Do not use CDN or external chart URLs
-- Charts should be rendered as part of the reporting pipeline and included in the final PDF output
+The system follows a layered architecture:
 
-## Suggested Rendering Flow
-MySQL -> pandas -> aggregate data -> generate chart images -> render HTML template -> convert HTML to PDF
+```text
+Database Layer
+    ↓
+Repository Layer
+    ↓
+Service Layer
+    ↓
+Report Context Builder
+    ↓
+Template Rendering (HTML / PDF)
+    ↓
+Output Files
+````
 
-## Expected Project Style
-- Clear project structure
-- Step-by-step implementation
-- Reusable modules
-- Production-friendly code
+---
+
+## 3. Data Sources
+
+### 3.1 Energy Data
+
+Source:
+
+* `energy_kpi`
+
+Purpose:
+
+* official plant totals
+* area totals
+* KPI-related values
+* production context
+
+Rule:
+
+* this is the source of truth for KPI and official totals
+
+---
+
+### 3.2 Raw Sensor Data
+
+Source:
+
+* `processvalue`
+
+Purpose:
+
+* utility sensor monitoring
+* flow, pressure, temperature, etc.
+
+Examples:
+
+* ich_supflow
+* dch_supflow
+* iac_airflow
+* boi_steamflow
+* dom_waterflow
+
+---
+
+## 4. Repository Layer
+
+Repositories are responsible for:
+
+* querying database
+* returning raw structured data
+
+Key repositories:
+
+### 4.1 energy_repository
+
+* fetch energy KPI data
+* return rows used for:
+
+  * electricity section
+  * KPI section
+
+---
+
+### 4.2 processvalue_repository
+
+* fetch sensor data from `processvalue`
+* support:
+
+  * time range query
+  * dynamic column selection
+
+---
+
+## 5. Service Layer
+
+Services contain business logic and aggregation.
+
+---
+
+### 5.1 energy_service
+
+Responsibilities:
+
+* build electricity section data
+* build plant and area totals
+* build comparison vs previous period
+* build daily summary
+* build daily detail tables
+
+Key rules:
+
+* must use `energy_kpi` as source of truth
+* must not recompute totals from raw views
+
+---
+
+### 5.2 kpi_service (logical responsibility)
+
+Responsibilities:
+
+* build KPI-related context
+* apply coverage-first logic
+* integrate:
+
+  * production
+  * energy
+  * KPI values
+
+Rules:
+
+* follow `kpi_report_ruler.md`
+* no prorating
+* explicit coverage status
+
+---
+
+### 5.3 utility_service
+
+Responsibilities:
+
+* build utility summary
+* build daily utility detail
+* build sensor monitoring context
+
+---
+
+### 5.4 processvalue_service
+
+Responsibilities:
+
+* aggregate raw sensor data
+* compute:
+
+  * daily average
+  * daily maximum
+
+Output:
+
+* structured daily stats for each sensor
+
+---
+
+## 6. Report Context Builder
+
+### 6.1 Entry Point
+
+* `main.py`
+
+Main responsibilities:
+
+* resolve report period
+* fetch all required data
+* call services
+* combine all outputs into `report_context`
+
+---
+
+### 6.2 Context Structure
+
+The final `report_context` contains:
+
+```
+report_context
+├── header
+├── electricity
+├── utility
+│   ├── summary
+│   ├── daily_detail
+│   └── sensor_monitoring
+├── kpi
+└── metadata
+```
+
+---
+
+### 6.3 Design Principle
+
+* context must be UI-agnostic
+* no HTML logic inside backend
+* structured, reusable, extensible
+
+---
+
+## 7. Template Rendering
+
+### 7.1 Templates
+
+Two templates exist:
+
+* `report_view.html`
+* `report_pdf.html`
+
+---
+
+### 7.2 Rendering Flow
+
+```text
+report_context
+    ↓
+TemplateRenderingService
+    ↓
+HTML output
+    ↓
+PDF (via Chromium)
+```
+
+---
+
+### 7.3 Template Differences
+
+| Feature    | View          | PDF                |
+| ---------- | ------------- | ------------------ |
+| Responsive | Yes           | No                 |
+| Animation  | Yes           | Limited            |
+| CSS        | CDN / dynamic | Local / print-safe |
+| Charts     | Interactive   | Static / stable    |
+
+---
+
+## 8. Output Pipeline
+
+Current flow:
+
+1. build report_context
+2. render HTML
+3. generate PDF
+
+Planned:
+4. export CSV
+
+---
+
+## 9. Period Resolution
+
+Handled in `main.py`:
+
+Input:
+
+* `REPORT_ANCHOR_DATE` (.env)
+
+Logic:
+
+* end of month → monthly
+* end of week → weekly
+* otherwise → daily
+
+Fallback:
+
+* if empty → use today
+
+---
+
+## 10. Sensor Monitoring Flow
+
+```text
+processvalue table
+    ↓
+processvalue_repository
+    ↓
+processvalue_service (aggregate avg/max)
+    ↓
+utility_service (build sensor context)
+    ↓
+report_context.utility.sensor_monitoring
+    ↓
+render in Utility section
+```
+
+---
+
+## 11. Design Principles
+
+### 11.1 Backend First
+
+All business logic must live in backend services.
+
+### 11.2 Single Source of Truth
+
+* energy → energy_kpi
+* KPI → energy_kpi
+* sensor → processvalue
+
+### 11.3 Explicit Data
+
+* missing values must not be hidden
+* no fake completeness
+
+### 11.4 Extensibility
+
+* context must support future UI
+* avoid hardcoded UI behavior
+
+---
+
+## 12. OpenClaw Integration Context
+
+OpenClaw is expected to:
+
+### 12.1 Understand System Flow
+
+* repositories
+* services
+* context builder
+* templates
+
+---
+
+### 12.2 Suggest Changes Safely
+
+* propose updates to code or docs
+* must ask for user confirmation before applying
+
+---
+
+### 12.3 Keep Documentation in Sync
+
+* detect mismatch between:
+
+  * code
+  * report_spec.md
+  * project_status.md
+* propose updates accordingly
+
+---
+
+### 12.4 Respect Development Control
+
+* must not auto-commit
+* must not change logic silently
+
+---
+
+## 13. Future Extensions
+
+Planned improvements:
+
+* sensor monitoring charts
+* CSV export
+* advanced KPI visualization
+* alerting / anomaly detection
+* improved PDF layout engine
+
+````

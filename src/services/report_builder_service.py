@@ -112,6 +112,10 @@ class ReportBuilderService:
             utility_object=utility_object,
         )
 
+        v3_period_block["flags"]["show_sensor_monitoring"] = bool(
+            v3_utility_section.get("sensor_monitoring", {}).get("enabled", False)
+        )
+
         v3_kpi_section = self._build_v3_kpi_section(
             kpi_object=kpi_object,
         )
@@ -793,6 +797,9 @@ class ReportBuilderService:
                     "enabled": False,
                     "catalog": {},
                     "groups": [],
+                    "default_mode": "avg",
+                    "metric_columns": [],
+                    "daily_rows": [],
                 },
             }
 
@@ -815,9 +822,20 @@ class ReportBuilderService:
                 },
             },
             "sensor_monitoring": {
-                "enabled": False,
-                "catalog": {},
-                "groups": [],
+                "enabled": bool(
+                    utility_object.get("current", {})
+                    .get("sensor_monitoring", {})
+                    .get("enabled", False)
+                ),
+                "title": "Sensor monitoring",
+                "subtitle": "Average and maximum daily sensor readings.",
+                "default_mode": "avg",
+                "metric_columns": utility_object.get("current", {})
+                .get("sensor_monitoring", {})
+                .get("metric_columns", []),
+                "daily_rows": utility_object.get("current", {})
+                .get("sensor_monitoring", {})
+                .get("daily_rows", []),
             },
         }
 
