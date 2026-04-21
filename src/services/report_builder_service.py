@@ -10,51 +10,8 @@ logger = get_logger(__name__)
 
 
 class ReportBuilderService:
-    """Service to assemble full report context (V2)."""
+    """Service to assemble the V3 report context."""
 
-    def build_report_context(
-        self,
-        *,
-        meta: Dict[str, Any],
-        period: Dict[str, Any],
-        energy_object: Dict[str, Any] | None,
-        kpi_object: Dict[str, Any] | None,
-        utility_object: Dict[str, Any] | None,
-        mode: str = "html",
-    ) -> Dict[str, Any]:
-
-        flags = self._build_flags(kpi_object, utility_object)
-
-        summary = self._build_summary(
-            kpi_object=kpi_object,
-            utility_object=utility_object,
-            energy_object=energy_object,
-        )
-
-        sections = {
-            "kpi": self._build_kpi_section(kpi_object),
-            "utility": self._build_utility_section(utility_object),
-            "energy": self._build_energy_section(energy_object),
-        }
-
-        notes = self._build_notes(kpi_object, utility_object)
-
-        context = {
-            "meta": meta,
-            "period": period,
-            "flags": flags,
-            "summary": summary,
-            "sections": sections,
-            "notes": notes,
-            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "version": "v2",
-            "context_mode": mode,
-        }
-
-        logger.info("Report context V2 built successfully")
-
-        return context
-    
     def build_report_context_v3(
         self,
         *,
@@ -66,11 +23,7 @@ class ReportBuilderService:
         mode: str = "html",
     ) -> Dict[str, Any]:
         """
-        Build the initial V3 report context skeleton.
-
-        This step only creates the root V3 contract and copies the most basic
-        input metadata. Detailed mapping for summary/sections will be added
-        incrementally in the next steps.
+        Build the V3 report context.
 
         Args:
             meta: Base report metadata.
@@ -81,7 +34,7 @@ class ReportBuilderService:
             mode: Render mode such as html or pdf.
 
         Returns:
-            Dict[str, Any]: Initial V3 report context.
+            Dict[str, Any]: V3 report context.
 
         Example:
             context = report_builder.build_report_context_v3(
@@ -106,7 +59,7 @@ class ReportBuilderService:
 
         v3_electricity_section = self._build_v3_electricity_section(
             energy_object=energy_object,
-        ) 
+        )
 
         v3_utility_section = self._build_v3_utility_section(
             utility_object=utility_object,
@@ -145,7 +98,7 @@ class ReportBuilderService:
             "context_mode": mode,
         }
 
-        logger.info("Report context V3 skeleton built successfully")
+        logger.info("Report context V3 built successfully")
 
         return report_context
 
@@ -258,7 +211,7 @@ class ReportBuilderService:
         kpi_object: Optional[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """
-        Build V3 summary block using existing V2 helper methods.
+        Build V3 summary block using existing helper methods.
 
         Reuse existing snapshot/coverage builders first so the V3 contract
         can be connected quickly without changing the underlying business logic.
@@ -1033,26 +986,6 @@ class ReportBuilderService:
             "daily_detail": daily_detail,
         }
 
-    def _build_flags(self, kpi_object, utility_object) -> dict:
-        """Build UI flags."""
-
-        has_kpi = bool(kpi_object)
-        has_utility = bool(utility_object)
-
-        has_coverage_warning = False
-
-        if kpi_object:
-            cov = kpi_object["current"]["coverage"]
-            if not cov["is_full_coverage"]:
-                has_coverage_warning = True
-
-        return {
-            "has_kpi_section": has_kpi,
-            "has_utility_section": has_utility,
-            "has_daily_detail": True,
-            "has_coverage_warning": has_coverage_warning,
-        }
-
     def _build_kpi_snapshot(self, kpi_object) -> dict:
         comp = kpi_object["comparison"]["plant"]
 
@@ -1087,15 +1020,6 @@ class ReportBuilderService:
 
         return result
 
-    def _build_summary(self, kpi_object, utility_object,energy_object) -> dict:
-        return {
-            "kpi_snapshot": self._build_kpi_snapshot(kpi_object),
-            "kpi_area_snapshot_rows": self._build_kpi_area_snapshot_rows(kpi_object),
-            "utility_snapshot_rows": self._build_utility_snapshot(utility_object),
-            "coverage": self._build_global_coverage(kpi_object),
-            "energy_snapshot": self._build_energy_snapshot(energy_object),
-        }
-
     def _build_global_coverage(self, kpi_object) -> dict:
         """Build global coverage summary for the report banner."""
         cov = kpi_object["current"]["coverage"]
@@ -1110,66 +1034,6 @@ class ReportBuilderService:
                     "coverage_note": self._map_kpi_coverage_note(cov.get("coverage_note")),
                 }
             ],
-        }
-
-    def _build_kpi_section(self, kpi_object) -> dict:
-        """Build KPI section for report rendering."""
-        curr = kpi_object["current"]
-        comp = kpi_object["comparison"]
-
-        plant = comp["plant"]
-
-        return {
-            "title": "KPI Performance",
-            "subtitle": "Current period versus previous period comparison.",
-            "coverage": {
-                "coverage_display": f"{curr['coverage']['coverage_days']}/{curr['coverage']['report_total_days']}",
-                "coverage_note": self._map_kpi_coverage_note(curr["coverage"].get("coverage_note")),
-                "uncovered_ranges": self._build_kpi_uncovered_ranges(
-                    curr["coverage"].get("uncovered_ranges", [])
-                ),
-                "is_complete": curr["coverage"]["is_full_coverage"],
-            },
-            "plant_summary": {
-                "level_name": "Plant",
-                "current_display": self._fmt(plant["current"]),
-                "previous_display": self._fmt(plant["previous"]),
-                "delta_display": self._fmt(plant["delta"]),
-                "delta_pct_display": self._fmt_pct(plant["delta_pct"]),
-                "delta_class": self._consumption_trend_class(plant["delta"]),
-                "delta_pct_class": self._consumption_trend_class(plant["delta_pct"]),
-                "coverage_display": f"{curr['coverage']['coverage_days']}/{curr['coverage']['report_total_days']}",
-            },
-            "area_rows": self._build_kpi_area_rows(comp["areas"]),
-            "daily_rows": self._build_kpi_daily_rows(kpi_object),
-        }
-
-    def _build_kpi_area_rows(self, areas: dict) -> list:
-        rows = []
-
-        for area, val in areas.items():
-            rows.append({
-                "area_name": area.upper(),
-                "current_display": self._fmt(val["current"]),
-                "previous_display": self._fmt(val["previous"]),
-                "delta_display": self._fmt(val["delta"]),
-                "delta_pct_display": self._fmt_pct(val["delta_pct"]),
-                "delta_class": self._consumption_trend_class(val["delta"]),
-                "delta_pct_class": self._consumption_trend_class(val["delta_pct"]),
-                "coverage_note": "",
-            })
-
-        return rows
-
-    def _build_utility_section(self, utility_object) -> dict:
-        coverage = self._build_utility_coverage(utility_object)
-
-        return {
-            "title": "Utility Consumption",
-            "coverage": coverage,
-            "summary_rows": self._build_utility_snapshot(utility_object),
-            "daily_columns": self._build_daily_columns(utility_object),
-            "daily_rows": self._build_daily_rows(utility_object),
         }
 
     def _build_daily_columns(self, utility_object):
@@ -1427,66 +1291,6 @@ class ReportBuilderService:
 
         weekday = value.strftime("%a")
         return f"{value.isoformat()} ({weekday})"
-
-    def _build_energy_section(self, energy_object) -> dict:
-        """Build energy section for report rendering."""
-        if not energy_object:
-            return {}
-
-        comparison_summary = energy_object["comparison"]["summary"]
-
-        summary_rows = []
-        for area_key, area_name in [
-            ("diode", "DIODE"),
-            ("ico", "ICO"),
-            ("sakari", "SAKARI"),
-        ]:
-            item = comparison_summary.get(area_key, {})
-
-            summary_rows.append({
-                "area_name": area_name,
-                "current_display": self._fmt(item.get("current")),
-                "previous_display": self._fmt(item.get("previous")),
-                "delta_display": self._fmt(item.get("delta")),
-                "delta_pct_display": self._fmt_pct(item.get("delta_pct")),
-                "delta_class": self._consumption_trend_class(item.get("delta")),
-                "delta_pct_class": self._consumption_trend_class(item.get("delta_pct")),
-                "meter_count": item.get("meter_count", 0),
-            })
-
-        top10_rows = []
-        for item in energy_object["comparison"]["top10_meters"]:
-            top10_rows.append({
-                "rank": item["rank"],
-                "meter_name": item["meter_name"],
-                "area": item["area"],
-                "current_display": self._fmt(item.get("current")),
-                "previous_display": self._fmt(item.get("previous")),
-                "delta_display": self._fmt(item.get("delta")),
-                "delta_pct_display": self._fmt_pct(item.get("delta_pct")),
-                "delta_class": self._consumption_trend_class(item.get("delta")),
-                "delta_pct_class": self._consumption_trend_class(item.get("delta_pct")),
-            })
-
-        daily_summary_rows = energy_object["current"]["daily_summary_rows"]
-
-        daily_tables = []
-        for table in energy_object["current"]["daily_tables"]:
-            daily_tables.append({
-                "area_key": table["area_key"],
-                "title": table["title"],
-                "columns": table["columns"],
-                "rows": table["rows"],
-            })
-
-        return {
-            "title": "Energy Consumption",
-            "subtitle": "Energy summary, comparison, top 10 meter, and daily detail.",
-            "summary_rows": summary_rows,
-            "top10_rows": top10_rows,
-            "daily_summary_rows": daily_summary_rows,
-            "daily_tables": daily_tables,
-        }
 
     def _build_energy_snapshot(self, energy_object) -> dict[str, Any]:
         """Build executive energy snapshot."""
