@@ -341,14 +341,14 @@
                             <tr>
                                 <th class="col-date sticky-date-col" rowspan="2">Date</th>
                                 {% for area_key, area_name in area_summary_order %}
-                                <th colspan="3">{{ area_name }}</th>
+                                <th colspan="3" class="area-group-header {% if loop.first %}area-group-start{% endif %} area-group-end">{{ area_name }}</th>
                                 {% endfor %}
                             </tr>
                             <tr>
                                 {% for area_key, area_name in area_summary_order %}
-                                <th>Total</th>
+                                <th class="area-group-start">Total</th>
                                 <th>Active meter / total</th>
-                                <th>Avg / meter active</th>
+                                <th class="area-group-end">Avg / meter active</th>
                                 {% endfor %}
                             </tr>
                         </thead>
@@ -358,9 +358,9 @@
                                 <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                                 {% for area_key, area_name in area_summary_order %}
                                 {% set area_row = row.areas[area_key] %}
-                                <td class="col-total-energy">{{ area_row.total_display }}</td>
+                                <td class="col-total-energy area-group-start">{{ area_row.total_display }}</td>
                                 <td class="col-active-total">{{ area_row.active_total_display }}</td>
-                                <td class="col-avg-active">{{ area_row.avg_per_active_display }}</td>
+                                <td class="col-avg-active area-group-end">{{ area_row.avg_per_active_display }}</td>
                                 {% endfor %}
                             </tr>
                             {% endfor %}

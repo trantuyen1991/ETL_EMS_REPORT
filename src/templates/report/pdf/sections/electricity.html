@@ -178,11 +178,7 @@
                 </div>
             </div>
 
-            {% if not flags.is_daily_report %}
-            <div class="pdf-page-break-after"></div>
-            {% endif %}
-
-            <div class="electricity-detail-block">
+            <div class="electricity-detail-block electricity-detail-block-plant pdf-keep-together">
                 <h3 class="electricity-subsection-title">Top 10 meters</h3>
 
                 <div class="electricity-top10-wrap report-table-wrap">
@@ -241,7 +237,13 @@
                     Top 10 meters are sorted by current-period consumption.
                     Configured feeder and excluded meters are filtered by area rules.
                 </p>
+            </div>
 
+            {% if sections.electricity.top10.area_tables %}
+            {% if not flags.is_daily_report %}
+            <div class="pdf-page-break-after"></div>
+            {% endif %}
+            <div class="electricity-detail-block electricity-detail-block-area">
                 {% if sections.electricity.top10.area_tables %}
                 <div class="electricity-area-top10-grid">
                     {% for area_table in sections.electricity.top10.area_tables %}
@@ -298,6 +300,7 @@
                 </div>
                 {% endif %}
             </div>
+            {% endif %}
 
             <div class="electricity-daily-summary-block">
                 <h3 class="electricity-subsection-title">Daily summary</h3>
@@ -345,14 +348,14 @@
                             <tr>
                                 <th class="col-date sticky-date-col" rowspan="2">Date</th>
                                 {% for area_key, area_name in area_summary_order %}
-                                <th colspan="3">{{ area_name }}</th>
+                                <th colspan="3" class="area-group-header {% if loop.first %}area-group-start{% endif %} area-group-end">{{ area_name }}</th>
                                 {% endfor %}
                             </tr>
                             <tr>
                                 {% for area_key, area_name in area_summary_order %}
-                                <th>Total</th>
+                                <th class="area-group-start">Total</th>
                                 <th>Active meter / total</th>
-                                <th>Avg / meter active</th>
+                                <th class="area-group-end">Avg / meter active</th>
                                 {% endfor %}
                             </tr>
                         </thead>
@@ -362,9 +365,9 @@
                                 <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                                 {% for area_key, area_name in area_summary_order %}
                                 {% set area_row = row.areas[area_key] %}
-                                <td class="col-total-energy">{{ area_row.total_display }}</td>
+                                <td class="col-total-energy area-group-start">{{ area_row.total_display }}</td>
                                 <td class="col-active-total">{{ area_row.active_total_display }}</td>
-                                <td class="col-avg-active">{{ area_row.avg_per_active_display }}</td>
+                                <td class="col-avg-active area-group-end">{{ area_row.avg_per_active_display }}</td>
                                 {% endfor %}
                             </tr>
                             {% endfor %}

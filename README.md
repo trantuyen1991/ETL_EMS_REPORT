@@ -50,7 +50,7 @@ The report is divided into:
 
 ## Current Version
 
-**Version: V3 (In Development)**
+**Version: V4 preview (release tag pending final confirmation)**
 
 ---
 
@@ -78,6 +78,11 @@ REPORT_ANCHOR_DATE (.env)
 - plant total
 - area breakdown (ICO, DIODE, SAKARI)
 - comparison vs previous period
+- V4 layout updates:
+  - plant + area cards include `meter active / total`
+  - plant Top 10 plus 3 additional Top 10 tables by area
+  - area daily summary table added below plant daily summary
+  - PDF layout keeps plant Top 10 immediately after electricity charts on page 1
 
 ---
 
@@ -85,15 +90,17 @@ REPORT_ANCHOR_DATE (.env)
 
 - KPI = Energy / Production (kWh/Ton)
 - Includes:
-- Plant KPI summary
-- Area KPI comparison
+- grouped KPI summary matrix by area + total
 - Daily KPI detail
-- Production context
+- grouped daily KPI bar chart
 
 Rules:
 - coverage-first
 - no prorating
 - missing data handled explicitly
+- delta color rule:
+  - energy / KPI increase = red
+  - production increase = green
 
 ---
 
@@ -119,6 +126,10 @@ Example metrics:
 - Steam
 - Sakari Water
 
+V4 additions:
+- utility comparison bar chart after utility summary
+- PDF chart sizing aligned with the same SVG init / resize flow used by electricity charts
+
 ---
 
 ### 5. Report Rendering
@@ -126,6 +137,28 @@ Example metrics:
 - HTML (view)
 - HTML (PDF layout)
 - PDF export via Chromium (headless)
+
+### PDF chart rendering workflow
+
+For stable PDF chart output, use this sequence:
+
+1. render `report/pdf/report_pdf.html`
+2. write rendered file to `/home/nbt/Reports/report_pdf.html`
+3. print with Chromium headless into `/home/nbt/Reports/*.pdf`
+4. copy final PDF back into `output/reports/`
+
+Chart rendering rule for PDF templates:
+
+- use `renderer: "svg"`
+- disable animation in option before `setOption`
+- initialize chart with measured `el.clientWidth / el.clientHeight`
+- call `resize()` on `beforeprint`, `resize`, and `ResizeObserver`
+- flush ZRender after resize for print stability
+
+Important lesson learned:
+
+- if a PDF chart needs more usable width, adjust chart option layout (`grid`, labels, axis spacing) in the backend option builder first
+- do not rely on ad-hoc JS width hacks as the primary fix
 
 ---
 
@@ -241,6 +274,7 @@ output/reports/
   - resize before print
 - Chromium (snap) cannot write into hidden directories
 - large tables may need pagination handling
+- rendered PDF source should be placed in `/home/nbt/Reports` before print, then copied back into project output
 
 ---
 

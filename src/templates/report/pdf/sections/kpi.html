@@ -17,135 +17,55 @@
                     {% endif %}
                 </div>
 
-                <div class="kpi-total-block">
-                <h3 class="electricity-subsection-title">KPI total</h3>
+                <div class="kpi-summary-block">
+                    <h3 class="electricity-subsection-title">Current period KPI summary</h3>
 
-                <div class="kpi-total-grid">
-                    <div class="kpi-plant-card">
-                        <h4 class="kpi-plant-card-title">Plant KPI</h4>
-
-                        <div class="kpi-plant-metric">
-                            <span class="kpi-plant-label">{{ labels.current_period or "Current" }}</span>
-                            <span class="kpi-plant-value current">
-                                {{ sections.kpi.totals.plant.current_display }}
-                            </span>
-                        </div>
-
-                        <div class="kpi-plant-metric">
-                            <span class="kpi-plant-label">{{ labels.previous_period or "Previous" }}</span>
-                            <span class="kpi-plant-value previous">
-                                {{ sections.kpi.totals.plant.previous_display }}
-                            </span>
-                        </div>
-
-                        <div class="kpi-plant-metric">
-                            <span class="kpi-plant-label">Delta</span>
-                            <span class="kpi-plant-value kpi-delta {{ sections.kpi.comparison.plant.delta_class }}">
-                                {{ sections.kpi.comparison.plant.delta_display }}
-                            </span>
-                        </div>
-
-                        <div class="kpi-plant-metric">
-                            <span class="kpi-plant-label">Delta %</span>
-                            <span class="kpi-plant-value kpi-delta-pct {{ sections.kpi.comparison.plant.delta_pct_class }}">
-                                {{ report.delta_arrow(sections.kpi.comparison.plant.delta_pct_class) }}
-                                {{ sections.kpi.comparison.plant.delta_pct_display }}
-                            </span>
-                        </div>
-
-                        <div class="kpi-plant-metric">
-                            <span class="kpi-plant-label">Coverage</span>
-                            <span class="kpi-plant-value">
-                                {{ sections.kpi.totals.plant.coverage_display }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="kpi-area-table-wrap report-table-wrap">
-                        <table class="kpi-area-table report-table-ui">
+                    <div class="kpi-summary-table-wrap report-table-wrap">
+                        <table class="kpi-summary-table report-table-ui">
                             <thead>
                                 <tr>
-                                    <th>Area</th>
-                                    <th>{{ labels.current_period or "Current" }}</th>
-                                    <th>{{ labels.previous_period or "Previous" }}</th>
-                                    <th>Delta</th>
-                                    <th>Delta %</th>
+                                    <th rowspan="2">Metric</th>
+                                    {% for column in sections.kpi.summary_matrix.group_columns %}
+                                    <th colspan="2" class="kpi-group-header {% if loop.first %}kpi-group-start{% endif %} kpi-group-end">{{ column.label }}</th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    {% for column in sections.kpi.summary_matrix.group_columns %}
+                                    <th class="kpi-group-start">Value</th>
+                                    <th class="kpi-group-end">Delta %</th>
+                                    {% endfor %}
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for row in sections.kpi.totals.areas %}
-                                    {% set area_ns = namespace(comp=None) %}
-
-                                    {% for comp in sections.kpi.comparison.areas %}
-                                        {% if comp.area_key == row.area_key %}
-                                            {% set area_ns.comp = comp %}
-                                        {% endif %}
-                                    {% endfor %}
-
+                                {% for row in sections.kpi.summary_matrix.rows %}
                                 <tr>
-                                    <td class="col-area">{{ row.area_name }}</td>
-
-                                    <td class="col-current">{{ row.current_display }}</td>
-
-                                    <td class="col-previous">{{ row.previous_display }}</td>
-
-                                    <td class="col-delta {{ area_ns.comp.delta_class if area_ns.comp else '' }}">
-                                        {{ area_ns.comp.delta_display if area_ns.comp else "-" }}
+                                    <td class="col-metric">{{ row.metric_label }}</td>
+                                    {% for column in sections.kpi.summary_matrix.group_columns %}
+                                    {% set cell = row.cells[column.key] %}
+                                    <td class="col-value {% if column.key == 'total' %}col-total{% endif %} kpi-group-start">{{ cell.value_display }}</td>
+                                    <td class="col-delta-pct {{ cell.delta.class }} kpi-group-end">
+                                        {{ report.delta_arrow(cell.delta.class) }}
+                                        {{ cell.delta.display }}
                                     </td>
-
-                                    <td class="col-delta-pct {{ area_ns.comp.delta_pct_class if area_ns.comp else '' }}">
-                                        {% if area_ns.comp %}
-                                            {{ report.delta_arrow(area_ns.comp.delta_pct_class) }}
-                                            {{ area_ns.comp.delta_pct_display }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
+                                    {% endfor %}
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
 
-            {% if sections.kpi.product_context.enabled %}
-            <div class="kpi-product-block">
-                <h3 class="electricity-subsection-title">
-                    {{ sections.kpi.product_context.title }}
-                </h3>
-
-                <div class="kpi-product-table-wrap report-table-wrap">
-                    <table class="kpi-product-table report-table-ui">
-                        <thead>
-                            <tr>
-                                <th class="col-level">Level</th>
-                                <th class="col-current">{{ labels.current_period or "Current" }} Product</th>
-                                <th class="col-previous">{{ labels.previous_period or "Previous" }} Product</th>
-                                <th class="col-delta">Delta</th>
-                                <th class="col-delta-pct">Delta %</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in sections.kpi.product_context.rows %}
-                            <tr>
-                                <td class="col-level">{{ row.level_name }}</td>
-                                <td class="col-current">{{ row.current_prod_display }}</td>
-                                <td class="col-previous">{{ row.previous_prod_display }}</td>
-                                <td class="col-delta {{ row.delta_class }}">
-                                    {{ row.delta_display }}
-                                </td>
-                                <td class="col-delta-pct {{ row.delta_pct_class }}">
-                                    {{ report.delta_arrow(row.delta_pct_class) }}
-                                    {{ row.delta_pct_display }}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="kpi-chart-block pdf-keep-together">
+                    <div class="electricity-chart-card kpi-chart-card">
+                        <h3 class="electricity-chart-card-title">
+                            {{ sections.kpi.charts.daily_grouped_bar.title }}
+                        </h3>
+                        <p class="electricity-chart-card-subtitle">
+                            {{ sections.kpi.charts.daily_grouped_bar.subtitle }}
+                        </p>
+                        <div id="kpi-daily-grouped-bar-chart" class="electricity-chart kpi-daily-grouped-bar-chart"></div>
+                    </div>
                 </div>
-            </div>
-            {% endif %}
             </div>
 
             <div class="kpi-daily-detail-block pdf-landscape-block">
@@ -173,7 +93,6 @@
                                 <th>ICO KPI</th>
                                 <th>DIODE KPI</th>
                                 <th>SAKARI KPI</th>
-
                             </tr>
                         </thead>
                         <tbody>
@@ -201,12 +120,85 @@
                                 <td>{{ row.ico_kpi_display }}</td>
                                 <td>{{ row.diode_kpi_display }}</td>
                                 <td>{{ row.sakari_kpi_display }}</td>
-
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <script>
+                (function () {
+                    function initKpiChart() {
+                        if (!window.echarts) {
+                            return;
+                        }
+
+                        const el = document.getElementById("kpi-daily-grouped-bar-chart");
+                        if (!el) {
+                            return;
+                        }
+
+                        const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
+                        const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+
+                        const chart = echarts.init(el, null, {
+                            renderer: "svg",
+                            width: width,
+                            height: height,
+                        });
+                        const option = Object.assign({ animation: false }, {{ sections.kpi.charts.daily_grouped_bar.option | tojson }});
+                        chart.setOption(option, true);
+                        chart.resize({ width: width, height: height });
+                        if (chart.getZr && chart.getZr()) {
+                            chart.getZr().flush();
+                        }
+
+                        function resizeChart() {
+                            const nextWidth = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
+                            const nextHeight = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                            chart.resize({ width: nextWidth, height: nextHeight });
+                            if (chart.getZr && chart.getZr()) {
+                                chart.getZr().flush();
+                            }
+                        }
+
+                        window.addEventListener("resize", resizeChart);
+                        window.addEventListener("beforeprint", resizeChart);
+
+                        if (window.matchMedia) {
+                            const printMedia = window.matchMedia("print");
+                            if (printMedia && printMedia.addEventListener) {
+                                printMedia.addEventListener("change", function (event) {
+                                    if (event.matches) {
+                                        resizeChart();
+                                    }
+                                });
+                            }
+                        }
+
+                        if (window.ResizeObserver) {
+                            const observer = new ResizeObserver(function () {
+                                resizeChart();
+                            });
+                            observer.observe(el);
+                        }
+
+                        window.__kpiChartReady = true;
+                    }
+
+                    function scheduleInit() {
+                        window.requestAnimationFrame(function () {
+                            window.requestAnimationFrame(initKpiChart);
+                        });
+                    }
+
+                    if (document.readyState === "loading") {
+                        window.addEventListener("load", scheduleInit, { once: true });
+                    } else {
+                        scheduleInit();
+                    }
+                })();
+            </script>
         </section>
         {% endif %}

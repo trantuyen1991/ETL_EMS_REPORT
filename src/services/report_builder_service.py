@@ -72,6 +72,7 @@ class ReportBuilderService:
 
         v3_kpi_section = self._build_v3_kpi_section(
             kpi_object=kpi_object,
+            period_type=str(period.get("type") or "").strip().lower(),
         )
 
         notes = self._build_notes(kpi_object, utility_object)
@@ -1157,11 +1158,21 @@ class ReportBuilderService:
         comparison = utility_object.get("comparison", {})
 
         labels: list[str] = []
+        chart_labels: list[str] = []
         current_values: list[float] = []
         previous_values: list[float] = []
 
         for key, meta in metadata.items():
-            labels.append(meta.get("display_name") or key)
+            display_name = meta.get("display_name") or key
+            labels.append(display_name)
+            if display_name.count(" ") >= 2:
+                first, second, third = display_name.split(" ", 2)
+                chart_labels.append(f"{first} {second}\n{third}")
+            elif " " in display_name:
+                first, second = display_name.split(" ", 1)
+                chart_labels.append(f"{first}\n{second}")
+            else:
+                chart_labels.append(display_name)
             current_values.append(float(comparison.get(key, {}).get("current", 0.0) or 0.0))
             previous_values.append(float(comparison.get(key, {}).get("previous", 0.0) or 0.0))
 
@@ -1182,19 +1193,19 @@ class ReportBuilderService:
                         "itemHeight": 8,
                     },
                     "grid": {
-                        "left": 36,
+                        "left": 32,
                         "right": 12,
-                        "top": 40,
-                        "bottom": 44,
+                        "top": 36,
+                        "bottom": 28,
                         "containLabel": True,
                     },
                     "xAxis": {
                         "type": "category",
-                        "data": labels,
+                        "data": chart_labels,
                         "axisLabel": {
                             "color": "#64748b",
-                            "interval": 0,
-                            "rotate": 18,
+                            "fontSize": 10,
+                            "lineHeight": 11,
                         },
                         "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
                     },
@@ -1226,6 +1237,7 @@ class ReportBuilderService:
     def _build_v3_kpi_section(
         self,
         kpi_object: Optional[Dict[str, Any]],
+        period_type: str = "",
     ) -> Dict[str, Any]:
         """
         Build V3 KPI section from KPI object.
@@ -1251,6 +1263,13 @@ class ReportBuilderService:
                 "title": "ENERGY KPI",
                 "subtitle": "Energy intensity and production context.",
                 "coverage": {},
+                "summary_matrix": {
+                    "title": "Current period KPI summary",
+                    "rows": [],
+                },
+                "charts": {
+                    "daily_grouped_bar": {},
+                },
                 "totals": {
                     "plant": {},
                     "areas": [],
@@ -1400,22 +1419,298 @@ class ReportBuilderService:
             "rows": self._build_kpi_daily_rows(kpi_object),
         }
 
+        summary_matrix = self._build_v3_kpi_summary_matrix(
+            kpi_object=kpi_object,
+            period_type=period_type,
+        )
+        charts = self._build_v3_kpi_charts(kpi_object)
+
         return {
             "title": "ENERGY KPI",
             "subtitle": "Energy intensity and production context.",
             "coverage": coverage_block,
+            "summary_matrix": summary_matrix,
+            "charts": charts,
             "totals": {
                 "plant": totals_plant,
                 "areas": totals_areas,
             },
             "comparison": comparison_block,
             "product_context": {
-                "enabled": True,
+                "enabled": False,
                 "title": "Production Context",
                 "rows": product_rows,
             },
             "daily_detail": daily_detail,
         }
+
+    def _build_v3_kpi_summary_matrix(
+        self,
+        kpi_object: Optional[Dict[str, Any]],
+        period_type: str = "",
+    ) -> Dict[str, Any]:
+        """Build the compact KPI summary matrix shown above the KPI chart."""
+        if not kpi_object:
+            return {
+                "title": "Current period KPI summary",
+                "group_columns": [],
+                "rows": [],
+            }
+
+        current_summary = kpi_object.get("current", {}).get("summary", {})
+        previous_summary = kpi_object.get("previous", {}).get("summary", {})
+        current_daily_rows = kpi_object.get("current", {}).get("daily_rows", [])
+        previous_daily_rows = kpi_object.get("previous", {}).get("daily_rows", [])
+        current_coverage = kpi_object.get("current", {}).get("coverage", {})
+        previous_coverage = kpi_object.get("previous", {}).get("coverage", {})
+
+        current_prod_days = {
+            "ico": self._count_positive_kpi_days(current_daily_rows, "ico_prod"),
+            "diode": self._count_positive_kpi_days(current_daily_rows, "diode_prod"),
+            "sakari": self._count_positive_kpi_days(current_daily_rows, "sakari_prod"),
+            "plant": self._count_positive_kpi_days(current_daily_rows, "prod"),
+        }
+        previous_prod_days = {
+            "ico": self._count_positive_kpi_days(previous_daily_rows, "ico_prod"),
+            "diode": self._count_positive_kpi_days(previous_daily_rows, "diode_prod"),
+            "sakari": self._count_positive_kpi_days(previous_daily_rows, "sakari_prod"),
+            "plant": self._count_positive_kpi_days(previous_daily_rows, "prod"),
+        }
+
+        if current_prod_days["plant"] == 0:
+            current_prod_days["plant"] = int(current_coverage.get("coverage_days", 0) or 0)
+        if previous_prod_days["plant"] == 0:
+            previous_prod_days["plant"] = int(previous_coverage.get("coverage_days", 0) or 0)
+
+        def build_delta_cell(current_value: Any, previous_value: Any, *, trend_mode: str) -> dict[str, Any]:
+            if current_value is None and previous_value is None:
+                return {
+                    "display": "-",
+                    "class": "trend-neutral",
+                }
+
+            curr_val = float(current_value or 0.0)
+            prev_val = float(previous_value or 0.0)
+            delta = curr_val - prev_val
+            delta_pct = (delta / prev_val) if prev_val != 0 else None
+
+            if trend_mode == "consumption":
+                css_class = self._consumption_trend_class(delta)
+            else:
+                css_class = self._trend_class(delta)
+
+            return {
+                "display": self._fmt_pct(delta_pct),
+                "class": css_class,
+            }
+
+        def build_area_cell(current_value: Any, previous_value: Any, *, trend_mode: str, formatter: str = "number") -> dict[str, Any]:
+            if formatter == "int":
+                value_display = self._fmt_int_or_dash(current_value)
+            else:
+                value_display = self._fmt(current_value)
+
+            return {
+                "value_display": value_display,
+                "delta": build_delta_cell(current_value, previous_value, trend_mode=trend_mode),
+            }
+
+        rows: list[dict[str, Any]] = [
+            {
+                "metric_label": "Production day",
+                "cells": {
+                    "ico": build_area_cell(current_prod_days["ico"], previous_prod_days["ico"], trend_mode="generic", formatter="int"),
+                    "diode": build_area_cell(current_prod_days["diode"], previous_prod_days["diode"], trend_mode="generic", formatter="int"),
+                    "sakari": build_area_cell(current_prod_days["sakari"], previous_prod_days["sakari"], trend_mode="generic", formatter="int"),
+                    "total": build_area_cell(current_prod_days["plant"], previous_prod_days["plant"], trend_mode="generic", formatter="int"),
+                },
+            },
+            {
+                "metric_label": "Energy",
+                "cells": {
+                    "ico": build_area_cell(
+                        current_summary.get("areas", {}).get("ico", {}).get("energy"),
+                        previous_summary.get("areas", {}).get("ico", {}).get("energy"),
+                        trend_mode="consumption",
+                    ),
+                    "diode": build_area_cell(
+                        current_summary.get("areas", {}).get("diode", {}).get("energy"),
+                        previous_summary.get("areas", {}).get("diode", {}).get("energy"),
+                        trend_mode="consumption",
+                    ),
+                    "sakari": build_area_cell(
+                        current_summary.get("areas", {}).get("sakari", {}).get("energy"),
+                        previous_summary.get("areas", {}).get("sakari", {}).get("energy"),
+                        trend_mode="consumption",
+                    ),
+                    "total": build_area_cell(
+                        current_summary.get("plant", {}).get("total_energy"),
+                        previous_summary.get("plant", {}).get("total_energy"),
+                        trend_mode="consumption",
+                    ),
+                },
+            },
+            {
+                "metric_label": "Production",
+                "cells": {
+                    "ico": build_area_cell(
+                        current_summary.get("areas", {}).get("ico", {}).get("prod"),
+                        previous_summary.get("areas", {}).get("ico", {}).get("prod"),
+                        trend_mode="generic",
+                    ),
+                    "diode": build_area_cell(
+                        current_summary.get("areas", {}).get("diode", {}).get("prod"),
+                        previous_summary.get("areas", {}).get("diode", {}).get("prod"),
+                        trend_mode="generic",
+                    ),
+                    "sakari": build_area_cell(
+                        current_summary.get("areas", {}).get("sakari", {}).get("prod"),
+                        previous_summary.get("areas", {}).get("sakari", {}).get("prod"),
+                        trend_mode="generic",
+                    ),
+                    "total": build_area_cell(
+                        current_summary.get("plant", {}).get("total_prod"),
+                        previous_summary.get("plant", {}).get("total_prod"),
+                        trend_mode="generic",
+                    ),
+                },
+            },
+            {
+                "metric_label": "Energy KPI",
+                "cells": {
+                    "ico": build_area_cell(
+                        current_summary.get("areas", {}).get("ico", {}).get("kpi"),
+                        previous_summary.get("areas", {}).get("ico", {}).get("kpi"),
+                        trend_mode="consumption",
+                    ),
+                    "diode": build_area_cell(
+                        current_summary.get("areas", {}).get("diode", {}).get("kpi"),
+                        previous_summary.get("areas", {}).get("diode", {}).get("kpi"),
+                        trend_mode="consumption",
+                    ),
+                    "sakari": build_area_cell(
+                        current_summary.get("areas", {}).get("sakari", {}).get("kpi"),
+                        previous_summary.get("areas", {}).get("sakari", {}).get("kpi"),
+                        trend_mode="consumption",
+                    ),
+                    "total": build_area_cell(
+                        current_summary.get("plant", {}).get("total_kpi"),
+                        previous_summary.get("plant", {}).get("total_kpi"),
+                        trend_mode="consumption",
+                    ),
+                },
+            },
+        ]
+
+        return {
+            "title": "Current period KPI summary",
+            "group_columns": [
+                {"key": "ico", "label": "ICO"},
+                {"key": "diode", "label": "DIODE"},
+                {"key": "sakari", "label": "SAKARI"},
+                {"key": "total", "label": "Total"},
+            ],
+            "rows": rows,
+        }
+
+    def _build_v3_kpi_charts(
+        self,
+        kpi_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build KPI charts for the report."""
+        if not kpi_object:
+            return {
+                "daily_grouped_bar": {},
+            }
+
+        daily_rows = kpi_object.get("current", {}).get("daily_rows", [])
+        labels = [
+            row.get("dt").strftime("%d") if row.get("dt") else "-"
+            for row in daily_rows
+        ]
+
+        return {
+            "daily_grouped_bar": {
+                "title": "Daily KPI grouped bar chart",
+                "subtitle": "Grouped by day for ICO, DIODE, SAKARI, and Total",
+                "option": {
+                    "color": ["#84cc16", "#2563eb", "#f59e0b", "#7c3aed"],
+                    "tooltip": {
+                        "trigger": "axis",
+                        "axisPointer": {"type": "shadow"},
+                    },
+                    "legend": {
+                        "top": 6,
+                        "left": 8,
+                        "itemWidth": 12,
+                        "itemHeight": 8,
+                    },
+                    "grid": {
+                        "left": 32,
+                        "right": 12,
+                        "top": 36,
+                        "bottom": 22,
+                        "containLabel": True,
+                    },
+                    "xAxis": {
+                        "type": "category",
+                        "data": labels,
+                        "axisLabel": {"color": "#64748b", "fontSize": 10},
+                        "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                    },
+                    "yAxis": {
+                        "type": "value",
+                        "axisLabel": {"color": "#64748b"},
+                        "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                    },
+                    "series": [
+                        {
+                            "name": "ICO",
+                            "type": "bar",
+                            "barMaxWidth": 18,
+                            "data": [self._safe_float(row.get("ico_kpi")) for row in daily_rows],
+                        },
+                        {
+                            "name": "DIODE",
+                            "type": "bar",
+                            "barMaxWidth": 18,
+                            "data": [self._safe_float(row.get("diode_kpi")) for row in daily_rows],
+                        },
+                        {
+                            "name": "SAKARI",
+                            "type": "bar",
+                            "barMaxWidth": 18,
+                            "data": [self._safe_float(row.get("sakari_kpi")) for row in daily_rows],
+                        },
+                        {
+                            "name": "Total",
+                            "type": "bar",
+                            "barMaxWidth": 18,
+                            "data": [self._safe_float(row.get("kpi")) for row in daily_rows],
+                        },
+                    ],
+                },
+            },
+        }
+
+    def _count_positive_kpi_days(
+        self,
+        daily_rows: list[dict[str, Any]],
+        field_name: str,
+    ) -> int:
+        """Count days where a KPI daily field has a positive numeric value."""
+        return sum(
+            1
+            for row in daily_rows
+            if isinstance(row.get(field_name), (int, float))
+            and float(row.get(field_name)) > 0
+        )
+
+    def _safe_float(self, value: Any) -> float | None:
+        """Return float for numeric values, otherwise None for chart gaps."""
+        if isinstance(value, (int, float)):
+            return float(value)
+        return None
 
     def _build_kpi_snapshot(self, kpi_object) -> dict:
         comp = kpi_object["comparison"]["plant"]
@@ -1693,6 +1988,12 @@ class ReportBuilderService:
         if val is None:
             return "-"
         return f"{float(val):,.2f}"
+
+    def _fmt_int_or_dash(self, val: Any) -> str:
+        """Return dash for None, otherwise integer display without decimals."""
+        if val is None:
+            return "-"
+        return f"{int(round(float(val))):,}"
 
     def _fmt_pct(self, val):
         """Format ratio to percent display."""

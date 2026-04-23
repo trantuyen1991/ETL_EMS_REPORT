@@ -15,12 +15,13 @@ The system is designed to run once per day and automatically determine report pe
 
 ## 2. Current Development Stage
 
-The project is currently in **Report V3 stage**.
+The project is currently in **Report V4 preview stage**.
 
 Focus:
 - stabilize backend data pipeline
-- finalize report structure
-- gradually enhance UI and export capabilities
+- finalize report structure changes requested by user
+- stabilize PDF chart rendering and print flow
+- update project documentation to match implementation
 
 ---
 
@@ -34,11 +35,16 @@ Focus:
 - Top 10 meters (with main feeder exclusion): ✅
 - Daily summary: ✅
 - Daily detail tables per area: ✅
+- V4 card update (`meter active / total`): ✅
+- Area daily summary table: ✅
+- Top 10 by area (3 extra tables): ✅
+- PDF layout rule: keep plant Top 10 after charts on page 1: ✅
 
 ### 3.2 Energy KPI Section
-- Plant KPI summary: ✅
-- Area KPI comparison: ✅
-- Production context (Ton): ✅
+- KPI summary matrix by area + total: ✅
+- Delta% by area and total: ✅
+- Delta color rule by metric type: ✅
+- Daily KPI grouped bar chart: ✅
 - Daily KPI detail (with coverage status): ✅
 
 KPI logic:
@@ -53,6 +59,7 @@ KPI logic:
 #### Utility Summary
 - Business-level utilities (water, air, steam, etc.): ✅
 - Current vs previous comparison: ✅
+- Utility comparison bar chart: ✅
 
 #### Daily Utility Detail
 - Dense daily rows: ✅
@@ -93,7 +100,11 @@ Limitations (current):
 
 ## 4. In Progress
 
-### 4.1 Sensor Monitoring UI
+### 4.1 Documentation + release wrapping
+- refresh project docs to match V4 preview behavior
+- keep release tag pending until final approval / final commit step
+
+### 4.2 Sensor Monitoring UI
 - Improve table layout and readability
 - Add chart visualization (ECharts)
 - Add abnormal detection / highlighting
@@ -117,8 +128,8 @@ Limitations (current):
   - period-based show/hide logic
 
 ### 5.4 PDF Stability Improvements
-- Chart rendering issues still exist
-- Table pagination needs improvement
+- Chart rendering improved, but still needs regression checks when layout changes
+- Table pagination still needs improvement on very wide / dense sections
 
 ---
 
@@ -128,20 +139,28 @@ Limitations (current):
 - Cannot write directly into project directory (OpenClaw workspace)
 - Current workaround:
   - export to `/home/nbt/Reports`
-  - manually or programmatically copy back
+  - print PDF there
+  - programmatically copy back to project `output/reports/`
 
 ---
 
 ### 6.2 Chart Rendering in PDF
-Issues:
-- chart renders too late
-- incorrect size when printing
+Current stabilized approach:
+- render charts with `renderer: svg`
+- disable animation in option
+- initialize using measured element width/height
+- trigger resize on `beforeprint`, `resize`, and `ResizeObserver`
+- flush ZRender after resize
 
-Mitigation:
-- disable animation
-- use SVG mode
-- force resize before print
-- wait chart render finish before print
+Important implementation rule:
+- if chart width looks wrong, first adjust chart option layout (`grid`, axis labels, spacing)
+- avoid solving PDF width issues only with JS width forcing
+
+Reference print flow:
+1. render `report_pdf.html`
+2. write rendered file to `/home/nbt/Reports/report_pdf.html`
+3. print with Chromium headless into `/home/nbt/Reports/*.pdf`
+4. copy final PDF back into `output/reports/`
 
 ---
 
@@ -244,8 +263,8 @@ Expected behavior:
 
 Immediate next priorities:
 
-1. Complete sensor monitoring UI
-2. Implement CSV export
-3. Improve PDF rendering stability
+1. Finalize docs + release note consistency for V4 preview
+2. Complete sensor monitoring UI
+3. Implement CSV export
 4. Add dynamic output naming
-5. Expand chart visualization across report
+5. Continue PDF regression hardening for future layout changes

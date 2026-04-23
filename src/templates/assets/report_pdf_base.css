@@ -895,6 +895,30 @@
         .electricity-daily-summary-area-table thead th {
             text-align: center;
             white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .electricity-daily-summary-area-table tbody td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .electricity-daily-summary-area-table .col-date {
+            text-align: left;
+        }
+
+        .electricity-daily-summary-area-table .area-group-header {
+            background: #f8fbff;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .electricity-daily-summary-area-table .area-group-start {
+            border-left: 2px solid #dbeafe !important;
+        }
+
+        .electricity-daily-summary-area-table .area-group-end {
+            border-right: 2px solid #dbeafe !important;
         }
 
         .electricity-daily-summary-area-table .col-active-total {
@@ -1226,6 +1250,63 @@
 
         .kpi-total-block {
             margin-bottom: 14px;
+        }
+
+        .kpi-summary-block,
+        .kpi-chart-block {
+            margin-bottom: 14px;
+        }
+
+        .kpi-summary-table {
+            min-width: 1220px;
+        }
+
+        .kpi-summary-table .col-metric {
+            min-width: 160px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-summary-table thead th,
+        .kpi-summary-table tbody td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .kpi-summary-table .col-metric {
+            text-align: left;
+        }
+
+        .kpi-summary-table .kpi-group-header {
+            background: #f8fbff;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-summary-table .kpi-group-start {
+            border-left: 2px solid #dbeafe !important;
+        }
+
+        .kpi-summary-table .kpi-group-end {
+            border-right: 2px solid #dbeafe !important;
+        }
+
+        .kpi-summary-table .col-value,
+        .kpi-summary-table .col-total {
+            font-weight: 600;
+            color: var(--brand);
+        }
+
+        .kpi-summary-table .col-total {
+            color: #4338ca;
+        }
+
+        .kpi-chart-card {
+            padding-bottom: 8px;
+        }
+
+        .kpi-daily-grouped-bar-chart {
+            height: 280px;
         }
 
         .kpi-total-grid {

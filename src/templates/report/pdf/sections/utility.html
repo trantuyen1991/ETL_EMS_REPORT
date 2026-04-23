@@ -164,6 +164,7 @@
 
                         const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
                         const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+
                         const chart = echarts.init(el, null, {
                             renderer: "svg",
                             width: width,
@@ -188,12 +189,25 @@
                         window.addEventListener("resize", resizeChart);
                         window.addEventListener("beforeprint", resizeChart);
 
+                        if (window.matchMedia) {
+                            const printMedia = window.matchMedia("print");
+                            if (printMedia && printMedia.addEventListener) {
+                                printMedia.addEventListener("change", function (event) {
+                                    if (event.matches) {
+                                        resizeChart();
+                                    }
+                                });
+                            }
+                        }
+
                         if (window.ResizeObserver) {
                             const observer = new ResizeObserver(function () {
                                 resizeChart();
                             });
                             observer.observe(el);
                         }
+
+                        window.__utilityChartReady = true;
                     }
 
                     function scheduleInit() {

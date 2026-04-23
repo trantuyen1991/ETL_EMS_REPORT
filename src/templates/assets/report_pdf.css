@@ -39,7 +39,9 @@
     }
 
     .electricity-area-top10-table-block,
-    .utility-chart-block {
+    .utility-chart-block,
+    .kpi-chart-block,
+    .kpi-summary-block {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
     }
@@ -51,7 +53,35 @@
     }
 
     .utility-comparison-chart {
-        height: 170px !important;
+        height: 210px !important;
+    }
+
+    .kpi-daily-grouped-bar-chart {
+        height: 220px !important;
+    }
+
+    .utility-chart-block,
+    .kpi-chart-block,
+    .utility-chart-card,
+    .kpi-chart-card {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .kpi-summary-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+    }
+
+    .kpi-summary-table th,
+    .kpi-summary-table td {
+        padding: 4px 5px !important;
+        font-size: 10px !important;
+    }
+
+    .kpi-summary-table .col-metric {
+        width: 110px !important;
     }
 
     .electricity-chart-card-title {

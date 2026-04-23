@@ -237,6 +237,25 @@ HTML output
 PDF (via Chromium)
 ```
 
+### 7.2.1 PDF Print Flow (Current Stable Workflow)
+
+For this project, the practical print workflow is:
+
+```text
+render report_pdf.html
+    ↓
+write rendered file to /home/nbt/Reports/report_pdf.html
+    ↓
+print with Chromium headless to /home/nbt/Reports/*.pdf
+    ↓
+copy final PDF back to project output/reports/
+```
+
+Reason:
+
+* Chromium snap cannot reliably write directly into hidden workspace paths during print
+* `/home/nbt/Reports` is used as the safe print staging area
+
 ---
 
 ### 7.3 Template Differences
@@ -248,6 +267,25 @@ PDF (via Chromium)
 | CSS        | CDN / dynamic | Local / print-safe |
 | Charts     | Interactive   | Static / stable    |
 
+### 7.4 PDF Chart Rendering Rule
+
+PDF chart rendering must follow the same stable pattern used by the electricity section:
+
+1. measure `el.clientWidth` and `el.clientHeight`
+2. initialize ECharts with `renderer: "svg"`
+3. disable animation before `setOption`
+4. call `resize()` on:
+   * initial render
+   * `beforeprint`
+   * window `resize`
+   * `ResizeObserver`
+5. flush ZRender after resize for print stability
+
+Important rule learned from implementation:
+
+* if chart width / spacing looks wrong in PDF, first fix the backend chart option (`grid`, labels, axis spacing)
+* do not depend on ad-hoc JS width forcing as the main solution
+
 ---
 
 ## 8. Output Pipeline
@@ -256,10 +294,12 @@ Current flow:
 
 1. build report_context
 2. render HTML
-3. generate PDF
+3. write rendered PDF HTML to `/home/nbt/Reports/report_pdf.html`
+4. generate PDF with Chromium headless
+5. copy PDF back into project output
 
 Planned:
-4. export CSV
+6. export CSV
 
 ---
 
