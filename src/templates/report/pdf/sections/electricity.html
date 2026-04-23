@@ -52,6 +52,13 @@
                             {{ summary.electricity_snapshot.delta_pct_display }}
                         </span>
                     </div>
+
+                    <div class="electricity-total-metric electricity-total-metric-stack">
+                        <span class="electricity-total-label">Meter active / total</span>
+                        <span class="electricity-total-value electricity-total-value-compact">
+                            {{ summary.electricity_snapshot.meter_active_total_display }}
+                        </span>
+                    </div>
                 </div>
 
                 {% for row in sections.electricity.totals.rows %}
@@ -138,12 +145,18 @@
                             {% endif %}
                         </span>
                     </div>
+
+                    <div class="electricity-total-metric electricity-total-metric-stack">
+                        <span class="electricity-total-label">Meter active / total</span>
+                        <span class="electricity-total-value electricity-total-value-compact">
+                            {{ row.meter_active_total_display }}
+                        </span>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
 
-            <div class="electricity-chart-grid {% if not flags.is_daily_report %}pdf-two-chart-grid pdf-chart-page-block{% else %}pdf-single-chart-grid{% endif %}">
-                {% if not flags.is_daily_report %}
+            <div class="electricity-chart-grid {% if flags.is_daily_report %}pdf-daily-chart-grid{% else %}pdf-two-chart-grid pdf-chart-page-block{% endif %}">
                 <div class="electricity-chart-card">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.daily_trend.title }}
@@ -153,7 +166,6 @@
                     </p>
                     <div id="electricity-daily-trend-chart" class="electricity-chart"></div>
                 </div>
-                {% endif %}
 
                 <div class="electricity-chart-card">
                     <h3 class="electricity-chart-card-title">
@@ -170,57 +182,6 @@
             <div class="pdf-page-break-after"></div>
             {% endif %}
 
-            <div class="electricity-comparison-block">
-                <div class="electricity-comparison-table-wrap report-table-wrap">
-                    <table class="electricity-comparison-table report-table-ui">
-                        <thead>
-                            <tr>
-                                <th>Area</th>
-                                <th>{{ labels.current_period or "Current" }}</th>
-                                <th>{{ labels.previous_period or "Previous" }}</th>
-                                <th>Delta</th>
-                                <th>Delta %</th>
-                                <th>Meter Active / Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in sections.electricity.comparison.rows %}
-                            <tr>
-                                <td class="col-area">{{ row.area_name }}</td>
-
-                                <td class="col-current">
-                                    {{ row.current_display }}
-                                    {% if row.current_ratio_display and row.current_ratio_display != "-" %}
-                                    {{ report.ratio_note(row.current_ratio_display) }}
-                                    {% endif %}
-                                </td>
-
-                                <td class="col-previous">
-                                    {{ row.previous_display }}
-                                    {% if row.previous_ratio_display and row.previous_ratio_display != "-" %}
-                                    {{ report.ratio_note(row.previous_ratio_display) }}
-                                    {% endif %}
-                                </td>
-
-                                <td class="col-delta {{ row.delta_class }}">
-                                    {{ row.delta_display }}
-                                </td>
-
-                                <td class="col-delta-pct {{ row.delta_pct_class }}">
-                                    {{ report.delta_arrow(row.delta_pct_class) }}
-                                    {{ row.delta_pct_display }}
-                                </td>
-
-                                <td class="col-meter-count">
-                                    {{ row.active_total_display }}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
             <div class="electricity-detail-block">
                 <h3 class="electricity-subsection-title">Top 10 meters</h3>
 
@@ -230,7 +191,7 @@
                             <tr>
                                 <th class="col-rank sticky-rank">Rank</th>
                                 <th class="col-meter sticky-meter">Meter</th>
-                                <th>Area</th>
+                                <th class="col-area">Area</th>
                                 <th>Current</th>
                                 <th>Previous</th>
                                 <th>Delta</th>
@@ -241,8 +202,16 @@
                             {% for row in sections.electricity.top10.rows %}
                             <tr>
                                 <td class="col-rank sticky-rank">{{ row.rank }}</td>
-                                <td class="col-meter sticky-meter">{{ row.meter_name }}</td>
-                                <td class="col-area">{{ row.area }}</td>
+                                <td class="col-meter sticky-meter">
+                                    <div
+                                        class="electricity-meter-bar-cell area-{{ row.area_key }}"
+                                        style="--meter-fill-width: {{ row.meter_fill_pct }}%; --meter-bar-color: {{ row.meter_bar_color }}; --meter-bar-tint: {{ row.meter_bar_tint }};"
+                                    >
+                                        <span class="electricity-meter-bar-fill"></span>
+                                        <span class="electricity-meter-bar-label">{{ row.meter_name }}</span>
+                                    </div>
+                                </td>
+                                <td class="col-area">{{ row.area_display }}</td>
 
                                 <td class="col-current">
                                     <span class="value">{{ row.current_display }}</span>
@@ -272,6 +241,62 @@
                     Top 10 meters are sorted by current-period consumption.
                     Configured feeder and excluded meters are filtered by area rules.
                 </p>
+
+                {% if sections.electricity.top10.area_tables %}
+                <div class="electricity-area-top10-grid">
+                    {% for area_table in sections.electricity.top10.area_tables %}
+                    <div class="electricity-area-top10-table-block pdf-keep-together">
+                        <h4 class="electricity-subsection-title">{{ area_table.title }}</h4>
+                        {% if area_table.subtitle %}
+                        <p class="electricity-top10-note electricity-top10-note-area">{{ area_table.subtitle }}</p>
+                        {% endif %}
+                        <div class="electricity-top10-wrap report-table-wrap">
+                            <table class="electricity-top10-table electricity-top10-table-area report-table-ui">
+                                <thead>
+                                    <tr>
+                                        <th class="col-rank sticky-rank">Rank</th>
+                                        <th class="col-meter sticky-meter">Meter</th>
+                                        <th>Current</th>
+                                        <th>Previous</th>
+                                        <th>Delta</th>
+                                        <th>Delta %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in area_table.rows %}
+                                    <tr>
+                                        <td class="col-rank sticky-rank">{{ row.rank }}</td>
+                                        <td class="col-meter sticky-meter">
+                                            <div
+                                                class="electricity-meter-bar-cell area-{{ row.area_key }}"
+                                                style="--meter-fill-width: {{ row.meter_fill_pct }}%; --meter-bar-color: {{ row.meter_bar_color }}; --meter-bar-tint: {{ row.meter_bar_tint }};"
+                                            >
+                                                <span class="electricity-meter-bar-fill"></span>
+                                                <span class="electricity-meter-bar-label">{{ row.meter_name }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="col-current">
+                                            <span class="value">{{ row.current_display }}</span>
+                                            {{ report.ratio_note(row.current_pct_display) }}
+                                        </td>
+                                        <td class="col-previous">
+                                            <span class="value">{{ row.previous_display }}</span>
+                                            {{ report.ratio_note(row.previous_pct_display) }}
+                                        </td>
+                                        <td class="col-delta {{ row.delta_class }}">{{ row.delta_display }}</td>
+                                        <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                            {{ report.delta_arrow(row.delta_pct_class) }}
+                                            {{ row.delta_pct_display }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
 
             <div class="electricity-daily-summary-block">
@@ -307,6 +332,40 @@
                                 <td class="col-avg-active">{{ row.average_per_active_display }}</td>
                                 <td class="col-total">{{ row.total_meter_count }}</td>
                                 <td class="col-inactive">{{ row.inactive_meter_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% set area_summary_order = [('diode', 'DIODE Workshop'), ('ico', 'ICO Workshop'), ('sakari', 'SAKARI Workshop')] %}
+                <div class="electricity-daily-summary-wrap report-table-wrap electricity-daily-summary-area-wrap pdf-keep-together">
+                    <table class="electricity-daily-summary-table electricity-daily-summary-area-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th class="col-date sticky-date-col" rowspan="2">Date</th>
+                                {% for area_key, area_name in area_summary_order %}
+                                <th colspan="3">{{ area_name }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                {% for area_key, area_name in area_summary_order %}
+                                <th>Total</th>
+                                <th>Active meter / total</th>
+                                <th>Avg / meter active</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.electricity.daily_summary.area_rows %}
+                            <tr>
+                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                {% for area_key, area_name in area_summary_order %}
+                                {% set area_row = row.areas[area_key] %}
+                                <td class="col-total-energy">{{ area_row.total_display }}</td>
+                                <td class="col-active-total">{{ area_row.active_total_display }}</td>
+                                <td class="col-avg-active">{{ area_row.avg_per_active_display }}</td>
+                                {% endfor %}
                             </tr>
                             {% endfor %}
                         </tbody>

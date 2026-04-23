@@ -50,6 +50,19 @@
                     </table>
                 </div>
             </div>
+            </div>
+
+            <div class="utility-chart-block pdf-keep-together">
+                <div class="electricity-chart-card utility-chart-card">
+                    <h3 class="electricity-chart-card-title">
+                        {{ sections.utility.charts.comparison_bar.title }}
+                    </h3>
+                    <p class="electricity-chart-card-subtitle">
+                        {{ sections.utility.charts.comparison_bar.subtitle }}
+                    </p>
+                    <div id="utility-comparison-chart" class="electricity-chart utility-comparison-chart"></div>
+                </div>
+            </div>
 
             <div class="utility-detail-block pdf-landscape-block">
                 <h3 class="electricity-subsection-title">Daily utility detail</h3>
@@ -136,5 +149,65 @@
                 </div>
             </div>
             {% endif %}
+
+            <script>
+                (function () {
+                    function initUtilityChart() {
+                        if (!window.echarts) {
+                            return;
+                        }
+
+                        const el = document.getElementById("utility-comparison-chart");
+                        if (!el) {
+                            return;
+                        }
+
+                        const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
+                        const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                        const chart = echarts.init(el, null, {
+                            renderer: "svg",
+                            width: width,
+                            height: height,
+                        });
+                        const option = Object.assign({ animation: false }, {{ sections.utility.charts.comparison_bar.option | tojson }});
+                        chart.setOption(option, true);
+                        chart.resize({ width: width, height: height });
+                        if (chart.getZr && chart.getZr()) {
+                            chart.getZr().flush();
+                        }
+
+                        function resizeChart() {
+                            const nextWidth = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
+                            const nextHeight = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                            chart.resize({ width: nextWidth, height: nextHeight });
+                            if (chart.getZr && chart.getZr()) {
+                                chart.getZr().flush();
+                            }
+                        }
+
+                        window.addEventListener("resize", resizeChart);
+                        window.addEventListener("beforeprint", resizeChart);
+
+                        if (window.ResizeObserver) {
+                            const observer = new ResizeObserver(function () {
+                                resizeChart();
+                            });
+                            observer.observe(el);
+                        }
+                    }
+
+                    function scheduleInit() {
+                        window.requestAnimationFrame(function () {
+                            window.requestAnimationFrame(initUtilityChart);
+                        });
+                    }
+
+                    if (document.readyState === "loading") {
+                        window.addEventListener("load", scheduleInit, { once: true });
+                    } else {
+                        scheduleInit();
+                    }
+                })();
+            </script>
         </section>
         {% endif %}

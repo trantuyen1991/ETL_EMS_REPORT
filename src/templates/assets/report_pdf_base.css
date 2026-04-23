@@ -628,6 +628,10 @@
             margin-bottom: 0;
         }
 
+        .electricity-total-metric-stack {
+            align-items: center;
+        }
+
         .electricity-total-label {
             font-size: 10px;
             font-weight: 600;
@@ -639,6 +643,10 @@
             font-weight: 700;
             color: var(--text-dark);
             text-align: right;
+        }
+
+        .electricity-total-value-compact {
+            font-size: 15px;
         }
 
         .electricity-total-ratio {
@@ -677,6 +685,11 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 14px;
             margin: 14px 0 12px;
+        }
+
+        .electricity-chart-grid.electricity-chart-grid-daily {
+            grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+            align-items: stretch;
         }
 
         .electricity-chart-card {
@@ -745,8 +758,23 @@
             margin-bottom: 10px;
         }
 
+        .electricity-area-top10-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .electricity-area-top10-table-block {
+            margin-bottom: 4px;
+        }
+
         .electricity-top10-table {
             min-width: 960px;
+        }
+
+        .electricity-top10-table-area {
+            min-width: 860px;
         }
 
         .electricity-top10-table .col-rank {
@@ -764,10 +792,47 @@
         }
 
         .electricity-top10-table .col-area {
-            min-width: 120px;
+            width: 84px;
+            min-width: 84px;
+            max-width: 84px;
             color: #475569;
             font-weight: 600;
             white-space: nowrap;
+            text-align: center;
+        }
+
+        .electricity-meter-bar-cell {
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-height: 32px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: linear-gradient(90deg, var(--meter-bar-tint) 0%, rgba(255, 255, 255, 0) 100%);
+        }
+
+        .electricity-meter-bar-fill {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: var(--meter-fill-width, 0%);
+            height: 18px;
+            border-radius: 0 6px 6px 0;
+            background: var(--meter-bar-color);
+            opacity: 0.22;
+        }
+
+        .electricity-meter-bar-label {
+            position: relative;
+            z-index: 1;
+            display: block;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--text-main);
         }
 
         .electricity-top10-note {
@@ -775,6 +840,10 @@
             font-size: 12px;
             color: var(--text-muted);
             line-height: 1.45;
+        }
+
+        .electricity-top10-note-area {
+            margin-bottom: 10px;
         }
 
         .electricity-top10-table .sticky-rank {
@@ -813,6 +882,25 @@
 
         .electricity-daily-summary-table {
             min-width: 980px;
+        }
+
+        .electricity-daily-summary-area-wrap {
+            margin-top: 12px;
+        }
+
+        .electricity-daily-summary-area-table {
+            min-width: 1320px;
+        }
+
+        .electricity-daily-summary-area-table thead th {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .electricity-daily-summary-area-table .col-active-total {
+            font-weight: 600;
+            color: #475569;
+            white-space: nowrap;
         }
 
         .electricity-daily-summary-table .col-top1-meter {
@@ -978,12 +1066,21 @@
         ========================================================================== */
 
         .utility-total-block,
+        .utility-chart-block,
         .utility-detail-block {
             margin-bottom: 14px;
         }
 
         .utility-detail-block {
             margin-top: 16px;
+        }
+
+        .utility-chart-card {
+            padding-bottom: 8px;
+        }
+
+        .utility-comparison-chart {
+            height: 280px;
         }
 
         .utility-total-table {

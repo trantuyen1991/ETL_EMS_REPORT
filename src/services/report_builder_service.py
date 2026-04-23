@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Dict, Optional
 
 from src.utils.logger import get_logger
@@ -59,6 +59,7 @@ class ReportBuilderService:
 
         v3_electricity_section = self._build_v3_electricity_section(
             energy_object=energy_object,
+            period_type=str(period.get("type") or "").strip().lower(),
         )
 
         v3_utility_section = self._build_v3_utility_section(
@@ -94,7 +95,7 @@ class ReportBuilderService:
             },
             "notes": notes,
             "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "version": "v3",
+            "version": "v4.0.0",
             "context_mode": mode,
         }
 
@@ -301,6 +302,8 @@ class ReportBuilderService:
             )
 
         stats: Dict[str, Dict[str, Any]] = {}
+        plant_active_meter_count = 0
+        plant_total_meter_count = 0
 
         for area_key in ["diode", "ico", "sakari"]:
             current_value = float(
@@ -324,26 +327,10 @@ class ReportBuilderService:
             table = current_table_lookup.get(area_key, {})
             meter_columns = table.get("meter_columns", [])
             total_meter_count = len(meter_columns)
+            active_meter_count = self._calculate_active_meter_count_for_table(table)
 
-            active_meter_count = 0
-            for meter_key in meter_columns:
-                has_positive_value = False
-
-                for row in table.get("rows", []):
-                    for cell in row.get("cells", []):
-                        if cell.get("key") != meter_key:
-                            continue
-
-                        raw_value = cell.get("raw_value")
-                        if isinstance(raw_value, (int, float)) and float(raw_value) > 0:
-                            has_positive_value = True
-                            break
-
-                    if has_positive_value:
-                        break
-
-                if has_positive_value:
-                    active_meter_count += 1
+            plant_active_meter_count += active_meter_count
+            plant_total_meter_count += total_meter_count
 
             stats[area_key] = {
                 "current_ratio_display": self._fmt_pct(current_ratio),
@@ -353,11 +340,294 @@ class ReportBuilderService:
                 "active_total_display": f"{active_meter_count}/{total_meter_count}",
             }
 
+        stats["plant"] = {
+            "active_meter_count": plant_active_meter_count,
+            "total_meter_count": plant_total_meter_count,
+            "active_total_display": f"{plant_active_meter_count}/{plant_total_meter_count}",
+        }
+
         return stats
+
+    def _calculate_active_meter_count_for_table(self, table: Dict[str, Any]) -> int:
+        """Count meters with at least one positive value in a table."""
+        meter_columns = table.get("meter_columns", [])
+        active_meter_count = 0
+
+        for meter_key in meter_columns:
+            has_positive_value = False
+
+            for row in table.get("rows", []):
+                for cell in row.get("cells", []):
+                    if cell.get("key") != meter_key:
+                        continue
+
+                    raw_value = cell.get("raw_value")
+                    if isinstance(raw_value, (int, float)) and float(raw_value) > 0:
+                        has_positive_value = True
+                        break
+
+                if has_positive_value:
+                    break
+
+            if has_positive_value:
+                active_meter_count += 1
+
+        return active_meter_count
+
+    def _get_v3_area_visual_map(self) -> Dict[str, Dict[str, str]]:
+        """Return stable V3 colors and display names for workshop areas."""
+        return {
+            "diode": {
+                "display": "DIODE",
+                "bar_color": "#2563eb",
+                "bar_tint": "rgba(37, 99, 235, 0.12)",
+            },
+            "ico": {
+                "display": "ICO",
+                "bar_color": "#84cc16",
+                "bar_tint": "rgba(132, 204, 22, 0.16)",
+            },
+            "sakari": {
+                "display": "SAKARI",
+                "bar_color": "#f59e0b",
+                "bar_tint": "rgba(245, 158, 11, 0.16)",
+            },
+        }
+
+    def _build_v3_top10_rows(
+        self,
+        source_rows: list[dict[str, Any]],
+        *,
+        current_total: float,
+        previous_total: float,
+    ) -> list[dict[str, Any]]:
+        """Build rendered Top 10 rows with visual metadata."""
+        result: list[dict[str, Any]] = []
+        area_visual_map = self._get_v3_area_visual_map()
+        max_top10_current = max(
+            [float(item.get("current") or 0.0) for item in source_rows],
+            default=0.0,
+        )
+
+        for index, item in enumerate(source_rows, start=1):
+            current_value = item.get("current")
+            previous_value = item.get("previous")
+
+            current_ratio = None
+            previous_ratio = None
+
+            if current_total > 0 and current_value is not None:
+                current_ratio = float(current_value) / current_total
+
+            if previous_total > 0 and previous_value is not None:
+                previous_ratio = float(previous_value) / previous_total
+
+            normalized_area = str(item.get("area") or "").strip().lower()
+            if normalized_area not in area_visual_map:
+                normalized_area = "diode"
+            area_visual = area_visual_map[normalized_area]
+
+            meter_fill_pct = 0.0
+            if max_top10_current > 0 and current_value is not None:
+                meter_fill_pct = max(
+                    18.0,
+                    min(100.0, (float(current_value) / max_top10_current) * 100.0),
+                )
+
+            result.append({
+                "rank": item.get("rank") or index,
+                "meter_key": item.get("meter_name"),
+                "meter_name": item.get("meter_name"),
+                "display_name": item.get("meter_name"),
+                "area": normalized_area,
+                "area_display": area_visual["display"],
+                "area_key": normalized_area,
+                "meter_fill_pct": round(meter_fill_pct, 2),
+                "meter_bar_color": area_visual["bar_color"],
+                "meter_bar_tint": area_visual["bar_tint"],
+                "current_display": self._fmt(current_value),
+                "current_pct_display": self._fmt_pct(current_ratio) if current_ratio is not None else "-",
+                "previous_display": self._fmt(previous_value),
+                "previous_pct_display": self._fmt_pct(previous_ratio) if previous_ratio is not None else "-",
+                "delta_display": self._fmt(item.get("delta")),
+                "delta_pct_display": self._fmt_pct(item.get("delta_pct")),
+                "delta_class": self._consumption_trend_class(item.get("delta")),
+                "delta_pct_class": self._consumption_trend_class(item.get("delta_pct")),
+            })
+
+        return result
+
+    def _sum_meter_totals_for_v3_table(self, table: Dict[str, Any]) -> dict[str, float]:
+        """Sum meter totals for one rendered daily table, excluding configured feeders."""
+        excluded_columns = set(table.get("exclude_from_top10", []))
+        valid_columns = [
+            column
+            for column in table.get("meter_columns", [])
+            if column not in excluded_columns
+        ]
+
+        result: dict[str, float] = {}
+
+        for column in valid_columns:
+            total = 0.0
+            has_numeric_data = False
+
+            for row in table.get("rows", []):
+                for cell in row.get("cells", []):
+                    if cell.get("key") != column:
+                        continue
+
+                    raw_value = cell.get("raw_value")
+                    if isinstance(raw_value, (int, float)):
+                        total += float(raw_value)
+                        has_numeric_data = True
+
+            if has_numeric_data:
+                result[column] = round(total, 4)
+
+        return result
+
+    def _build_v3_area_top10_tables(
+        self,
+        energy_object: Optional[Dict[str, Any]],
+        area_display_order: list[tuple[str, str]],
+    ) -> list[dict[str, Any]]:
+        """Build one Top 10 table per area."""
+        if not energy_object:
+            return []
+
+        current_summary = energy_object.get("current", {}).get("summary", {})
+        previous_summary = energy_object.get("previous", {}).get("summary", {})
+
+        current_table_lookup = {
+            table.get("area_key"): table
+            for table in energy_object.get("current", {}).get("daily_tables", [])
+        }
+        previous_table_lookup = {
+            table.get("area_key"): table
+            for table in energy_object.get("previous", {}).get("daily_tables", [])
+        }
+
+        result: list[dict[str, Any]] = []
+
+        for area_key, area_name in area_display_order:
+            current_table = current_table_lookup.get(area_key, {})
+            previous_table = previous_table_lookup.get(area_key, {})
+
+            current_meter_totals = self._sum_meter_totals_for_v3_table(current_table)
+            previous_meter_totals = self._sum_meter_totals_for_v3_table(previous_table)
+
+            source_rows: list[dict[str, Any]] = []
+
+            for meter_name, current_value in sorted(
+                current_meter_totals.items(),
+                key=lambda item: item[1],
+                reverse=True,
+            )[:10]:
+                previous_value = previous_meter_totals.get(meter_name, 0.0)
+                delta = current_value - previous_value
+                delta_pct = (delta / previous_value) if previous_value != 0 else None
+
+                source_rows.append({
+                    "meter_name": meter_name,
+                    "area": area_key,
+                    "current": current_value,
+                    "previous": previous_value,
+                    "delta": round(delta, 4),
+                    "delta_pct": round(delta_pct, 4) if delta_pct is not None else None,
+                })
+
+            rendered_rows = self._build_v3_top10_rows(
+                source_rows,
+                current_total=float(current_summary.get(area_key, {}).get("total_energy", 0.0) or 0.0),
+                previous_total=float(previous_summary.get(area_key, {}).get("total_energy", 0.0) or 0.0),
+            )
+
+            result.append({
+                "area_key": area_key,
+                "title": f"{area_name} Top 10 meters",
+                "subtitle": "Sorted by current-period consumption within this area.",
+                "rows": rendered_rows,
+            })
+
+        return result
+
+    def _build_v3_area_daily_summary_rows(
+        self,
+        daily_tables: list[dict[str, Any]],
+        area_display_order: list[tuple[str, str]],
+    ) -> list[dict[str, Any]]:
+        """Build the additional daily summary table split by workshop area."""
+        table_lookup = {
+            table.get("area_key"): table
+            for table in daily_tables
+        }
+        row_lookup: dict[str, dict[date, dict[str, Any]]] = {}
+        all_dates: set[date] = set()
+
+        for area_key, _area_name in area_display_order:
+            rows = {
+                row.get("date"): row
+                for row in table_lookup.get(area_key, {}).get("rows", [])
+                if row.get("date") is not None
+            }
+            row_lookup[area_key] = rows
+            all_dates.update(rows.keys())
+
+        result: list[dict[str, Any]] = []
+
+        for dt_value in sorted(all_dates):
+            area_values: dict[str, dict[str, Any]] = {}
+
+            for area_key, area_name in area_display_order:
+                row = row_lookup.get(area_key, {}).get(dt_value)
+
+                if not row:
+                    area_values[area_key] = {
+                        "area_key": area_key,
+                        "area_name": area_name,
+                        "total_display": "-",
+                        "active_total_display": "-",
+                        "avg_per_active_display": "-",
+                    }
+                    continue
+
+                total_meter_count = len(row.get("cells", []))
+                active_meter_count = sum(
+                    1
+                    for cell in row.get("cells", [])
+                    if isinstance(cell.get("raw_value"), (int, float))
+                    and float(cell.get("raw_value")) > 0
+                )
+
+                total_energy = row.get("official_daily_total")
+                average_per_active = None
+                if total_energy is not None:
+                    average_per_active = (
+                        float(total_energy) / active_meter_count
+                        if active_meter_count > 0 else 0.0
+                    )
+
+                area_values[area_key] = {
+                    "area_key": area_key,
+                    "area_name": area_name,
+                    "total_display": self._fmt_or_dash(total_energy),
+                    "active_total_display": f"{active_meter_count}/{total_meter_count}",
+                    "avg_per_active_display": self._fmt_or_dash(average_per_active),
+                }
+
+            result.append({
+                "date": dt_value,
+                "date_display": self._format_date_with_weekday(dt_value),
+                "areas": area_values,
+            })
+
+        return result
 
     def _build_v3_electricity_section(
         self,
         energy_object: Optional[Dict[str, Any]],
+        period_type: str = "",
     ) -> Dict[str, Any]:
         """
         Build V3 electricity section from energy object.
@@ -385,12 +655,12 @@ class ReportBuilderService:
                 "subtitle": "Total, comparison, top meters, and daily detail.",
                 "totals": {"rows": []},
                 "comparison": {"rows": []},
-                "top10": {"rows": [], "excluded_meter_rules": {}},
+                "top10": {"rows": [], "area_tables": [], "excluded_meter_rules": {}},
                 "charts": {
                     "daily_trend": {},
                     "area_comparison": {},
                 },
-                "daily_summary": {"title": "Daily Summary Table", "rows": []},
+                "daily_summary": {"title": "Daily Summary Table", "rows": [], "area_rows": []},
                 "daily_detail_tables": [],
             }
 
@@ -422,6 +692,7 @@ class ReportBuilderService:
                     .get("total_energy")
                 ),
                 "meter_count": current_item.get("meter_count", 0),
+                "meter_active_total_display": area_stats.get(area_key, {}).get("active_total_display", "-"),
             })
 
             comparison_rows.append({
@@ -439,7 +710,6 @@ class ReportBuilderService:
                 "active_total_display": area_stats.get(area_key, {}).get("active_total_display", "-"),
             })
 
-        top10_rows: list[dict[str, Any]] = []
         current_total_all_areas = 0.0
         previous_total_all_areas = 0.0
 
@@ -454,44 +724,27 @@ class ReportBuilderService:
                 .get("total_energy", 0.0) or 0.0
             )
 
-        for item in energy_object.get("comparison", {}).get("top10_meters", []):
-            current_value = item.get("current")
-            previous_value = item.get("previous")
-
-            current_ratio = None
-            previous_ratio = None
-
-            if current_total_all_areas > 0 and current_value is not None:
-                current_ratio = current_value / current_total_all_areas
-
-            if previous_total_all_areas > 0 and previous_value is not None:
-                previous_ratio = previous_value / previous_total_all_areas
-
-            current_display = self._fmt(current_value)
-            previous_display = self._fmt(previous_value)
-
-            current_pct_display = self._fmt_pct(current_ratio) if current_ratio is not None else "-"
-            previous_pct_display = self._fmt_pct(previous_ratio) if previous_ratio is not None else "-"
-
-            top10_rows.append({
-                "rank": item.get("rank"),
-                "meter_key": item.get("meter_name"),
-                "meter_name": item.get("meter_name"),
-                "display_name": item.get("meter_name"),
-                "area": item.get("area"),
-                "current_display": current_display,
-                "current_pct_display": current_pct_display,
-                "previous_display": previous_display,
-                "previous_pct_display": previous_pct_display,
-                "delta_display": self._fmt(item.get("delta")),
-                "delta_pct_display": self._fmt_pct(item.get("delta_pct")),
-                "delta_class": self._consumption_trend_class(item.get("delta")),
-                "delta_pct_class": self._consumption_trend_class(item.get("delta_pct")),
-            })
+        top10_source_rows = energy_object.get("comparison", {}).get("top10_meters", [])
+        top10_rows = self._build_v3_top10_rows(
+            top10_source_rows,
+            current_total=current_total_all_areas,
+            previous_total=previous_total_all_areas,
+        )
+        area_top10_tables = self._build_v3_area_top10_tables(
+            energy_object=energy_object,
+            area_display_order=area_display_order,
+        )
 
         daily_summary_rows = energy_object.get("current", {}).get("daily_summary_rows", [])
         daily_detail_tables = energy_object.get("current", {}).get("daily_tables", [])
-        charts = self._build_v3_electricity_charts(energy_object)
+        area_daily_summary_rows = self._build_v3_area_daily_summary_rows(
+            daily_tables=daily_detail_tables,
+            area_display_order=area_display_order,
+        )
+        charts = self._build_v3_electricity_charts(
+            energy_object=energy_object,
+            period_type=period_type,
+        )
 
         return {
             "title": "ELECTRICITY CONSUMPTION",
@@ -504,12 +757,14 @@ class ReportBuilderService:
             },
             "top10": {
                 "rows": top10_rows,
+                "area_tables": area_top10_tables,
                 "excluded_meter_rules": {},
             },
             "charts": charts,
             "daily_summary": {
                 "title": "Daily Summary Table",
                 "rows": daily_summary_rows,
+                "area_rows": area_daily_summary_rows,
             },
             "daily_detail_tables": daily_detail_tables,
         }
@@ -517,6 +772,7 @@ class ReportBuilderService:
     def _build_v3_electricity_charts(
         self,
         energy_object: Optional[Dict[str, Any]],
+        period_type: str = "",
     ) -> Dict[str, Any]:
         """Build ECharts options for the electricity section."""
         if not energy_object:
@@ -580,8 +836,95 @@ class ReportBuilderService:
         current_area_values = [row["current_value"] for row in area_rows]
         previous_area_values = [row["previous_value"] for row in area_rows]
 
-        return {
-            "daily_trend": {
+        if period_type == "daily":
+            current_total_value = sum(current_area_values)
+            share_chart = {
+                "title": "Area share",
+                "subtitle": "Current day contribution by workshop",
+                "option": {
+                    "color": ["#2563eb", "#84cc16", "#f59e0b"],
+                    "tooltip": {
+                        "trigger": "item",
+                        "formatter": "{b}: {c} ({d}%)",
+                    },
+                    "legend": {
+                        "top": 4,
+                        "left": 8,
+                        "itemWidth": 12,
+                        "itemHeight": 8,
+                    },
+                    "graphic": [
+                        {
+                            "type": "group",
+                            "left": "center",
+                            "top": "60%",
+                            "children": [
+                                {
+                                    "type": "text",
+                                    "x": 0,
+                                    "y": -10,
+                                    "style": {
+                                        "text": self._fmt(current_total_value),
+                                        "textAlign": "center",
+                                        "textVerticalAlign": "middle",
+                                        "fill": "#0f172a",
+                                        "fontSize": 17,
+                                        "fontWeight": 700,
+                                    },
+                                },
+                                {
+                                    "type": "text",
+                                    "x": 0,
+                                    "y": 12,
+                                    "style": {
+                                        "text": "Current total",
+                                        "textAlign": "center",
+                                        "textVerticalAlign": "middle",
+                                        "fill": "#64748b",
+                                        "fontSize": 10,
+                                        "fontWeight": 600,
+                                    },
+                                },
+                            ],
+                        }
+                    ],
+                    "series": [
+                        {
+                            "name": "Area share",
+                            "type": "pie",
+                            "radius": ["52%", "76%"],
+                            "center": ["50%", "60%"],
+                            "avoidLabelOverlap": True,
+                            "itemStyle": {
+                                "borderColor": "#ffffff",
+                                "borderWidth": 6,
+                                "borderRadius": 12,
+                            },
+                            "label": {
+                                "show": True,
+                                "formatter": "{b}\n{d}%",
+                                "color": "#334155",
+                                "fontSize": 11,
+                                "fontWeight": 600,
+                            },
+                            "labelLine": {
+                                "length": 10,
+                                "length2": 8,
+                                "lineStyle": {"color": "#94a3b8"},
+                            },
+                            "data": [
+                                {
+                                    "name": row["area_name"],
+                                    "value": row["current_value"],
+                                }
+                                for row in area_rows
+                            ],
+                        }
+                    ],
+                },
+            }
+        else:
+            share_chart = {
                 "title": "Daily trend",
                 "subtitle": "Current vs previous period",
                 "option": {
@@ -642,7 +985,10 @@ class ReportBuilderService:
                         },
                     ],
                 },
-            },
+            }
+
+        return {
+            "daily_trend": share_chart,
             "area_comparison": {
                 "title": "Area comparison",
                 "subtitle": "Current vs previous total by workshop",
@@ -746,6 +1092,9 @@ class ReportBuilderService:
                         "daily_rows": [],
                     },
                 },
+                "charts": {
+                    "comparison_bar": {},
+                },
                 "sensor_monitoring": {
                     "enabled": False,
                     "catalog": {},
@@ -760,6 +1109,7 @@ class ReportBuilderService:
         total_rows = self._build_utility_snapshot(utility_object)
         daily_columns = self._build_daily_columns(utility_object)
         daily_rows = self._build_daily_rows(utility_object)
+        charts = self._build_v3_utility_charts(utility_object)
 
         return {
             "title": "UTILITY USAGE",
@@ -774,6 +1124,7 @@ class ReportBuilderService:
                     "daily_rows": daily_rows,
                 },
             },
+            "charts": charts,
             "sensor_monitoring": {
                 "enabled": bool(
                     utility_object.get("current", {})
@@ -789,6 +1140,86 @@ class ReportBuilderService:
                 "daily_rows": utility_object.get("current", {})
                 .get("sensor_monitoring", {})
                 .get("daily_rows", []),
+            },
+        }
+
+    def _build_v3_utility_charts(
+        self,
+        utility_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build ECharts options for utility comparison."""
+        if not utility_object:
+            return {
+                "comparison_bar": {},
+            }
+
+        metadata = utility_object.get("current", {}).get("metadata", {})
+        comparison = utility_object.get("comparison", {})
+
+        labels: list[str] = []
+        current_values: list[float] = []
+        previous_values: list[float] = []
+
+        for key, meta in metadata.items():
+            labels.append(meta.get("display_name") or key)
+            current_values.append(float(comparison.get(key, {}).get("current", 0.0) or 0.0))
+            previous_values.append(float(comparison.get(key, {}).get("previous", 0.0) or 0.0))
+
+        return {
+            "comparison_bar": {
+                "title": "Utility comparison",
+                "subtitle": "Current vs previous total by load type",
+                "option": {
+                    "color": ["#0f766e", "#7c3aed"],
+                    "tooltip": {
+                        "trigger": "axis",
+                        "axisPointer": {"type": "shadow"},
+                    },
+                    "legend": {
+                        "top": 6,
+                        "left": 8,
+                        "itemWidth": 12,
+                        "itemHeight": 8,
+                    },
+                    "grid": {
+                        "left": 36,
+                        "right": 12,
+                        "top": 40,
+                        "bottom": 44,
+                        "containLabel": True,
+                    },
+                    "xAxis": {
+                        "type": "category",
+                        "data": labels,
+                        "axisLabel": {
+                            "color": "#64748b",
+                            "interval": 0,
+                            "rotate": 18,
+                        },
+                        "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                    },
+                    "yAxis": {
+                        "type": "value",
+                        "axisLabel": {"color": "#64748b"},
+                        "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                    },
+                    "series": [
+                        {
+                            "name": "Current period",
+                            "type": "bar",
+                            "barMaxWidth": 24,
+                            "itemStyle": {"color": "#0f766e", "borderRadius": [6, 6, 0, 0]},
+                            "data": current_values,
+                        },
+                        {
+                            "name": "Previous period",
+                            "type": "bar",
+                            "barMaxWidth": 24,
+                            "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
+                            "data": previous_values,
+                        },
+                    ],
+                },
             },
         }
 
@@ -1297,6 +1728,8 @@ class ReportBuilderService:
         if not energy_object:
             return {}
 
+        area_stats = self._build_v3_electricity_area_stats(energy_object)
+
         current_total = 0.0
         previous_total = 0.0
 
@@ -1322,6 +1755,7 @@ class ReportBuilderService:
             "delta_pct_display": self._fmt_pct(delta_pct),
             "delta_class": self._consumption_trend_class(delta),
             "delta_pct_class": self._consumption_trend_class(delta_pct),
+            "meter_active_total_display": area_stats.get("plant", {}).get("active_total_display", "-"),
             "total_days": total_days,
             "average_per_day_display": self._fmt(average_per_day),
         }

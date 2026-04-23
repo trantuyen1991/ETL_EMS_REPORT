@@ -22,6 +22,11 @@
         gap: 6px !important;
     }
 
+    .pdf-daily-chart-grid {
+        grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) !important;
+        gap: 6px !important;
+    }
+
     .pdf-chart-page-block {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
@@ -33,10 +38,20 @@
         padding: 6px 8px 4px !important;
     }
 
+    .electricity-area-top10-table-block,
+    .utility-chart-block {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
     .electricity-chart {
         width: 100% !important;
         height: 180px !important;
         overflow: hidden !important;
+    }
+
+    .utility-comparison-chart {
+        height: 170px !important;
     }
 
     .electricity-chart-card-title {

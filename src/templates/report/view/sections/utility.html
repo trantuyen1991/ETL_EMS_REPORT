@@ -50,6 +50,18 @@
                 </div>
             </div>
 
+            <div class="utility-chart-block">
+                <div class="electricity-chart-card utility-chart-card">
+                    <h3 class="electricity-chart-card-title">
+                        {{ sections.utility.charts.comparison_bar.title }}
+                    </h3>
+                    <p class="electricity-chart-card-subtitle">
+                        {{ sections.utility.charts.comparison_bar.subtitle }}
+                    </p>
+                    <div id="utility-comparison-chart" class="electricity-chart utility-comparison-chart"></div>
+                </div>
+            </div>
+
             <div class="utility-detail-block">
                 <h3 class="electricity-subsection-title">Daily utility detail</h3>
 
@@ -135,5 +147,45 @@
                 </div>
             </div>
             {% endif %}
+
+            <script>
+                (function () {
+                    function initUtilityChart() {
+                        if (!window.echarts) {
+                            return;
+                        }
+
+                        const el = document.getElementById("utility-comparison-chart");
+                        if (!el) {
+                            return;
+                        }
+
+                        const chart = echarts.init(el);
+                        chart.setOption({{ sections.utility.charts.comparison_bar.option | tojson }}, true);
+
+                        function resizeChart() {
+                            const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
+                            const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                            chart.resize({ width: width, height: height });
+                        }
+
+                        window.addEventListener("resize", resizeChart);
+                        window.addEventListener("beforeprint", resizeChart);
+
+                        if (window.ResizeObserver) {
+                            const observer = new ResizeObserver(function () {
+                                resizeChart();
+                            });
+                            observer.observe(el);
+                        }
+                    }
+
+                    if (document.readyState === "loading") {
+                        document.addEventListener("DOMContentLoaded", initUtilityChart);
+                    } else {
+                        initUtilityChart();
+                    }
+                })();
+            </script>
         </section>
         {% endif %}
