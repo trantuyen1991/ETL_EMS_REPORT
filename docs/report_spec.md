@@ -184,6 +184,7 @@ Show business-level utility consumption values and their comparison across perio
 This section should include:
 - utility summary table
 - daily utility detail table
+- sensor monitoring block
 
 ### 8.3 Utility Summary
 Utility summary should include:
@@ -202,6 +203,28 @@ Daily utility detail should:
 
 ### 8.5 Sensor Monitoring Placement
 Sensor monitoring belongs to the Utility domain and should be added under this section when UI rendering is enabled.
+
+### 8.6 Daily Sensor Monitoring V2
+For the `daily` template family, sensor monitoring currently uses a dedicated layout:
+- overview cards by sensor group
+- group-level sensor cards using current-day `min / avg / max`
+- anomaly scan table
+
+Grouping rule:
+- primary grouping by system group
+- secondary ordering by measurement type
+
+Current system groups:
+- `ICO Chiller`
+- `DIODE Chiller`
+- `ICO Air`
+- `DIODE Air`
+- `Boiler`
+- `Domestic Water`
+
+### 8.7 Periodic Sensor Monitoring Rule
+For the `periodic` template family, sensor monitoring currently remains a compact table view.
+Trend charts and heatmap-style views are planned for a later phase.
 
 ---
 
@@ -242,19 +265,33 @@ Backend context already supports utility sensor monitoring.
 ### 10.2 Intended UI Direction
 Sensor monitoring UI should be designed as a Utility subsection, not a separate unrelated section.
 
-### 10.3 Planned Content
-The future sensor monitoring UI may include:
-- metric table using daily average values
-- metric table using daily maximum values
-- chart blocks by metric group
-- abnormal highlight / threshold display
-- optional avg / max toggle
+### 10.3 Current Backend Contract
+Current backend contract is designed to support:
+- daily business-metric compact table
+- daily sensor-group overview cards
+- per-sensor `min / avg / max / latest`
+- lightweight anomaly flags
 
-### 10.4 Current Context Contract
+### 10.4 Current Daily UI Contract
+Daily sensor cards should support:
+- sensor display name
+- unit
+- measurement type label
+- `min / avg / max`
+- severity flag
+
+### 10.5 Planned Expansion
+Next planned sensor monitoring enhancements:
+- stronger threshold / abnormal logic
+- periodic trend charts
+- heatmap exploration
+- anomaly trend summary
+
+### 10.6 Context Design Rule
 Backend context should remain flexible enough to support:
-- average display
-- maximum display
-- future chart series
+- compact table rendering
+- current-day range rendering
+- future trend series
 - future alerting / abnormal logic
 
 ---

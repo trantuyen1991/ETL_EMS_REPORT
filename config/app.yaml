@@ -18,6 +18,7 @@ time:
 output:
   directory: ${OUTPUT_DIR}
   file_name_prefix: ${FILE_NAME_PREFIX}
+  file_name_base: ${REPORT_FILENAME}
   file_name_format: "{prefix}_{timestamp}.pdf"
   timestamp_format: "%Y-%m-%d_%H-%M-%S"
 

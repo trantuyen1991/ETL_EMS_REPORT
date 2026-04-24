@@ -101,8 +101,10 @@ REPORT_ANCHOR_DATE (.env)
 - KPI = Energy / Production (kWh/Ton)
 - Includes:
 - grouped KPI summary matrix by area + total
+- `Today / Yesterday / Delta %` layout for daily summary matrix
 - Daily KPI detail
-- grouped daily KPI bar chart
+- grouped daily KPI dashboard cards
+- grouped daily KPI chart set
 
 Rules:
 - coverage-first
@@ -111,6 +113,12 @@ Rules:
 - delta color rule:
   - energy / KPI increase = red
   - production increase = green
+
+Daily UI refinement currently includes:
+- richer doughnut chart callouts and top legend layout aligned with electricity charts
+- reordered area groups in summary matrix: `Total -> DIODE -> ICO -> SAKARI`
+- header-only color treatment for grouped columns
+- daily KPI cards now show both `Today` and `Yesterday`
 
 ---
 
@@ -123,22 +131,28 @@ Includes:
 - air
 - steam
 
-#### 4.2 Sensor Monitoring (NEW)
+#### 4.2 Sensor Monitoring
 - data from `processvalue`
+- current configured backend coverage: `18` sensors across `6` system groups
 - daily aggregation:
-- average (avg)
-- maximum (max)
+  - minimum (min)
+  - average (avg)
+  - maximum (max)
+  - latest value
+  - sample / non-null / zero / negative counts
 
-Example metrics:
-- Domestic Water
-- Chilled Water (ICO/DIODE)
-- Air (ICO/DIODE)
-- Steam
-- Sakari Water
+Daily UI V2 currently includes:
+- overview cards by sensor group
+- grouped sensor range cards using `min / avg / max`
+- anomaly scan table highlighting critical and warning signals
+- hybrid grouping:
+  - primary by system group (`ICO Chiller`, `DIODE Chiller`, `ICO Air`, `DIODE Air`, `Boiler`, `Domestic Water`)
+  - secondary ordering by measurement type (`Temperature`, `Pressure`, `Flow`, `Capacity`)
 
 V4 additions:
 - utility comparison bar chart after utility summary
 - PDF chart sizing aligned with the same SVG init / resize flow used by electricity charts
+- daily sensor monitoring now uses a dedicated UI path instead of the old compact metric table
 
 ---
 
@@ -179,6 +193,24 @@ Important lesson learned:
 - CSV export service exists in the codebase
 - production flow is not wired to export CSV yet
 - final release workflow still treats CSV as pending
+
+---
+
+## Near-Term Sensor Monitoring Plan
+
+Implemented now:
+- Step 1: `daily sensor monitoring v2`
+  - overview by group
+  - current-day range presentation (`min / avg / max`)
+  - anomaly scan table
+
+Planned next:
+- Step 2:
+  - extend backend sensor context for stronger derived flags and quality metadata
+  - prepare reusable context for periodic trend rendering
+- Step 3:
+  - periodic sensor monitoring UI
+  - heatmap and trend chart exploration using daily aggregates
 
 ---
 

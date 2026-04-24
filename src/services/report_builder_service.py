@@ -384,16 +384,25 @@ class ReportBuilderService:
                 "display": "DIODE",
                 "bar_color": "#2563eb",
                 "bar_tint": "rgba(37, 99, 235, 0.12)",
+                "header_bg": "#eef5ff",
+                "soft_bg": "#f8fbff",
+                "strong_bg": "#deecff",
             },
             "ico": {
                 "display": "ICO",
                 "bar_color": "#84cc16",
                 "bar_tint": "rgba(132, 204, 22, 0.16)",
+                "header_bg": "#f3fae8",
+                "soft_bg": "#fbfdf5",
+                "strong_bg": "#edf7d8",
             },
             "sakari": {
                 "display": "SAKARI",
                 "bar_color": "#f59e0b",
                 "bar_tint": "rgba(245, 158, 11, 0.16)",
+                "header_bg": "#fff6e8",
+                "soft_bg": "#fffbf5",
+                "strong_bg": "#feedd1",
             },
         }
 
@@ -555,6 +564,43 @@ class ReportBuilderService:
 
         return result
 
+    def _build_v3_grouped_top10_rows(
+        self,
+        plant_rows: list[dict[str, Any]],
+        area_tables: list[dict[str, Any]],
+        area_display_order: list[tuple[str, str]],
+    ) -> list[dict[str, Any]]:
+        """Merge plant and area Top 10 rankings into one grouped row layout."""
+        area_row_lookup = {
+            table.get("area_key"): table.get("rows", [])
+            for table in area_tables
+        }
+
+        max_length = max(
+            [len(plant_rows)]
+            + [len(area_row_lookup.get(area_key, [])) for area_key, _ in area_display_order],
+            default=0,
+        )
+
+        grouped_rows: list[dict[str, Any]] = []
+
+        for index in range(max_length):
+            plant_row = plant_rows[index] if index < len(plant_rows) else None
+            grouped_rows.append({
+                "rank": plant_row.get("rank") if plant_row else index + 1,
+                "plant": plant_row,
+                "areas": {
+                    area_key: (
+                        area_row_lookup.get(area_key, [])[index]
+                        if index < len(area_row_lookup.get(area_key, []))
+                        else None
+                    )
+                    for area_key, _ in area_display_order
+                },
+            })
+
+        return grouped_rows
+
     def _build_v3_area_daily_summary_rows(
         self,
         plant_daily_summary_rows: list[dict[str, Any]],
@@ -647,6 +693,77 @@ class ReportBuilderService:
                 "date": dt_value,
                 "date_display": self._format_date_with_weekday(dt_value),
                 "areas": area_values,
+            })
+
+        return result
+
+    def _build_v3_daily_vertical_detail_tables(
+        self,
+        daily_tables: list[dict[str, Any]],
+        *,
+        column_count: int = 3,
+    ) -> list[dict[str, Any]]:
+        """Build portrait-friendly meter/value columns for the daily report."""
+        result: list[dict[str, Any]] = []
+        area_visual_map = self._get_v3_area_visual_map()
+
+        for table in daily_tables:
+            rows = sorted(
+                table.get("rows", []),
+                key=lambda row: row.get("date") or datetime.min.date(),
+            )
+            if not rows:
+                continue
+
+            area_key = str(table.get("area_key") or "").strip().lower()
+            area_visual = area_visual_map.get(area_key, area_visual_map.get("diode", {}))
+
+            detail_row = rows[-1]
+            meter_columns = table.get("columns", [])[1:]
+            meter_cells = detail_row.get("cells", [])
+
+            max_numeric = max(
+                [float(cell.get("raw_value") or 0.0) for cell in meter_cells if isinstance(cell.get("raw_value"), (int, float))],
+                default=0.0,
+            )
+
+            entries: list[dict[str, Any]] = []
+            for column, cell in zip(meter_columns, meter_cells):
+                raw_value = cell.get("raw_value")
+                fill_pct = 0.0
+                if isinstance(raw_value, (int, float)) and raw_value > 0 and max_numeric > 0:
+                    fill_pct = max(18.0, min(100.0, (float(raw_value) / max_numeric) * 100.0))
+
+                entries.append({
+                    "meter_name": column.get("display_name") or cell.get("key") or "-",
+                    "display": cell.get("display", "-"),
+                    "raw_value": raw_value,
+                    "fill_pct": round(fill_pct, 2),
+                    "heat_class": cell.get("heat_class", ""),
+                    "is_max": bool(cell.get("is_row_max")),
+                    "is_zero": cell.get("display") in {"0", "0.0", "0.00", "-"},
+                })
+
+            if not entries:
+                continue
+
+            safe_column_count = max(1, column_count)
+            chunk_size = max(1, (len(entries) + safe_column_count - 1) // safe_column_count)
+            column_groups = [
+                entries[index:index + chunk_size]
+                for index in range(0, len(entries), chunk_size)
+            ]
+
+            result.append({
+                "area_key": area_key,
+                "title": table.get("title") or "Daily Energy Detail",
+                "date_display": detail_row.get("date_display", "-"),
+                "accent_color": area_visual.get("bar_color", "#2563eb"),
+                "accent_tint": area_visual.get("bar_tint", "rgba(37, 99, 235, 0.12)"),
+                "accent_header_bg": area_visual.get("header_bg", "#eef5ff"),
+                "accent_soft_bg": area_visual.get("soft_bg", "#f8fbff"),
+                "accent_strong_bg": area_visual.get("strong_bg", "#deecff"),
+                "column_groups": column_groups,
             })
 
         return result
@@ -764,10 +881,19 @@ class ReportBuilderService:
 
         daily_summary_rows = energy_object.get("current", {}).get("daily_summary_rows", [])
         daily_detail_tables = energy_object.get("current", {}).get("daily_tables", [])
+        grouped_top10_rows = self._build_v3_grouped_top10_rows(
+            plant_rows=top10_rows,
+            area_tables=area_top10_tables,
+            area_display_order=area_display_order,
+        )
         area_daily_summary_rows = self._build_v3_area_daily_summary_rows(
             plant_daily_summary_rows=daily_summary_rows,
             daily_tables=daily_detail_tables,
             area_display_order=area_display_order,
+        )
+        daily_vertical_detail_tables = self._build_v3_daily_vertical_detail_tables(
+            daily_detail_tables,
+            column_count=3,
         )
         charts = self._build_v3_electricity_charts(
             energy_object=energy_object,
@@ -785,7 +911,14 @@ class ReportBuilderService:
             },
             "top10": {
                 "rows": top10_rows,
+                "grouped_rows": grouped_top10_rows,
                 "area_tables": area_top10_tables,
+                "group_columns": [
+                    {"key": "plant", "label": "Plant Meter"},
+                    {"key": "diode", "label": "Diode Meter"},
+                    {"key": "ico", "label": "ICO Meter"},
+                    {"key": "sakari", "label": "SAKARI Meter"},
+                ],
                 "excluded_meter_rules": {},
             },
             "charts": charts,
@@ -795,6 +928,7 @@ class ReportBuilderService:
                 "area_rows": area_daily_summary_rows,
             },
             "daily_detail_tables": daily_detail_tables,
+            "daily_vertical_detail_tables": daily_vertical_detail_tables,
         }
 
     def _build_v3_electricity_charts(
@@ -841,6 +975,7 @@ class ReportBuilderService:
             ("ico", "ICO"),
             ("sakari", "SAKARI"),
         ]:
+            area_visual = self._get_v3_area_visual_map().get(area_key, {})
             current_value = float(
                 energy_object.get("current", {})
                 .get("summary", {})
@@ -858,6 +993,7 @@ class ReportBuilderService:
                 "area_name": area_name,
                 "current_value": current_value,
                 "previous_value": previous_value,
+                "color": area_visual.get("bar_color", "#2563eb"),
             })
 
         area_labels = [row["area_name"] for row in area_rows]
@@ -869,87 +1005,27 @@ class ReportBuilderService:
             share_chart = {
                 "title": "Area share",
                 "subtitle": "Current day contribution by workshop",
-                "option": {
-                    "color": ["#2563eb", "#84cc16", "#f59e0b"],
-                    "tooltip": {
-                        "trigger": "item",
-                        "formatter": "{b}: {c} ({d}%)",
-                    },
-                    "legend": {
-                        "top": 4,
-                        "left": 8,
-                        "itemWidth": 12,
-                        "itemHeight": 8,
-                    },
-                    "graphic": [
+                "option": self._build_v3_contribution_donut_option(
+                    items=[
                         {
-                            "type": "group",
-                            "left": "center",
-                            "top": "60%",
-                            "children": [
-                                {
-                                    "type": "text",
-                                    "x": 0,
-                                    "y": -10,
-                                    "style": {
-                                        "text": self._fmt(current_total_value),
-                                        "textAlign": "center",
-                                        "textVerticalAlign": "middle",
-                                        "fill": "#0f172a",
-                                        "fontSize": 17,
-                                        "fontWeight": 700,
-                                    },
-                                },
-                                {
-                                    "type": "text",
-                                    "x": 0,
-                                    "y": 12,
-                                    "style": {
-                                        "text": "Current total",
-                                        "textAlign": "center",
-                                        "textVerticalAlign": "middle",
-                                        "fill": "#64748b",
-                                        "fontSize": 10,
-                                        "fontWeight": 600,
-                                    },
-                                },
-                            ],
-                        }
-                    ],
-                    "series": [
-                        {
-                            "name": "Area share",
-                            "type": "pie",
-                            "radius": ["52%", "76%"],
-                            "center": ["50%", "60%"],
-                            "avoidLabelOverlap": True,
+                            "name": row["area_name"],
+                            "value": row["current_value"],
                             "itemStyle": {
-                                "borderColor": "#ffffff",
-                                "borderWidth": 6,
-                                "borderRadius": 12,
+                                "color": row["color"],
                             },
-                            "label": {
-                                "show": True,
-                                "formatter": "{b}\n{d}%",
-                                "color": "#334155",
-                                "fontSize": 11,
-                                "fontWeight": 600,
-                            },
-                            "labelLine": {
-                                "length": 10,
-                                "length2": 8,
-                                "lineStyle": {"color": "#94a3b8"},
-                            },
-                            "data": [
-                                {
-                                    "name": row["area_name"],
-                                    "value": row["current_value"],
-                                }
-                                for row in area_rows
-                            ],
                         }
+                        for row in area_rows
                     ],
-                },
+                    total_value=current_total_value,
+                    pie_radius=("43%", "66%"),
+                    pie_center=("50%", "60%"),
+                    graphic_left="43%",
+                    graphic_top="47%",
+                    legend_orient="horizontal",
+                    legend_left="center",
+                    legend_right=0,
+                    legend_top="5%",
+                ),
             }
         else:
             share_chart = {
@@ -1125,9 +1201,11 @@ class ReportBuilderService:
                 },
                 "sensor_monitoring": {
                     "enabled": False,
-                    "catalog": {},
+                    "sensor_count": 0,
+                    "active_sensor_count": 0,
+                    "overview_cards": [],
                     "groups": [],
-                    "default_mode": "avg",
+                    "anomaly_rows": [],
                     "metric_columns": [],
                     "daily_rows": [],
                 },
@@ -1154,20 +1232,7 @@ class ReportBuilderService:
             },
             "charts": charts,
             "sensor_monitoring": {
-                "enabled": bool(
-                    utility_object.get("current", {})
-                    .get("sensor_monitoring", {})
-                    .get("enabled", False)
-                ),
-                "title": "Sensor monitoring",
-                "subtitle": "Average and maximum daily sensor readings.",
-                "default_mode": "avg",
-                "metric_columns": utility_object.get("current", {})
-                .get("sensor_monitoring", {})
-                .get("metric_columns", []),
-                "daily_rows": utility_object.get("current", {})
-                .get("sensor_monitoring", {})
-                .get("daily_rows", []),
+                **(utility_object.get("current", {}).get("sensor_monitoring", {}) or {}),
             },
         }
 
@@ -1179,86 +1244,126 @@ class ReportBuilderService:
         if not utility_object:
             return {
                 "comparison_bar": {},
+                "comparison_split": {
+                    "wide": {},
+                    "narrow": {},
+                },
             }
 
         metadata = utility_object.get("current", {}).get("metadata", {})
         comparison = utility_object.get("comparison", {})
 
-        labels: list[str] = []
-        chart_labels: list[str] = []
-        current_values: list[float] = []
-        previous_values: list[float] = []
+        utility_items: list[dict[str, Any]] = []
 
         for key, meta in metadata.items():
             display_name = meta.get("display_name") or key
-            labels.append(display_name)
-            if display_name.count(" ") >= 2:
-                first, second, third = display_name.split(" ", 2)
-                chart_labels.append(f"{first} {second}\n{third}")
-            elif " " in display_name:
-                first, second = display_name.split(" ", 1)
-                chart_labels.append(f"{first}\n{second}")
-            else:
-                chart_labels.append(display_name)
-            current_values.append(float(comparison.get(key, {}).get("current", 0.0) or 0.0))
-            previous_values.append(float(comparison.get(key, {}).get("previous", 0.0) or 0.0))
+            utility_items.append({
+                "key": key,
+                "display_name": display_name,
+                "chart_label": self._build_v3_utility_chart_label(display_name),
+                "current": float(comparison.get(key, {}).get("current", 0.0) or 0.0),
+                "previous": float(comparison.get(key, {}).get("previous", 0.0) or 0.0),
+            })
+
+        split_wide_items = [
+            item for item in utility_items
+            if "air" not in str(item.get("key") or "").strip().lower()
+        ]
+        split_narrow_items = [
+            item for item in utility_items
+            if "air" in str(item.get("key") or "").strip().lower()
+        ]
 
         return {
             "comparison_bar": {
                 "title": "Utility comparison",
                 "subtitle": "Current vs previous total by load type",
-                "option": {
-                    "color": ["#0f766e", "#7c3aed"],
-                    "tooltip": {
-                        "trigger": "axis",
-                        "axisPointer": {"type": "shadow"},
-                    },
-                    "legend": {
-                        "top": 6,
-                        "left": 8,
-                        "itemWidth": 12,
-                        "itemHeight": 8,
-                    },
-                    "grid": {
-                        "left": 32,
-                        "right": 12,
-                        "top": 36,
-                        "bottom": 28,
-                        "containLabel": True,
-                    },
-                    "xAxis": {
-                        "type": "category",
-                        "data": chart_labels,
-                        "axisLabel": {
-                            "color": "#64748b",
-                            "fontSize": 10,
-                            "lineHeight": 11,
-                        },
-                        "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
-                    },
-                    "yAxis": {
-                        "type": "value",
-                        "axisLabel": {"color": "#64748b"},
-                        "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
-                    },
-                    "series": [
-                        {
-                            "name": "Current period",
-                            "type": "bar",
-                            "barMaxWidth": 24,
-                            "itemStyle": {"color": "#0f766e", "borderRadius": [6, 6, 0, 0]},
-                            "data": current_values,
-                        },
-                        {
-                            "name": "Previous period",
-                            "type": "bar",
-                            "barMaxWidth": 24,
-                            "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
-                            "data": previous_values,
-                        },
-                    ],
+                "option": self._build_v3_utility_comparison_option(utility_items),
+            },
+            "comparison_split": {
+                "wide": {
+                    "title": "Utility comparison",
+                    "subtitle": "Water and steam",
+                    "option": self._build_v3_utility_comparison_option(split_wide_items),
+                },
+                "narrow": {
+                    "title": "Utility comparison",
+                    "subtitle": "Air",
+                    "option": self._build_v3_utility_comparison_option(split_narrow_items),
                 },
             },
+        }
+
+    def _build_v3_utility_chart_label(self, display_name: str) -> str:
+        """Wrap utility chart labels for compact chart cards."""
+        if display_name.count(" ") >= 2:
+            first, second, third = display_name.split(" ", 2)
+            return f"{first} {second}\n{third}"
+        if " " in display_name:
+            first, second = display_name.split(" ", 1)
+            return f"{first}\n{second}"
+        return display_name
+
+    def _build_v3_utility_comparison_option(
+        self,
+        items: list[dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build one grouped utility comparison bar chart option."""
+        chart_labels = [item.get("chart_label") or item.get("display_name") or "-" for item in items]
+        current_values = [float(item.get("current") or 0.0) for item in items]
+        previous_values = [float(item.get("previous") or 0.0) for item in items]
+
+        return {
+            "color": ["#2563eb", "#7c3aed"],
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {"type": "shadow"},
+            },
+            "legend": {
+                "top": 6,
+                "left": 8,
+                "itemWidth": 12,
+                "itemHeight": 8,
+            },
+            "grid": {
+                "left": 32,
+                "right": 12,
+                "top": 36,
+                "bottom": 30,
+                "containLabel": True,
+            },
+            "xAxis": {
+                "type": "category",
+                "data": chart_labels,
+                "axisLabel": {
+                    "color": "#64748b",
+                    "fontSize": 10,
+                    "lineHeight": 11,
+                    "interval": 0,
+                },
+                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+            },
+            "yAxis": {
+                "type": "value",
+                "axisLabel": {"color": "#64748b"},
+                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+            },
+            "series": [
+                {
+                    "name": "Current period",
+                    "type": "bar",
+                    "barMaxWidth": 24,
+                    "itemStyle": {"color": "#2563eb", "borderRadius": [6, 6, 0, 0]},
+                    "data": current_values,
+                },
+                {
+                    "name": "Previous period",
+                    "type": "bar",
+                    "barMaxWidth": 24,
+                    "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
+                    "data": previous_values,
+                },
+            ],
         }
 
     def _build_v3_kpi_section(
@@ -1298,6 +1403,10 @@ class ReportBuilderService:
                 },
                 "charts": {
                     "daily_grouped_bar": {},
+                    "daily_dashboard": {
+                        "cards": [],
+                        "charts": {},
+                    },
                 },
                 "totals": {
                     "plant": {},
@@ -1528,11 +1637,14 @@ class ReportBuilderService:
         def build_area_cell(current_value: Any, previous_value: Any, *, trend_mode: str, formatter: str = "number") -> dict[str, Any]:
             if formatter == "int":
                 value_display = self._fmt_int_or_dash(current_value)
+                previous_display = self._fmt_int_or_dash(previous_value)
             else:
                 value_display = self._fmt(current_value)
+                previous_display = self._fmt(previous_value)
 
             return {
-                "value_display": value_display,
+                "today_display": value_display,
+                "yesterday_display": previous_display,
                 "delta": build_delta_cell(current_value, previous_value, trend_mode=trend_mode),
             }
 
@@ -1541,31 +1653,32 @@ class ReportBuilderService:
         current_anchor_row = self._find_kpi_daily_row_by_date(current_daily_rows, anchor_date)
         previous_anchor_row = self._find_kpi_daily_row_by_date(previous_daily_rows, previous_anchor_date)
 
-        rows.append({
-            "metric_label": "Production day",
-            "cells": {
-                "ico": build_area_cell(
-                    current_anchor_row.get("ico_prod") if current_anchor_row else None,
-                    previous_anchor_row.get("ico_prod") if previous_anchor_row else None,
-                    trend_mode="generic",
-                ),
-                "diode": build_area_cell(
-                    current_anchor_row.get("diode_prod") if current_anchor_row else None,
-                    previous_anchor_row.get("diode_prod") if previous_anchor_row else None,
-                    trend_mode="generic",
-                ),
-                "sakari": build_area_cell(
-                    current_anchor_row.get("sakari_prod") if current_anchor_row else None,
-                    previous_anchor_row.get("sakari_prod") if previous_anchor_row else None,
-                    trend_mode="generic",
-                ),
-                "total": build_area_cell(
-                    current_anchor_row.get("prod") if current_anchor_row else None,
-                    previous_anchor_row.get("prod") if previous_anchor_row else None,
-                    trend_mode="generic",
-                ),
-            },
-        })
+        if period_type != "daily":
+            rows.append({
+                "metric_label": "Production day",
+                "cells": {
+                    "ico": build_area_cell(
+                        current_anchor_row.get("ico_prod") if current_anchor_row else None,
+                        previous_anchor_row.get("ico_prod") if previous_anchor_row else None,
+                        trend_mode="generic",
+                    ),
+                    "diode": build_area_cell(
+                        current_anchor_row.get("diode_prod") if current_anchor_row else None,
+                        previous_anchor_row.get("diode_prod") if previous_anchor_row else None,
+                        trend_mode="generic",
+                    ),
+                    "sakari": build_area_cell(
+                        current_anchor_row.get("sakari_prod") if current_anchor_row else None,
+                        previous_anchor_row.get("sakari_prod") if previous_anchor_row else None,
+                        trend_mode="generic",
+                    ),
+                    "total": build_area_cell(
+                        current_anchor_row.get("prod") if current_anchor_row else None,
+                        previous_anchor_row.get("prod") if previous_anchor_row else None,
+                        trend_mode="generic",
+                    ),
+                },
+            })
 
         rows.extend([
             {
@@ -1648,10 +1761,10 @@ class ReportBuilderService:
         return {
             "title": "Current period KPI summary",
             "group_columns": [
-                {"key": "ico", "label": "ICO"},
-                {"key": "diode", "label": "DIODE"},
-                {"key": "sakari", "label": "SAKARI"},
-                {"key": "total", "label": "Total"},
+                {"key": "total", "label": "Total", "tone": "total", "is_total": True},
+                {"key": "diode", "label": "DIODE", "tone": "diode", "is_total": False},
+                {"key": "ico", "label": "ICO", "tone": "ico", "is_total": False},
+                {"key": "sakari", "label": "SAKARI", "tone": "sakari", "is_total": False},
             ],
             "rows": rows,
         }
@@ -1679,6 +1792,11 @@ class ReportBuilderService:
         if not kpi_object:
             return {
                 "daily_grouped_bar": {},
+                "daily_dashboard": {
+                    "cards": [],
+                    "charts": {},
+                    "note": "Energy KPI = Energy (kWh) / Production (Ton)",
+                },
             }
 
         daily_rows = kpi_object.get("current", {}).get("daily_rows", [])
@@ -1749,6 +1867,553 @@ class ReportBuilderService:
                     ],
                 },
             },
+            "daily_dashboard": self._build_v3_kpi_daily_dashboard(kpi_object),
+        }
+
+    def _build_v3_kpi_daily_dashboard(
+        self,
+        kpi_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build the daily KPI dashboard cards and charts shown in daily reports."""
+        if not kpi_object:
+            return {
+                "cards": [],
+                "charts": {},
+                "note": "Energy KPI = Energy (kWh) / Production (Ton)",
+            }
+
+        current_summary = kpi_object.get("current", {}).get("summary", {})
+        previous_summary = kpi_object.get("previous", {}).get("summary", {})
+        area_visual_map = self._get_v3_area_visual_map()
+
+        card_specs = [
+            ("total", "TOTAL", "#2563eb", "rgba(37, 99, 235, 0.12)"),
+            ("diode", "DIODE", area_visual_map["diode"]["bar_color"], area_visual_map["diode"]["bar_tint"]),
+            ("ico", "ICO", area_visual_map["ico"]["bar_color"], area_visual_map["ico"]["bar_tint"]),
+            ("sakari", "SAKARI", area_visual_map["sakari"]["bar_color"], area_visual_map["sakari"]["bar_tint"]),
+        ]
+
+        cards: list[dict[str, Any]] = []
+        today_values: list[float | None] = []
+        yesterday_values: list[float | None] = []
+        variance_items: list[dict[str, Any]] = []
+
+        for key, label, color, tint in card_specs:
+            if key == "total":
+                current_block = current_summary.get("plant", {})
+                previous_block = previous_summary.get("plant", {})
+                current_kpi = current_block.get("total_kpi")
+                previous_kpi = previous_block.get("total_kpi")
+            else:
+                current_block = current_summary.get("areas", {}).get(key, {})
+                previous_block = previous_summary.get("areas", {}).get(key, {})
+                current_kpi = current_block.get("kpi")
+                previous_kpi = previous_block.get("kpi")
+
+            delta = None
+            delta_pct = None
+            if current_kpi is not None and previous_kpi is not None:
+                delta = float(current_kpi) - float(previous_kpi)
+                delta_pct = (delta / float(previous_kpi)) if float(previous_kpi) != 0 else None
+
+            badge = self._build_v3_kpi_status_badge(delta_pct)
+            trend_class = self._consumption_trend_class(delta)
+
+            cards.append({
+                "key": key,
+                "label": label,
+                "value_display": self._fmt(current_kpi),
+                "previous_display": self._fmt(previous_kpi),
+                "delta_display": self._fmt(delta),
+                "delta_pct_display": self._fmt_pct(delta_pct),
+                "delta_class": trend_class,
+                "delta_arrow": self._delta_arrow_direction(delta),
+                "badge_label": badge["label"],
+                "badge_class": badge["class"],
+                "accent_color": color,
+                "accent_tint": tint,
+                "is_total": key == "total",
+            })
+
+            today_values.append(self._safe_float(current_kpi))
+            yesterday_values.append(self._safe_float(previous_kpi))
+
+            variance_value = None
+            if delta_pct is not None:
+                variance_value = round(float(delta_pct) * 100.0, 2)
+
+            variance_items.append({
+                "name": label if label != "TOTAL" else "Total",
+                "value": variance_value,
+            })
+
+        current_plant = current_summary.get("plant", {})
+        previous_plant = previous_summary.get("plant", {})
+
+        prev_total_kpi = self._safe_float(previous_plant.get("total_kpi")) or 0.0
+        curr_total_kpi = self._safe_float(current_plant.get("total_kpi")) or 0.0
+        prev_total_energy = self._safe_float(previous_plant.get("total_energy"))
+        curr_total_energy = self._safe_float(current_plant.get("total_energy"))
+        prev_total_prod = self._safe_float(previous_plant.get("total_prod"))
+        curr_total_prod = self._safe_float(current_plant.get("total_prod"))
+
+        energy_impact = 0.0
+        if (
+            prev_total_prod not in (None, 0.0)
+            and prev_total_energy is not None
+            and curr_total_energy is not None
+        ):
+            energy_impact = (curr_total_energy - prev_total_energy) / prev_total_prod
+
+        production_impact = 0.0
+        if (
+            curr_total_energy is not None
+            and curr_total_prod not in (None, 0.0)
+            and prev_total_prod not in (None, 0.0)
+        ):
+            production_impact = (
+                (curr_total_energy / curr_total_prod)
+                - (curr_total_energy / prev_total_prod)
+            )
+
+        contribution_area_order = [
+            ("diode", "DIODE"),
+            ("ico", "ICO"),
+            ("sakari", "SAKARI"),
+        ]
+        contribution_items: list[dict[str, Any]] = []
+        total_contribution_energy = 0.0
+
+        for area_key, area_label in contribution_area_order:
+            area_energy = self._safe_float(
+                current_summary.get("areas", {}).get(area_key, {}).get("energy")
+            ) or 0.0
+            total_contribution_energy += area_energy
+            contribution_items.append({
+                "name": area_label,
+                "value": round(area_energy, 4),
+                "itemStyle": {
+                    "color": area_visual_map[area_key]["bar_color"],
+                },
+            })
+
+        return {
+            "cards": cards,
+            "note": "Energy KPI = Energy (kWh) / Production (Ton)",
+            "charts": {
+                "compare_bar": {
+                    "title": "Energy KPI: Today vs yesterday",
+                    "subtitle": "KPI comparison by Total and workshop",
+                    "option": self._build_v3_kpi_compare_bar_option(
+                        labels=["Total", "DIODE", "ICO", "SAKARI"],
+                        yesterday_values=yesterday_values,
+                        today_values=today_values,
+                    ),
+                },
+                "waterfall": {
+                    "title": "Total KPI change explanation",
+                    "subtitle": "Decomposition of the Total KPI movement",
+                    "option": self._build_v3_kpi_waterfall_option(
+                        previous_kpi=prev_total_kpi,
+                        energy_impact=energy_impact,
+                        production_impact=production_impact,
+                        current_kpi=curr_total_kpi,
+                    ),
+                },
+                "variance": {
+                    "title": "Deviation vs yesterday (%)",
+                    "subtitle": "Positive KPI change means higher energy intensity",
+                    "option": self._build_v3_kpi_variance_option(variance_items),
+                },
+                "contribution": {
+                    "title": "Energy distribution by line",
+                    "subtitle": "Current-day energy contribution",
+                    "option": self._build_v3_kpi_contribution_option(
+                        contribution_items=contribution_items,
+                        total_energy=total_contribution_energy,
+                    ),
+                },
+            },
+        }
+
+    def _build_v3_kpi_status_badge(self, delta_pct: Any) -> dict[str, str]:
+        """Map KPI daily card delta to a compact status badge."""
+        if delta_pct is None:
+            return {"label": "N/A", "class": "kpi-badge-neutral"}
+
+        delta_value = float(delta_pct)
+        if delta_value > 0.02:
+            return {"label": "WATCH", "class": "kpi-badge-watch"}
+        if delta_value <= 0.0:
+            return {"label": "GOOD", "class": "kpi-badge-good"}
+        return {"label": "STABLE", "class": "kpi-badge-stable"}
+
+    def _build_v3_kpi_compare_bar_option(
+        self,
+        *,
+        labels: list[str],
+        yesterday_values: list[float | None],
+        today_values: list[float | None],
+    ) -> Dict[str, Any]:
+        """Build the daily KPI compare bar option."""
+        return {
+            "color": ["#7c3aed", "#2563eb"],
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {"type": "shadow"},
+            },
+            "legend": {
+                "top": 6,
+                "left": 8,
+                "itemWidth": 12,
+                "itemHeight": 8,
+            },
+            "grid": {
+                "left": 32,
+                "right": 12,
+                "top": 36,
+                "bottom": 24,
+                "containLabel": True,
+            },
+            "xAxis": {
+                "type": "category",
+                "data": labels,
+                "axisLabel": {"color": "#64748b", "fontSize": 10},
+                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+            },
+            "yAxis": {
+                "type": "value",
+                "axisLabel": {"color": "#64748b"},
+                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+            },
+            "series": [
+                {
+                    "name": "Yesterday",
+                    "type": "bar",
+                    "barMaxWidth": 22,
+                    "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
+                    "data": yesterday_values,
+                },
+                {
+                    "name": "Today",
+                    "type": "bar",
+                    "barMaxWidth": 22,
+                    "itemStyle": {"color": "#2563eb", "borderRadius": [6, 6, 0, 0]},
+                    "data": today_values,
+                },
+            ],
+        }
+
+    def _build_v3_kpi_waterfall_option(
+        self,
+        *,
+        previous_kpi: float,
+        energy_impact: float,
+        production_impact: float,
+        current_kpi: float,
+    ) -> Dict[str, Any]:
+        """Build a waterfall-like chart for total KPI movement."""
+        energy_base = previous_kpi if energy_impact >= 0 else previous_kpi + energy_impact
+        after_energy = previous_kpi + energy_impact
+        production_base = after_energy if production_impact >= 0 else after_energy + production_impact
+
+        return {
+            "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
+            "grid": {
+                "left": 32,
+                "right": 12,
+                "top": 20,
+                "bottom": 34,
+                "containLabel": True,
+            },
+            "xAxis": {
+                "type": "category",
+                "data": ["Yesterday\nKPI", "Energy\nimpact", "Production\nimpact", "Today\nKPI"],
+                "axisLabel": {"color": "#64748b", "fontSize": 10, "interval": 0, "lineHeight": 11},
+                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+            },
+            "yAxis": {
+                "type": "value",
+                "axisLabel": {"color": "#64748b"},
+                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+            },
+            "series": [
+                {
+                    "type": "bar",
+                    "stack": "waterfall",
+                    "silent": True,
+                    "itemStyle": {"color": "rgba(0,0,0,0)"},
+                    "emphasis": {"disabled": True},
+                    "data": [0, round(energy_base, 4), round(production_base, 4), 0],
+                },
+                {
+                    "type": "bar",
+                    "stack": "waterfall",
+                    "barMaxWidth": 28,
+                    "data": [
+                        {
+                            "value": round(previous_kpi, 4),
+                            "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
+                            "label": {"show": True, "position": "top", "formatter": self._fmt(previous_kpi), "color": "#1e293b", "fontSize": 10},
+                        },
+                        {
+                            "value": round(abs(energy_impact), 4),
+                            "itemStyle": {
+                                "color": "#dc2626" if energy_impact >= 0 else "#16a34a",
+                                "borderRadius": [6, 6, 0, 0],
+                            },
+                            "label": {
+                                "show": True,
+                                "position": "top",
+                                "formatter": self._fmt(energy_impact),
+                                "color": "#1e293b",
+                                "fontSize": 10,
+                            },
+                        },
+                        {
+                            "value": round(abs(production_impact), 4),
+                            "itemStyle": {
+                                "color": "#dc2626" if production_impact >= 0 else "#16a34a",
+                                "borderRadius": [6, 6, 0, 0],
+                            },
+                            "label": {
+                                "show": True,
+                                "position": "top",
+                                "formatter": self._fmt(production_impact),
+                                "color": "#1e293b",
+                                "fontSize": 10,
+                            },
+                        },
+                        {
+                            "value": round(current_kpi, 4),
+                            "itemStyle": {"color": "#2563eb", "borderRadius": [6, 6, 0, 0]},
+                            "label": {"show": True, "position": "top", "formatter": self._fmt(current_kpi), "color": "#1e293b", "fontSize": 10},
+                        },
+                    ],
+                },
+            ],
+        }
+
+    def _build_v3_kpi_variance_option(
+        self,
+        items: list[dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build a horizontal variance chart for KPI change vs yesterday."""
+        chart_data = []
+        for item in items:
+            value = item.get("value")
+            if value is None:
+                chart_data.append({
+                    "value": 0,
+                    "name": item.get("name") or "-",
+                    "itemStyle": {"color": "#cbd5e1"},
+                    "label": {"show": True, "position": "right", "formatter": "-", "color": "#64748b", "fontSize": 10},
+                })
+                continue
+
+            chart_data.append({
+                "value": round(float(value), 2),
+                "name": item.get("name") or "-",
+                "itemStyle": {"color": "#dc2626" if float(value) >= 0 else "#16a34a"},
+                "label": {
+                    "show": True,
+                    "position": "right" if float(value) >= 0 else "left",
+                    "formatter": f"{float(value):+.2f}%",
+                    "color": "#1e293b",
+                    "fontSize": 10,
+                },
+            })
+
+        return {
+            "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
+            "grid": {
+                "left": 70,
+                "right": 16,
+                "top": 12,
+                "bottom": 18,
+                "containLabel": False,
+            },
+            "xAxis": {
+                "type": "value",
+                "axisLabel": {"color": "#64748b", "formatter": "{value}%"},
+                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+            },
+            "yAxis": {
+                "type": "category",
+                "data": [item.get("name") or "-" for item in items],
+                "axisLabel": {"color": "#475569", "fontWeight": 600},
+                "axisTick": {"show": False},
+                "axisLine": {"show": False},
+            },
+            "series": [
+                {
+                    "type": "bar",
+                    "barMaxWidth": 22,
+                    "data": chart_data,
+                }
+            ],
+        }
+
+    def _build_v3_kpi_contribution_option(
+        self,
+        *,
+        contribution_items: list[dict[str, Any]],
+        total_energy: float,
+    ) -> Dict[str, Any]:
+        """Build a donut chart for area energy contribution."""
+        return self._build_v3_contribution_donut_option(
+            items=contribution_items,
+            total_value=total_energy,
+            pie_radius=("45%", "69%"),
+            pie_center=("50%", "60%"),
+            graphic_left="43%",
+            graphic_top="47%",
+            legend_orient="horizontal",
+            legend_left="center",
+            legend_right=0,
+            legend_top="5%",
+        )
+
+    def _build_v3_contribution_donut_option(
+        self,
+        *,
+        items: list[dict[str, Any]],
+        total_value: float,
+        center_title: str = "Total Energy",
+        center_unit: str = "(kWh)",
+        value_unit: str = "kWh",
+        pie_radius: tuple[str, str] = ("48%", "73%"),
+        pie_center: tuple[str, str] = ("34%", "54%"),
+        graphic_left: str = "24%",
+        graphic_top: str = "41%",
+        legend_orient: str = "vertical",
+        legend_left: str | int = "right",
+        legend_right: int = 10,
+        legend_top: str = "middle",
+    ) -> Dict[str, Any]:
+        """Build a detailed donut chart with center total, callouts, and legend."""
+        safe_total = float(total_value or 0.0)
+        chart_items: list[dict[str, Any]] = []
+
+        for item in items:
+            raw_value = float(item.get("value") or 0.0)
+            pct_value = (raw_value / safe_total * 100.0) if safe_total > 0 else 0.0
+
+            chart_item = dict(item)
+            chart_item["label"] = {
+                "show": True,
+                "position": "outside",
+                "alignTo": "edge",
+                "edgeDistance": 10,
+                "bleedMargin": 6,
+                "distanceToLabelLine": 4,
+                "formatter": (
+                    f"{{percent|{pct_value:.2f}%}}\n"
+                    f"{{value|({self._fmt_chart_callout(raw_value)} {value_unit})}}"
+                ),
+                "rich": {
+                    "percent": {
+                        "color": "#475569",
+                        "fontSize": 10,
+                        "fontWeight": 500,
+                        "lineHeight": 13,
+                    },
+                    "value": {
+                        "color": "#0f172a",
+                        "fontSize": 9,
+                        "fontWeight": 800,
+                        "lineHeight": 14,
+                    },
+                },
+            }
+            chart_item["labelLine"] = {
+                "show": True,
+                "length": 14,
+                "length2": 12,
+                "lineStyle": {
+                    "color": "#64748b",
+                    "width": 1.4,
+                },
+            }
+            chart_item["emphasis"] = {
+                "scale": False,
+            }
+            chart_items.append(chart_item)
+
+        return {
+            "tooltip": {"trigger": "item", "formatter": "{b}: {c} ({d}%)"},
+            "legend": {
+                "orient": legend_orient,
+                "left": legend_left,
+                "right": legend_right,
+                "top": legend_top,
+                "itemWidth": 14,
+                "itemHeight": 14,
+                "icon": "roundRect",
+                "textStyle": {"color": "#475569", "fontSize": 10, "fontWeight": 500},
+                "itemGap": 12,
+            },
+            "series": [
+                {
+                    "name": "Energy contribution",
+                    "type": "pie",
+                    "radius": list(pie_radius),
+                    "center": list(pie_center),
+                    "startAngle": 90,
+                    "avoidLabelOverlap": True,
+                    "minShowLabelAngle": 1,
+                    "itemStyle": {"borderColor": "#ffffff", "borderWidth": 4},
+                    "label": {"show": True, "color": "#0f172a"},
+                    "labelLine": {"show": True},
+                    "data": chart_items,
+                }
+            ],
+            "graphic": [
+                {
+                    "type": "group",
+                    "left": graphic_left,
+                    "top": graphic_top,
+                    "silent": True,
+                    "children": [
+                        {
+                            "type": "text",
+                            "x": 0,
+                            "y": 0,
+                            "style": {
+                                "text": self._fmt_chart_total(total_value),
+                                "textAlign": "center",
+                                "fill": "#334155",
+                                "fontSize": 17,
+                                "fontWeight": 800,
+                            },
+                        },
+                        {
+                            "type": "text",
+                            "x": 0,
+                            "y": 24,
+                            "style": {
+                                "text": center_title,
+                                "textAlign": "center",
+                                "fill": "#475569",
+                                "fontSize": 10,
+                                "fontWeight": 700,
+                            },
+                        },
+                        {
+                            "type": "text",
+                            "x": 0,
+                            "y": 40,
+                            "style": {
+                                "text": center_unit,
+                                "textAlign": "center",
+                                "fill": "#64748b",
+                                "fontSize": 9,
+                                "fontWeight": 700,
+                            },
+                        },
+                    ],
+                }
+            ],
         }
 
     def _count_positive_kpi_days(
@@ -2097,6 +2762,18 @@ class ReportBuilderService:
         if val is None:
             return "-"
         return f"{float(val) * 100:.2f}%"
+
+    def _fmt_chart_total(self, val: Any) -> str:
+        """Format chart center totals with one decimal for a cleaner dashboard look."""
+        if val is None:
+            return "-"
+        return f"{float(val):,.1f}"
+
+    def _fmt_chart_callout(self, val: Any) -> str:
+        """Format callout labels with one decimal to keep donut annotations compact."""
+        if val is None:
+            return "-"
+        return f"{float(val):,.1f}"
 
     def _consumption_trend_class(self, val):
         """Return trend class for consumption/intensity metrics.

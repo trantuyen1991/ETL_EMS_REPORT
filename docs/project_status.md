@@ -22,7 +22,7 @@ Focus:
 - finalize the two-family template migration (`daily` / `periodic`)
 - refine daily UI first, then continue periodic polish
 - stabilize PDF chart rendering and print flow
-- update project documentation to match implementation
+- extend sensor monitoring from backend-ready data into daily-first UI
 
 ---
 
@@ -64,9 +64,13 @@ Focus:
 
 ### 3.2 Energy KPI Section
 - KPI summary matrix by area + total: ✅
+- KPI summary matrix reordered to `Total -> DIODE -> ICO -> SAKARI`: ✅
+- KPI summary matrix now shows `Today / Yesterday / Delta %`: ✅
+- Header-only grouped color styling for summary matrix: ✅
 - Delta% by area and total: ✅
 - Delta color rule by metric type: ✅
 - Daily KPI grouped bar chart: ✅
+- Daily KPI cards now include `Today / Yesterday` comparison: ✅
 - Daily KPI detail (with coverage status): ✅
 
 KPI logic:
@@ -91,32 +95,27 @@ KPI logic:
 
 ### 3.4 Sensor Monitoring (Utility Extension)
 
-Status: 🟡 **Partially implemented (in progress)**
+Status: 🟢 **Step 1 implemented for daily**
 
 Backend:
 - Sensor data fetched from `processvalue`: ✅
-- Daily aggregation (avg, max): ✅
-- Context structure prepared: ✅
+- Configured sensor metadata for 18 sensors across 6 groups: ✅
+- Daily aggregation (`min`, `avg`, `max`, `latest`): ✅
+- Daily data-quality counters (`sample_count`, `non_null_count`, `zero_count`, `negative_count`): ✅
+- Measurement-type tagging (`temperature`, `pressure`, `flow`, `capacity`): ✅
+- Context structure prepared for both compact table and daily v2 cards: ✅
 
 UI:
-- Table rendering implemented under Utility section: ✅
-- Showing:
-  - Avg value
-  - Max value
-- Example metrics:
-  - Domestic Water
-  - ICO Chilled Water
-  - DIODE Chilled Water
-  - Air (ICO / DIODE)
-  - Steam
-  - Sakari Water
+- Daily sensor monitoring overview cards by group: ✅
+- Daily sensor range cards using `min / avg / max`: ✅
+- Anomaly scan table with alert highlighting: ✅
+- Periodic compact table remains available as fallback view: ✅
 
-Limitations (current):
-- Only table view available
-- No chart visualization yet
-- No threshold / abnormal highlighting
-- Layout still basic
-- Unit display incorect, need get info from "src/config/utility_metadata.py"
+Current anomaly rules:
+- `No data` → critical
+- `Negative value` → critical
+- `All zero` → warning
+- `Flat signal` → warning
 
 ---
 
@@ -132,9 +131,12 @@ Limitations (current):
 - periodic family will be adjusted after daily stabilizes
 
 ### 4.3 Sensor Monitoring UI
-- Improve table layout and readability
-- Add chart visualization (ECharts)
-- Add abnormal detection / highlighting
+- Step 2:
+  - enrich derived flags and data-quality metadata
+  - prepare reusable periodic trend context
+- Step 3:
+  - add periodic sensor monitoring trend / heatmap exploration
+  - decide whether to promote selected daily charts into periodic family
 
 ---
 
@@ -150,7 +152,12 @@ Limitations (current):
   - responsive handling
   - period-based show/hide logic
 
-### 5.3 PDF Stability Improvements
+### 5.3 Sensor Monitoring Expansion
+- periodic trend UI is not implemented yet
+- heatmap / line trend / anomaly trend are planned next-stage candidates
+- threshold-based alert rules are still heuristic and not business-calibrated yet
+
+### 5.4 PDF Stability Improvements
 - Chart rendering improved, but still needs regression checks when layout changes
 - Table pagination still needs improvement on very wide / dense sections
 

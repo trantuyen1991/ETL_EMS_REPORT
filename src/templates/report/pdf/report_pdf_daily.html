@@ -1,0 +1,9 @@
+{% extends "report/base/base_pdf.html" %}
+
+{% block content %}
+{% include "report/pdf/sections/header_daily.html" %}
+{% include "report/pdf/sections/electricity.html" %}
+{% include "report/pdf/sections/utility.html" %}
+{% include "report/pdf/sections/kpi.html" %}
+{% include "report/pdf/sections/footer.html" %}
+{% endblock %}

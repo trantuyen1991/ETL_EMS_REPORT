@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ from src.services.utility_service import UtilityService
 from src.utils.logger import get_logger, setup_logging
 from src.services.template_service import TemplateRenderingService
 from src.services.energy_service import EnergyService
+from src.services.pdf_service import PDFService
 
 from datetime import datetime, date
 from src.config.utility_metadata import get_utility_sensor_metadata
@@ -57,6 +59,7 @@ def _bootstrap() -> dict[str, Any]:
     client = MySQLClient(mysql_config)
 
     period_service = PeriodService()
+    anchor_date = period_service.resolve_anchor_date_from_config(config)
     period = period_service.resolve_from_config(config)
 
     sources = get_data_sources()
@@ -71,6 +74,7 @@ def _bootstrap() -> dict[str, Any]:
         "config": config,
         "env_cfg": env_cfg,
         "client": client,
+        "anchor_date": anchor_date,
         "period": period,
         "repos": repos,
     }
@@ -315,6 +319,145 @@ def _build_report_context(
     return report_context
 
 
+def _select_template_bundle(period_type: str) -> dict[str, str]:
+    """Choose template files based on report family."""
+    normalized = str(period_type or "").strip().lower()
+
+    if normalized == "daily":
+        return {
+            "view": "report/view/report_view_daily.html",
+            "pdf": "report/pdf/report_pdf_daily.html",
+        }
+
+    return {
+        "view": "report/view/report_view_periodic.html",
+        "pdf": "report/pdf/report_pdf_periodic.html",
+    }
+
+
+def _sanitize_filename_part(value: str) -> str:
+    """Convert free text into a file-safe lowercase token."""
+    sanitized = re.sub(r"[^A-Za-z0-9]+", "_", str(value or "").strip()).strip("_")
+    return sanitized.lower() or "report"
+
+
+def _resolve_report_filename_base(env_cfg: dict[str, Any]) -> str:
+    """Resolve base filename from env config."""
+    raw_value = env_cfg.get("REPORT_FILENAME") or env_cfg.get("FILE_NAME_PREFIX") or "report"
+    return _sanitize_filename_part(str(raw_value))
+
+
+def _build_report_export_stem(env_cfg: dict[str, Any], period) -> str:
+    """Build export filename stem as <filename>_<period>_<date>."""
+    base_name = _resolve_report_filename_base(env_cfg)
+    anchor_value = getattr(period, "anchor_date", None) or period.end_date
+    return f"{base_name}_{period.period_type}_{anchor_value.strftime('%Y%m%d')}"
+
+
+def _render_report_artifacts(
+    *,
+    renderer: TemplateRenderingService,
+    pdf_service,
+    env_cfg: dict[str, Any],
+    period,
+    report_context: dict[str, Any],
+    project_output_dir: Path,
+    staging_output_dir: Path,
+) -> dict[str, Path]:
+    """Render one report into view HTML, PDF source HTML, and PDF."""
+    template_bundle = _select_template_bundle(period.period_type)
+    export_stem = _build_report_export_stem(env_cfg, period)
+
+    view_html = renderer.render(template_bundle["view"], report_context)
+    pdf_html = renderer.render(template_bundle["pdf"], report_context)
+
+    view_path = project_output_dir / f"{export_stem}_view.html"
+    pdf_source_path = project_output_dir / f"{export_stem}_pdf_source.html"
+    staging_html_path = staging_output_dir / f"{export_stem}_pdf_source.html"
+    final_pdf_path = project_output_dir / f"{export_stem}.pdf"
+    staging_pdf_path = staging_output_dir / f"{export_stem}.pdf"
+
+    view_path.write_text(view_html, encoding="utf-8")
+    pdf_source_path.write_text(pdf_html, encoding="utf-8")
+    staging_html_path.write_text(pdf_html, encoding="utf-8")
+
+    pdf_service.export(staging_html_path, staging_pdf_path)
+    final_pdf_path.write_bytes(staging_pdf_path.read_bytes())
+
+    return {
+        "view_html": view_path,
+        "pdf_source_html": pdf_source_path,
+        "pdf": final_pdf_path,
+        "staging_html": staging_html_path,
+        "staging_pdf": staging_pdf_path,
+    }
+
+
+def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
+    """Render all reports scheduled for the effective anchor day."""
+    config = runtime["config"]
+    env_cfg = runtime["env_cfg"]
+    repos = runtime["repos"]
+    client = runtime["client"]
+    logger = runtime["logger"]
+
+    period_service = PeriodService()
+    scheduled_periods = period_service.resolve_scheduled_periods_from_config(config=config)
+
+    renderer = TemplateRenderingService("src/templates")
+    pdf_service = PDFService(config)
+
+    project_output_dir = Path("output/reports")
+    project_output_dir.mkdir(parents=True, exist_ok=True)
+
+    staging_output_dir = Path(env_cfg.get("OUTPUT_DIR") or project_output_dir)
+    staging_output_dir.mkdir(parents=True, exist_ok=True)
+
+    rendered_reports: list[dict[str, Any]] = []
+
+    for period in scheduled_periods:
+        kpi_object = _build_kpi_object(repos, period)
+        utility_object = _build_utility_object(
+            repos=repos,
+            period=period,
+            client=client,
+        )
+        energy_object = _build_energy_object(repos, period, kpi_object)
+
+        report_context = _build_report_context(
+            env_cfg=env_cfg,
+            period=period,
+            energy_object=energy_object,
+            kpi_object=kpi_object,
+            utility_object=utility_object,
+            client=client,
+        )
+
+        artifacts = _render_report_artifacts(
+            renderer=renderer,
+            pdf_service=pdf_service,
+            env_cfg=env_cfg,
+            period=period,
+            report_context=report_context,
+            project_output_dir=project_output_dir,
+            staging_output_dir=staging_output_dir,
+        )
+
+        rendered_reports.append({
+            "period": period,
+            "artifacts": artifacts,
+        })
+
+        logger.info(
+            "Rendered scheduled report | period_type=%s anchor_date=%s pdf=%s",
+            period.period_type,
+            getattr(period, "anchor_date", None),
+            artifacts["pdf"],
+        )
+
+    return rendered_reports
+
+
 def run_dev_test() -> None:
     """Run the local development flow for V2 data objects."""
     runtime = _bootstrap()
@@ -354,7 +497,7 @@ def run_dev_test() -> None:
     #
     renderer = TemplateRenderingService("src/templates")
 
-    html = renderer.render("report/view/report_view.html", report_context)
+    html = renderer.render(_select_template_bundle(period.period_type)["view"], report_context)
 
     with open("output/reports/debug.html", "w", encoding="utf-8") as f:
         f.write(html)
@@ -375,8 +518,15 @@ def run_dev_test() -> None:
 
 def run_production() -> None:
     """Run production flow."""
-    run_dev_test()
+    runtime = _bootstrap()
+    rendered_reports = _run_report_batch(runtime)
+
+    runtime["logger"].info(
+        "Scheduled production run completed. report_count=%s periods=%s",
+        len(rendered_reports),
+        [item["period"].period_type for item in rendered_reports],
+    )
 
 
 if __name__ == "__main__":
-    run_dev_test()
+    run_production()

@@ -30,6 +30,43 @@ from src.models.period_models import PeriodRequest, PeriodType, ResolvedPeriod
 class PeriodService:
     """Resolve reporting periods from request or configuration."""
 
+    def resolve_anchor_date_from_config(
+        self,
+        config: dict[str, Any],
+        today: date | None = None,
+    ) -> date:
+        """Resolve the effective anchor date from config or fallback today."""
+        env_cfg = config.get("env", {})
+        fallback_today = today or date.today()
+        return self._parse_optional_date(env_cfg.get("REPORT_ANCHOR_DATE")) or fallback_today
+
+    def resolve_scheduled_periods_from_config(
+        self,
+        config: dict[str, Any],
+        today: date | None = None,
+    ) -> list[ResolvedPeriod]:
+        """Build the list of report periods that should be exported for one run."""
+        anchor_date = self.resolve_anchor_date_from_config(config=config, today=today)
+        include_cfg = config.get("config", {}).get("report", {}).get("include", {})
+
+        period_types: list[PeriodType] = []
+        if bool(include_cfg.get("daily", True)):
+            period_types.append("daily")
+
+        if bool(include_cfg.get("weekly", True)) and self._is_sunday(anchor_date):
+            period_types.append("weekly")
+
+        if bool(include_cfg.get("monthly", True)) and self._is_month_end(anchor_date):
+            period_types.append("monthly")
+
+        return [
+            self.resolve(
+                PeriodRequest(period_type=period_type, anchor_date=anchor_date),
+                today=anchor_date,
+            )
+            for period_type in period_types
+        ]
+
     def resolve(self, request: PeriodRequest, today: date | None = None) -> ResolvedPeriod:
         """Resolve a period request into a canonical period object.
 
@@ -216,6 +253,14 @@ class PeriodService:
             raise ValueError(
                 f"Invalid date format: '{text}'. Expected YYYY-MM-DD."
             ) from exc
+
+    def _is_sunday(self, value: date) -> bool:
+        """Return True when the date falls on Sunday."""
+        return value.weekday() == 6
+
+    def _is_month_end(self, value: date) -> bool:
+        """Return True when the date is the last day of its month."""
+        return value.day == monthrange(value.year, value.month)[1]
 
     def _build_label(
         self,

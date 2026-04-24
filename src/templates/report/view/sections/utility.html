@@ -60,18 +60,33 @@
                 </div>
             </div>
 
-            <div class="utility-chart-block">
-                <div class="electricity-chart-card utility-chart-card">
-                    <h3 class="electricity-chart-card-title">
-                        {{ sections.utility.charts.comparison_bar.title }}
-                    </h3>
-                    <p class="electricity-chart-card-subtitle">
-                        {{ sections.utility.charts.comparison_bar.subtitle }}
-                    </p>
-                    <div id="utility-comparison-chart" class="electricity-chart utility-comparison-chart"></div>
+            <div class="utility-chart-split-grid">
+                <div class="utility-chart-block utility-chart-block-wide">
+                    <div class="electricity-chart-card utility-chart-card">
+                        <h3 class="electricity-chart-card-title">
+                            {{ sections.utility.charts.comparison_split.wide.title }}
+                        </h3>
+                        <p class="electricity-chart-card-subtitle">
+                            {{ sections.utility.charts.comparison_split.wide.subtitle }}
+                        </p>
+                        <div id="utility-comparison-chart-wide" class="electricity-chart utility-comparison-chart utility-comparison-chart-wide"></div>
+                    </div>
+                </div>
+
+                <div class="utility-chart-block utility-chart-block-narrow">
+                    <div class="electricity-chart-card utility-chart-card">
+                        <h3 class="electricity-chart-card-title">
+                            {{ sections.utility.charts.comparison_split.narrow.title }}
+                        </h3>
+                        <p class="electricity-chart-card-subtitle">
+                            {{ sections.utility.charts.comparison_split.narrow.subtitle }}
+                        </p>
+                        <div id="utility-comparison-chart-narrow" class="electricity-chart utility-comparison-chart utility-comparison-chart-narrow"></div>
+                    </div>
                 </div>
             </div>
 
+            {% if not flags.is_daily_report %}
             <div class="utility-detail-block">
                 <h3 class="electricity-subsection-title">Daily utility detail</h3>
 
@@ -100,6 +115,7 @@
                     </table>
                 </div>
             </div>
+            {% endif %}
 
             {% set sensor_monitoring = sections.utility.sensor_monitoring %}
             {% if sensor_monitoring.enabled %}
@@ -112,9 +128,114 @@
                         {% if sensor_monitoring.subtitle %}
                         <p class="utility-sensor-subtitle">{{ sensor_monitoring.subtitle }}</p>
                         {% endif %}
+                        {% if flags.is_daily_report %}
+                        <div class="utility-sensor-statline">
+                            <span class="utility-sensor-statpill">{{ sensor_monitoring.focus_date_display }}</span>
+                            <span class="utility-sensor-statpill">{{ sensor_monitoring.active_sensor_count }}/{{ sensor_monitoring.sensor_count }} sensors active</span>
+                            <span class="utility-sensor-statpill {% if sensor_monitoring.anomaly_rows %}has-alert{% endif %}">
+                                {{ sensor_monitoring.anomaly_rows|length }} alert{% if sensor_monitoring.anomaly_rows|length != 1 %}s{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
 
+                {% if flags.is_daily_report %}
+                <div class="utility-sensor-overview-grid">
+                    {% for card in sensor_monitoring.overview_cards %}
+                    <div class="utility-sensor-overview-card" style="--sensor-accent: {{ card.accent_color }}; --sensor-tint: {{ card.accent_tint }};">
+                        <div class="utility-sensor-overview-title">{{ card.label }}</div>
+                        <div class="utility-sensor-overview-metrics">
+                            <div class="utility-sensor-overview-item">
+                                <span class="utility-sensor-overview-label">Sensors</span>
+                                <span class="utility-sensor-overview-value">{{ card.active_sensor_count }}/{{ card.sensor_count }}</span>
+                            </div>
+                            <div class="utility-sensor-overview-item">
+                                <span class="utility-sensor-overview-label">Alerts</span>
+                                <span class="utility-sensor-overview-value {% if card.anomaly_count > 0 %}has-alert{% endif %}">{{ card.anomaly_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="utility-sensor-group-grid">
+                    {% for group in sensor_monitoring.groups %}
+                    <div class="utility-sensor-group-card" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
+                        <div class="utility-sensor-group-head">
+                            <div>
+                                <h4 class="utility-sensor-group-title">{{ group.label }}</h4>
+                                <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data</p>
+                            </div>
+                            <span class="utility-sensor-group-badge {% if group.anomaly_count > 0 %}has-alert{% endif %}">
+                                {{ group.anomaly_count }} alert{% if group.anomaly_count != 1 %}s{% endif %}
+                            </span>
+                        </div>
+
+                        <div class="utility-sensor-range-list">
+                            {% for sensor in group.sensors %}
+                            <div class="utility-sensor-range-row {{ sensor.severity_class }}">
+                                <div class="utility-sensor-range-top">
+                                    <div>
+                                        <div class="utility-sensor-range-name">{{ sensor.display_name }}</div>
+                                        <div class="utility-sensor-range-submeta">{{ sensor.unit }} · {{ sensor.measurement_type_label }}</div>
+                                    </div>
+                                    <span class="utility-sensor-range-flag {{ sensor.severity_class }}">{{ sensor.flag_summary }}</span>
+                                </div>
+
+                                <div class="utility-sensor-range-track">
+                                    <span class="utility-sensor-range-line"></span>
+                                    <span class="utility-sensor-range-dot" style="left: {{ sensor.avg_position_pct }}%;"></span>
+                                </div>
+
+                                <div class="utility-sensor-range-values">
+                                    <span>Min <strong>{{ sensor.min_display }}</strong></span>
+                                    <span>Avg <strong>{{ sensor.avg_display }}</strong></span>
+                                    <span>Max <strong>{{ sensor.max_display }}</strong></span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if sensor_monitoring.anomaly_rows %}
+                <div class="utility-sensor-anomaly-block">
+                    <h4 class="utility-sensor-anomaly-title">Sensor anomaly scan</h4>
+                    <div class="utility-sensor-anomaly-wrap report-table-wrap">
+                        <table class="utility-sensor-anomaly-table report-table-ui">
+                            <thead>
+                                <tr>
+                                    <th>Sensor</th>
+                                    <th>Group</th>
+                                    <th>Type</th>
+                                    <th>Latest</th>
+                                    <th>Min</th>
+                                    <th>Avg</th>
+                                    <th>Max</th>
+                                    <th>Flag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in sensor_monitoring.anomaly_rows %}
+                                <tr class="{{ row.severity_class }}">
+                                    <td>{{ row.display_name }}</td>
+                                    <td>{{ row.group_label }}</td>
+                                    <td>{{ row.measurement_type }}</td>
+                                    <td>{{ row.latest_display }}</td>
+                                    <td>{{ row.min_display }}</td>
+                                    <td>{{ row.avg_display }}</td>
+                                    <td>{{ row.max_display }}</td>
+                                    <td><span class="utility-sensor-range-flag {{ row.severity_class }}">{{ row.flag_summary }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                {% else %}
                 <div class="utility-sensor-table-wrap report-table-wrap">
                     <table class="utility-sensor-table report-table-ui">
                         <thead>
@@ -155,6 +276,7 @@
                         </tbody>
                     </table>
                 </div>
+                {% endif %}
             </div>
             {% endif %}
 
@@ -165,28 +287,81 @@
                             return;
                         }
 
-                        const el = document.getElementById("utility-comparison-chart");
-                        if (!el) {
-                            return;
-                        }
+                        const chartConfigs = [
+                            {
+                                id: "utility-comparison-chart-wide",
+                                option: {{ sections.utility.charts.comparison_split.wide.option | tojson }},
+                            },
+                            {
+                                id: "utility-comparison-chart-narrow",
+                                option: {{ sections.utility.charts.comparison_split.narrow.option | tojson }},
+                            },
+                        ];
 
-                        const chart = echarts.init(el);
-                        chart.setOption({{ sections.utility.charts.comparison_bar.option | tojson }}, true);
+                        const charts = [];
+                        const chartTargets = [];
 
-                        function resizeChart() {
+                        chartConfigs.forEach(function (config) {
+                            const el = document.getElementById(config.id);
+                            if (!el) {
+                                return;
+                            }
+
                             const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
                             const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+
+                            const chart = echarts.init(el, null, {
+                                renderer: "svg",
+                                width: width,
+                                height: height,
+                            });
+                            const option = Object.assign({ animation: false }, config.option);
+                            chart.setOption(option, true);
                             chart.resize({ width: width, height: height });
+                            if (chart.getZr && chart.getZr()) {
+                                chart.getZr().flush();
+                            }
+                            charts.push(chart);
+                            chartTargets.push(el);
+                        });
+
+                        function resizeChart() {
+                            charts.forEach(function (chart, index) {
+                                const target = chartTargets[index];
+                                if (!chart || !target) {
+                                    return;
+                                }
+
+                                const width = Math.max(1, Math.floor(target.clientWidth || target.getBoundingClientRect().width || 0));
+                                const height = Math.max(1, Math.floor(target.clientHeight || target.getBoundingClientRect().height || 0));
+                                chart.resize({ width: width, height: height });
+                                if (chart.getZr && chart.getZr()) {
+                                    chart.getZr().flush();
+                                }
+                            });
                         }
 
                         window.addEventListener("resize", resizeChart);
                         window.addEventListener("beforeprint", resizeChart);
 
+                        if (window.matchMedia) {
+                            const printMedia = window.matchMedia("print");
+                            if (printMedia && printMedia.addEventListener) {
+                                printMedia.addEventListener("change", function (event) {
+                                    if (event.matches) {
+                                        resizeChart();
+                                    }
+                                });
+                            }
+                        }
+
                         if (window.ResizeObserver) {
                             const observer = new ResizeObserver(function () {
                                 resizeChart();
                             });
-                            observer.observe(el);
+                            chartTargets.forEach(function (target) {
+                                observer.observe(target);
+                            });
                         }
                     }
 

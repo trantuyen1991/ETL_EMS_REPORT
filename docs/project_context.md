@@ -73,6 +73,16 @@ Examples:
 * boi_steamflow
 * dom_waterflow
 
+Configured scope (current):
+
+* 18 sensors
+* 6 system groups
+* measurement types:
+  * temperature
+  * pressure
+  * flow
+  * capacity
+
 ---
 
 ## 4. Repository Layer
@@ -154,6 +164,7 @@ Responsibilities:
 * build utility summary
 * build daily utility detail
 * build sensor monitoring context
+* map sensor metadata into grouped UI-ready structures
 
 ---
 
@@ -164,8 +175,14 @@ Responsibilities:
 * aggregate raw sensor data
 * compute:
 
+  * daily minimum
   * daily average
   * daily maximum
+  * latest value
+  * sample_count
+  * non_null_count
+  * zero_count
+  * negative_count
 
 Output:
 
@@ -202,6 +219,11 @@ report_context
 │   ├── summary
 │   ├── daily_detail
 │   └── sensor_monitoring
+│       ├── metric_columns
+│       ├── daily_rows
+│       ├── overview_cards
+│       ├── groups
+│       └── anomaly_rows
 ├── kpi
 └── metadata
 ```
@@ -213,6 +235,12 @@ report_context
 * context must be UI-agnostic
 * no HTML logic inside backend
 * structured, reusable, extensible
+
+Current sensor-monitoring-specific rule:
+
+* one backend context should be flexible enough to support both:
+  * compact periodic table rendering
+  * richer daily sensor monitoring cards
 
 ---
 

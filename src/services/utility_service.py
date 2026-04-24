@@ -14,7 +14,12 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Any, Dict, List
 
-from src.config.utility_metadata import get_utility_metadata
+from src.config.utility_metadata import (
+    get_utility_metadata,
+    get_utility_sensor_group_labels,
+    get_utility_sensor_group_order,
+    get_utility_sensor_metadata,
+)
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -366,6 +371,11 @@ class UtilityService:
             dict[str, Any]: Sensor monitoring context under utility section.
         """
         metric_config = self._get_sensor_monitoring_metric_config()
+        sensor_metadata = get_utility_sensor_metadata()
+        group_order = get_utility_sensor_group_order()
+        group_labels = get_utility_sensor_group_labels()
+        group_visuals = self._get_sensor_group_visuals()
+        focus_date = report_end
 
         metric_columns = [
             {
@@ -414,8 +424,235 @@ class UtilityService:
                 "metrics": metrics,
             })
 
+        focus_day_stats = daily_stats.get(focus_date, {})
+        total_sensor_count = 0
+        active_sensor_count = 0
+        sensor_groups: list[dict[str, Any]] = []
+        anomaly_rows: list[dict[str, Any]] = []
+
+        for group_key in group_order:
+            group_label = group_labels.get(group_key, group_key.replace("_", " ").title())
+            visual = group_visuals.get(group_key, group_visuals["default"])
+            sensor_rows: list[dict[str, Any]] = []
+
+            for sensor_key, meta in sensor_metadata.items():
+                if meta.get("group") != group_key:
+                    continue
+
+                row = self._build_sensor_detail_row(
+                    sensor_key=sensor_key,
+                    meta=meta,
+                    sensor_stats=focus_day_stats.get(sensor_key, {}),
+                )
+                sensor_rows.append(row)
+                total_sensor_count += 1
+
+                if row["has_data"]:
+                    active_sensor_count += 1
+
+                if row["has_alert"]:
+                    anomaly_rows.append({
+                        "sensor_key": sensor_key,
+                        "display_name": row["display_name"],
+                        "group_key": group_key,
+                        "group_label": group_label,
+                        "measurement_type": row["measurement_type_label"],
+                        "flag_summary": row["flag_summary"],
+                        "severity_label": row["severity_label"],
+                        "severity_class": row["severity_class"],
+                        "min_display": row["min_display"],
+                        "avg_display": row["avg_display"],
+                        "max_display": row["max_display"],
+                        "latest_display": row["latest_display"],
+                    })
+
+            sensor_rows.sort(key=lambda item: (item["measurement_type_label"], item["display_name"]))
+
+            sensor_groups.append({
+                "key": group_key,
+                "label": group_label,
+                "accent_color": visual["accent_color"],
+                "accent_tint": visual["accent_tint"],
+                "sensor_count": len(sensor_rows),
+                "active_sensor_count": sum(1 for item in sensor_rows if item["has_data"]),
+                "anomaly_count": sum(1 for item in sensor_rows if item["has_alert"]),
+                "sensors": sensor_rows,
+            })
+
+        anomaly_rows.sort(
+            key=lambda item: (
+                0 if item["severity_class"] == "is-critical" else 1,
+                item["group_label"],
+                item["display_name"],
+            )
+        )
+
         return {
             "enabled": True,
+            "title": "Sensor monitoring",
+            "subtitle": "Daily range, average, and anomaly scan by sensor group.",
+            "focus_date": focus_date,
+            "focus_date_display": self._format_date_with_weekday(focus_date),
+            "sensor_count": total_sensor_count,
+            "active_sensor_count": active_sensor_count,
+            "overview_cards": [
+                {
+                    "label": group["label"],
+                    "accent_color": group["accent_color"],
+                    "accent_tint": group["accent_tint"],
+                    "sensor_count": group["sensor_count"],
+                    "active_sensor_count": group["active_sensor_count"],
+                    "anomaly_count": group["anomaly_count"],
+                }
+                for group in sensor_groups
+            ],
+            "groups": sensor_groups,
+            "anomaly_rows": anomaly_rows,
             "metric_columns": metric_columns,
             "daily_rows": daily_rows,
+        }
+
+    def _build_sensor_detail_row(
+        self,
+        *,
+        sensor_key: str,
+        meta: dict[str, Any],
+        sensor_stats: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Build one daily sensor detail row for UI rendering."""
+        min_value = sensor_stats.get("min")
+        avg_value = sensor_stats.get("avg")
+        max_value = sensor_stats.get("max")
+        latest_value = sensor_stats.get("latest")
+        sample_count = int(sensor_stats.get("sample_count") or 0)
+        non_null_count = int(sensor_stats.get("non_null_count") or 0)
+        zero_count = int(sensor_stats.get("zero_count") or 0)
+        negative_count = int(sensor_stats.get("negative_count") or 0)
+
+        has_data = non_null_count > 0
+        range_span = None
+        avg_position_pct = 50.0
+
+        if isinstance(min_value, (int, float)) and isinstance(max_value, (int, float)):
+            range_span = round(float(max_value) - float(min_value), 4)
+            if range_span > 0 and isinstance(avg_value, (int, float)):
+                avg_position_pct = max(
+                    0.0,
+                    min(100.0, ((float(avg_value) - float(min_value)) / range_span) * 100.0),
+                )
+
+        flags = self._build_sensor_flags(
+            has_data=has_data,
+            zero_count=zero_count,
+            negative_count=negative_count,
+            non_null_count=non_null_count,
+            range_span=range_span,
+        )
+
+        severity_class = "is-normal"
+        severity_label = "Normal"
+        if flags:
+            if any(flag["severity"] == "critical" for flag in flags):
+                severity_class = "is-critical"
+                severity_label = "Critical"
+            else:
+                severity_class = "is-warning"
+                severity_label = "Warning"
+
+        return {
+            "key": sensor_key,
+            "display_name": meta.get("display_name") or sensor_key,
+            "description": meta.get("description") or "",
+            "unit": meta.get("unit") or "",
+            "group": meta.get("group") or "",
+            "measurement_type": meta.get("measurement_type") or "unknown",
+            "measurement_type_label": self._format_measurement_type_label(meta.get("measurement_type")),
+            "has_data": has_data,
+            "has_alert": bool(flags),
+            "severity_class": severity_class,
+            "severity_label": severity_label,
+            "flag_summary": ", ".join(flag["label"] for flag in flags) if flags else "Normal",
+            "flags": flags,
+            "sample_count": sample_count,
+            "non_null_count": non_null_count,
+            "zero_count": zero_count,
+            "negative_count": negative_count,
+            "min": min_value,
+            "avg": avg_value,
+            "max": max_value,
+            "latest": latest_value,
+            "min_display": self._fmt_or_dash(min_value),
+            "avg_display": self._fmt_or_dash(avg_value),
+            "max_display": self._fmt_or_dash(max_value),
+            "latest_display": self._fmt_or_dash(latest_value),
+            "avg_position_pct": round(avg_position_pct, 2),
+        }
+
+    def _build_sensor_flags(
+        self,
+        *,
+        has_data: bool,
+        zero_count: int,
+        negative_count: int,
+        non_null_count: int,
+        range_span: float | None,
+    ) -> list[dict[str, str]]:
+        """Build lightweight anomaly flags for one sensor."""
+        flags: list[dict[str, str]] = []
+
+        if not has_data:
+            return [{"label": "No data", "severity": "critical"}]
+
+        if negative_count > 0:
+            flags.append({"label": "Negative value", "severity": "critical"})
+
+        if non_null_count > 0 and zero_count == non_null_count:
+            flags.append({"label": "All zero", "severity": "warning"})
+
+        if non_null_count > 1 and range_span == 0:
+            flags.append({"label": "Flat signal", "severity": "warning"})
+
+        return flags
+
+    def _format_measurement_type_label(self, measurement_type: Any) -> str:
+        """Return friendly label for sensor measurement type."""
+        mapping = {
+            "temperature": "Temperature",
+            "pressure": "Pressure",
+            "flow": "Flow",
+            "capacity": "Capacity",
+        }
+        return mapping.get(str(measurement_type or "").strip().lower(), "Other")
+
+    def _get_sensor_group_visuals(self) -> dict[str, dict[str, str]]:
+        """Return visual accents for sensor monitoring group cards."""
+        return {
+            "ico_chiller": {
+                "accent_color": "#84cc16",
+                "accent_tint": "rgba(132, 204, 22, 0.16)",
+            },
+            "diode_chiller": {
+                "accent_color": "#2563eb",
+                "accent_tint": "rgba(37, 99, 235, 0.16)",
+            },
+            "ico_air": {
+                "accent_color": "#0f766e",
+                "accent_tint": "rgba(15, 118, 110, 0.14)",
+            },
+            "diode_air": {
+                "accent_color": "#7c3aed",
+                "accent_tint": "rgba(124, 58, 237, 0.14)",
+            },
+            "boiler": {
+                "accent_color": "#ef4444",
+                "accent_tint": "rgba(239, 68, 68, 0.14)",
+            },
+            "domestic_water": {
+                "accent_color": "#f59e0b",
+                "accent_tint": "rgba(245, 158, 11, 0.14)",
+            },
+            "default": {
+                "accent_color": "#64748b",
+                "accent_tint": "rgba(100, 116, 139, 0.12)",
+            },
         }

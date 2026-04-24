@@ -95,11 +95,20 @@ class ProcessValueService:
                     rows=rows_by_day[dt_value],
                     sensor_key=sensor_key,
                 )
+                latest_value = self._extract_latest_numeric_value(
+                    rows=rows_by_day[dt_value],
+                    sensor_key=sensor_key,
+                )
 
                 result[dt_value][sensor_key] = {
                     "min": self._compute_min(values),
                     "avg": self._compute_avg(values),
                     "max": self._compute_max(values),
+                    "sample_count": len(rows_by_day[dt_value]),
+                    "non_null_count": len(values),
+                    "zero_count": self._count_zero_values(values),
+                    "negative_count": self._count_negative_values(values),
+                    "latest": latest_value,
                 }
 
         logger.info(
@@ -215,3 +224,23 @@ class ProcessValueService:
         if not values:
             return None
         return round(max(values), 4)
+
+    def _extract_latest_numeric_value(
+        self,
+        rows: List[Dict[str, Any]],
+        sensor_key: str,
+    ) -> Optional[float]:
+        """Return the last numeric value for one sensor within ordered rows."""
+        for row in reversed(rows):
+            raw_value = row.get(sensor_key)
+            if isinstance(raw_value, (int, float)):
+                return round(float(raw_value), 4)
+        return None
+
+    def _count_zero_values(self, values: List[float]) -> int:
+        """Count exact-zero numeric values."""
+        return sum(1 for value in values if float(value) == 0.0)
+
+    def _count_negative_values(self, values: List[float]) -> int:
+        """Count negative numeric values."""
+        return sum(1 for value in values if float(value) < 0.0)

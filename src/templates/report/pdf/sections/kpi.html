@@ -24,15 +24,16 @@
                         <table class="kpi-summary-table report-table-ui">
                             <thead>
                                 <tr>
-                                    <th rowspan="2">Metric</th>
+                                    <th rowspan="2" class="kpi-metric-header">Metric</th>
                                     {% for column in sections.kpi.summary_matrix.group_columns %}
-                                    <th colspan="2" class="kpi-group-header {% if loop.first %}kpi-group-start{% endif %} kpi-group-end">{{ column.label }}</th>
+                                    <th colspan="3" class="kpi-group-header kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if loop.first %}kpi-group-start{% endif %} kpi-group-end {% if column.is_total %}is-total{% endif %}">{{ column.label }}</th>
                                     {% endfor %}
                                 </tr>
                                 <tr>
                                     {% for column in sections.kpi.summary_matrix.group_columns %}
-                                    <th class="kpi-group-start">Value</th>
-                                    <th class="kpi-group-end">Delta %</th>
+                                    <th class="kpi-group-start kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Today</th>
+                                    <th class="kpi-group-subheader kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Yesterday</th>
+                                    <th class="kpi-group-end kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Delta %</th>
                                     {% endfor %}
                                 </tr>
                             </thead>
@@ -42,8 +43,9 @@
                                     <td class="col-metric">{{ row.metric_label }}</td>
                                     {% for column in sections.kpi.summary_matrix.group_columns %}
                                     {% set cell = row.cells[column.key] %}
-                                    <td class="col-value {% if column.key == 'total' %}col-total{% endif %} kpi-group-start">{{ cell.value_display }}</td>
-                                    <td class="col-delta-pct {{ cell.delta.class }} kpi-group-end">
+                                    <td class="col-value col-today {% if column.key == 'total' %}col-total{% endif %} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-start">{{ cell.today_display }}</td>
+                                    <td class="col-value col-yesterday kpi-group-cell kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">{{ cell.yesterday_display }}</td>
+                                    <td class="col-delta-pct {{ cell.delta.class }} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-end">
                                         {{ report.delta_arrow(cell.delta.class, cell.delta.arrow) }}
                                         {{ cell.delta.display }}
                                     </td>
@@ -55,6 +57,68 @@
                     </div>
                 </div>
 
+                {% if flags.is_daily_report %}
+                <div class="kpi-daily-dashboard pdf-keep-together">
+                    <div class="kpi-daily-card-grid">
+                        {% for card in sections.kpi.charts.daily_dashboard.cards %}
+                        <div
+                            class="kpi-daily-card {% if card.is_total %}is-total{% endif %}"
+                            style="--kpi-card-accent: {{ card.accent_color }}; --kpi-card-tint: {{ card.accent_tint }};"
+                        >
+                            <div class="kpi-daily-card-top">
+                                <h3 class="kpi-daily-card-title">{{ card.label }}</h3>
+                                <span class="kpi-daily-card-badge {{ card.badge_class }}">{{ card.badge_label }}</span>
+                            </div>
+                            <div class="kpi-daily-card-value">{{ card.value_display }}</div>
+                            <div class="kpi-daily-card-unit">{{ meta.kpi_unit }} (Energy KPI)</div>
+                            <div class="kpi-daily-card-compare">
+                                <div class="kpi-daily-card-compare-item">
+                                    <span class="kpi-daily-card-compare-label">Today</span>
+                                    <span class="kpi-daily-card-compare-value current">{{ card.value_display }}</span>
+                                </div>
+                                <div class="kpi-daily-card-compare-item">
+                                    <span class="kpi-daily-card-compare-label">Yesterday</span>
+                                    <span class="kpi-daily-card-compare-value previous">{{ card.previous_display }}</span>
+                                </div>
+                            </div>
+                            <div class="kpi-daily-card-delta {{ card.delta_class }}">
+                                {{ report.delta_arrow(card.delta_class, card.delta_arrow) }}
+                                {{ card.delta_pct_display }}
+                            </div>
+                            <div class="kpi-daily-card-note">vs yesterday</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="kpi-daily-dashboard-grid">
+                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile pdf-keep-together">
+                            <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.compare_bar.title }}</h3>
+                            <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.compare_bar.subtitle }}</p>
+                            <div id="kpi-daily-compare-chart" class="electricity-chart kpi-daily-dashboard-chart"></div>
+                        </div>
+
+                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile pdf-keep-together">
+                            <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.waterfall.title }}</h3>
+                            <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.waterfall.subtitle }}</p>
+                            <div id="kpi-daily-waterfall-chart" class="electricity-chart kpi-daily-dashboard-chart"></div>
+                        </div>
+
+                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile pdf-keep-together">
+                            <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.variance.title }}</h3>
+                            <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.variance.subtitle }}</p>
+                            <div id="kpi-daily-variance-chart" class="electricity-chart kpi-daily-dashboard-chart"></div>
+                        </div>
+
+                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile pdf-keep-together">
+                            <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.contribution.title }}</h3>
+                            <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.contribution.subtitle }}</p>
+                            <div id="kpi-daily-contribution-chart" class="electricity-chart kpi-daily-dashboard-chart"></div>
+                        </div>
+                    </div>
+
+                    <p class="kpi-daily-dashboard-note">Note: {{ sections.kpi.charts.daily_dashboard.note }}</p>
+                </div>
+                {% else %}
                 <div class="kpi-chart-block pdf-keep-together">
                     <div class="electricity-chart-card kpi-chart-card">
                         <h3 class="electricity-chart-card-title">
@@ -66,18 +130,23 @@
                         <div id="kpi-daily-grouped-bar-chart" class="electricity-chart kpi-daily-grouped-bar-chart"></div>
                     </div>
                 </div>
+                {% endif %}
             </div>
 
-            <div class="kpi-daily-detail-block pdf-landscape-block">
+            <div class="kpi-daily-detail-block {% if not flags.is_daily_report %}pdf-landscape-block{% endif %}">
                 <h3 class="electricity-subsection-title">Daily KPI detail</h3>
 
                 <div class="kpi-daily-detail-table-wrap report-table-wrap">
-                    <table class="kpi-daily-detail-table report-table-ui">
+                    <table class="kpi-daily-detail-table report-table-ui {% if flags.is_daily_report %}is-daily-condensed{% endif %}">
                         <thead>
                             <tr>
+                                {% if not flags.is_daily_report %}
                                 <th class="col-date" rowspan="2">Date</th>
+                                {% endif %}
                                 <th rowspan="2">Status</th>
+                                {% if not flags.is_daily_report %}
                                 <th class="col-source" rowspan="2">Source</th>
+                                {% endif %}
 
                                 <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">Plant</th>
                                 <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">ICO</th>
@@ -105,13 +174,17 @@
                         <tbody>
                             {% for row in sections.kpi.daily_detail.rows %}
                             <tr class="{{ row.row_class }}">
+                                {% if not flags.is_daily_report %}
                                 <td class="col-date">{{ row.date_display }}</td>
+                                {% endif %}
                                 <td>
                                     <span class="status-pill {{ row.status_class }}">
                                         {{ row.status }}
                                     </span>
                                 </td>
+                                {% if not flags.is_daily_report %}
                                 <td class="col-source">{{ row.time_frame_source or "-" }}</td>
+                                {% endif %}
 
                                 <td class="col-kpi kpi-detail-group-start">{{ row.plant_kpi_display }}</td>
                                 <td class="col-production">{{ row.plant_prod_display }}</td>
@@ -142,33 +215,74 @@
                             return;
                         }
 
-                        const el = document.getElementById("kpi-daily-grouped-bar-chart");
-                        if (!el) {
-                            return;
-                        }
+                        const chartConfigs = [
+                            {% if flags.is_daily_report %}
+                            {
+                                id: "kpi-daily-compare-chart",
+                                option: {{ sections.kpi.charts.daily_dashboard.charts.compare_bar.option | tojson }},
+                            },
+                            {
+                                id: "kpi-daily-waterfall-chart",
+                                option: {{ sections.kpi.charts.daily_dashboard.charts.waterfall.option | tojson }},
+                            },
+                            {
+                                id: "kpi-daily-variance-chart",
+                                option: {{ sections.kpi.charts.daily_dashboard.charts.variance.option | tojson }},
+                            },
+                            {
+                                id: "kpi-daily-contribution-chart",
+                                option: {{ sections.kpi.charts.daily_dashboard.charts.contribution.option | tojson }},
+                            },
+                            {% else %}
+                            {
+                                id: "kpi-daily-grouped-bar-chart",
+                                option: {{ sections.kpi.charts.daily_grouped_bar.option | tojson }},
+                            },
+                            {% endif %}
+                        ];
 
-                        const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
-                        const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                        const charts = [];
+                        const chartTargets = [];
 
-                        const chart = echarts.init(el, null, {
-                            renderer: "svg",
-                            width: width,
-                            height: height,
-                        });
-                        const option = Object.assign({ animation: false }, {{ sections.kpi.charts.daily_grouped_bar.option | tojson }});
-                        chart.setOption(option, true);
-                        chart.resize({ width: width, height: height });
-                        if (chart.getZr && chart.getZr()) {
-                            chart.getZr().flush();
-                        }
+                        chartConfigs.forEach(function (config) {
+                            const el = document.getElementById(config.id);
+                            if (!el) {
+                                return;
+                            }
 
-                        function resizeChart() {
-                            const nextWidth = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
-                            const nextHeight = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
-                            chart.resize({ width: nextWidth, height: nextHeight });
+                            const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
+                            const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+
+                            const chart = echarts.init(el, null, {
+                                renderer: "svg",
+                                width: width,
+                                height: height,
+                            });
+                            const option = Object.assign({ animation: false }, config.option);
+                            chart.setOption(option, true);
+                            chart.resize({ width: width, height: height });
                             if (chart.getZr && chart.getZr()) {
                                 chart.getZr().flush();
                             }
+
+                            charts.push(chart);
+                            chartTargets.push(el);
+                        });
+
+                        function resizeChart() {
+                            charts.forEach(function (chart, index) {
+                                const el = chartTargets[index];
+                                if (!chart || !el) {
+                                    return;
+                                }
+
+                                const nextWidth = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
+                                const nextHeight = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                                chart.resize({ width: nextWidth, height: nextHeight });
+                                if (chart.getZr && chart.getZr()) {
+                                    chart.getZr().flush();
+                                }
+                            });
                         }
 
                         window.addEventListener("resize", resizeChart);
@@ -189,7 +303,9 @@
                             const observer = new ResizeObserver(function () {
                                 resizeChart();
                             });
-                            observer.observe(el);
+                            chartTargets.forEach(function (el) {
+                                observer.observe(el);
+                            });
                         }
 
                         window.__kpiChartReady = true;
