@@ -145,9 +145,24 @@ Daily UI V2 currently includes:
 - overview cards by sensor group
 - grouped sensor range cards using `min / avg / max`
 - anomaly scan table highlighting critical and warning signals
+- operator-facing alert reason text on both cards and anomaly table
+- negative-tolerance note on cards when a sensor exceeds allowed negative range
 - hybrid grouping:
   - primary by system group (`ICO Chiller`, `DIODE Chiller`, `ICO Air`, `DIODE Air`, `Boiler`, `Domestic Water`)
   - secondary ordering by measurement type (`Temperature`, `Pressure`, `Flow`, `Capacity`)
+
+Current anomaly engine highlights:
+- measurement-type-aware anomaly defaults
+- negative tolerance handling:
+  - small negative values can be tolerated
+  - only negative values beyond allowed tolerance are alerted
+- heuristic flags currently include:
+  - negative exceeds tolerance
+  - low / partial coverage
+  - all zero / zero-heavy
+  - flat signal
+  - peak-dominant
+  - latest drift (ready when enabled)
 
 V4 additions:
 - utility comparison bar chart after utility summary

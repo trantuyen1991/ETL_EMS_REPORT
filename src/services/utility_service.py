@@ -15,6 +15,7 @@ from datetime import date, datetime
 from typing import Any, Dict, List
 
 from src.config.utility_metadata import (
+    get_utility_sensor_anomaly_rules,
     get_utility_metadata,
     get_utility_sensor_group_labels,
     get_utility_sensor_group_order,
@@ -458,15 +459,25 @@ class UtilityService:
                         "group_label": group_label,
                         "measurement_type": row["measurement_type_label"],
                         "flag_summary": row["flag_summary"],
+                        "flag_detail_summary": row["flag_detail_summary"],
+                        "flag_count": row["flag_count"],
+                        "primary_flag": row["primary_flag"],
                         "severity_label": row["severity_label"],
                         "severity_class": row["severity_class"],
+                        "anomaly_score": row["anomaly_score"],
                         "min_display": row["min_display"],
                         "avg_display": row["avg_display"],
                         "max_display": row["max_display"],
                         "latest_display": row["latest_display"],
                     })
 
-            sensor_rows.sort(key=lambda item: (item["measurement_type_label"], item["display_name"]))
+            sensor_rows.sort(
+                key=lambda item: (
+                    item["severity_rank"],
+                    item["measurement_type_label"],
+                    item["display_name"],
+                )
+            )
 
             sensor_groups.append({
                 "key": group_key,
@@ -476,12 +487,15 @@ class UtilityService:
                 "sensor_count": len(sensor_rows),
                 "active_sensor_count": sum(1 for item in sensor_rows if item["has_data"]),
                 "anomaly_count": sum(1 for item in sensor_rows if item["has_alert"]),
+                "critical_count": sum(1 for item in sensor_rows if item["severity_class"] == "is-critical"),
+                "warning_count": sum(1 for item in sensor_rows if item["severity_class"] == "is-warning"),
                 "sensors": sensor_rows,
             })
 
         anomaly_rows.sort(
             key=lambda item: (
                 0 if item["severity_class"] == "is-critical" else 1,
+                -item["anomaly_score"],
                 item["group_label"],
                 item["display_name"],
             )
@@ -503,6 +517,8 @@ class UtilityService:
                     "sensor_count": group["sensor_count"],
                     "active_sensor_count": group["active_sensor_count"],
                     "anomaly_count": group["anomaly_count"],
+                    "critical_count": group["critical_count"],
+                    "warning_count": group["warning_count"],
                 }
                 for group in sensor_groups
             ],
@@ -528,10 +544,37 @@ class UtilityService:
         non_null_count = int(sensor_stats.get("non_null_count") or 0)
         zero_count = int(sensor_stats.get("zero_count") or 0)
         negative_count = int(sensor_stats.get("negative_count") or 0)
+        missing_count = max(0, sample_count - non_null_count)
+        coverage_ratio = (
+            round(non_null_count / sample_count, 4)
+            if sample_count > 0
+            else 0.0
+        )
+        zero_ratio = (
+            round(zero_count / non_null_count, 4)
+            if non_null_count > 0
+            else None
+        )
+        negative_ratio = (
+            round(negative_count / non_null_count, 4)
+            if non_null_count > 0
+            else None
+        )
+        negative_min_value = (
+            float(min_value)
+            if isinstance(min_value, (int, float)) and float(min_value) < 0.0
+            else None
+        )
 
         has_data = non_null_count > 0
         range_span = None
         avg_position_pct = 50.0
+        peak_to_avg_ratio = None
+        latest_drift_ratio = None
+        rules = get_utility_sensor_anomaly_rules(
+            measurement_type=str(meta.get("measurement_type") or ""),
+            overrides=meta.get("anomaly_rules"),
+        )
 
         if isinstance(min_value, (int, float)) and isinstance(max_value, (int, float)):
             range_span = round(float(max_value) - float(min_value), 4)
@@ -541,23 +584,57 @@ class UtilityService:
                     min(100.0, ((float(avg_value) - float(min_value)) / range_span) * 100.0),
                 )
 
+        peak_to_avg_ratio = self._compute_peak_to_avg_ratio(
+            min_value=min_value,
+            max_value=max_value,
+            avg_value=avg_value,
+            floor=float(rules.get("peak_ratio_floor", 1.0) or 1.0),
+        )
+        latest_drift_ratio = self._compute_latest_drift_ratio(
+            latest_value=latest_value,
+            avg_value=avg_value,
+            floor=float(rules.get("latest_drift_floor", 1.0) or 1.0),
+        )
+        negative_tolerance_abs = float(rules.get("negative_tolerance_abs", 0.0) or 0.0)
+        negative_excess_abs = self._compute_negative_excess_abs(
+            negative_min_value=negative_min_value,
+            negative_tolerance_abs=negative_tolerance_abs,
+        )
+
         flags = self._build_sensor_flags(
+            rules=rules,
             has_data=has_data,
+            min_value=min_value,
+            max_value=max_value,
+            latest_value=latest_value,
+            sample_count=sample_count,
+            coverage_ratio=coverage_ratio,
+            zero_ratio=zero_ratio,
+            negative_ratio=negative_ratio,
             zero_count=zero_count,
             negative_count=negative_count,
             non_null_count=non_null_count,
             range_span=range_span,
+            peak_to_avg_ratio=peak_to_avg_ratio,
+            latest_drift_ratio=latest_drift_ratio,
+            negative_tolerance_abs=negative_tolerance_abs,
+            negative_excess_abs=negative_excess_abs,
         )
 
         severity_class = "is-normal"
         severity_label = "Normal"
+        severity_rank = 2
         if flags:
             if any(flag["severity"] == "critical" for flag in flags):
                 severity_class = "is-critical"
                 severity_label = "Critical"
+                severity_rank = 0
             else:
                 severity_class = "is-warning"
                 severity_label = "Warning"
+                severity_rank = 1
+
+        anomaly_score = self._score_sensor_flags(flags)
 
         return {
             "key": sensor_key,
@@ -571,16 +648,37 @@ class UtilityService:
             "has_alert": bool(flags),
             "severity_class": severity_class,
             "severity_label": severity_label,
-            "flag_summary": ", ".join(flag["label"] for flag in flags) if flags else "Normal",
+            "severity_rank": severity_rank,
+            "flag_summary": self._summarize_sensor_flags(flags),
+            "flag_detail_summary": self._summarize_sensor_flag_details(flags),
+            "primary_flag": flags[0]["label"] if flags else "Normal",
+            "flag_count": len(flags),
             "flags": flags,
+            "anomaly_score": anomaly_score,
             "sample_count": sample_count,
             "non_null_count": non_null_count,
+            "missing_count": missing_count,
+            "coverage_ratio": coverage_ratio,
+            "coverage_pct_display": f"{coverage_ratio * 100:.0f}%",
             "zero_count": zero_count,
+            "zero_ratio": zero_ratio,
             "negative_count": negative_count,
+            "negative_ratio": negative_ratio,
+            "negative_min_value": negative_min_value,
+            "negative_tolerance_abs": negative_tolerance_abs,
+            "negative_tolerance_display": f"-{negative_tolerance_abs:,.2f}",
+            "negative_excess_abs": negative_excess_abs,
+            "show_negative_tolerance_note": bool(
+                flags
+                and any(flag.get("code") == "negative_exceeds_tolerance" for flag in flags)
+            ),
             "min": min_value,
             "avg": avg_value,
             "max": max_value,
             "latest": latest_value,
+            "range_span": range_span,
+            "peak_to_avg_ratio": peak_to_avg_ratio,
+            "latest_drift_ratio": latest_drift_ratio,
             "min_display": self._fmt_or_dash(min_value),
             "avg_display": self._fmt_or_dash(avg_value),
             "max_display": self._fmt_or_dash(max_value),
@@ -591,28 +689,296 @@ class UtilityService:
     def _build_sensor_flags(
         self,
         *,
+        rules: dict[str, Any],
         has_data: bool,
+        min_value: float | None,
+        max_value: float | None,
+        latest_value: float | None,
+        sample_count: int,
+        coverage_ratio: float,
+        zero_ratio: float | None,
+        negative_ratio: float | None,
         zero_count: int,
         negative_count: int,
         non_null_count: int,
         range_span: float | None,
+        peak_to_avg_ratio: float | None,
+        latest_drift_ratio: float | None,
+        negative_tolerance_abs: float,
+        negative_excess_abs: float | None,
     ) -> list[dict[str, str]]:
         """Build lightweight anomaly flags for one sensor."""
         flags: list[dict[str, str]] = []
 
         if not has_data:
-            return [{"label": "No data", "severity": "critical"}]
+            return [{
+                "code": "no_data",
+                "label": "Thiếu dữ liệu",
+                "detail": "Không có mẫu hợp lệ trong ngày.",
+                "severity": "critical",
+                "priority": 100,
+            }]
 
-        if negative_count > 0:
-            flags.append({"label": "Negative value", "severity": "critical"})
+        coverage_warning_ratio = float(rules.get("coverage_warning_ratio", 0.85) or 0.85)
+        coverage_critical_ratio = float(rules.get("coverage_critical_ratio", 0.5) or 0.5)
+        zero_ratio_warning = float(rules.get("zero_ratio_warning", 0.85) or 0.85)
+        flat_range_epsilon = float(rules.get("flat_range_epsilon", 0.0) or 0.0)
+        peak_ratio_warning = float(rules.get("peak_ratio_warning", 12.0) or 12.0)
+        peak_ratio_critical = float(rules.get("peak_ratio_critical", 20.0) or 20.0)
+        latest_drift_warning = float(rules.get("latest_drift_warning", 2.5) or 2.5)
+        latest_drift_critical = float(rules.get("latest_drift_critical", 5.0) or 5.0)
+
+        if sample_count > 0 and coverage_ratio < coverage_critical_ratio:
+            flags.append({
+                "code": "low_coverage",
+                "label": "Bao phủ thấp",
+                "detail": f"Bao phủ {coverage_ratio * 100:.0f}% thấp hơn ngưỡng {coverage_critical_ratio * 100:.0f}%.",
+                "severity": "critical",
+                "priority": 95,
+            })
+        elif sample_count > 0 and coverage_ratio < coverage_warning_ratio:
+            flags.append({
+                "code": "partial_coverage",
+                "label": "Bao phủ thiếu",
+                "detail": f"Bao phủ {coverage_ratio * 100:.0f}% thấp hơn mức kỳ vọng {coverage_warning_ratio * 100:.0f}%.",
+                "severity": "warning",
+                "priority": 70,
+            })
+
+        if (
+            negative_count > 0
+            and not bool(rules.get("allow_negative", False))
+            and negative_excess_abs is not None
+            and negative_excess_abs > 0.0
+        ):
+            allowed_floor = -negative_tolerance_abs
+            if (
+                isinstance(min_value, (int, float))
+                and isinstance(max_value, (int, float))
+                and float(min_value) < (-negative_tolerance_abs)
+                and float(max_value) > negative_tolerance_abs
+            ):
+                flags.append({
+                    "code": "negative_exceeds_tolerance",
+                    "label": "Âm vượt ngưỡng",
+                    "detail": f"Min {self._fmt_or_dash(min_value)} thấp hơn ngưỡng âm cho phép {allowed_floor:,.2f}; tín hiệu có đổi dấu.",
+                    "severity": "critical",
+                    "priority": 100,
+                })
+            else:
+                flags.append({
+                    "code": "negative_exceeds_tolerance",
+                    "label": "Âm vượt ngưỡng",
+                    "detail": f"Min {self._fmt_or_dash(min_value)} thấp hơn ngưỡng âm cho phép {allowed_floor:,.2f}.",
+                    "severity": "critical",
+                    "priority": 98,
+                })
 
         if non_null_count > 0 and zero_count == non_null_count:
-            flags.append({"label": "All zero", "severity": "warning"})
+            flags.append({
+                "code": "all_zero",
+                "label": "Toàn bộ bằng 0",
+                "detail": f"Cả {non_null_count} mẫu hợp lệ đều bằng 0.",
+                "severity": "warning",
+                "priority": 80,
+            })
+        elif (
+            bool(rules.get("track_zero_heavy", True))
+            and non_null_count > 0
+            and zero_ratio is not None
+            and zero_ratio >= zero_ratio_warning
+        ):
+            flags.append({
+                "code": "zero_heavy",
+                "label": "0 chiếm đa số",
+                "detail": f"Tỷ lệ giá trị 0 là {zero_ratio * 100:.0f}%, vượt ngưỡng {zero_ratio_warning * 100:.0f}%.",
+                "severity": "warning",
+                "priority": 60,
+            })
 
-        if non_null_count > 1 and range_span == 0:
-            flags.append({"label": "Flat signal", "severity": "warning"})
+        if non_null_count > 1 and range_span is not None and range_span <= flat_range_epsilon:
+            flags.append({
+                "code": "flat_signal",
+                "label": "Tín hiệu phẳng",
+                "detail": f"Biên độ {range_span:,.2f} nằm trong ngưỡng phẳng {flat_range_epsilon:,.2f}.",
+                "severity": "warning",
+                "priority": 55,
+            })
 
-        return flags
+        if bool(rules.get("track_peak_dominance", True)) and peak_to_avg_ratio is not None:
+            if peak_to_avg_ratio >= peak_ratio_critical:
+                flags.append({
+                    "code": "peak_dominant",
+                    "label": "Đỉnh cao",
+                    "detail": f"Tỷ lệ đỉnh/trung bình {peak_to_avg_ratio:,.2f} vượt ngưỡng {peak_ratio_critical:,.2f}.",
+                    "severity": "critical",
+                    "priority": 85,
+                })
+            elif peak_to_avg_ratio >= peak_ratio_warning:
+                flags.append({
+                    "code": "peak_dominant",
+                    "label": "Đỉnh cao",
+                    "detail": f"Tỷ lệ đỉnh/trung bình {peak_to_avg_ratio:,.2f} vượt ngưỡng {peak_ratio_warning:,.2f}.",
+                    "severity": "warning",
+                    "priority": 50,
+                })
+
+        if (
+            bool(rules.get("track_latest_drift", False))
+            and latest_value is not None
+            and latest_drift_ratio is not None
+        ):
+            if latest_drift_ratio >= latest_drift_critical:
+                flags.append({
+                    "code": "latest_drift",
+                    "label": "Lệch giá trị cuối",
+                    "detail": f"Tỷ lệ lệch giá trị cuối/trung bình {latest_drift_ratio:,.2f} vượt ngưỡng {latest_drift_critical:,.2f}.",
+                    "severity": "critical",
+                    "priority": 82,
+                })
+            elif latest_drift_ratio >= latest_drift_warning:
+                flags.append({
+                    "code": "latest_drift",
+                    "label": "Lệch giá trị cuối",
+                    "detail": f"Tỷ lệ lệch giá trị cuối/trung bình {latest_drift_ratio:,.2f} vượt ngưỡng {latest_drift_warning:,.2f}.",
+                    "severity": "warning",
+                    "priority": 45,
+                })
+
+        return self._dedupe_and_sort_sensor_flags(flags)
+
+    def _dedupe_and_sort_sensor_flags(
+        self,
+        flags: list[dict[str, str | int]],
+    ) -> list[dict[str, str]]:
+        """Dedupe repeated labels and return flags sorted by priority."""
+        deduped: dict[str, dict[str, str | int]] = {}
+
+        for flag in flags:
+            label = str(flag.get("label") or "").strip()
+            if not label:
+                continue
+
+            existing = deduped.get(label)
+            if existing is None or int(flag.get("priority", 0) or 0) > int(existing.get("priority", 0) or 0):
+                deduped[label] = flag
+
+        sorted_flags = sorted(
+            deduped.values(),
+            key=lambda item: (
+                0 if item.get("severity") == "critical" else 1,
+                -int(item.get("priority", 0) or 0),
+                str(item.get("label") or ""),
+            ),
+        )
+
+        return [
+            {
+                "code": str(item.get("code") or ""),
+                "label": str(item.get("label") or ""),
+                "detail": str(item.get("detail") or ""),
+                "severity": str(item.get("severity") or "warning"),
+            }
+            for item in sorted_flags
+        ]
+
+    def _summarize_sensor_flags(self, flags: list[dict[str, str]]) -> str:
+        """Build compact UI summary from ordered flags."""
+        if not flags:
+            return "Normal"
+
+        labels = [str(flag.get("label") or "").strip() for flag in flags if flag.get("label")]
+        labels = [label for label in labels if label]
+        if not labels:
+            return "Normal"
+
+        if len(labels) <= 2:
+            return ", ".join(labels)
+
+        return f"{', '.join(labels[:2])} +{len(labels) - 2} more"
+
+    def _summarize_sensor_flag_details(self, flags: list[dict[str, str]]) -> str:
+        """Build human-readable detail summary for UI helper text."""
+        if not flags:
+            return ""
+
+        details = [
+            str(flag.get("detail") or "").strip()
+            for flag in flags
+            if str(flag.get("detail") or "").strip()
+        ]
+        if not details:
+            return ""
+
+        if len(details) <= 2:
+            return " | ".join(details)
+
+        return " | ".join(details[:2]) + f" | +{len(details) - 2} more"
+
+    def _score_sensor_flags(self, flags: list[dict[str, str]]) -> int:
+        """Return sortable anomaly score from ordered flags."""
+        score = 0
+        for flag in flags:
+            if flag.get("severity") == "critical":
+                score += 100
+            else:
+                score += 25
+        return score
+
+    def _compute_peak_to_avg_ratio(
+        self,
+        *,
+        min_value: float | None,
+        max_value: float | None,
+        avg_value: float | None,
+        floor: float,
+    ) -> float | None:
+        """Return absolute peak-to-average ratio for one sensor."""
+        numeric_values = [
+            float(value)
+            for value in [min_value, max_value]
+            if isinstance(value, (int, float))
+        ]
+        if not numeric_values or not isinstance(avg_value, (int, float)):
+            return None
+
+        peak_abs = max(abs(value) for value in numeric_values)
+        avg_abs = abs(float(avg_value))
+        denominator = max(avg_abs, float(floor))
+        if denominator <= 0:
+            return None
+
+        return round(peak_abs / denominator, 4)
+
+    def _compute_latest_drift_ratio(
+        self,
+        *,
+        latest_value: float | None,
+        avg_value: float | None,
+        floor: float,
+    ) -> float | None:
+        """Return drift ratio between latest and average value."""
+        if not isinstance(latest_value, (int, float)) or not isinstance(avg_value, (int, float)):
+            return None
+
+        denominator = max(abs(float(avg_value)), float(floor))
+        if denominator <= 0:
+            return None
+
+        return round(abs(float(latest_value) - float(avg_value)) / denominator, 4)
+
+    def _compute_negative_excess_abs(
+        self,
+        *,
+        negative_min_value: float | None,
+        negative_tolerance_abs: float,
+    ) -> float | None:
+        """Return how far a negative minimum exceeds the allowed tolerance."""
+        if not isinstance(negative_min_value, (int, float)):
+            return None
+
+        excess = abs(float(negative_min_value)) - max(0.0, float(negative_tolerance_abs))
+        return round(excess, 4)
 
     def _format_measurement_type_label(self, measurement_type: Any) -> str:
         """Return friendly label for sensor measurement type."""

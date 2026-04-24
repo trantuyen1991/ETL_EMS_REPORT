@@ -247,6 +247,9 @@ UTILITY_SENSOR_METADATA: Dict[str, Dict[str, Any]] = {
         "measurement_type": "capacity",
         "description": "Cooling capacity of ICO chiller.",
         "source_column": "ich_coolingcap",
+        "anomaly_rules": {
+            "track_peak_dominance": False,
+        },
         "stats": ["min", "avg", "max"],
     },
 
@@ -257,7 +260,74 @@ UTILITY_SENSOR_METADATA: Dict[str, Dict[str, Any]] = {
         "measurement_type": "capacity",
         "description": "Cooling capacity of DIODE chiller.",
         "source_column": "dch_coolingcap",
+        "anomaly_rules": {
+            "track_peak_dominance": False,
+        },
         "stats": ["min", "avg", "max"],
+    },
+}
+
+
+UTILITY_SENSOR_ANOMALY_RULE_DEFAULTS: Dict[str, Dict[str, Any]] = {
+    "generic": {
+        "coverage_warning_ratio": 0.85,
+        "coverage_critical_ratio": 0.50,
+        "zero_ratio_warning": 0.85,
+        "allow_negative": False,
+        "negative_tolerance_abs": 0.0,
+        "track_zero_heavy": True,
+        "track_peak_dominance": True,
+        "track_latest_drift": False,
+        "peak_ratio_warning": 12.0,
+        "peak_ratio_critical": 20.0,
+        "peak_ratio_floor": 1.0,
+        "flat_range_epsilon": 0.0,
+        "latest_drift_warning": 2.5,
+        "latest_drift_critical": 5.0,
+        "latest_drift_floor": 1.0,
+    },
+    "temperature": {
+        "negative_tolerance_abs": 0.50,
+        "zero_ratio_warning": 0.98,
+        "peak_ratio_warning": 4.0,
+        "peak_ratio_critical": 8.0,
+        "peak_ratio_floor": 5.0,
+        "flat_range_epsilon": 0.25,
+        "latest_drift_warning": 0.50,
+        "latest_drift_critical": 1.00,
+        "latest_drift_floor": 2.0,
+    },
+    "pressure": {
+        "negative_tolerance_abs": 0.50,
+        "peak_ratio_warning": 6.0,
+        "peak_ratio_critical": 12.0,
+        "peak_ratio_floor": 0.5,
+        "flat_range_epsilon": 0.05,
+        "latest_drift_warning": 1.00,
+        "latest_drift_critical": 2.00,
+        "latest_drift_floor": 0.5,
+    },
+    "flow": {
+        "negative_tolerance_abs": 1.00,
+        "zero_ratio_warning": 0.90,
+        "peak_ratio_warning": 12.0,
+        "peak_ratio_critical": 20.0,
+        "peak_ratio_floor": 10.0,
+        "flat_range_epsilon": 0.50,
+        "latest_drift_warning": 2.00,
+        "latest_drift_critical": 4.00,
+        "latest_drift_floor": 10.0,
+    },
+    "capacity": {
+        "negative_tolerance_abs": 100.0,
+        "zero_ratio_warning": 0.92,
+        "peak_ratio_warning": 10.0,
+        "peak_ratio_critical": 16.0,
+        "peak_ratio_floor": 50.0,
+        "flat_range_epsilon": 5.0,
+        "latest_drift_warning": 2.00,
+        "latest_drift_critical": 3.50,
+        "latest_drift_floor": 100.0,
     },
 }
 
@@ -287,3 +357,26 @@ def get_utility_sensor_group_labels() -> Dict[str, str]:
         Dict[str, str]: Group label mapping.
     """
     return UTILITY_SENSOR_GROUP_LABELS
+
+
+def get_utility_sensor_anomaly_rules(
+    measurement_type: str | None = None,
+    overrides: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
+    """Return merged anomaly rules for one sensor.
+
+    Rules are merged in this order:
+    1. generic defaults
+    2. measurement-type defaults
+    3. per-sensor overrides from metadata
+    """
+    measurement_key = str(measurement_type or "").strip().lower()
+
+    rules: Dict[str, Any] = {}
+    rules.update(UTILITY_SENSOR_ANOMALY_RULE_DEFAULTS.get("generic", {}))
+    rules.update(UTILITY_SENSOR_ANOMALY_RULE_DEFAULTS.get(measurement_key, {}))
+
+    if overrides:
+        rules.update(overrides)
+
+    return rules

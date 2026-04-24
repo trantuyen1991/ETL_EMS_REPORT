@@ -193,6 +193,18 @@
                                     <span>Avg <strong>{{ sensor.avg_display }}</strong></span>
                                     <span>Max <strong>{{ sensor.max_display }}</strong></span>
                                 </div>
+
+                                {% if sensor.show_negative_tolerance_note %}
+                                <div class="utility-sensor-range-tolerance">
+                                    Ngưỡng âm cho phép: <strong>{{ sensor.negative_tolerance_display }}</strong>
+                                </div>
+                                {% endif %}
+
+                                {% if sensor.has_alert and sensor.flag_detail_summary %}
+                                <div class="utility-sensor-range-reason {{ sensor.severity_class }}">
+                                    {{ sensor.flag_detail_summary }}
+                                </div>
+                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>
@@ -214,7 +226,7 @@
                                     <th>Min</th>
                                     <th>Avg</th>
                                     <th>Max</th>
-                                    <th>Flag</th>
+                                    <th class="col-reason">Reason</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -227,7 +239,14 @@
                                     <td>{{ row.min_display }}</td>
                                     <td>{{ row.avg_display }}</td>
                                     <td>{{ row.max_display }}</td>
-                                    <td><span class="utility-sensor-range-flag {{ row.severity_class }}">{{ row.flag_summary }}</span></td>
+                                    <td class="col-reason">
+                                        <div class="utility-sensor-anomaly-reason">
+                                            <span class="utility-sensor-range-flag {{ row.severity_class }}">{{ row.flag_summary }}</span>
+                                            {% if row.flag_detail_summary %}
+                                            <span class="utility-sensor-anomaly-reason-text">{{ row.flag_detail_summary }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

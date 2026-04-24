@@ -462,6 +462,18 @@
         font-size: 8px !important;
     }
 
+    .utility-sensor-range-tolerance {
+        margin-top: 4px !important;
+        font-size: 6.2px !important;
+        line-height: 1.2 !important;
+    }
+
+    .utility-sensor-range-reason {
+        margin-top: 4px !important;
+        font-size: 5.9px !important;
+        line-height: 1.15 !important;
+    }
+
     .utility-sensor-anomaly-block {
         margin-top: 10px !important;
         padding: 8px !important;
@@ -478,6 +490,15 @@
     .utility-sensor-anomaly-table td {
         padding: 3px 4px !important;
         font-size: 7px !important;
+    }
+
+    .utility-sensor-anomaly-reason-text {
+        font-size: 5.8px !important;
+        line-height: 1.1 !important;
+    }
+
+    .utility-sensor-anomaly-table .col-reason {
+        width: 138px !important;
     }
 
     .utility-sensor-table {

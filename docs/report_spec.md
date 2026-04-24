@@ -209,6 +209,8 @@ For the `daily` template family, sensor monitoring currently uses a dedicated la
 - overview cards by sensor group
 - group-level sensor cards using current-day `min / avg / max`
 - anomaly scan table
+- short operator-facing reason text for flagged sensors
+- allowed negative tolerance note for negative anomaly cases
 
 Grouping rule:
 - primary grouping by system group
@@ -271,6 +273,8 @@ Current backend contract is designed to support:
 - daily sensor-group overview cards
 - per-sensor `min / avg / max / latest`
 - lightweight anomaly flags
+- operator-facing alert labels and detail text
+- negative tolerance-aware anomaly handling
 
 ### 10.4 Current Daily UI Contract
 Daily sensor cards should support:
@@ -279,6 +283,8 @@ Daily sensor cards should support:
 - measurement type label
 - `min / avg / max`
 - severity flag
+- short anomaly reason
+- allowed negative tolerance note when relevant
 
 ### 10.5 Planned Expansion
 Next planned sensor monitoring enhancements:

@@ -103,19 +103,27 @@ Backend:
 - Daily aggregation (`min`, `avg`, `max`, `latest`): ✅
 - Daily data-quality counters (`sample_count`, `non_null_count`, `zero_count`, `negative_count`): ✅
 - Measurement-type tagging (`temperature`, `pressure`, `flow`, `capacity`): ✅
+- Measurement-type anomaly defaults: ✅
+- Negative tolerance handling for light negative values: ✅
+- Sensor-specific anomaly overrides: ✅
 - Context structure prepared for both compact table and daily v2 cards: ✅
 
 UI:
 - Daily sensor monitoring overview cards by group: ✅
 - Daily sensor range cards using `min / avg / max`: ✅
 - Anomaly scan table with alert highlighting: ✅
+- Alert reason helper text on sensor cards: ✅
+- `Reason` column in anomaly scan table with operator-friendly wording: ✅
 - Periodic compact table remains available as fallback view: ✅
 
 Current anomaly rules:
 - `No data` → critical
-- `Negative value` → critical
-- `All zero` → warning
-- `Flat signal` → warning
+- `Negative exceeds tolerance` → critical
+- `Low coverage` / `Partial coverage`
+- `All zero` / `Zero-heavy`
+- `Flat signal`
+- `Peak-dominant`
+- `Latest drift` (ready for future use)
 
 ---
 

@@ -165,6 +165,7 @@ Responsibilities:
 * build daily utility detail
 * build sensor monitoring context
 * map sensor metadata into grouped UI-ready structures
+* evaluate anomaly rules with measurement-type defaults and sensor-specific overrides
 
 ---
 
@@ -187,6 +188,7 @@ Responsibilities:
 Output:
 
 * structured daily stats for each sensor
+* anomaly-ready metrics such as coverage, zero ratio, negative tolerance checks, and latest value
 
 ---
 
@@ -241,6 +243,10 @@ Current sensor-monitoring-specific rule:
 * one backend context should be flexible enough to support both:
   * compact periodic table rendering
   * richer daily sensor monitoring cards
+* anomaly payload should also carry:
+  * short label for fast scanning
+  * reason detail for operators
+  * tolerance-aware negative evaluation
 
 ---
 

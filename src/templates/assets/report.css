@@ -1807,6 +1807,33 @@
             font-weight: 800;
         }
 
+        .utility-sensor-range-tolerance {
+            margin-top: 7px;
+            font-size: 10px;
+            line-height: 1.35;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .utility-sensor-range-tolerance strong {
+            color: #b42318;
+        }
+
+        .utility-sensor-range-reason {
+            margin-top: 6px;
+            font-size: 10px;
+            line-height: 1.4;
+            color: #64748b;
+        }
+
+        .utility-sensor-range-reason.is-warning {
+            color: #9a3412;
+        }
+
+        .utility-sensor-range-reason.is-critical {
+            color: #b42318;
+        }
+
         .utility-sensor-anomaly-block {
             margin-top: 16px;
             padding: 14px;
@@ -1829,6 +1856,7 @@
 
         .utility-sensor-anomaly-table {
             min-width: 980px;
+            table-layout: fixed;
         }
 
         .utility-sensor-anomaly-table .is-critical td {
@@ -1837,6 +1865,27 @@
 
         .utility-sensor-anomaly-table .is-warning td {
             background: rgba(255, 247, 237, 0.9);
+        }
+
+        .utility-sensor-anomaly-reason {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-start;
+            min-width: 0;
+        }
+
+        .utility-sensor-anomaly-reason-text {
+            font-size: 10px;
+            line-height: 1.35;
+            color: #64748b;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .utility-sensor-anomaly-table .col-reason {
+            width: 210px;
         }
 
         /* ==========================================================================
