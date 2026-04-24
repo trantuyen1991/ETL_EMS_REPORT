@@ -202,7 +202,7 @@
             gap: 1px;
         }
 
-        .pdf-electricity-highlight .section-header {
+        .daily-highlight-header .section-header {
             background: linear-gradient(180deg, #eef5ff 0%, #f7fbff 100%);
             border: 1px solid #c9dcff;
             border-left: 5px solid #2c63c7;
@@ -211,15 +211,15 @@
             box-shadow: none;
         }
 
-        .pdf-electricity-highlight .section-header h2 {
+        .daily-highlight-header .section-header h2 {
             font-size: 18px;
         }
 
-        .pdf-electricity-highlight .section-subtitle {
+        .daily-highlight-header .section-subtitle {
             margin-left: 0;
         }
 
-        .pdf-electricity-highlight .section-meta-row {
+        .daily-highlight-header .section-meta-row {
             margin-left: 0;
         }
 
@@ -378,7 +378,7 @@
 
     </style>
 </head>
-<body>
+<body class="pdf-render-mode">
     <div class="report-container">
         {% block content %}{% endblock %}
     </div>

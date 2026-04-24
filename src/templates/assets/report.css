@@ -239,6 +239,36 @@
             font-weight: 500;
         }
 
+        .daily-highlight-header .section-header {
+            background: linear-gradient(180deg, #eef5ff 0%, #f7fbff 100%);
+            border: 1px solid #c9dcff;
+            border-left: 5px solid #2c63c7;
+            border-radius: 12px;
+            padding: 10px 14px 8px;
+            box-shadow: none;
+        }
+
+        .daily-highlight-header .section-header-title-row {
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .daily-highlight-header .section-header h2 {
+            font-size: 18px;
+        }
+
+        .daily-highlight-header .section-unit-badge-inline {
+            padding: 2px 8px;
+            font-size: 9px;
+            line-height: 1.1;
+        }
+
+        .daily-highlight-header .section-subtitle {
+            margin-left: 0;
+            margin-top: 4px;
+        }
+
         .section-unit,
         .section-unit-badge {
             display: inline-flex;
@@ -1221,7 +1251,7 @@
         }
 
         .electricity-daily-vertical-row.heat-4 {
-            background: var(--detail-strong-bg, #deecff);
+            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, #ffffff 74%);
         }
 
         .electricity-daily-detail-table-block {
@@ -2144,7 +2174,7 @@
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px;
-            margin-top: 12px;
+            margin-top: 8px;
             padding: 10px 12px;
             border-radius: 12px;
             background: linear-gradient(180deg, rgba(241, 245, 249, 0.82) 0%, rgba(248, 250, 252, 0.96) 100%);
@@ -2171,7 +2201,7 @@
         }
 
         .kpi-daily-card-compare-value {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 800;
             line-height: 1.15;
         }

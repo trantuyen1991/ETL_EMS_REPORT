@@ -92,6 +92,7 @@ REPORT_ANCHOR_DATE (.env)
   - plant + area cards include `meter active / total`
   - plant Top 10 plus 3 additional Top 10 tables by area
   - area daily summary table added below plant daily summary
+  - daily vertical detail tables sorted highest-to-lowest with ranking-aligned fill bars
   - PDF layout keeps plant Top 10 immediately after electricity charts on page 1
 
 ---
@@ -119,6 +120,7 @@ Daily UI refinement currently includes:
 - reordered area groups in summary matrix: `Total -> DIODE -> ICO -> SAKARI`
 - header-only color treatment for grouped columns
 - daily KPI cards now show both `Today` and `Yesterday`
+- daily KPI section header now matches the boxed Electricity header style
 
 ---
 
@@ -168,6 +170,7 @@ V4 additions:
 - utility comparison bar chart after utility summary
 - PDF chart sizing aligned with the same SVG init / resize flow used by electricity charts
 - daily sensor monitoring now uses a dedicated UI path instead of the old compact metric table
+- utility section header now matches the boxed Electricity header style
 
 ---
 
@@ -196,6 +199,8 @@ Chart rendering rule for PDF templates:
 - initialize chart with measured `el.clientWidth / el.clientHeight`
 - call `resize()` on `beforeprint`, `resize`, and `ResizeObserver`
 - flush ZRender after resize for print stability
+- apply print-mode sizing before Chromium captures the page
+- keep final chart height under PDF CSS control so dense tables stay on the intended page
 
 Important lesson learned:
 

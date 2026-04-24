@@ -1,5 +1,5 @@
-/* PDF-only overrides to keep print layout stable on fixed A4 pages. */
-@media print {
+/* PDF-source and print overrides to keep layout stable before Chromium prints. */
+@media print, screen {
     .period-strip-table {
         grid-template-columns: 0.95fr 0.95fr 1.15fr 1fr 0.6fr 0.95fr !important;
     }
@@ -25,6 +25,7 @@
     .pdf-daily-chart-grid {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
         gap: 6px !important;
+        margin: 10px 0 8px !important;
     }
 
     .utility-chart-split-grid {
@@ -41,6 +42,10 @@
         min-width: 0 !important;
         overflow: hidden !important;
         padding: 6px 8px 4px !important;
+    }
+
+    .pdf-daily-chart-grid .electricity-chart-card {
+        padding: 6px 8px 2px !important;
     }
 
     .electricity-area-top10-table-block,
@@ -61,6 +66,51 @@
         width: 100% !important;
         height: 212px !important;
         overflow: hidden !important;
+    }
+
+    .pdf-daily-chart-grid .electricity-chart-card-title {
+        font-size: 12px !important;
+    }
+
+    .pdf-daily-chart-grid .electricity-chart-card-subtitle {
+        margin: 1px 0 3px !important;
+        font-size: 9px !important;
+        line-height: 1.2 !important;
+    }
+
+    .pdf-daily-chart-grid .electricity-chart {
+        height: 150px !important;
+    }
+
+    .electricity-top10-wrap.report-table-wrap {
+        overflow: visible !important;
+        border: 1.25px solid #c7d3e3 !important;
+        border-radius: 10px !important;
+        background: #ffffff !important;
+        box-shadow: inset 0 0 0 1px #e2e8f0 !important;
+    }
+
+    .electricity-detail-block.electricity-detail-block-plant,
+    .electricity-detail-block.electricity-detail-block-plant .electricity-top10-wrap,
+    .electricity-detail-block.electricity-detail-block-plant .report-table-ui {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    .daily-highlight-header .section-header-title-row {
+        gap: 8px !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+    }
+
+    .daily-highlight-header .section-unit-badge-inline {
+        padding: 2px 8px !important;
+        font-size: 9px !important;
+        line-height: 1.1 !important;
+    }
+
+    .daily-highlight-header .section-subtitle {
+        margin-top: 4px !important;
     }
 
     .utility-comparison-chart {
@@ -105,14 +155,17 @@
         font-size: 7px !important;
     }
 
-    .kpi-daily-card-value {
-        font-size: 20px !important;
-        margin-bottom: 4px !important;
-    }
-
     .kpi-daily-card-unit,
     .kpi-daily-card-note {
         font-size: 7px !important;
+    }
+
+    .kpi-daily-card-compare {
+        margin-top: 6px !important;
+    }
+
+    .kpi-daily-card-compare-value {
+        font-size: 12px !important;
     }
 
     .kpi-daily-card-delta {
@@ -211,12 +264,18 @@
 
     .electricity-top10-grouped-table th,
     .electricity-top10-grouped-table td {
-        padding: 4px 4px !important;
-        font-size: 8px !important;
+        padding: 3px 4px !important;
+        font-size: 7.5px !important;
+    }
+
+    .electricity-top10-grouped-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
     }
 
     .electricity-top10-grouped-table .top10-group-header {
-        font-size: 9px !important;
+        font-size: 8px !important;
     }
 
     .electricity-top10-grouped-table .top10-group-divider {
@@ -229,19 +288,51 @@
         min-width: 30px !important;
     }
 
+    .electricity-top10-grouped-table .col-meter {
+        width: 108px !important;
+        min-width: 108px !important;
+        max-width: 108px !important;
+    }
+
     .electricity-top10-grouped-table .col-area {
         width: 48px !important;
         min-width: 48px !important;
         max-width: 48px !important;
     }
 
+    .electricity-top10-grouped-table .col-current {
+        width: 82px !important;
+        min-width: 82px !important;
+        max-width: 82px !important;
+    }
+
     .electricity-top10-grouped-table .electricity-meter-bar-cell {
-        min-height: 22px !important;
-        padding: 3px 5px !important;
+        min-height: 18px !important;
+        padding: 2px 4px !important;
     }
 
     .electricity-top10-grouped-table .electricity-meter-bar-fill {
-        height: 12px !important;
+        height: 10px !important;
+    }
+
+    .electricity-top10-grouped-table .electricity-meter-bar-label {
+        font-size: 7.5px !important;
+    }
+
+    .electricity-top10-grouped-table .electricity-inline-ratio,
+    .electricity-top10-grouped-table .electricity-inline-ratio-table,
+    .electricity-top10-grouped-table .pct {
+        font-size: 6px !important;
+        margin-left: 1px !important;
+    }
+
+    .electricity-top10-grouped-table .value {
+        font-size: 7.25px !important;
+        font-weight: 700 !important;
+    }
+
+    .electricity-top10-grouped-table .col-current {
+        font-size: 7.25px !important;
     }
 
     .electricity-daily-vertical-columns {

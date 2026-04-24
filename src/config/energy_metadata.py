@@ -48,7 +48,7 @@ def get_energy_area_metadata() -> Dict[str, Dict[str, Any]]:
             "unknown_load_key": "Residual_Load",
             "unknown_load_display_name": "Residual Load",
             "exclude_from_detail": [],
-            "downstream_areas": ["sakari"],  # ICO cấp cho SAKARI
+            "downstream_areas": ["sakari"],  # ICO feeds SAKARI
         },
         "sakari": {
             "display_name": "SAKARI",

@@ -87,8 +87,9 @@ class PDFService:
                 "--headless",
                 "--disable-gpu",
                 "--no-sandbox",
+                "--hide-scrollbars",
                 "--run-all-compositor-stages-before-draw",
-                "--virtual-time-budget=15000",
+                "--virtual-time-budget=30000",
                 f"--print-to-pdf={str(output_pdf.resolve())}",
                 f"file://{html_path.resolve()}",
             ]

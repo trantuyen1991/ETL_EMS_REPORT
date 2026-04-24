@@ -713,8 +713,8 @@ class UtilityService:
         if not has_data:
             return [{
                 "code": "no_data",
-                "label": "Thiếu dữ liệu",
-                "detail": "Không có mẫu hợp lệ trong ngày.",
+                "label": "Missing data",
+                "detail": "No valid samples were captured for this day.",
                 "severity": "critical",
                 "priority": 100,
             }]
@@ -731,16 +731,16 @@ class UtilityService:
         if sample_count > 0 and coverage_ratio < coverage_critical_ratio:
             flags.append({
                 "code": "low_coverage",
-                "label": "Bao phủ thấp",
-                "detail": f"Bao phủ {coverage_ratio * 100:.0f}% thấp hơn ngưỡng {coverage_critical_ratio * 100:.0f}%.",
+                "label": "Low coverage",
+                "detail": f"Coverage {coverage_ratio * 100:.0f}% is below {coverage_critical_ratio * 100:.0f}%.",
                 "severity": "critical",
                 "priority": 95,
             })
         elif sample_count > 0 and coverage_ratio < coverage_warning_ratio:
             flags.append({
                 "code": "partial_coverage",
-                "label": "Bao phủ thiếu",
-                "detail": f"Bao phủ {coverage_ratio * 100:.0f}% thấp hơn mức kỳ vọng {coverage_warning_ratio * 100:.0f}%.",
+                "label": "Partial coverage",
+                "detail": f"Coverage {coverage_ratio * 100:.0f}% is below expected {coverage_warning_ratio * 100:.0f}%.",
                 "severity": "warning",
                 "priority": 70,
             })
@@ -760,16 +760,16 @@ class UtilityService:
             ):
                 flags.append({
                     "code": "negative_exceeds_tolerance",
-                    "label": "Âm vượt ngưỡng",
-                    "detail": f"Min {self._fmt_or_dash(min_value)} thấp hơn ngưỡng âm cho phép {allowed_floor:,.2f}; tín hiệu có đổi dấu.",
+                    "label": "Negative beyond tolerance",
+                    "detail": f"Min {self._fmt_or_dash(min_value)} is below allowed floor {allowed_floor:,.2f}; signal crosses zero.",
                     "severity": "critical",
                     "priority": 100,
                 })
             else:
                 flags.append({
                     "code": "negative_exceeds_tolerance",
-                    "label": "Âm vượt ngưỡng",
-                    "detail": f"Min {self._fmt_or_dash(min_value)} thấp hơn ngưỡng âm cho phép {allowed_floor:,.2f}.",
+                    "label": "Negative beyond tolerance",
+                    "detail": f"Min {self._fmt_or_dash(min_value)} is below allowed floor {allowed_floor:,.2f}.",
                     "severity": "critical",
                     "priority": 98,
                 })
@@ -777,8 +777,8 @@ class UtilityService:
         if non_null_count > 0 and zero_count == non_null_count:
             flags.append({
                 "code": "all_zero",
-                "label": "Toàn bộ bằng 0",
-                "detail": f"Cả {non_null_count} mẫu hợp lệ đều bằng 0.",
+                "label": "All zero",
+                "detail": f"All {non_null_count} valid samples are zero.",
                 "severity": "warning",
                 "priority": 80,
             })
@@ -790,8 +790,8 @@ class UtilityService:
         ):
             flags.append({
                 "code": "zero_heavy",
-                "label": "0 chiếm đa số",
-                "detail": f"Tỷ lệ giá trị 0 là {zero_ratio * 100:.0f}%, vượt ngưỡng {zero_ratio_warning * 100:.0f}%.",
+                "label": "Zero-heavy",
+                "detail": f"Zero ratio {zero_ratio * 100:.0f}% exceeds {zero_ratio_warning * 100:.0f}%.",
                 "severity": "warning",
                 "priority": 60,
             })
@@ -799,8 +799,8 @@ class UtilityService:
         if non_null_count > 1 and range_span is not None and range_span <= flat_range_epsilon:
             flags.append({
                 "code": "flat_signal",
-                "label": "Tín hiệu phẳng",
-                "detail": f"Biên độ {range_span:,.2f} nằm trong ngưỡng phẳng {flat_range_epsilon:,.2f}.",
+                "label": "Flat signal",
+                "detail": f"Range {range_span:,.2f} is within flat threshold {flat_range_epsilon:,.2f}.",
                 "severity": "warning",
                 "priority": 55,
             })
@@ -809,16 +809,16 @@ class UtilityService:
             if peak_to_avg_ratio >= peak_ratio_critical:
                 flags.append({
                     "code": "peak_dominant",
-                    "label": "Đỉnh cao",
-                    "detail": f"Tỷ lệ đỉnh/trung bình {peak_to_avg_ratio:,.2f} vượt ngưỡng {peak_ratio_critical:,.2f}.",
+                    "label": "Peak-dominant",
+                    "detail": f"Peak/avg ratio {peak_to_avg_ratio:,.2f} exceeds {peak_ratio_critical:,.2f}.",
                     "severity": "critical",
                     "priority": 85,
                 })
             elif peak_to_avg_ratio >= peak_ratio_warning:
                 flags.append({
                     "code": "peak_dominant",
-                    "label": "Đỉnh cao",
-                    "detail": f"Tỷ lệ đỉnh/trung bình {peak_to_avg_ratio:,.2f} vượt ngưỡng {peak_ratio_warning:,.2f}.",
+                    "label": "Peak-dominant",
+                    "detail": f"Peak/avg ratio {peak_to_avg_ratio:,.2f} exceeds {peak_ratio_warning:,.2f}.",
                     "severity": "warning",
                     "priority": 50,
                 })
@@ -831,16 +831,16 @@ class UtilityService:
             if latest_drift_ratio >= latest_drift_critical:
                 flags.append({
                     "code": "latest_drift",
-                    "label": "Lệch giá trị cuối",
-                    "detail": f"Tỷ lệ lệch giá trị cuối/trung bình {latest_drift_ratio:,.2f} vượt ngưỡng {latest_drift_critical:,.2f}.",
+                    "label": "Latest drift",
+                    "detail": f"Latest/avg drift ratio {latest_drift_ratio:,.2f} exceeds {latest_drift_critical:,.2f}.",
                     "severity": "critical",
                     "priority": 82,
                 })
             elif latest_drift_ratio >= latest_drift_warning:
                 flags.append({
                     "code": "latest_drift",
-                    "label": "Lệch giá trị cuối",
-                    "detail": f"Tỷ lệ lệch giá trị cuối/trung bình {latest_drift_ratio:,.2f} vượt ngưỡng {latest_drift_warning:,.2f}.",
+                    "label": "Latest drift",
+                    "detail": f"Latest/avg drift ratio {latest_drift_ratio:,.2f} exceeds {latest_drift_warning:,.2f}.",
                     "severity": "warning",
                     "priority": 45,
                 })

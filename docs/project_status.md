@@ -57,10 +57,13 @@ Focus:
 - Top 10 meters (with main feeder exclusion): ✅
 - Daily summary: ✅
 - Daily detail tables per area: ✅
+- Daily detail tables sorted descending by current-day value: ✅
+- Daily detail bar fill aligned with ranking order: ✅
 - V4 card update (`meter active / total`): ✅
 - Area daily summary table: ✅
 - Top 10 by area (3 extra tables): ✅
 - PDF layout rule: keep plant Top 10 after charts on page 1: ✅
+- Daily section header style unified across Electricity / Utility / KPI: ✅
 
 ### 3.2 Energy KPI Section
 - KPI summary matrix by area + total: ✅
@@ -72,6 +75,7 @@ Focus:
 - Daily KPI grouped bar chart: ✅
 - Daily KPI cards now include `Today / Yesterday` comparison: ✅
 - Daily KPI detail (with coverage status): ✅
+- KPI daily header now uses the same boxed highlight style as Electricity: ✅
 
 KPI logic:
 - Coverage-first approach implemented
@@ -90,6 +94,7 @@ KPI logic:
 #### Daily Utility Detail
 - Dense daily rows: ✅
 - Missing handling ("-"): ✅
+- Utility daily header now uses the same boxed highlight style as Electricity: ✅
 
 ---
 
@@ -189,6 +194,8 @@ Current stabilized approach:
 - initialize using measured element width/height
 - trigger resize on `beforeprint`, `resize`, and `ResizeObserver`
 - flush ZRender after resize
+- PDF print mode now uses the same chart sizing rules before Chromium print begins
+- chart height overrides are controlled in PDF CSS to avoid overflow into following sections
 
 Important implementation rule:
 - if chart width looks wrong, first adjust chart option layout (`grid`, axis labels, spacing)

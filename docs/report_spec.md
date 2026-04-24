@@ -170,6 +170,8 @@ Daily detail tables should:
 - render dense daily rows for the whole period
 - preserve full configured meter columns
 - support backend-provided heatmap metadata
+- sort current-day vertical detail rows from highest to lowest value
+- scale value-bar fill consistently with the same descending ranking order
 - support responsive horizontal scrolling in HTML view
 - remain printable in PDF mode without breaking layout
 
@@ -185,6 +187,7 @@ This section should include:
 - utility summary table
 - daily utility detail table
 - sensor monitoring block
+- section header styling consistent with Electricity in the daily template
 
 ### 8.3 Utility Summary
 Utility summary should include:
@@ -242,6 +245,7 @@ This section should include:
 - production context
 - daily KPI detail
 - KPI coverage information
+- section header styling consistent with Electricity in the daily template
 
 ### 9.3 KPI Daily Detail
 Daily KPI detail should include:
@@ -317,6 +321,8 @@ When exporting PDF, charts may require additional handling:
 - prefer SVG mode when needed
 - refresh or resize chart before and after print
 - ensure chart size updates correctly when layout changes
+- apply print-mode chart sizing before Chromium captures the page
+- control final chart height in PDF CSS to protect following tables from overflow
 
 ### 11.4 Future Expansion
 More charts will be added over time.

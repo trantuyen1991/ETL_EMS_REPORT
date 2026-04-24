@@ -1,16 +1,14 @@
 {% import "report/macros/common.html" as report %}
 {% if flags.show_electricity_section %}
-        <section class="report-section pdf-electricity-highlight">
+        <section class="report-section pdf-electricity-highlight daily-highlight-header">
             <div class="section-header">
                 <div class="section-header-title-row">
                     <span class="section-header-symbol"></span>
                     <h2>{{ sections.electricity.title }}</h2>
+                    {% if meta.energy_unit %}
+                    <span class="section-unit-badge section-unit-badge-inline">Unit: {{ meta.energy_unit }}</span>
+                    {% endif %}
                 </div>
-                {% if meta.energy_unit %}
-                <div class="section-meta-row">
-                    <span class="section-unit-badge">Unit: {{ meta.energy_unit }}</span>
-                </div>
-                {% endif %}
                 {% if sections.electricity.subtitle %}
                 <p class="section-subtitle">{{ sections.electricity.subtitle }}</p>
                 {% endif %}
@@ -178,7 +176,7 @@
                 </div>
             </div>
 
-            <div class="electricity-detail-block electricity-detail-block-plant pdf-keep-together">
+            <div class="electricity-detail-block electricity-detail-block-plant">
                 <h3 class="electricity-subsection-title">Top 10 meters</h3>
 
                 <div class="electricity-top10-wrap report-table-wrap">

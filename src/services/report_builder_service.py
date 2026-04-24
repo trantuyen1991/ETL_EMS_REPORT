@@ -732,7 +732,7 @@ class ReportBuilderService:
                 raw_value = cell.get("raw_value")
                 fill_pct = 0.0
                 if isinstance(raw_value, (int, float)) and raw_value > 0 and max_numeric > 0:
-                    fill_pct = max(18.0, min(100.0, (float(raw_value) / max_numeric) * 100.0))
+                    fill_pct = max(4.0, min(100.0, (float(raw_value) / max_numeric) * 100.0))
 
                 entries.append({
                     "meter_name": column.get("display_name") or cell.get("key") or "-",
@@ -746,6 +746,14 @@ class ReportBuilderService:
 
             if not entries:
                 continue
+
+            entries.sort(
+                key=lambda entry: (
+                    0 if isinstance(entry.get("raw_value"), (int, float)) else 1,
+                    -(float(entry.get("raw_value") or 0.0)) if isinstance(entry.get("raw_value"), (int, float)) else 0.0,
+                    str(entry.get("meter_name") or ""),
+                ),
+            )
 
             safe_column_count = max(1, column_count)
             chunk_size = max(1, (len(entries) + safe_column_count - 1) // safe_column_count)
@@ -1017,14 +1025,19 @@ class ReportBuilderService:
                         for row in area_rows
                     ],
                     total_value=current_total_value,
-                    pie_radius=("43%", "66%"),
-                    pie_center=("50%", "60%"),
+                    pie_radius=("39%", "60%"),
+                    pie_center=("50%", "58%"),
                     graphic_left="43%",
-                    graphic_top="47%",
+                    graphic_top="50%",
                     legend_orient="horizontal",
                     legend_left="center",
                     legend_right=0,
-                    legend_top="5%",
+                    legend_top="3%",
+                    center_value_font_size=10,
+                    center_title_font_size=8,
+                    center_unit_font_size=7,
+                    center_title_y=15,
+                    center_unit_y=24,
                 ),
             }
         else:
@@ -2266,8 +2279,8 @@ class ReportBuilderService:
             total_value=total_energy,
             pie_radius=("45%", "69%"),
             pie_center=("50%", "60%"),
-            graphic_left="43%",
-            graphic_top="47%",
+            graphic_left="40%",
+            graphic_top="48%",
             legend_orient="horizontal",
             legend_left="center",
             legend_right=0,
@@ -2290,6 +2303,11 @@ class ReportBuilderService:
         legend_left: str | int = "right",
         legend_right: int = 10,
         legend_top: str = "middle",
+        center_value_font_size: int = 17,
+        center_title_font_size: int = 10,
+        center_unit_font_size: int = 9,
+        center_title_y: int = 24,
+        center_unit_y: int = 40,
     ) -> Dict[str, Any]:
         """Build a detailed donut chart with center total, callouts, and legend."""
         safe_total = float(total_value or 0.0)
@@ -2383,31 +2401,31 @@ class ReportBuilderService:
                                 "text": self._fmt_chart_total(total_value),
                                 "textAlign": "center",
                                 "fill": "#334155",
-                                "fontSize": 17,
+                                "fontSize": center_value_font_size,
                                 "fontWeight": 800,
                             },
                         },
                         {
                             "type": "text",
                             "x": 0,
-                            "y": 24,
+                            "y": center_title_y,
                             "style": {
                                 "text": center_title,
                                 "textAlign": "center",
                                 "fill": "#475569",
-                                "fontSize": 10,
+                                "fontSize": center_title_font_size,
                                 "fontWeight": 700,
                             },
                         },
                         {
                             "type": "text",
                             "x": 0,
-                            "y": 40,
+                            "y": center_unit_y,
                             "style": {
                                 "text": center_unit,
                                 "textAlign": "center",
                                 "fill": "#64748b",
-                                "fontSize": 9,
+                                "fontSize": center_unit_font_size,
                                 "fontWeight": 700,
                             },
                         },

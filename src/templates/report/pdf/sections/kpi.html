@@ -1,60 +1,18 @@
 {% import "report/macros/common.html" as report %}
 {% if flags.show_kpi_section %}
-        <section class="report-section">
+        <section class="report-section daily-highlight-header">
             <div class="pdf-section-opening">
                 <div class="section-header">
                     <div class="section-header-title-row">
                         <span class="section-header-symbol"></span>
                         <h2>{{ sections.kpi.title }}</h2>
+                        {% if meta.kpi_unit %}
+                        <span class="section-unit-badge section-unit-badge-inline">Unit: {{ meta.kpi_unit }}</span>
+                        {% endif %}
                     </div>
-                    {% if meta.kpi_unit %}
-                    <div class="section-meta-row">
-                        <span class="section-unit-badge">Unit: {{ meta.kpi_unit }}</span>
-                    </div>
-                    {% endif %}
                     {% if sections.kpi.subtitle %}
                     <p class="section-subtitle">{{ sections.kpi.subtitle }}</p>
                     {% endif %}
-                </div>
-
-                <div class="kpi-summary-block">
-                    <h3 class="electricity-subsection-title">Current period KPI summary</h3>
-
-                    <div class="kpi-summary-table-wrap report-table-wrap">
-                        <table class="kpi-summary-table report-table-ui">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2" class="kpi-metric-header">Metric</th>
-                                    {% for column in sections.kpi.summary_matrix.group_columns %}
-                                    <th colspan="3" class="kpi-group-header kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if loop.first %}kpi-group-start{% endif %} kpi-group-end {% if column.is_total %}is-total{% endif %}">{{ column.label }}</th>
-                                    {% endfor %}
-                                </tr>
-                                <tr>
-                                    {% for column in sections.kpi.summary_matrix.group_columns %}
-                                    <th class="kpi-group-start kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Today</th>
-                                    <th class="kpi-group-subheader kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Yesterday</th>
-                                    <th class="kpi-group-end kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Delta %</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for row in sections.kpi.summary_matrix.rows %}
-                                <tr>
-                                    <td class="col-metric">{{ row.metric_label }}</td>
-                                    {% for column in sections.kpi.summary_matrix.group_columns %}
-                                    {% set cell = row.cells[column.key] %}
-                                    <td class="col-value col-today {% if column.key == 'total' %}col-total{% endif %} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-start">{{ cell.today_display }}</td>
-                                    <td class="col-value col-yesterday kpi-group-cell kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">{{ cell.yesterday_display }}</td>
-                                    <td class="col-delta-pct {{ cell.delta.class }} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-end">
-                                        {{ report.delta_arrow(cell.delta.class, cell.delta.arrow) }}
-                                        {{ cell.delta.display }}
-                                    </td>
-                                    {% endfor %}
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
 
                 {% if flags.is_daily_report %}
@@ -69,7 +27,6 @@
                                 <h3 class="kpi-daily-card-title">{{ card.label }}</h3>
                                 <span class="kpi-daily-card-badge {{ card.badge_class }}">{{ card.badge_label }}</span>
                             </div>
-                            <div class="kpi-daily-card-value">{{ card.value_display }}</div>
                             <div class="kpi-daily-card-unit">{{ meta.kpi_unit }} (Energy KPI)</div>
                             <div class="kpi-daily-card-compare">
                                 <div class="kpi-daily-card-compare-item">
@@ -118,7 +75,86 @@
 
                     <p class="kpi-daily-dashboard-note">Note: {{ sections.kpi.charts.daily_dashboard.note }}</p>
                 </div>
+
+                <div class="kpi-summary-block">
+                    <h3 class="electricity-subsection-title">Current period KPI summary</h3>
+
+                    <div class="kpi-summary-table-wrap report-table-wrap">
+                        <table class="kpi-summary-table report-table-ui">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="kpi-metric-header">Metric</th>
+                                    {% for column in sections.kpi.summary_matrix.group_columns %}
+                                    <th colspan="3" class="kpi-group-header kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if loop.first %}kpi-group-start{% endif %} kpi-group-end {% if column.is_total %}is-total{% endif %}">{{ column.label }}</th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    {% for column in sections.kpi.summary_matrix.group_columns %}
+                                    <th class="kpi-group-start kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Today</th>
+                                    <th class="kpi-group-subheader kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Yesterday</th>
+                                    <th class="kpi-group-end kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Delta %</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in sections.kpi.summary_matrix.rows %}
+                                <tr>
+                                    <td class="col-metric">{{ row.metric_label }}</td>
+                                    {% for column in sections.kpi.summary_matrix.group_columns %}
+                                    {% set cell = row.cells[column.key] %}
+                                    <td class="col-value col-today {% if column.key == 'total' %}col-total{% endif %} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-start">{{ cell.today_display }}</td>
+                                    <td class="col-value col-yesterday kpi-group-cell kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">{{ cell.yesterday_display }}</td>
+                                    <td class="col-delta-pct {{ cell.delta.class }} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-end">
+                                        {{ report.delta_arrow(cell.delta.class, cell.delta.arrow) }}
+                                        {{ cell.delta.display }}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 {% else %}
+                <div class="kpi-summary-block">
+                    <h3 class="electricity-subsection-title">Current period KPI summary</h3>
+
+                    <div class="kpi-summary-table-wrap report-table-wrap">
+                        <table class="kpi-summary-table report-table-ui">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="kpi-metric-header">Metric</th>
+                                    {% for column in sections.kpi.summary_matrix.group_columns %}
+                                    <th colspan="3" class="kpi-group-header kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if loop.first %}kpi-group-start{% endif %} kpi-group-end {% if column.is_total %}is-total{% endif %}">{{ column.label }}</th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    {% for column in sections.kpi.summary_matrix.group_columns %}
+                                    <th class="kpi-group-start kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Today</th>
+                                    <th class="kpi-group-subheader kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Yesterday</th>
+                                    <th class="kpi-group-end kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Delta %</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in sections.kpi.summary_matrix.rows %}
+                                <tr>
+                                    <td class="col-metric">{{ row.metric_label }}</td>
+                                    {% for column in sections.kpi.summary_matrix.group_columns %}
+                                    {% set cell = row.cells[column.key] %}
+                                    <td class="col-value col-today {% if column.key == 'total' %}col-total{% endif %} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-start">{{ cell.today_display }}</td>
+                                    <td class="col-value col-yesterday kpi-group-cell kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">{{ cell.yesterday_display }}</td>
+                                    <td class="col-delta-pct {{ cell.delta.class }} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-end">
+                                        {{ report.delta_arrow(cell.delta.class, cell.delta.arrow) }}
+                                        {{ cell.delta.display }}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 <div class="kpi-chart-block pdf-keep-together">
                     <div class="electricity-chart-card kpi-chart-card">
                         <h3 class="electricity-chart-card-title">

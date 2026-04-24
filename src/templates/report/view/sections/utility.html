@@ -1,6 +1,6 @@
 {% import "report/macros/common.html" as report %}
 {% if flags.show_utility_section %}
-        <section class="report-section">
+        <section class="report-section daily-highlight-header">
             <div class="section-header">
                 <div class="section-header-title-row">
                     <span class="section-header-symbol"></span>
@@ -196,7 +196,7 @@
 
                                 {% if sensor.show_negative_tolerance_note %}
                                 <div class="utility-sensor-range-tolerance">
-                                    Ngưỡng âm cho phép: <strong>{{ sensor.negative_tolerance_display }}</strong>
+                                    Allowed negative floor: <strong>{{ sensor.negative_tolerance_display }}</strong>
                                 </div>
                                 {% endif %}
 
