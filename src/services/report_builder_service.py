@@ -73,6 +73,8 @@ class ReportBuilderService:
         v3_kpi_section = self._build_v3_kpi_section(
             kpi_object=kpi_object,
             period_type=str(period.get("type") or "").strip().lower(),
+            anchor_date=period.get("anchor_date"),
+            previous_anchor_date=period.get("previous_anchor_date"),
         )
 
         notes = self._build_notes(kpi_object, utility_object)
@@ -555,16 +557,22 @@ class ReportBuilderService:
 
     def _build_v3_area_daily_summary_rows(
         self,
+        plant_daily_summary_rows: list[dict[str, Any]],
         daily_tables: list[dict[str, Any]],
         area_display_order: list[tuple[str, str]],
     ) -> list[dict[str, Any]]:
         """Build the additional daily summary table split by workshop area."""
+        plant_row_lookup = {
+            row.get("date"): row
+            for row in plant_daily_summary_rows
+            if row.get("date") is not None
+        }
         table_lookup = {
             table.get("area_key"): table
             for table in daily_tables
         }
         row_lookup: dict[str, dict[date, dict[str, Any]]] = {}
-        all_dates: set[date] = set()
+        all_dates: set[date] = set(plant_row_lookup.keys())
 
         for area_key, _area_name in area_display_order:
             rows = {
@@ -579,6 +587,24 @@ class ReportBuilderService:
 
         for dt_value in sorted(all_dates):
             area_values: dict[str, dict[str, Any]] = {}
+
+            plant_row = plant_row_lookup.get(dt_value)
+            if plant_row:
+                area_values["plant"] = {
+                    "area_key": "plant",
+                    "area_name": "Plant",
+                    "total_display": plant_row.get("total_energy_display", "-"),
+                    "active_total_display": f"{plant_row.get('active_meter_count', '-')}/{plant_row.get('total_meter_count', '-')}",
+                    "avg_per_active_display": plant_row.get("avg_per_active_display", "-"),
+                }
+            else:
+                area_values["plant"] = {
+                    "area_key": "plant",
+                    "area_name": "Plant",
+                    "total_display": "-",
+                    "active_total_display": "-",
+                    "avg_per_active_display": "-",
+                }
 
             for area_key, area_name in area_display_order:
                 row = row_lookup.get(area_key, {}).get(dt_value)
@@ -739,6 +765,7 @@ class ReportBuilderService:
         daily_summary_rows = energy_object.get("current", {}).get("daily_summary_rows", [])
         daily_detail_tables = energy_object.get("current", {}).get("daily_tables", [])
         area_daily_summary_rows = self._build_v3_area_daily_summary_rows(
+            plant_daily_summary_rows=daily_summary_rows,
             daily_tables=daily_detail_tables,
             area_display_order=area_display_order,
         )
@@ -1238,6 +1265,8 @@ class ReportBuilderService:
         self,
         kpi_object: Optional[Dict[str, Any]],
         period_type: str = "",
+        anchor_date: Optional[date] = None,
+        previous_anchor_date: Optional[date] = None,
     ) -> Dict[str, Any]:
         """
         Build V3 KPI section from KPI object.
@@ -1422,6 +1451,8 @@ class ReportBuilderService:
         summary_matrix = self._build_v3_kpi_summary_matrix(
             kpi_object=kpi_object,
             period_type=period_type,
+            anchor_date=anchor_date,
+            previous_anchor_date=previous_anchor_date,
         )
         charts = self._build_v3_kpi_charts(kpi_object)
 
@@ -1448,6 +1479,8 @@ class ReportBuilderService:
         self,
         kpi_object: Optional[Dict[str, Any]],
         period_type: str = "",
+        anchor_date: Optional[date] = None,
+        previous_anchor_date: Optional[date] = None,
     ) -> Dict[str, Any]:
         """Build the compact KPI summary matrix shown above the KPI chart."""
         if not kpi_object:
@@ -1461,32 +1494,19 @@ class ReportBuilderService:
         previous_summary = kpi_object.get("previous", {}).get("summary", {})
         current_daily_rows = kpi_object.get("current", {}).get("daily_rows", [])
         previous_daily_rows = kpi_object.get("previous", {}).get("daily_rows", [])
-        current_coverage = kpi_object.get("current", {}).get("coverage", {})
-        previous_coverage = kpi_object.get("previous", {}).get("coverage", {})
-
-        current_prod_days = {
-            "ico": self._count_positive_kpi_days(current_daily_rows, "ico_prod"),
-            "diode": self._count_positive_kpi_days(current_daily_rows, "diode_prod"),
-            "sakari": self._count_positive_kpi_days(current_daily_rows, "sakari_prod"),
-            "plant": self._count_positive_kpi_days(current_daily_rows, "prod"),
-        }
-        previous_prod_days = {
-            "ico": self._count_positive_kpi_days(previous_daily_rows, "ico_prod"),
-            "diode": self._count_positive_kpi_days(previous_daily_rows, "diode_prod"),
-            "sakari": self._count_positive_kpi_days(previous_daily_rows, "sakari_prod"),
-            "plant": self._count_positive_kpi_days(previous_daily_rows, "prod"),
-        }
-
-        if current_prod_days["plant"] == 0:
-            current_prod_days["plant"] = int(current_coverage.get("coverage_days", 0) or 0)
-        if previous_prod_days["plant"] == 0:
-            previous_prod_days["plant"] = int(previous_coverage.get("coverage_days", 0) or 0)
-
         def build_delta_cell(current_value: Any, previous_value: Any, *, trend_mode: str) -> dict[str, Any]:
             if current_value is None and previous_value is None:
                 return {
                     "display": "-",
                     "class": "trend-neutral",
+                    "arrow": "neutral",
+                }
+
+            if current_value is None or previous_value is None:
+                return {
+                    "display": "-",
+                    "class": "trend-neutral",
+                    "arrow": "neutral",
                 }
 
             curr_val = float(current_value or 0.0)
@@ -1502,6 +1522,7 @@ class ReportBuilderService:
             return {
                 "display": self._fmt_pct(delta_pct),
                 "class": css_class,
+                "arrow": self._delta_arrow_direction(delta),
             }
 
         def build_area_cell(current_value: Any, previous_value: Any, *, trend_mode: str, formatter: str = "number") -> dict[str, Any]:
@@ -1515,16 +1536,38 @@ class ReportBuilderService:
                 "delta": build_delta_cell(current_value, previous_value, trend_mode=trend_mode),
             }
 
-        rows: list[dict[str, Any]] = [
-            {
-                "metric_label": "Production day",
-                "cells": {
-                    "ico": build_area_cell(current_prod_days["ico"], previous_prod_days["ico"], trend_mode="generic", formatter="int"),
-                    "diode": build_area_cell(current_prod_days["diode"], previous_prod_days["diode"], trend_mode="generic", formatter="int"),
-                    "sakari": build_area_cell(current_prod_days["sakari"], previous_prod_days["sakari"], trend_mode="generic", formatter="int"),
-                    "total": build_area_cell(current_prod_days["plant"], previous_prod_days["plant"], trend_mode="generic", formatter="int"),
-                },
+        rows: list[dict[str, Any]] = []
+
+        current_anchor_row = self._find_kpi_daily_row_by_date(current_daily_rows, anchor_date)
+        previous_anchor_row = self._find_kpi_daily_row_by_date(previous_daily_rows, previous_anchor_date)
+
+        rows.append({
+            "metric_label": "Production day",
+            "cells": {
+                "ico": build_area_cell(
+                    current_anchor_row.get("ico_prod") if current_anchor_row else None,
+                    previous_anchor_row.get("ico_prod") if previous_anchor_row else None,
+                    trend_mode="generic",
+                ),
+                "diode": build_area_cell(
+                    current_anchor_row.get("diode_prod") if current_anchor_row else None,
+                    previous_anchor_row.get("diode_prod") if previous_anchor_row else None,
+                    trend_mode="generic",
+                ),
+                "sakari": build_area_cell(
+                    current_anchor_row.get("sakari_prod") if current_anchor_row else None,
+                    previous_anchor_row.get("sakari_prod") if previous_anchor_row else None,
+                    trend_mode="generic",
+                ),
+                "total": build_area_cell(
+                    current_anchor_row.get("prod") if current_anchor_row else None,
+                    previous_anchor_row.get("prod") if previous_anchor_row else None,
+                    trend_mode="generic",
+                ),
             },
+        })
+
+        rows.extend([
             {
                 "metric_label": "Energy",
                 "cells": {
@@ -1600,7 +1643,7 @@ class ReportBuilderService:
                     ),
                 },
             },
-        ]
+        ])
 
         return {
             "title": "Current period KPI summary",
@@ -1612,6 +1655,21 @@ class ReportBuilderService:
             ],
             "rows": rows,
         }
+
+    def _find_kpi_daily_row_by_date(
+        self,
+        daily_rows: list[dict[str, Any]],
+        target_date: Optional[date],
+    ) -> Optional[dict[str, Any]]:
+        """Find one KPI daily presentation row by exact date."""
+        if target_date is None:
+            return None
+
+        for row in daily_rows:
+            if row.get("dt") == target_date:
+                return row
+
+        return None
 
     def _build_v3_kpi_charts(
         self,
@@ -1729,22 +1787,61 @@ class ReportBuilderService:
 
         metadata = utility_object["current"]["metadata"]
         comparison = utility_object["comparison"]
+        current_max = max(
+            (float((comparison.get(key, {}) or {}).get("current") or 0.0) for key in metadata.keys()),
+            default=0.0,
+        )
+        previous_max = max(
+            (float((comparison.get(key, {}) or {}).get("previous") or 0.0) for key in metadata.keys()),
+            default=0.0,
+        )
 
         for key, meta in metadata.items():
             comp = comparison.get(key, {})
+            visual = self._get_v3_utility_visual(key, meta)
+            current_value = float(comp.get("current") or 0.0)
+            previous_value = float(comp.get("previous") or 0.0)
 
             result.append({
+                "key": key,
                 "display_name": meta["display_name"],
                 "unit": meta["unit"],
                 "current_display": self._fmt(comp.get("current")),
                 "previous_display": self._fmt(comp.get("previous")),
+                "current_value": current_value,
+                "previous_value": previous_value,
+                "current_fill_pct": round((current_value / current_max) * 100, 2) if current_max > 0 else 0.0,
+                "previous_fill_pct": round((previous_value / previous_max) * 100, 2) if previous_max > 0 else 0.0,
                 "delta_display": self._fmt(comp.get("delta")),
                 "delta_pct_display": self._fmt_pct(comp.get("delta_pct")),
                 "delta_class": self._consumption_trend_class(comp.get("delta")),
                 "delta_pct_class": self._consumption_trend_class(comp.get("delta_pct")),
+                "value_tone_class": visual.get("tone_class", "utility-tone-neutral"),
             })
 
         return result
+
+    def _get_v3_utility_visual(
+        self,
+        utility_key: str,
+        meta: dict[str, Any],
+    ) -> dict[str, str]:
+        """Return color tone class for utility summary rows."""
+        text = f"{utility_key} {meta.get('display_name', '')}".lower()
+        category = str(meta.get("category") or "").lower()
+
+        if "ico" in text:
+            return {"tone_class": "utility-tone-ico"}
+        if "diode" in text:
+            return {"tone_class": "utility-tone-diode"}
+        if "sakari" in text:
+            return {"tone_class": "utility-tone-sakari"}
+        if "steam" in text or category == "steam":
+            return {"tone_class": "utility-tone-steam"}
+        if "water" in text or category == "water":
+            return {"tone_class": "utility-tone-water"}
+
+        return {"tone_class": "utility-tone-neutral"}
 
     def _build_global_coverage(self, kpi_object) -> dict:
         """Build global coverage summary for the report banner."""
@@ -2015,6 +2112,16 @@ class ReportBuilderService:
         if val < 0:
             return "trend-up"
         return "trend-neutral"
+
+    def _delta_arrow_direction(self, val: Any) -> str:
+        """Return arrow direction based on delta sign, independent from color class."""
+        if val is None:
+            return "neutral"
+        if float(val) > 0:
+            return "up"
+        if float(val) < 0:
+            return "down"
+        return "neutral"
 
     def _format_date_with_weekday(self, value) -> str:
         """Format date as YYYY-MM-DD (Day)."""

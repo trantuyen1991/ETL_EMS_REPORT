@@ -46,6 +46,12 @@
         page-break-inside: avoid !important;
     }
 
+    .utility-chart-detail-stack,
+    .utility-detail-block-compact {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
     .electricity-chart {
         width: 100% !important;
         height: 180px !important;
@@ -68,6 +74,67 @@
         max-width: 100% !important;
     }
 
+    .utility-detail-block {
+        margin-top: 8px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .utility-detail-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+    }
+
+    .utility-detail-table th,
+    .utility-detail-table td {
+        padding: 3px 4px !important;
+        font-size: 8px !important;
+    }
+
+    .utility-detail-table .col-date {
+        width: 86px !important;
+        min-width: 86px !important;
+    }
+
+    .utility-total-table .utility-bar-column {
+        min-width: 138px !important;
+    }
+
+    .utility-value-bar-cell {
+        min-height: 24px !important;
+        padding: 4px 6px !important;
+    }
+
+    .utility-value-bar-fill {
+        height: 14px !important;
+    }
+
+    .utility-value-bar-label {
+        font-size: 8px !important;
+    }
+
+    .electricity-daily-summary-area-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+    }
+
+    .electricity-daily-summary-area-table th,
+    .electricity-daily-summary-area-table td {
+        padding: 4px 3px !important;
+        font-size: 8px !important;
+        white-space: nowrap !important;
+    }
+
+    .electricity-daily-summary-area-table .col-date {
+        width: 86px !important;
+        min-width: 86px !important;
+    }
+
+    .electricity-daily-summary-area-table .area-group-header {
+        font-size: 8px !important;
+    }
+
     .kpi-summary-table {
         width: 100% !important;
         min-width: 0 !important;
@@ -82,6 +149,29 @@
 
     .kpi-summary-table .col-metric {
         width: 110px !important;
+    }
+
+    .kpi-daily-detail-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+    }
+
+    .kpi-daily-detail-table th,
+    .kpi-daily-detail-table td {
+        padding: 4px 4px !important;
+        font-size: 8px !important;
+        white-space: nowrap !important;
+    }
+
+    .kpi-daily-detail-table .col-date {
+        width: 86px !important;
+        min-width: 86px !important;
+    }
+
+    .kpi-daily-detail-table .col-source {
+        width: 48px !important;
+        min-width: 48px !important;
     }
 
     .electricity-chart-card-title {

@@ -43,7 +43,7 @@
                                 {% set cell = row.cells[column.key] %}
                                 <td class="col-value {% if column.key == 'total' %}col-total{% endif %} kpi-group-start">{{ cell.value_display }}</td>
                                 <td class="col-delta-pct {{ cell.delta.class }} kpi-group-end">
-                                    {{ report.delta_arrow(cell.delta.class) }}
+                                    {{ report.delta_arrow(cell.delta.class, cell.delta.arrow) }}
                                     {{ cell.delta.display }}
                                 </td>
                                 {% endfor %}
@@ -73,26 +73,31 @@
                     <table class="kpi-daily-detail-table report-table-ui">
                         <thead>
                             <tr>
-                                <th class="col-date">Date</th>
-                                <th>Status</th>
-                                <th>Source</th>
+                                <th class="col-date" rowspan="2">Date</th>
+                                <th rowspan="2">Status</th>
+                                <th class="col-source" rowspan="2">Source</th>
 
-                                <th>Plant Prod</th>
-                                <th>ICO Prod</th>
-                                <th>DIODE Prod</th>
-                                <th>SAKARI Prod</th>
+                                <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">Plant</th>
+                                <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">ICO</th>
+                                <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">DIODE</th>
+                                <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">SAKARI</th>
+                            </tr>
+                            <tr>
+                                <th class="kpi-detail-group-start">KPI</th>
+                                <th>Product</th>
+                                <th class="kpi-detail-group-end">Energy</th>
 
-                                <th>Plant Engy</th>
-                                <th>ICO Engy</th>
-                                <th>DIODE Engy</th>
-                                <th>SAKARI Engy</th>
+                                <th class="kpi-detail-group-start">KPI</th>
+                                <th>Product</th>
+                                <th class="kpi-detail-group-end">Energy</th>
 
-                                <th>Plant KPI</th>
-                                <th>ICO KPI</th>
-                                <th>DIODE KPI</th>
-                                <th>SAKARI KPI</th>
+                                <th class="kpi-detail-group-start">KPI</th>
+                                <th>Product</th>
+                                <th class="kpi-detail-group-end">Energy</th>
 
-                                <th>Coverage Note</th>
+                                <th class="kpi-detail-group-start">KPI</th>
+                                <th>Product</th>
+                                <th class="kpi-detail-group-end">Energy</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -104,24 +109,23 @@
                                         {{ row.status }}
                                     </span>
                                 </td>
-                                <td>{{ row.time_frame_source or "-" }}</td>
+                                <td class="col-source">{{ row.time_frame_source or "-" }}</td>
 
-                                <td>{{ row.plant_prod_display }}</td>
-                                <td>{{ row.ico_prod_display }}</td>
-                                <td>{{ row.diode_prod_display }}</td>
-                                <td>{{ row.sakari_prod_display }}</td>
+                                <td class="col-kpi kpi-detail-group-start">{{ row.plant_kpi_display }}</td>
+                                <td class="col-production">{{ row.plant_prod_display }}</td>
+                                <td class="col-energy kpi-detail-group-end">{{ row.plant_energy_display }}</td>
 
-                                <td>{{ row.plant_energy_display }}</td>
-                                <td>{{ row.ico_energy_display }}</td>
-                                <td>{{ row.diode_energy_display }}</td>
-                                <td>{{ row.sakari_energy_display }}</td>
+                                <td class="col-kpi kpi-detail-group-start">{{ row.ico_kpi_display }}</td>
+                                <td class="col-production">{{ row.ico_prod_display }}</td>
+                                <td class="col-energy kpi-detail-group-end">{{ row.ico_energy_display }}</td>
 
-                                <td>{{ row.plant_kpi_display }}</td>
-                                <td>{{ row.ico_kpi_display }}</td>
-                                <td>{{ row.diode_kpi_display }}</td>
-                                <td>{{ row.sakari_kpi_display }}</td>
+                                <td class="col-kpi kpi-detail-group-start">{{ row.diode_kpi_display }}</td>
+                                <td class="col-production">{{ row.diode_prod_display }}</td>
+                                <td class="col-energy kpi-detail-group-end">{{ row.diode_energy_display }}</td>
 
-                                <td class="col-note">{{ row.coverage_note or "" }}</td>
+                                <td class="col-kpi kpi-detail-group-start">{{ row.sakari_kpi_display }}</td>
+                                <td class="col-production">{{ row.sakari_prod_display }}</td>
+                                <td class="col-energy kpi-detail-group-end">{{ row.sakari_energy_display }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

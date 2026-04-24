@@ -294,6 +294,8 @@ def _build_report_context(
     period_info = {
         "start_date": period.start_date,
         "end_date": period.end_date,
+        "anchor_date": getattr(period, "anchor_date", None),
+        "previous_anchor_date": getattr(period, "previous_anchor_date", None),
         "type": period.period_type,
         "label": period.label,
         "comparison_label": period.comparison_label,

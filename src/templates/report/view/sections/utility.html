@@ -32,8 +32,18 @@
                                 <td class="col-utility">{{ row.display_name }}</td>
                                 <td class="col-unit">{{ row.unit }}</td>
 
-                                <td class="col-current">{{ row.current_display }}</td>
-                                <td class="col-previous">{{ row.previous_display }}</td>
+                                <td class="col-current utility-bar-column">
+                                    <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.current_fill_pct }}%;">
+                                        <span class="utility-value-bar-fill"></span>
+                                        <span class="utility-value-bar-label">{{ row.current_display }}</span>
+                                    </div>
+                                </td>
+                                <td class="col-previous utility-bar-column">
+                                    <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.previous_fill_pct }}%;">
+                                        <span class="utility-value-bar-fill"></span>
+                                        <span class="utility-value-bar-label">{{ row.previous_display }}</span>
+                                    </div>
+                                </td>
 
                                 <td class="col-delta {{ row.delta_class }}">
                                     {{ row.delta_display }}

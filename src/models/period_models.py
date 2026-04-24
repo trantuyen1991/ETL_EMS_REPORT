@@ -90,3 +90,5 @@ class ResolvedPeriod:
     label: str
     comparison_label: str
     file_suffix: str
+    anchor_date: Optional[date] = None
+    previous_anchor_date: Optional[date] = None

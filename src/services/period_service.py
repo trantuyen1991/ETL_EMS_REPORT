@@ -54,6 +54,7 @@ class PeriodService:
             end_date = anchor
             previous_start_date = anchor - timedelta(days=1)
             previous_end_date = anchor - timedelta(days=1)
+            previous_anchor_date = previous_start_date
 
         elif request.period_type == "weekly":
             anchor = request.anchor_date or today
@@ -61,6 +62,7 @@ class PeriodService:
             end_date = start_date + timedelta(days=6)
             previous_start_date = start_date - timedelta(days=7)
             previous_end_date = end_date - timedelta(days=7)
+            previous_anchor_date = anchor - timedelta(days=7)
 
         elif request.period_type == "monthly":
             anchor = request.anchor_date or today
@@ -81,6 +83,11 @@ class PeriodService:
                 prev_month,
                 monthrange(prev_year, prev_month)[1],
             )
+            previous_anchor_date = date(
+                prev_year,
+                prev_month,
+                min(anchor.day, monthrange(prev_year, prev_month)[1]),
+            )
 
         elif request.period_type == "custom":
             if request.custom_start_date is None or request.custom_end_date is None:
@@ -97,6 +104,8 @@ class PeriodService:
             duration_days = (end_date - start_date).days + 1
             previous_end_date = start_date - timedelta(days=1)
             previous_start_date = previous_end_date - timedelta(days=duration_days - 1)
+            anchor = end_date
+            previous_anchor_date = previous_end_date
 
         else:
             raise ValueError(f"Unsupported period_type: {request.period_type}")
@@ -122,6 +131,8 @@ class PeriodService:
                 start_date,
                 end_date,
             ),
+            anchor_date=anchor,
+            previous_anchor_date=previous_anchor_date,
         )
 
     def resolve_from_config(

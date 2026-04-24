@@ -1,5 +1,9 @@
-{% macro delta_arrow(delta_class) -%}
-    {%- if delta_class == 'trend-up' -%}
+{% macro delta_arrow(delta_class, arrow_direction=None) -%}
+    {%- if arrow_direction == 'up' -%}
+        <span class="delta-arrow {{ delta_class }}">▲</span>
+    {%- elif arrow_direction == 'down' -%}
+        <span class="delta-arrow {{ delta_class }}">▼</span>
+    {%- elif delta_class == 'trend-up' -%}
         <span class="delta-arrow trend-up">▼</span>
     {%- elif delta_class == 'trend-down' -%}
         <span class="delta-arrow trend-down">▲</span>
