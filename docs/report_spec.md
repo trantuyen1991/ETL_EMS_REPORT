@@ -10,9 +10,10 @@ The report is built from structured backend context and rendered into HTML first
 ## 2. Rendering Targets
 
 ### 2.1 HTML View Template
-The project currently has one HTML template for interactive viewing:
+The project currently has two HTML view template families:
 
-- `report_view.html`
+- `report/view/report_view_daily.html`
+- `report/view/report_view_periodic.html`
 
 Purpose:
 - responsive viewing on desktop and mobile
@@ -22,9 +23,10 @@ Purpose:
 - responsive layout and UI-oriented CSS
 
 ### 2.2 PDF Template
-The project currently has one dedicated HTML template for PDF printing:
+The project currently has two dedicated PDF template families:
 
-- `report_pdf.html`
+- `report/pdf/report_pdf_daily.html`
+- `report/pdf/report_pdf_periodic.html`
 
 Purpose:
 - fixed A4-oriented PDF rendering
@@ -34,8 +36,13 @@ Purpose:
 - reduced visual effects for stable export
 
 ### 2.3 Shared Context Rule
-Both templates must consume the same backend report context as much as possible.
+All template families must consume the same backend report context as much as possible.
 Differences should be handled at template/CSS/rendering layer, not by duplicating business logic.
+
+### 2.4 Template Family Rule
+- `daily` has its own layout and UI behavior
+- `periodic` is shared by `weekly` and `monthly`
+- template family selection is resolved in backend from the report period type
 
 ---
 
@@ -72,12 +79,14 @@ The report currently supports:
 ### 4.2 Automatic Period Selection
 The report is intended to run once per day.
 
-Period selection is determined from `REPORT_ANCHOR_DATE` in `.env`:
-- if the date is the end of a month → use monthly report
-- else if the date is the end of a week → use weekly report
-- otherwise → use daily report
-
+The effective anchor day is determined from `REPORT_ANCHOR_DATE` in `.env`.
 If `REPORT_ANCHOR_DATE` is empty, the system must use today.
+
+Scheduled export rules:
+- always export `daily`
+- if the anchor day is Sunday → also export `weekly`
+- if the anchor day is month-end → also export `monthly`
+- if both conditions are true → export `daily + weekly + monthly`
 
 ### 4.3 Previous Period
 Each report must include previous-period comparison using the matching previous block.
@@ -268,7 +277,7 @@ When exporting PDF, charts may require additional handling:
 
 ### 11.4 Future Expansion
 More charts will be added over time.
-Because one template supports multiple period types, chart blocks and UI components may need:
+Because the system now has a dedicated `daily` family and a shared `periodic` family, chart blocks and UI components may need:
 - conditional show/hide
 - resize logic
 - responsive re-layout
@@ -305,7 +314,8 @@ The PDF template must prioritize completeness and stability over animation or vi
 
 ### 13.1 Current Outputs
 Current implemented output:
-- rendered HTML report
+- rendered HTML view report
+- rendered HTML PDF source report
 - PDF export in development workflow
 
 ### 13.2 Planned Output
@@ -319,9 +329,16 @@ CSV export is not yet implemented but is part of the intended release workflow.
 Output paths must come from configuration in `.env`.
 
 ### 13.4 Output Naming
-Output files must use dynamic date/time-based naming for release use.
+Output files must use the configured filename base and resolved report period.
 
-The naming rule is not finalized yet, but release-ready behavior must support unique timestamped file names.
+Current naming rule:
+- `<filename>_<period_type>_<anchor-date>`
+
+Filename base source:
+- `.env` variable: `REPORT_FILENAME`
+
+Example:
+- `daily_automatic_report_daily_20250520.pdf`
 
 ---
 

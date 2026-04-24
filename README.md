@@ -7,8 +7,8 @@ This project is a backend-driven reporting system that generates daily, weekly, 
 The system:
 - extracts data from MySQL
 - builds a structured `report_context`
-- renders HTML reports (view + PDF)
-- exports PDF and CSV outputs
+- renders HTML reports (view + PDF source)
+- exports final PDF outputs
 
 ---
 
@@ -39,12 +39,18 @@ The report is divided into:
 
 ---
 
-### 3. Dual Template System
+### 3. Template Families
 
-| Template | Purpose |
+| Family | Purpose |
 |--------|--------|
-| `report_view.html` | Responsive UI (mobile / desktop) |
-| `report_pdf.html` | A4 print layout |
+| `daily` | Dedicated layout for daily reports |
+| `periodic` | Shared layout for weekly + monthly reports |
+
+Current template files:
+- `report/view/report_view_daily.html`
+- `report/view/report_view_periodic.html`
+- `report/pdf/report_pdf_daily.html`
+- `report/pdf/report_pdf_periodic.html`
 
 ---
 
@@ -57,10 +63,14 @@ The report is divided into:
 ## Implemented Features
 
 ### 1. Period Engine
-- Automatic period detection:
-  - Daily
-  - Weekly (week-end trigger)
-  - Monthly (month-end trigger)
+- Anchor day priority:
+  - use `REPORT_ANCHOR_DATE` from `.env` first
+  - fallback to `today` if empty
+- Scheduled export rules:
+  - always export `daily`
+  - if anchor day is Sunday, also export `weekly`
+  - if anchor day is month-end, also export `monthly`
+  - if both conditions are true, export `daily + weekly + monthly`
 - Controlled by:
 ```
 
@@ -134,17 +144,20 @@ V4 additions:
 
 ### 5. Report Rendering
 
-- HTML (view)
-- HTML (PDF layout)
+- one production run can render all reports scheduled for the effective anchor day
+- each report exports:
+  - view HTML
+  - PDF source HTML
+  - PDF
 - PDF export via Chromium (headless)
 
 ### PDF chart rendering workflow
 
 For stable PDF chart output, use this sequence:
 
-1. render `report/pdf/report_pdf.html`
-2. write rendered file to `/home/nbt/Reports/report_pdf.html`
-3. print with Chromium headless into `/home/nbt/Reports/*.pdf`
+1. render the selected PDF template for the report family
+2. write rendered file to the configured staging output directory
+3. print with Chromium headless into the staging directory
 4. copy final PDF back into `output/reports/`
 
 Chart rendering rule for PDF templates:
@@ -162,9 +175,10 @@ Important lesson learned:
 
 ---
 
-### 6. CSV Export (Planned)
-- raw detail data
-- same context as report
+### 6. CSV Export
+- CSV export service exists in the codebase
+- production flow is not wired to export CSV yet
+- final release workflow still treats CSV as pending
 
 ---
 
@@ -247,6 +261,7 @@ MYSQL_PASSWORD=
 
 OUTPUT_DIR=
 REPORT_ANCHOR_DATE=
+REPORT_FILENAME=
 
 ```
 
@@ -259,9 +274,9 @@ Generated files:
 ```
 
 output/reports/
-├── report_view.html
-├── report.pdf
-└── report.csv (future)
+├── <filename>_<period_type>_<anchor-date>_view.html
+├── <filename>_<period_type>_<anchor-date>_pdf_source.html
+└── <filename>_<period_type>_<anchor-date>.pdf
 
 ```
 
@@ -291,7 +306,7 @@ output/reports/
 - CSV export
 - advanced charts (ECharts)
 - heatmap visualization (daily KPI / sensor)
-- dynamic UI (per period type)
+- continued daily-first UI refinement
 - Windows executable packaging
 
 ---

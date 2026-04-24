@@ -9,7 +9,7 @@ This project is an automated energy reporting system.
 
 It collects data from multiple database sources, processes and aggregates it in backend services, builds a unified report context, and renders it into HTML and PDF outputs.
 
-The system is designed to run once per day and generate a report based on dynamic period selection.
+The system is designed to run once per day and generate one or more reports for the effective anchor day.
 
 ---
 
@@ -181,10 +181,12 @@ Output:
 
 Main responsibilities:
 
-* resolve report period
+* resolve effective anchor day
+* determine all scheduled report periods for one run
 * fetch all required data
 * call services
 * combine all outputs into `report_context`
+* render all required output artifacts for each report
 
 ---
 
@@ -218,10 +220,10 @@ report_context
 
 ### 7.1 Templates
 
-Two templates exist:
+Two template families exist:
 
-* `report_view.html`
-* `report_pdf.html`
+* `daily`
+* `periodic` (shared by weekly + monthly)
 
 ---
 
@@ -242,11 +244,11 @@ PDF (via Chromium)
 For this project, the practical print workflow is:
 
 ```text
-render report_pdf.html
+render selected report PDF template
     ↓
-write rendered file to /home/nbt/Reports/report_pdf.html
+write rendered file to staging output directory
     ↓
-print with Chromium headless to /home/nbt/Reports/*.pdf
+print with Chromium headless to staging output PDF
     ↓
 copy final PDF back to project output/reports/
 ```
@@ -292,14 +294,16 @@ Important rule learned from implementation:
 
 Current flow:
 
-1. build report_context
-2. render HTML
-3. write rendered PDF HTML to `/home/nbt/Reports/report_pdf.html`
-4. generate PDF with Chromium headless
-5. copy PDF back into project output
+1. resolve effective anchor day
+2. determine all report periods required for that day
+3. build report_context per report
+4. render `*_view.html`
+5. render `*_pdf_source.html`
+6. generate PDF with Chromium headless
+7. copy PDF back into project output
 
 Planned:
-6. export CSV
+8. export CSV
 
 ---
 
@@ -310,12 +314,13 @@ Handled in `main.py`:
 Input:
 
 * `REPORT_ANCHOR_DATE` (.env)
+* `REPORT_FILENAME` (.env)
 
 Logic:
 
-* end of month → monthly
-* end of week → weekly
-* otherwise → daily
+* always export daily
+* if anchor day is Sunday → also export weekly
+* if anchor day is month-end → also export monthly
 
 Fallback:
 

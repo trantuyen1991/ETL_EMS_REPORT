@@ -2,14 +2,14 @@
 
 ## 1. Overview
 
-This project is an automated daily energy reporting system.
+This project is an automated energy reporting system.
 
 It generates structured reports from database-backed data sources and renders them into:
 - HTML (interactive view)
 - PDF (A4 print-ready format)
 - (Planned) CSV export
 
-The system is designed to run once per day and automatically determine report period (daily / weekly / monthly) based on configuration.
+The system is designed to run once per day and automatically determine which report set should be exported for the effective anchor day.
 
 ---
 
@@ -19,13 +19,35 @@ The project is currently in **Report V4 preview stage**.
 
 Focus:
 - stabilize backend data pipeline
-- finalize report structure changes requested by user
+- finalize the two-family template migration (`daily` / `periodic`)
+- refine daily UI first, then continue periodic polish
 - stabilize PDF chart rendering and print flow
 - update project documentation to match implementation
 
 ---
 
 ## 3. Completed Components
+
+### 3.0 Runtime and template orchestration
+- Two template families introduced: ✅
+  - `daily`
+  - `periodic` shared by weekly + monthly
+- Anchor day priority implemented: ✅
+  - use `REPORT_ANCHOR_DATE` first
+  - fallback to today when empty
+- Scheduled export rules implemented: ✅
+  - always export `daily`
+  - add `weekly` on Sunday
+  - add `monthly` on month-end
+  - export all applicable reports in one run
+- Production batch rendering implemented: ✅
+  - one run renders every report needed for the effective anchor day
+- Output filename base implemented: ✅
+  - `REPORT_FILENAME` from `.env`
+- Output artifact set implemented per report: ✅
+  - `*_view.html`
+  - `*_pdf_source.html`
+  - `*.pdf`
 
 ### 3.1 Electricity Section
 - Plant total summary: ✅
@@ -104,7 +126,12 @@ Limitations (current):
 - refresh project docs to match V4 preview behavior
 - keep release tag pending until final approval / final commit step
 
-### 4.2 Sensor Monitoring UI
+### 4.2 Daily UI refinement
+- daily template is the current priority
+- continue improving information density, readability, and PDF page flow
+- periodic family will be adjusted after daily stabilizes
+
+### 4.3 Sensor Monitoring UI
 - Improve table layout and readability
 - Add chart visualization (ECharts)
 - Add abnormal detection / highlighting
@@ -114,20 +141,16 @@ Limitations (current):
 ## 5. Pending Features
 
 ### 5.1 CSV Export
-- Not implemented yet
+- CSV service exists, but production flow is not wired yet
 - Planned to export after PDF generation
 
-### 5.2 Dynamic Output Naming
-- Output file naming based on date/time not implemented yet
-- Required for release
-
-### 5.3 Chart Expansion
+### 5.2 Chart Expansion
 - More charts will be added across sections
 - Requires:
   - responsive handling
   - period-based show/hide logic
 
-### 5.4 PDF Stability Improvements
+### 5.3 PDF Stability Improvements
 - Chart rendering improved, but still needs regression checks when layout changes
 - Table pagination still needs improvement on very wide / dense sections
 
@@ -191,9 +214,10 @@ The report runs daily and determines its period using:
 - If empty → use today
 
 Rules:
-- end of month → monthly report
-- end of week → weekly report
-- otherwise → daily report
+- always export daily
+- if anchor day is Sunday → also export weekly
+- if anchor day is month-end → also export monthly
+- if both conditions are true → export daily + weekly + monthly
 
 ---
 
@@ -201,6 +225,7 @@ Rules:
 
 ### Output Types
 - HTML (view)
+- HTML (PDF source)
 - PDF (print)
 - CSV (planned)
 
@@ -208,9 +233,19 @@ Rules:
 - defined via `.env`
 
 ### Output Flow (current)
-1. render HTML
-2. generate PDF via Chromium
-3. (planned) export CSV
+1. resolve effective anchor day
+2. determine all required report periods for that day
+3. render each report into view HTML
+4. render each report into PDF source HTML
+5. generate each PDF via Chromium
+6. (planned) export CSV
+
+### Output Naming
+- Filename base comes from `.env`: `REPORT_FILENAME`
+- Current format:
+  - `<filename>_<period_type>_<anchor-date>`
+- Example:
+  - `daily_automatic_report_daily_20250520.pdf`
 
 ---
 
@@ -264,7 +299,7 @@ Expected behavior:
 Immediate next priorities:
 
 1. Finalize docs + release note consistency for V4 preview
-2. Complete sensor monitoring UI
-3. Implement CSV export
-4. Add dynamic output naming
+2. Continue daily template refinement
+3. Complete sensor monitoring UI
+4. Implement CSV export wiring in production flow
 5. Continue PDF regression hardening for future layout changes
