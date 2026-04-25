@@ -95,6 +95,61 @@
                 </div>
             </div>
 
+            {% if sections.utility.energy.enabled %}
+            <div class="utility-energy-block">
+                <div class="utility-overview-heading">
+                    <h3 class="electricity-subsection-title">{{ sections.utility.energy.title }}</h3>
+                </div>
+
+                <div class="utility-overview-card-grid utility-energy-card-grid">
+                    {% for card in sections.utility.energy.overview_cards %}
+                    <article class="utility-overview-card utility-energy-card" style="--utility-card-accent: {{ card.accent_color }}; --utility-card-tint: {{ card.accent_tint }}; --utility-card-value: {{ card.value_color }};">
+                        <div class="utility-overview-card-top">
+                            <div class="utility-overview-card-summary">
+                                <span class="utility-overview-card-icon">
+                                    {% if card.icon_key == "energy" %}
+                                    {% include "assets/icon/energy.svg" %}
+                                    {% elif card.icon_key == "air" %}
+                                    {% include "assets/icon/air.svg" %}
+                                    {% elif card.icon_key == "chilled-water" %}
+                                    {% include "assets/icon/chilled-water.svg" %}
+                                    {% endif %}
+                                </span>
+                                <div class="utility-overview-card-primary">
+                                    <h4 class="utility-overview-card-title">{{ card.title }}</h4>
+                                    <div class="utility-overview-card-value-row">
+                                        <span class="utility-overview-card-value">{{ card.today_display }}</span>
+                                        <span class="utility-overview-card-unit">{{ sections.utility.energy.unit_badge }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="kpi-daily-card-badge {{ card.badge_class }}">{{ card.status_label }}</span>
+                        </div>
+
+                        <div class="utility-overview-card-compare">
+                            <div class="utility-overview-card-compare-item">
+                                <span class="utility-overview-card-compare-label">{{ labels.current_period or "Current" }}</span>
+                                <span class="utility-overview-card-compare-value current">{{ card.today_display }}</span>
+                            </div>
+                            <div class="utility-overview-card-compare-item">
+                                <span class="utility-overview-card-compare-label">{{ labels.previous_period or "Previous" }}</span>
+                                <span class="utility-overview-card-compare-value previous">{{ card.yesterday_display }}</span>
+                            </div>
+                            <div class="utility-overview-card-compare-item">
+                                <span class="utility-overview-card-compare-label">Change</span>
+                                <span class="utility-overview-card-compare-value {{ card.delta_class }}">
+                                    {{ report.delta_arrow(card.delta_class) }}
+                                    {{ card.delta_pct_display }}
+                                </span>
+                                <span class="utility-overview-card-compare-note">vs yesterday</span>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
             <div class="utility-chart-block utility-chart-block-daily">
                 <div class="electricity-chart-card utility-chart-card utility-chart-card-daily">
                     <h3 class="electricity-chart-card-title">
@@ -108,11 +163,26 @@
             </div>
 
             <div class="utility-total-block utility-total-block-daily">
-                <h3 class="electricity-subsection-title">Utility summary</h3>
+                <h3 class="electricity-subsection-title">
+                    {% if sections.utility.energy.enabled %}5) Utility Detail Summary{% else %}Utility summary{% endif %}
+                </h3>
 
                 <div class="utility-total-table-wrap report-table-wrap">
-                    <table class="utility-total-table report-table-ui">
+                    <table class="utility-total-table report-table-ui {% if sections.utility.energy.enabled %}utility-energy-detail-table{% endif %}">
                         <thead>
+                            {% if sections.utility.energy.enabled %}
+                            <tr>
+                                <th>Utility</th>
+                                <th>Group</th>
+                                <th>{{ labels.current_period or "Current" }} Value</th>
+                                <th>{{ labels.previous_period or "Previous" }} Value</th>
+                                <th>Delta Value</th>
+                                <th>Delta %</th>
+                                <th>Utility Energy {{ labels.current_period or "Current" }} (kWh)</th>
+                                <th>Utility Energy {{ labels.previous_period or "Previous" }} (kWh)</th>
+                                <th>Utility Energy Delta (%)</th>
+                            </tr>
+                            {% else %}
                             <tr>
                                 <th>Utility</th>
                                 <th>Unit</th>
@@ -121,8 +191,24 @@
                                 <th>Delta</th>
                                 <th>Delta %</th>
                             </tr>
+                            {% endif %}
                         </thead>
                         <tbody>
+                            {% if sections.utility.energy.enabled %}
+                            {% for row in sections.utility.energy.detail_rows %}
+                            <tr>
+                                <td class="col-utility">{{ row.display_name }}</td>
+                                <td>{{ row.group_label }}</td>
+                                <td>{{ row.current_display }}</td>
+                                <td>{{ row.previous_display }}</td>
+                                <td class="{{ row.delta_pct_class }}">{{ row.delta_display }}</td>
+                                <td class="{{ row.delta_pct_class }}">{{ row.delta_pct_display }}</td>
+                                <td>{{ row.energy_current_display }}</td>
+                                <td>{{ row.energy_previous_display }}</td>
+                                <td class="{{ row.energy_delta_pct_class }}">{{ row.energy_delta_pct_display }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
                             {% for row in sections.utility.consumption.totals.rows %}
                             <tr>
                                 <td class="col-utility">{{ row.display_name }}</td>
@@ -148,6 +234,7 @@
                                 </td>
                             </tr>
                             {% endfor %}
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>

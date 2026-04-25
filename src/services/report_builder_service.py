@@ -64,6 +64,7 @@ class ReportBuilderService:
 
         v3_utility_section = self._build_v3_utility_section(
             utility_object=utility_object,
+            energy_object=energy_object,
             period=period,
         )
 
@@ -1180,6 +1181,7 @@ class ReportBuilderService:
     def _build_v3_utility_section(
         self,
         utility_object: Optional[Dict[str, Any]],
+        energy_object: Optional[Dict[str, Any]] = None,
         period: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
@@ -1214,6 +1216,13 @@ class ReportBuilderService:
                     "overview_cards": [],
                     "variance_chart": {},
                 },
+                "energy": {
+                    "enabled": False,
+                    "title": "UTILITY ENERGY (CONVERTED TO kWh)",
+                    "unit_badge": "kWh",
+                    "overview_cards": [],
+                    "detail_rows": [],
+                },
                 "consumption": {
                     "coverage": {},
                     "totals": {"rows": []},
@@ -1243,6 +1252,10 @@ class ReportBuilderService:
         daily_rows = self._build_daily_rows(utility_object)
         charts = self._build_v3_utility_charts(utility_object)
         overview_cards = self._build_v3_utility_overview_cards(utility_object)
+        utility_energy = self._build_v3_utility_energy_context(
+            utility_object=utility_object,
+            energy_object=energy_object,
+        )
         sensor_monitoring = {
             **(utility_object.get("current", {}).get("sensor_monitoring", {}) or {}),
         }
@@ -1257,6 +1270,7 @@ class ReportBuilderService:
                 "overview_cards": overview_cards,
                 "variance_chart": charts.get("deviation_vs_yesterday", {}),
             },
+            "energy": utility_energy,
             "consumption": {
                 "coverage": coverage,
                 "totals": {
@@ -1593,6 +1607,278 @@ class ReportBuilderService:
             })
 
         return cards
+
+    def _build_v3_utility_energy_context(
+        self,
+        *,
+        utility_object: Optional[Dict[str, Any]],
+        energy_object: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build utility energy cards and detail rows from meter mappings."""
+        default_context = {
+            "enabled": False,
+            "title": "UTILITY ENERGY (CONVERTED TO kWh)",
+            "unit_badge": "kWh",
+            "overview_cards": [],
+            "detail_rows": [],
+        }
+
+        if not utility_object or not energy_object:
+            return default_context
+
+        metadata = utility_object.get("current", {}).get("metadata", {}) or {}
+        comparison = utility_object.get("comparison", {}) or {}
+
+        current_lookup = self._build_utility_energy_meter_lookup(
+            energy_object.get("current", {}) or {}
+        )
+        previous_lookup = self._build_utility_energy_meter_lookup(
+            energy_object.get("previous", {}) or {}
+        )
+
+        detail_rows: list[dict[str, Any]] = []
+        category_totals = {
+            "compressed_air": {"current": 0.0, "previous": 0.0},
+            "chilled_water": {"current": 0.0, "previous": 0.0},
+            "steam": {"current": 0.0, "previous": 0.0},
+        }
+        any_energy_mapping = False
+
+        for utility_key, meta in metadata.items():
+            comp = comparison.get(utility_key, {}) or {}
+            category = str(meta.get("category") or "").strip().lower()
+            energy_area = str(meta.get("energy_area") or "").strip().lower()
+            energy_meters = [
+                str(item).strip()
+                for item in (meta.get("energy_meters") or [])
+                if str(item).strip()
+            ]
+
+            current_energy = self._resolve_utility_energy_total(
+                lookup=current_lookup,
+                energy_area=energy_area,
+                energy_meters=energy_meters,
+            )
+            previous_energy = self._resolve_utility_energy_total(
+                lookup=previous_lookup,
+                energy_area=energy_area,
+                energy_meters=energy_meters,
+            )
+            energy_delta = round(current_energy - previous_energy, 2)
+            energy_delta_ratio = self._safe_pct_delta(
+                current_value=current_energy,
+                previous_value=previous_energy,
+            )
+            value_delta_ratio = self._safe_pct_delta(
+                current_value=float(comp.get("current") or 0.0),
+                previous_value=float(comp.get("previous") or 0.0),
+            )
+
+            if energy_meters:
+                any_energy_mapping = True
+
+            if category in category_totals:
+                category_totals[category]["current"] += current_energy
+                category_totals[category]["previous"] += previous_energy
+
+            detail_rows.append({
+                "key": utility_key,
+                "display_name": meta.get("display_name") or utility_key,
+                "group_label": self._format_utility_group_label(category),
+                "current_display": self._fmt(comp.get("current")),
+                "previous_display": self._fmt(comp.get("previous")),
+                "delta_display": self._fmt(comp.get("delta")),
+                "delta_pct_display": self._fmt_pct(value_delta_ratio),
+                "delta_pct_class": self._consumption_trend_class(value_delta_ratio),
+                "energy_current_display": self._fmt(current_energy),
+                "energy_previous_display": self._fmt(previous_energy),
+                "energy_delta_display": self._fmt(energy_delta),
+                "energy_delta_pct_display": self._fmt_pct(energy_delta_ratio),
+                "energy_delta_pct_class": self._consumption_trend_class(energy_delta_ratio),
+            })
+
+        if not any_energy_mapping:
+            return default_context
+
+        overview_cards = self._build_v3_utility_energy_overview_cards(category_totals)
+
+        return {
+            "enabled": True,
+            "title": "UTILITY ENERGY (CONVERTED TO kWh)",
+            "unit_badge": "kWh",
+            "overview_cards": overview_cards,
+            "detail_rows": detail_rows,
+        }
+
+    def _build_utility_energy_meter_lookup(
+        self,
+        energy_period_object: Dict[str, Any],
+    ) -> Dict[str, Dict[Any, float]]:
+        """Aggregate energy totals by meter for one report period."""
+        by_meter: dict[str, float] = {}
+        by_area_meter: dict[tuple[str, str], float] = {}
+
+        for area_table in energy_period_object.get("daily_tables", []) or []:
+            area_key = str(area_table.get("area_key") or "").strip().lower()
+
+            for row in area_table.get("rows", []) or []:
+                for cell in row.get("cells", []) or []:
+                    meter_name = str(cell.get("key") or "").strip()
+                    meter_role = str(cell.get("meter_role") or "").strip().lower()
+                    raw_value = cell.get("raw_value")
+
+                    if not meter_name or meter_role == "unknown":
+                        continue
+                    if not isinstance(raw_value, (int, float)):
+                        continue
+
+                    value = float(raw_value)
+                    by_meter[meter_name] = by_meter.get(meter_name, 0.0) + value
+                    by_area_meter[(area_key, meter_name)] = (
+                        by_area_meter.get((area_key, meter_name), 0.0) + value
+                    )
+
+        return {
+            "by_meter": by_meter,
+            "by_area_meter": by_area_meter,
+        }
+
+    def _resolve_utility_energy_total(
+        self,
+        *,
+        lookup: Dict[str, Dict[Any, float]],
+        energy_area: str,
+        energy_meters: list[str],
+    ) -> float:
+        """Resolve one utility energy total using meter mapping."""
+        if not energy_meters:
+            return 0.0
+
+        by_meter = lookup.get("by_meter", {}) or {}
+        by_area_meter = lookup.get("by_area_meter", {}) or {}
+
+        total = 0.0
+        for meter_name in energy_meters:
+            if energy_area and (energy_area, meter_name) in by_area_meter:
+                total += float(by_area_meter.get((energy_area, meter_name), 0.0) or 0.0)
+            else:
+                total += float(by_meter.get(meter_name, 0.0) or 0.0)
+
+        return round(total, 2)
+
+    def _build_v3_utility_energy_overview_cards(
+        self,
+        category_totals: Dict[str, Dict[str, float]],
+    ) -> list[dict[str, Any]]:
+        """Build dashboard cards for total, air, and chilled-water energy."""
+        total_current = sum(item.get("current", 0.0) or 0.0 for item in category_totals.values())
+        total_previous = sum(item.get("previous", 0.0) or 0.0 for item in category_totals.values())
+
+        card_map = [
+            {
+                "key": "total",
+                "title": "TOTAL UTILITY ENERGY",
+                "icon_key": "energy",
+                "accent_color": "#2563eb",
+                "accent_tint": "rgba(37, 99, 235, 0.08)",
+                "value_color": "#2563eb",
+                "current": total_current,
+                "previous": total_previous,
+            },
+            {
+                "key": "compressed_air",
+                "title": "AIR ENERGY",
+                "icon_key": "air",
+                "accent_color": "#16a34a",
+                "accent_tint": "rgba(22, 163, 74, 0.08)",
+                "value_color": "#16a34a",
+                "current": category_totals.get("compressed_air", {}).get("current", 0.0) or 0.0,
+                "previous": category_totals.get("compressed_air", {}).get("previous", 0.0) or 0.0,
+            },
+            {
+                "key": "chilled_water",
+                "title": "CHILLED WATER ENERGY",
+                "icon_key": "chilled-water",
+                "accent_color": "#0ea5b7",
+                "accent_tint": "rgba(14, 165, 183, 0.08)",
+                "value_color": "#0f766e",
+                "current": category_totals.get("chilled_water", {}).get("current", 0.0) or 0.0,
+                "previous": category_totals.get("chilled_water", {}).get("previous", 0.0) or 0.0,
+            },
+        ]
+
+        cards: list[dict[str, Any]] = []
+        for card in card_map:
+            current_value = round(float(card.get("current") or 0.0), 2)
+            previous_value = round(float(card.get("previous") or 0.0), 2)
+            delta_value = round(current_value - previous_value, 2)
+            delta_ratio = self._safe_pct_delta(
+                current_value=current_value,
+                previous_value=previous_value,
+            )
+            status = self._build_dashboard_status(delta_ratio)
+
+            cards.append({
+                "key": card["key"],
+                "title": card["title"],
+                "icon_key": card["icon_key"],
+                "accent_color": card["accent_color"],
+                "accent_tint": card["accent_tint"],
+                "value_color": card["value_color"],
+                "status_label": status["label"],
+                "badge_class": status["badge_class"],
+                "today_display": self._fmt(current_value),
+                "yesterday_display": self._fmt(previous_value),
+                "delta_display": self._fmt(delta_value),
+                "delta_pct_display": self._fmt_pct(delta_ratio),
+                "delta_class": status["delta_class"],
+            })
+
+        return cards
+
+    def _build_dashboard_status(
+        self,
+        delta_ratio: Optional[float],
+    ) -> Dict[str, str]:
+        """Return dashboard badge and trend classes from delta ratio."""
+        if delta_ratio is None or abs(delta_ratio) < 0.0001:
+            return {
+                "label": "STABLE",
+                "badge_class": "kpi-badge-stable",
+                "delta_class": "trend-neutral",
+            }
+        if delta_ratio > 0:
+            return {
+                "label": "WATCH",
+                "badge_class": "kpi-badge-watch",
+                "delta_class": "trend-down",
+            }
+        return {
+            "label": "GOOD",
+            "badge_class": "kpi-badge-good",
+            "delta_class": "trend-up",
+        }
+
+    def _safe_pct_delta(
+        self,
+        *,
+        current_value: float,
+        previous_value: float,
+    ) -> Optional[float]:
+        """Return ratio delta for current vs previous."""
+        if previous_value == 0.0:
+            return 0.0 if current_value == 0.0 else 1.0
+        return round((current_value - previous_value) / previous_value, 4)
+
+    def _format_utility_group_label(self, category: str) -> str:
+        """Map utility category keys to short group labels."""
+        mapping = {
+            "water": "Water",
+            "chilled_water": "Chilled Water",
+            "compressed_air": "Air",
+            "steam": "Steam",
+        }
+        return mapping.get(category, category.replace("_", " ").title())
 
     def _resolve_utility_unit_badge(
         self,

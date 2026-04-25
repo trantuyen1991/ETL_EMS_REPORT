@@ -378,6 +378,10 @@
         min-width: 138px !important;
     }
 
+    .utility-energy-detail-table {
+        min-width: 920px !important;
+    }
+
     .utility-value-bar-cell {
         min-height: 24px !important;
         padding: 4px 6px !important;

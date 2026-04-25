@@ -1690,6 +1690,10 @@
             min-width: 980px;
         }
 
+        .utility-energy-detail-table {
+            min-width: 1180px;
+        }
+
         .utility-total-table .utility-bar-column {
             min-width: 170px;
         }
