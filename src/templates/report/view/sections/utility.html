@@ -1,16 +1,184 @@
 {% import "report/macros/common.html" as report %}
 {% if flags.show_utility_section %}
-        <section class="report-section daily-highlight-header">
+        <section class="report-section daily-highlight-header utility-section-shell">
             <div class="section-header">
-                <div class="section-header-title-row">
-                    <span class="section-header-symbol"></span>
-                    <h2>{{ sections.utility.title }}</h2>
+                <div class="utility-header-shell">
+                    <div class="utility-header-main">
+                        <div class="utility-header-icon-wrap">
+                            <span class="utility-header-icon">
+                                {% include "assets/icon/water.svg" %}
+                            </span>
+                        </div>
+                        <div class="utility-header-copy">
+                            <div class="section-header-title-row utility-header-title-row">
+                                <h2>{{ sections.utility.title }}</h2>
+                                {% if sections.utility.unit_badge %}
+                                <span class="section-unit-badge section-unit-badge-inline">Unit: {{ sections.utility.unit_badge }}</span>
+                                {% endif %}
+                            </div>
+                            {% if sections.utility.subtitle %}
+                            <p class="section-subtitle">{{ sections.utility.subtitle }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if flags.is_daily_report %}
+                    <div class="utility-date-chip">
+                        <span class="utility-date-chip-icon">
+                            {% include "assets/icon/calendar.svg" %}
+                        </span>
+                        <div class="utility-date-chip-copy">
+                            <div class="utility-date-chip-current">
+                                {{ sections.utility.date_comparison.current_display }} ({{ sections.utility.date_comparison.current_label }})
+                            </div>
+                            <div class="utility-date-chip-previous">
+                                vs {{ sections.utility.date_comparison.previous_display }} ({{ sections.utility.date_comparison.previous_label }})
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
-                {% if sections.utility.subtitle %}
-                <p class="section-subtitle">{{ sections.utility.subtitle }}</p>
-                {% endif %}
             </div>
 
+            {% if flags.is_daily_report %}
+            <div class="utility-overview-block">
+                <div class="utility-overview-heading">
+                    <h3 class="electricity-subsection-title">OVERVIEW BY UTILITY GROUP</h3>
+                    <span class="utility-overview-note">(Not aggregated)</span>
+                </div>
+
+                <div class="utility-overview-card-grid">
+                    {% for card in sections.utility.daily_dashboard.overview_cards %}
+                    <article class="utility-overview-card" style="--utility-card-accent: {{ card.accent_color }}; --utility-card-tint: {{ card.accent_tint }}; --utility-card-value: {{ card.value_color }};">
+                        <div class="utility-overview-card-top">
+                            <div class="utility-overview-card-summary">
+                                <span class="utility-overview-card-icon">
+                                    {% if card.icon_key == "water" %}
+                                    {% include "assets/icon/water.svg" %}
+                                    {% elif card.icon_key == "air" %}
+                                    {% include "assets/icon/air.svg" %}
+                                    {% elif card.icon_key == "steam" %}
+                                    {% include "assets/icon/steam.svg" %}
+                                    {% endif %}
+                                </span>
+                                <div class="utility-overview-card-primary">
+                                    <h4 class="utility-overview-card-title">{{ card.title }}</h4>
+                                    <div class="utility-overview-card-value-row">
+                                        <span class="utility-overview-card-value">{{ card.today_display }}</span>
+                                        <span class="utility-overview-card-unit">{{ sections.utility.unit_badge }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="kpi-daily-card-badge {{ card.badge_class }}">{{ card.status_label }}</span>
+                        </div>
+
+                        <div class="utility-overview-card-compare">
+                            <div class="utility-overview-card-compare-item">
+                                <span class="utility-overview-card-compare-label">Today</span>
+                                <span class="utility-overview-card-compare-value current">{{ card.today_display }}</span>
+                            </div>
+                            <div class="utility-overview-card-compare-item">
+                                <span class="utility-overview-card-compare-label">Yesterday</span>
+                                <span class="utility-overview-card-compare-value previous">{{ card.yesterday_display }}</span>
+                            </div>
+                            <div class="utility-overview-card-compare-item">
+                                <span class="utility-overview-card-compare-label">Change</span>
+                                <span class="utility-overview-card-compare-value {{ card.delta_class }}">
+                                    {{ report.delta_arrow(card.delta_class) }}
+                                    {{ card.delta_pct_display }}
+                                </span>
+                                <span class="utility-overview-card-compare-note">vs yesterday</span>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="utility-chart-block utility-chart-block-daily">
+                <div class="electricity-chart-card utility-chart-card utility-chart-card-daily">
+                    <h3 class="electricity-chart-card-title">
+                        {{ sections.utility.daily_dashboard.variance_chart.title }}
+                    </h3>
+                    <p class="electricity-chart-card-subtitle">
+                        {{ sections.utility.daily_dashboard.variance_chart.subtitle }}
+                    </p>
+                    <div id="utility-deviation-chart" class="electricity-chart utility-comparison-chart utility-comparison-chart-daily"></div>
+                </div>
+            </div>
+
+            <div class="utility-total-block utility-total-block-daily">
+                <h3 class="electricity-subsection-title">Utility summary</h3>
+
+                <div class="utility-total-table-wrap report-table-wrap">
+                    <table class="utility-total-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th>Utility</th>
+                                <th>Unit</th>
+                                <th>{{ labels.current_period or "Current" }}</th>
+                                <th>{{ labels.previous_period or "Previous" }}</th>
+                                <th>Delta</th>
+                                <th>Delta %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.utility.consumption.totals.rows %}
+                            <tr>
+                                <td class="col-utility">{{ row.display_name }}</td>
+                                <td class="col-unit">{{ row.unit }}</td>
+                                <td class="col-current utility-bar-column">
+                                    <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.current_fill_pct }}%;">
+                                        <span class="utility-value-bar-fill"></span>
+                                        <span class="utility-value-bar-label">{{ row.current_display }}</span>
+                                    </div>
+                                </td>
+                                <td class="col-previous utility-bar-column">
+                                    <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.previous_fill_pct }}%;">
+                                        <span class="utility-value-bar-fill"></span>
+                                        <span class="utility-value-bar-label">{{ row.previous_display }}</span>
+                                    </div>
+                                </td>
+                                <td class="col-delta {{ row.delta_class }}">
+                                    {{ row.delta_display }}
+                                </td>
+                                <td class="col-delta-pct {{ row.delta_pct_class }}">
+                                    {{ report.delta_arrow(row.delta_pct_class) }}
+                                    {{ row.delta_pct_display }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="utility-chart-split-grid utility-chart-split-grid-daily">
+                <div class="utility-chart-block utility-chart-block-wide">
+                    <div class="electricity-chart-card utility-chart-card">
+                        <h3 class="electricity-chart-card-title">
+                            {{ sections.utility.charts.comparison_split.wide.title }}
+                        </h3>
+                        <p class="electricity-chart-card-subtitle">
+                            {{ sections.utility.charts.comparison_split.wide.subtitle }}
+                        </p>
+                        <div id="utility-comparison-chart-wide" class="electricity-chart utility-comparison-chart utility-comparison-chart-wide"></div>
+                    </div>
+                </div>
+
+                <div class="utility-chart-block utility-chart-block-narrow">
+                    <div class="electricity-chart-card utility-chart-card">
+                        <h3 class="electricity-chart-card-title">
+                            {{ sections.utility.charts.comparison_split.narrow.title }}
+                        </h3>
+                        <p class="electricity-chart-card-subtitle">
+                            {{ sections.utility.charts.comparison_split.narrow.subtitle }}
+                        </p>
+                        <div id="utility-comparison-chart-narrow" class="electricity-chart utility-comparison-chart utility-comparison-chart-narrow"></div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
             <div class="utility-total-block">
                 <h3 class="electricity-subsection-title">Utility summary</h3>
 
@@ -31,7 +199,6 @@
                             <tr>
                                 <td class="col-utility">{{ row.display_name }}</td>
                                 <td class="col-unit">{{ row.unit }}</td>
-
                                 <td class="col-current utility-bar-column">
                                     <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.current_fill_pct }}%;">
                                         <span class="utility-value-bar-fill"></span>
@@ -44,11 +211,9 @@
                                         <span class="utility-value-bar-label">{{ row.previous_display }}</span>
                                     </div>
                                 </td>
-
                                 <td class="col-delta {{ row.delta_class }}">
                                     {{ row.delta_display }}
                                 </td>
-
                                 <td class="col-delta-pct {{ row.delta_pct_class }}">
                                     {{ report.delta_arrow(row.delta_pct_class) }}
                                     {{ row.delta_pct_display }}
@@ -86,7 +251,6 @@
                 </div>
             </div>
 
-            {% if not flags.is_daily_report %}
             <div class="utility-detail-block">
                 <h3 class="electricity-subsection-title">Daily utility detail</h3>
 
@@ -254,6 +418,50 @@
                     </div>
                 </div>
                 {% endif %}
+
+                {% if sensor_monitoring.trend_clusters_render %}
+                <div class="utility-sensor-trend-preview-block">
+                    <div class="utility-sensor-trend-preview-head">
+                        <div>
+                            <h4 class="utility-sensor-anomaly-title">Intraday trend by cluster</h4>
+                            <p class="utility-sensor-subtitle">
+                                Timestamp-based raw signal preview grouped by utility cluster
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="utility-sensor-trend-cluster-stack">
+                        {% for cluster in sensor_monitoring.trend_clusters_render %}
+                        <div class="utility-sensor-trend-cluster" style="--sensor-accent: {{ cluster.accent_color }}; --sensor-tint: {{ cluster.accent_tint }};">
+                            <div class="utility-sensor-trend-cluster-head">
+                                <div>
+                                    <h4 class="utility-sensor-group-title">{{ cluster.cluster_label }}</h4>
+                                    <p class="utility-sensor-group-meta">
+                                        {{ cluster.active_sensor_count }}/{{ cluster.sensor_count }} sensors with data
+                                    </p>
+                                </div>
+                                <div class="utility-sensor-statline">
+                                    <span class="utility-sensor-statpill">{{ cluster.chart_count }} chart{% if cluster.chart_count != 1 %}s{% endif %}</span>
+                                    <span class="utility-sensor-statpill {% if cluster.alert_count > 0 %}has-alert{% endif %}">
+                                        {{ cluster.alert_count }} alert{% if cluster.alert_count != 1 %}s{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="utility-sensor-trend-preview-grid {% if cluster.chart_count == 1 %}is-single{% endif %}">
+                                {% for chart in cluster.charts %}
+                                <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card">
+                                    <h3 class="electricity-chart-card-title">{{ chart.title }}</h3>
+                                    <p class="electricity-chart-card-subtitle">{{ chart.subtitle }}</p>
+                                    <div id="{{ chart.chart_id }}" class="electricity-chart utility-sensor-trend-chart"></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
                 {% else %}
                 <div class="utility-sensor-table-wrap report-table-wrap">
                     <table class="utility-sensor-table report-table-ui">
@@ -307,6 +515,11 @@
                         }
 
                         const chartConfigs = [
+                            {% if flags.is_daily_report %}
+                            {
+                                id: "utility-deviation-chart",
+                                option: {{ sections.utility.daily_dashboard.variance_chart.option | tojson }},
+                            },
                             {
                                 id: "utility-comparison-chart-wide",
                                 option: {{ sections.utility.charts.comparison_split.wide.option | tojson }},
@@ -315,6 +528,24 @@
                                 id: "utility-comparison-chart-narrow",
                                 option: {{ sections.utility.charts.comparison_split.narrow.option | tojson }},
                             },
+                            {% else %}
+                            {
+                                id: "utility-comparison-chart-wide",
+                                option: {{ sections.utility.charts.comparison_split.wide.option | tojson }},
+                            },
+                            {
+                                id: "utility-comparison-chart-narrow",
+                                option: {{ sections.utility.charts.comparison_split.narrow.option | tojson }},
+                            },
+                            {% endif %}
+                            {% for cluster in sensor_monitoring.trend_clusters_render or [] %}
+                            {% for chart in cluster.charts %}
+                            {
+                                id: "{{ chart.chart_id }}",
+                                option: {{ chart.option | tojson }},
+                            },
+                            {% endfor %}
+                            {% endfor %}
                         ];
 
                         const charts = [];

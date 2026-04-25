@@ -168,6 +168,7 @@ def _build_sensor_monitoring_context(
         daily_stats=daily_stats,
         report_start=report_start,
         report_end=report_end,
+        raw_rows=rows,
     )
 
     return sensor_monitoring

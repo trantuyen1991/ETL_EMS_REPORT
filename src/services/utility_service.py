@@ -357,6 +357,7 @@ class UtilityService:
         daily_stats: dict[date, dict[str, dict[str, float | None]]],
         report_start: date,
         report_end: date,
+        raw_rows: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         """Build backend context for utility sensor monitoring.
 
@@ -377,6 +378,7 @@ class UtilityService:
         group_labels = get_utility_sensor_group_labels()
         group_visuals = self._get_sensor_group_visuals()
         focus_date = report_end
+        is_intraday_period = report_start == report_end
 
         metric_columns = [
             {
@@ -430,6 +432,7 @@ class UtilityService:
         active_sensor_count = 0
         sensor_groups: list[dict[str, Any]] = []
         anomaly_rows: list[dict[str, Any]] = []
+        sensor_rows_by_key: dict[str, dict[str, Any]] = {}
 
         for group_key in group_order:
             group_label = group_labels.get(group_key, group_key.replace("_", " ").title())
@@ -446,6 +449,7 @@ class UtilityService:
                     sensor_stats=focus_day_stats.get(sensor_key, {}),
                 )
                 sensor_rows.append(row)
+                sensor_rows_by_key[sensor_key] = row
                 total_sensor_count += 1
 
                 if row["has_data"]:
@@ -501,6 +505,17 @@ class UtilityService:
             )
         )
 
+        trend_clusters = self._build_sensor_trend_clusters(
+            raw_rows=raw_rows or [],
+            sensor_metadata=sensor_metadata,
+            sensor_rows_by_key=sensor_rows_by_key,
+            group_order=group_order,
+            group_labels=group_labels,
+            group_visuals=group_visuals,
+            focus_date=focus_date,
+            enabled=is_intraday_period,
+        )
+
         return {
             "enabled": True,
             "title": "Sensor monitoring",
@@ -526,6 +541,8 @@ class UtilityService:
             "anomaly_rows": anomaly_rows,
             "metric_columns": metric_columns,
             "daily_rows": daily_rows,
+            "trend_mode": "intraday" if is_intraday_period else "aggregate_only",
+            "trend_clusters": trend_clusters,
         }
 
     def _build_sensor_detail_row(
@@ -1022,3 +1039,147 @@ class UtilityService:
                 "accent_tint": "rgba(100, 116, 139, 0.12)",
             },
         }
+
+    def _build_sensor_trend_clusters(
+        self,
+        *,
+        raw_rows: list[dict[str, Any]],
+        sensor_metadata: dict[str, dict[str, Any]],
+        sensor_rows_by_key: dict[str, dict[str, Any]],
+        group_order: list[str],
+        group_labels: dict[str, str],
+        group_visuals: dict[str, dict[str, str]],
+        focus_date: date,
+        enabled: bool,
+    ) -> list[dict[str, Any]]:
+        """Build intraday trend clusters for timestamp-based sensor charts."""
+        if not enabled or not raw_rows:
+            return []
+
+        rows_for_focus_date = [
+            row
+            for row in raw_rows
+            if self._to_date(row.get("dt")) == focus_date
+        ]
+
+        if not rows_for_focus_date:
+            return []
+
+        measurement_order = ["temperature", "pressure", "flow", "capacity"]
+        measurement_titles = {
+            "temperature": "Temperature trend",
+            "pressure": "Pressure trend",
+            "flow": "Flow trend",
+            "capacity": "Capacity trend",
+        }
+
+        clusters: list[dict[str, Any]] = []
+
+        for group_key in group_order:
+            group_sensors = [
+                (sensor_key, meta)
+                for sensor_key, meta in sensor_metadata.items()
+                if meta.get("group") == group_key
+            ]
+            if not group_sensors:
+                continue
+
+            visual = group_visuals.get(group_key, group_visuals["default"])
+            charts: list[dict[str, Any]] = []
+
+            for measurement_type in measurement_order:
+                measurement_sensors = [
+                    (sensor_key, meta)
+                    for sensor_key, meta in group_sensors
+                    if str(meta.get("measurement_type") or "").strip().lower() == measurement_type
+                ]
+                if not measurement_sensors:
+                    continue
+
+                series_items: list[dict[str, Any]] = []
+
+                for index, (sensor_key, meta) in enumerate(measurement_sensors):
+                    points: list[dict[str, Any]] = []
+
+                    for row in rows_for_focus_date:
+                        ts_value = row.get("dt")
+                        raw_value = row.get(sensor_key)
+                        if not isinstance(raw_value, (int, float)):
+                            continue
+
+                        points.append({
+                            "ts": self._format_timestamp(ts_value),
+                            "value": round(float(raw_value), 4),
+                            "is_negative": float(raw_value) < 0.0,
+                            "is_zero": float(raw_value) == 0.0,
+                        })
+
+                    sensor_row = sensor_rows_by_key.get(sensor_key, {})
+                    series_items.append({
+                        "sensor_key": sensor_key,
+                        "label": meta.get("display_name") or sensor_key,
+                        "unit": meta.get("unit") or "",
+                        "measurement_type": measurement_type,
+                        "measurement_type_label": self._format_measurement_type_label(measurement_type),
+                        "color": self._get_sensor_series_color(measurement_type, index),
+                        "point_count": len(points),
+                        "latest_ts": points[-1]["ts"] if points else "-",
+                        "has_alert": bool(sensor_row.get("has_alert")),
+                        "severity_class": sensor_row.get("severity_class") or "is-normal",
+                        "primary_flag": sensor_row.get("primary_flag") or "Normal",
+                        "points": points,
+                    })
+
+                first_unit = str(measurement_sensors[0][1].get("unit") or "")
+                charts.append({
+                    "chart_key": f"{group_key}_{measurement_type}",
+                    "title": measurement_titles.get(measurement_type, "Sensor trend"),
+                    "measurement_type": measurement_type,
+                    "measurement_type_label": self._format_measurement_type_label(measurement_type),
+                    "unit": first_unit,
+                    "series_count": len(series_items),
+                    "series": series_items,
+                })
+
+            active_group_rows = [
+                sensor_rows_by_key.get(sensor_key, {})
+                for sensor_key, _meta in group_sensors
+            ]
+            clusters.append({
+                "cluster_key": group_key,
+                "cluster_label": group_labels.get(group_key, group_key.replace("_", " ").title()),
+                "focus_date": focus_date.isoformat(),
+                "accent_color": visual["accent_color"],
+                "accent_tint": visual["accent_tint"],
+                "sensor_count": len(group_sensors),
+                "active_sensor_count": sum(1 for row in active_group_rows if row.get("has_data")),
+                "alert_count": sum(1 for row in active_group_rows if row.get("has_alert")),
+                "chart_count": len(charts),
+                "charts": charts,
+            })
+
+        return clusters
+
+    def _get_sensor_series_color(
+        self,
+        measurement_type: str,
+        index: int,
+    ) -> str:
+        """Return stable line color for one sensor series."""
+        palettes = {
+            "temperature": ["#ef4444", "#f97316", "#fb7185"],
+            "pressure": ["#7c3aed", "#6366f1", "#a855f7"],
+            "flow": ["#0ea5e9", "#14b8a6", "#06b6d4"],
+            "capacity": ["#22c55e", "#84cc16", "#65a30d"],
+            "default": ["#64748b", "#94a3b8", "#475569"],
+        }
+        palette = palettes.get(str(measurement_type or "").strip().lower(), palettes["default"])
+        return palette[index % len(palette)]
+
+    def _format_timestamp(self, value: Any) -> str:
+        """Return compact ISO-like timestamp for chart points."""
+        if isinstance(value, datetime):
+            return value.strftime("%Y-%m-%d %H:%M:%S")
+        if isinstance(value, date):
+            return f"{value.isoformat()} 00:00:00"
+        return "-"

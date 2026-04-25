@@ -64,6 +64,7 @@ class ReportBuilderService:
 
         v3_utility_section = self._build_v3_utility_section(
             utility_object=utility_object,
+            period=period,
         )
 
         v3_period_block["flags"]["show_sensor_monitoring"] = bool(
@@ -1179,6 +1180,7 @@ class ReportBuilderService:
     def _build_v3_utility_section(
         self,
         utility_object: Optional[Dict[str, Any]],
+        period: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Build V3 utility section from utility object.
@@ -1199,8 +1201,19 @@ class ReportBuilderService:
         """
         if not utility_object:
             return {
-                "title": "UTILITY USAGE",
+                "title": "UTILITY OVERVIEW",
                 "subtitle": "Consumption and sensor monitoring.",
+                "unit_badge": "m³",
+                "date_comparison": {
+                    "current_label": "Today",
+                    "previous_label": "Yesterday",
+                    "current_display": "",
+                    "previous_display": "",
+                },
+                "daily_dashboard": {
+                    "overview_cards": [],
+                    "variance_chart": {},
+                },
                 "consumption": {
                     "coverage": {},
                     "totals": {"rows": []},
@@ -1229,10 +1242,21 @@ class ReportBuilderService:
         daily_columns = self._build_daily_columns(utility_object)
         daily_rows = self._build_daily_rows(utility_object)
         charts = self._build_v3_utility_charts(utility_object)
+        overview_cards = self._build_v3_utility_overview_cards(utility_object)
+        sensor_monitoring = {
+            **(utility_object.get("current", {}).get("sensor_monitoring", {}) or {}),
+        }
+        sensor_monitoring["trend_clusters_render"] = self._build_v3_sensor_trend_clusters(sensor_monitoring)
 
         return {
-            "title": "UTILITY USAGE",
+            "title": "UTILITY OVERVIEW",
             "subtitle": "Consumption and sensor monitoring.",
+            "unit_badge": self._resolve_utility_unit_badge(utility_object),
+            "date_comparison": self._build_v3_utility_date_comparison(period),
+            "daily_dashboard": {
+                "overview_cards": overview_cards,
+                "variance_chart": charts.get("deviation_vs_yesterday", {}),
+            },
             "consumption": {
                 "coverage": coverage,
                 "totals": {
@@ -1244,9 +1268,7 @@ class ReportBuilderService:
                 },
             },
             "charts": charts,
-            "sensor_monitoring": {
-                **(utility_object.get("current", {}).get("sensor_monitoring", {}) or {}),
-            },
+            "sensor_monitoring": sensor_monitoring,
         }
 
     def _build_v3_utility_charts(
@@ -1257,6 +1279,7 @@ class ReportBuilderService:
         if not utility_object:
             return {
                 "comparison_bar": {},
+                "deviation_vs_yesterday": {},
                 "comparison_split": {
                     "wide": {},
                     "narrow": {},
@@ -1292,6 +1315,11 @@ class ReportBuilderService:
                 "title": "Utility comparison",
                 "subtitle": "Current vs previous total by load type",
                 "option": self._build_v3_utility_comparison_option(utility_items),
+            },
+            "deviation_vs_yesterday": {
+                "title": "2) Deviation vs Yesterday (%)",
+                "subtitle": "Positive value means higher consumption",
+                "option": self._build_v3_utility_deviation_option(utility_items),
             },
             "comparison_split": {
                 "wide": {
@@ -1378,6 +1406,495 @@ class ReportBuilderService:
                 },
             ],
         }
+
+    def _build_v3_utility_deviation_option(
+        self,
+        items: list[dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build a horizontal deviation chart for utility delta vs yesterday."""
+        deviation_items: list[dict[str, Any]] = []
+
+        for item in items:
+            previous_value = float(item.get("previous") or 0.0)
+            current_value = float(item.get("current") or 0.0)
+
+            if previous_value == 0.0:
+                deviation_pct = 0.0 if current_value == 0.0 else 100.0
+            else:
+                deviation_pct = ((current_value - previous_value) / previous_value) * 100.0
+
+            deviation_items.append({
+                "display_name": item.get("display_name") or "-",
+                "value": round(deviation_pct, 2),
+            })
+
+        deviation_items.sort(key=lambda item: item["value"], reverse=True)
+
+        labels = [item["display_name"] for item in deviation_items]
+        values = [item["value"] for item in deviation_items]
+        colors = [
+            "#e33434" if value > 0 else "#18a05e" if value < 0 else "#94a3b8"
+            for value in values
+        ]
+
+        min_value = min(values, default=0.0)
+        max_value = max(values, default=0.0)
+        axis_min = min(-10.0, float(min_value))
+        axis_max = max(10.0, float(max_value))
+
+        return {
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {"type": "shadow"},
+            },
+            "grid": {
+                "left": 132,
+                "right": 28,
+                "top": 18,
+                "bottom": 28,
+            },
+            "xAxis": {
+                "type": "value",
+                "min": round(axis_min - 1.0, 2),
+                "max": round(axis_max + 1.0, 2),
+                "axisLabel": {
+                    "color": "#64748b",
+                    "formatter": "{value}%",
+                },
+                "splitLine": {
+                    "lineStyle": {"color": "#e2e8f0"},
+                },
+            },
+            "yAxis": {
+                "type": "category",
+                "data": labels,
+                "axisTick": {"show": False},
+                "axisLine": {"show": False},
+                "axisLabel": {
+                    "color": "#475569",
+                    "fontSize": 11,
+                    "fontWeight": 600,
+                },
+            },
+            "series": [
+                {
+                    "type": "bar",
+                    "barWidth": 12,
+                    "data": [
+                        {
+                            "value": value,
+                            "itemStyle": {
+                                "color": colors[index],
+                                "borderRadius": [0, 4, 4, 0] if value >= 0 else [4, 0, 0, 4],
+                            },
+                            "label": {
+                                "show": True,
+                                "position": "right" if value >= 0 else "left",
+                                "color": "#334155",
+                                "fontWeight": 700,
+                                "formatter": f"{value:+.2f}%",
+                            },
+                        }
+                        for index, value in enumerate(values)
+                    ],
+                }
+            ],
+        }
+
+    def _build_v3_utility_overview_cards(
+        self,
+        utility_object: Optional[Dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Build grouped dashboard cards for water, air, and steam."""
+        if not utility_object:
+            return []
+
+        metadata = utility_object.get("current", {}).get("metadata", {}) or {}
+        comparison = utility_object.get("comparison", {}) or {}
+
+        card_map = {
+            "water": {
+                "title": "WATER (TOTAL)",
+                "icon_key": "water",
+                "accent_color": "#2563eb",
+                "accent_tint": "rgba(37, 99, 235, 0.08)",
+                "value_color": "#2563eb",
+            },
+            "compressed_air": {
+                "title": "AIR (TOTAL)",
+                "icon_key": "air",
+                "accent_color": "#16a34a",
+                "accent_tint": "rgba(22, 163, 74, 0.08)",
+                "value_color": "#16a34a",
+            },
+            "steam": {
+                "title": "STEAM (TOTAL)",
+                "icon_key": "steam",
+                "accent_color": "#7c3aed",
+                "accent_tint": "rgba(124, 58, 237, 0.08)",
+                "value_color": "#7c3aed",
+            },
+        }
+        grouped_values = {
+            key: {"current": 0.0, "previous": 0.0}
+            for key in card_map.keys()
+        }
+
+        for utility_key, meta in metadata.items():
+            category = str(meta.get("category") or "").strip().lower()
+            normalized_category = "water" if category in {"water", "chilled_water"} else category
+
+            if normalized_category not in grouped_values:
+                continue
+
+            comp = comparison.get(utility_key, {})
+            grouped_values[normalized_category]["current"] += float(comp.get("current") or 0.0)
+            grouped_values[normalized_category]["previous"] += float(comp.get("previous") or 0.0)
+
+        cards: list[dict[str, Any]] = []
+        for category_key in ["water", "compressed_air", "steam"]:
+            config = card_map[category_key]
+            current_value = round(grouped_values[category_key]["current"], 2)
+            previous_value = round(grouped_values[category_key]["previous"], 2)
+            delta_value = round(current_value - previous_value, 2)
+
+            if previous_value == 0.0:
+                delta_pct = 0.0 if current_value == 0.0 else 100.0
+            else:
+                delta_pct = round(((current_value - previous_value) / previous_value) * 100.0, 2)
+
+            if abs(delta_pct) < 0.01:
+                status_label = "STABLE"
+                badge_class = "kpi-badge-stable"
+                delta_class = "trend-neutral"
+            elif delta_pct > 0:
+                status_label = "WATCH"
+                badge_class = "kpi-badge-watch"
+                delta_class = "trend-down"
+            else:
+                status_label = "GOOD"
+                badge_class = "kpi-badge-good"
+                delta_class = "trend-up"
+
+            cards.append({
+                "key": category_key,
+                "title": config["title"],
+                "icon_key": config["icon_key"],
+                "accent_color": config["accent_color"],
+                "accent_tint": config["accent_tint"],
+                "value_color": config["value_color"],
+                "status_label": status_label,
+                "badge_class": badge_class,
+                "today_display": self._fmt(current_value),
+                "yesterday_display": self._fmt(previous_value),
+                "delta_display": self._fmt(delta_value),
+                "delta_pct_display": self._fmt_pct(delta_pct / 100.0),
+                "delta_class": delta_class,
+            })
+
+        return cards
+
+    def _resolve_utility_unit_badge(
+        self,
+        utility_object: Optional[Dict[str, Any]],
+    ) -> str:
+        """Resolve one shared unit badge for the utility section."""
+        if not utility_object:
+            return "m³"
+
+        metadata = utility_object.get("current", {}).get("metadata", {}) or {}
+        units = sorted({
+            str(meta.get("unit") or "").strip()
+            for meta in metadata.values()
+            if meta.get("unit")
+        })
+        return units[0] if len(units) == 1 else "Mixed units"
+
+    def _build_v3_utility_date_comparison(
+        self,
+        period: Optional[Dict[str, Any]],
+    ) -> Dict[str, str]:
+        """Build utility header date comparison labels."""
+        period = period or {}
+        return {
+            "current_label": "Today",
+            "previous_label": "Yesterday",
+            "current_display": self._format_date_short_label(period.get("end_date")),
+            "previous_display": self._format_date_short_label(period.get("previous_end_date")),
+        }
+
+    def _build_v3_sensor_trend_clusters(
+        self,
+        sensor_monitoring: Dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Build rendered intraday trend clusters for daily utility UI."""
+        trend_mode = str(sensor_monitoring.get("trend_mode") or "").strip().lower()
+        trend_clusters = sensor_monitoring.get("trend_clusters") or []
+
+        if trend_mode != "intraday" or not trend_clusters:
+            return []
+
+        rendered_clusters: list[dict[str, Any]] = []
+        for cluster in trend_clusters:
+            rendered_charts = self._build_v3_sensor_trend_cluster_charts(cluster)
+            if not rendered_charts:
+                continue
+
+            rendered_clusters.append({
+                "enabled": True,
+                "cluster_key": cluster.get("cluster_key") or "",
+                "cluster_label": cluster.get("cluster_label") or "",
+                "accent_color": cluster.get("accent_color") or "#2563eb",
+                "accent_tint": cluster.get("accent_tint") or "rgba(37, 99, 235, 0.08)",
+                "sensor_count": int(cluster.get("sensor_count") or 0),
+                "active_sensor_count": int(cluster.get("active_sensor_count") or 0),
+                "alert_count": int(cluster.get("alert_count") or 0),
+                "chart_count": len(rendered_charts),
+                "charts": rendered_charts,
+            })
+
+        return rendered_clusters
+
+    def _build_v3_sensor_trend_cluster_charts(
+        self,
+        cluster: Dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Build display charts for one sensor cluster."""
+        raw_charts = cluster.get("charts") or []
+        chart_lookup = {
+            str(chart.get("measurement_type") or "").strip().lower(): chart
+            for chart in raw_charts
+        }
+
+        rendered_charts: list[dict[str, Any]] = []
+        cluster_label = cluster.get("cluster_label") or "Sensor cluster"
+
+        temperature_chart = chart_lookup.get("temperature")
+        if temperature_chart and (temperature_chart.get("series") or []):
+            rendered_charts.append({
+                "chart_id": f"utility-sensor-trend-{cluster.get('cluster_key')}-temperature",
+                "chart_key": f"{cluster.get('cluster_key')}_temperature",
+                "title": "Temperature trend",
+                "subtitle": f"{cluster_label} · {temperature_chart.get('unit') or '-'}",
+                "option": self._build_v3_sensor_intraday_option(
+                    temperature_chart,
+                    y_axes=[
+                        {
+                            "name": temperature_chart.get("unit") or "",
+                            "series_keys": [
+                                str(series.get("sensor_key") or "")
+                                for series in (temperature_chart.get("series") or [])
+                            ],
+                        }
+                    ],
+                ),
+            })
+
+        flow_chart = chart_lookup.get("flow")
+        pressure_chart = chart_lookup.get("pressure")
+        if flow_chart or pressure_chart:
+            combo_series = []
+            if flow_chart:
+                combo_series.extend(flow_chart.get("series") or [])
+            if pressure_chart:
+                combo_series.extend(pressure_chart.get("series") or [])
+
+            combo_chart = {
+                "chart_key": f"{cluster.get('cluster_key')}_flow_pressure",
+                "title": "Flow and pressure trend",
+                "series": combo_series,
+            }
+            y_axes = []
+            if flow_chart and (flow_chart.get("series") or []):
+                y_axes.append({
+                    "name": flow_chart.get("unit") or "",
+                    "series_keys": [
+                        str(series.get("sensor_key") or "")
+                        for series in (flow_chart.get("series") or [])
+                    ],
+                })
+            if pressure_chart and (pressure_chart.get("series") or []):
+                y_axes.append({
+                    "name": pressure_chart.get("unit") or "",
+                    "series_keys": [
+                        str(series.get("sensor_key") or "")
+                        for series in (pressure_chart.get("series") or [])
+                    ],
+                })
+
+            if flow_chart and pressure_chart:
+                combo_title = "Flow and pressure trend"
+                combo_subtitle = f"{cluster_label} · dual-axis view"
+            elif flow_chart:
+                combo_title = "Flow trend"
+                combo_subtitle = f"{cluster_label} · {flow_chart.get('unit') or '-'}"
+            else:
+                combo_title = "Pressure trend"
+                combo_subtitle = f"{cluster_label} · {pressure_chart.get('unit') or '-'}"
+
+            rendered_charts.append({
+                "chart_id": f"utility-sensor-trend-{cluster.get('cluster_key')}-flow-pressure",
+                "chart_key": f"{cluster.get('cluster_key')}_flow_pressure",
+                "title": combo_title,
+                "subtitle": combo_subtitle,
+                "option": self._build_v3_sensor_intraday_option(combo_chart, y_axes=y_axes),
+            })
+
+        capacity_chart = chart_lookup.get("capacity")
+        if capacity_chart and (capacity_chart.get("series") or []):
+            rendered_charts.append({
+                "chart_id": f"utility-sensor-trend-{cluster.get('cluster_key')}-capacity",
+                "chart_key": f"{cluster.get('cluster_key')}_capacity",
+                "title": "Capacity trend",
+                "subtitle": f"{cluster_label} · {capacity_chart.get('unit') or '-'}",
+                "option": self._build_v3_sensor_intraday_option(
+                    capacity_chart,
+                    y_axes=[
+                        {
+                            "name": capacity_chart.get("unit") or "",
+                            "series_keys": [
+                                str(series.get("sensor_key") or "")
+                                for series in (capacity_chart.get("series") or [])
+                            ],
+                        }
+                    ],
+                ),
+            })
+
+        return rendered_charts
+
+    def _build_v3_sensor_intraday_option(
+        self,
+        chart: Dict[str, Any],
+        *,
+        y_axes: list[dict[str, Any]] | None = None,
+    ) -> Dict[str, Any]:
+        """Build one intraday sensor line chart from raw timestamp points."""
+        series_items = chart.get("series") or []
+        all_timestamps: list[str] = []
+
+        for series in series_items:
+            for point in series.get("points") or []:
+                ts_value = str(point.get("ts") or "").strip()
+                if ts_value and ts_value not in all_timestamps:
+                    all_timestamps.append(ts_value)
+
+        if not all_timestamps:
+            all_timestamps = ["-"]
+
+        formatted_labels = [self._build_v3_intraday_axis_label(ts_value) for ts_value in all_timestamps]
+
+        axis_list = y_axes or [{
+            "name": chart.get("unit") or "",
+            "series_keys": [
+                str(series.get("sensor_key") or "")
+                for series in series_items
+            ],
+        }]
+        series_axis_map: dict[str, int] = {}
+        for axis_index, axis in enumerate(axis_list):
+            for sensor_key in axis.get("series_keys") or []:
+                series_axis_map[str(sensor_key)] = axis_index
+
+        option_series: list[dict[str, Any]] = []
+        for series in series_items:
+            point_lookup = {
+                str(point.get("ts") or ""): point
+                for point in series.get("points") or []
+            }
+            sensor_key = str(series.get("sensor_key") or "")
+            option_series.append({
+                "name": series.get("label") or series.get("sensor_key") or "-",
+                "type": "line",
+                "smooth": False,
+                "showSymbol": False,
+                "symbol": "circle",
+                "symbolSize": 5,
+                "lineStyle": {
+                    "width": 2.2,
+                    "color": series.get("color") or "#2563eb",
+                },
+                "itemStyle": {
+                    "color": series.get("color") or "#2563eb",
+                },
+                "emphasis": {
+                    "focus": "series",
+                },
+                "connectNulls": False,
+                "yAxisIndex": int(series_axis_map.get(sensor_key, 0)),
+                "data": [
+                    (
+                        round(float(point_lookup[ts_value]["value"]), 4)
+                        if ts_value in point_lookup and isinstance(point_lookup[ts_value].get("value"), (int, float))
+                        else None
+                    )
+                    for ts_value in all_timestamps
+                ],
+            })
+
+        option_y_axes = []
+        for axis_index, axis in enumerate(axis_list):
+            option_y_axes.append({
+                "type": "value",
+                "name": axis.get("name") or "",
+                "position": "left" if axis_index == 0 else "right",
+                "alignTicks": True if len(axis_list) > 1 else False,
+                "nameTextStyle": {
+                    "color": "#64748b",
+                    "fontSize": 9,
+                    "padding": [20, 0, 0, 10],
+                },
+                "axisLabel": {"color": "#64748b", "fontSize": 9},
+                "axisLine": {"show": len(axis_list) > 1, "lineStyle": {"color": "#cbd5e1"}},
+                "splitLine": {"show": axis_index == 0, "lineStyle": {"color": "#e2e8f0"}},
+            })
+
+        return {
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {"type": "line"},
+            },
+            "legend": {
+                "top": 6,
+                "left": 8,
+                "itemWidth": 12,
+                "itemHeight": 8,
+                "textStyle": {"color": "#475569", "fontSize": 10},
+            },
+            "grid": {
+                "left": 38,
+                "right": 14,
+                "top": 38,
+                "bottom": 28,
+                "containLabel": True,
+            },
+            "xAxis": {
+                "type": "category",
+                "data": formatted_labels,
+                "boundaryGap": False,
+                "axisLabel": {
+                    "color": "#64748b",
+                    "fontSize": 9,
+                    "interval": "auto",
+                },
+                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+            },
+            "yAxis": option_y_axes,
+            "series": option_series,
+        }
+
+    def _build_v3_intraday_axis_label(
+        self,
+        timestamp_text: str,
+    ) -> str:
+        """Return compact chart x-axis label from backend timestamp text."""
+        if not timestamp_text:
+            return "-"
+        if " " in timestamp_text:
+            return timestamp_text.split(" ", 1)[1][:5]
+        if "T" in timestamp_text:
+            return timestamp_text.split("T", 1)[1][:5]
+        return timestamp_text[-5:]
 
     def _build_v3_kpi_section(
         self,
@@ -2825,6 +3342,21 @@ class ReportBuilderService:
 
         weekday = value.strftime("%a")
         return f"{value.isoformat()} ({weekday})"
+
+    def _format_date_short_label(self, value) -> str:
+        """Format date as Mon DD, YYYY for compact dashboard display."""
+        if value in (None, ""):
+            return "-"
+
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value).date()
+        elif isinstance(value, datetime):
+            value = value.date()
+
+        if not isinstance(value, date):
+            return str(value)
+
+        return value.strftime("%b %d, %Y")
 
     def _build_energy_snapshot(self, energy_object) -> dict[str, Any]:
         """Build executive energy snapshot."""
