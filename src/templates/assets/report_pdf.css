@@ -86,7 +86,7 @@
     }
 
     .pdf-daily-chart-grid .electricity-chart {
-        height: 150px !important;
+        height: 250px !important;
     }
 
     .electricity-top10-wrap.report-table-wrap {
@@ -134,11 +134,17 @@
     }
 
     .utility-header-icon svg,
+    .utility-header-icon img,
     .utility-date-chip-icon svg,
     .utility-overview-card-icon svg {
     }
 
     .utility-header-icon svg {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    .utility-header-icon img {
         width: 22px !important;
         height: 22px !important;
     }
@@ -172,7 +178,78 @@
         font-size: 7px !important;
     }
 
+    .kpi-section-shell .section-header {
+        padding: 7px 10px 6px !important;
+    }
+
+    .kpi-section-shell .utility-header-main {
+        gap: 9px !important;
+    }
+
+    .kpi-section-shell .utility-header-icon {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .kpi-section-shell .utility-header-icon svg {
+        width: 19px !important;
+        height: 19px !important;
+    }
+
+    .kpi-section-shell .section-header h2 {
+        font-size: 14px !important;
+    }
+
+    .kpi-section-shell .section-subtitle {
+        margin-top: 2px !important;
+        font-size: 8px !important;
+    }
+
+    .kpi-header-date-chip {
+        min-width: 142px !important;
+        padding: 6px 8px !important;
+    }
+
+    .electricity-section-shell .section-header {
+        padding: 7px 10px 6px !important;
+    }
+
+    .electricity-section-shell .utility-header-main {
+        gap: 9px !important;
+    }
+
+    .electricity-section-shell .utility-header-icon {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .electricity-section-shell .utility-header-icon svg {
+        width: 19px !important;
+        height: 19px !important;
+    }
+
+    .electricity-section-shell .section-header h2 {
+        font-size: 14px !important;
+    }
+
+    .electricity-section-shell .section-subtitle {
+        margin-top: 2px !important;
+        font-size: 8px !important;
+    }
+
+    .electricity-header-date-chip {
+        min-width: 152px !important;
+        padding: 6px 8px !important;
+    }
+
     .utility-overview-heading {
+        margin-bottom: 8px !important;
+    }
+
+    .utility-total-block,
+    .utility-overview-block,
+    .utility-chart-block,
+    .utility-detail-block {
         margin-bottom: 8px !important;
     }
 
@@ -185,7 +262,7 @@
     }
 
     .utility-overview-card-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
         gap: 6px !important;
         margin-bottom: 8px !important;
     }
@@ -200,13 +277,13 @@
     }
 
     .utility-overview-card {
-        min-height: 85px !important;
+        min-height: 76px !important;
         padding: 7px 8px !important;
         border-radius: 10px !important;
     }
 
     .utility-overview-card-top {
-        margin-bottom: 6px !important;
+        margin-bottom: 4px !important;
     }
 
     .utility-overview-card-summary {
@@ -218,7 +295,7 @@
     }
 
     .utility-overview-card-title {
-        font-size: 9px !important;
+        font-size: 8px !important;
     }
 
     .utility-energy-card .utility-overview-card-title {
@@ -229,8 +306,8 @@
     }
 
     .utility-overview-card-icon {
-        width: 42px !important;
-        height: 42px !important;
+        width: 34px !important;
+        height: 34px !important;
     }
 
     .utility-energy-card .utility-overview-card-icon {
@@ -251,7 +328,7 @@
     }
 
     .utility-overview-card-value {
-        font-size: 18px !important;
+        font-size: 14px !important;
     }
 
     .utility-energy-card .utility-overview-card-value {
@@ -259,7 +336,7 @@
     }
 
     .utility-overview-card-unit {
-        font-size: 10px !important;
+        font-size: 8px !important;
     }
 
     .utility-energy-card .utility-overview-card-unit {
@@ -274,8 +351,8 @@
     }
 
     .utility-overview-card-compare-item {
-        min-height: 44px !important;
-        padding: 6px 6px 5px !important;
+        min-height: 0 !important;
+        padding: 5px 6px 4px !important;
     }
 
     .utility-energy-card .utility-overview-card-compare-item {
@@ -289,7 +366,22 @@
     }
 
     .utility-overview-card-compare-value {
-        font-size: 10px !important;
+        font-size: 8.5px !important;
+    }
+
+    .utility-overview-card-compare {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .utility-overview-card-delta-row {
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        padding: 4px 4px 0 !important;
+    }
+
+    .utility-overview-card-delta-row .utility-overview-card-compare-value {
+        font-size: 8.5px !important;
     }
 
     .utility-energy-card .utility-overview-card-compare-label,
@@ -333,17 +425,30 @@
     }
 
     .utility-chart-split-grid-daily {
-        margin-top: 8px !important;
+        margin-top: 2px !important;
+    }
+
+    .utility-chart-detail-stack {
+        gap: 2px !important;
+    }
+
+    .utility-chart-split-grid {
+        gap: 2px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .utility-chart-card {
+        padding-bottom: 4px !important;
     }
 
     .utility-comparison-chart {
-        height: 170px !important;
+        height: 160px !important;
     }
 
     .utility-comparison-chart-wide,
     .utility-comparison-chart-narrow,
     .utility-comparison-chart-daily {
-        height: 170px !important;
+        height: 160px !important;
     }
 
     .kpi-daily-grouped-bar-chart {
@@ -364,13 +469,32 @@
     }
 
     .kpi-daily-card {
-        min-height: 126px !important;
-        padding: 8px 9px !important;
+        min-height: 114px !important;
+        padding: 7px 8px !important;
         border-radius: 10px !important;
     }
 
+    .kpi-daily-card-top {
+        gap: 6px !important;
+        margin-bottom: 7px !important;
+    }
+
+    .kpi-daily-card-heading {
+        gap: 7px !important;
+    }
+
+    .kpi-daily-card-icon {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .kpi-daily-card-icon svg {
+        width: 15px !important;
+        height: 15px !important;
+    }
+
     .kpi-daily-card-title {
-        font-size: 9px !important;
+        font-size: 8px !important;
     }
 
     .kpi-daily-card-badge {
@@ -386,20 +510,128 @@
 
     .kpi-daily-card-compare {
         margin-top: 6px !important;
+        padding: 6px 7px !important;
+    }
+
+    .kpi-daily-card-compare-item {
+        padding: 2px 6px !important;
+    }
+
+    .kpi-daily-card-compare-label {
+        font-size: 6.2px !important;
     }
 
     .kpi-daily-card-compare-value {
-        font-size: 12px !important;
+        font-size: 10px !important;
+    }
+
+    .kpi-daily-card-footer {
+        gap: 6px !important;
+        margin-top: 7px !important;
     }
 
     .kpi-daily-card-delta {
-        margin-top: 8px !important;
+        margin-top: 0 !important;
+        font-size: 8.5px !important;
+    }
+
+    .electricity-total-card {
+        min-height: 124px !important;
+        padding: 8px 9px !important;
+        border-radius: 10px !important;
+    }
+
+    .electricity-total-card-top {
+        gap: 6px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .electricity-total-card-lead {
+        gap: 3px !important;
+    }
+
+    .electricity-total-card-title-row {
+        gap: 6px !important;
+    }
+
+    .electricity-total-card-icon {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .electricity-total-card-icon svg {
+        width: 15px !important;
+        height: 15px !important;
+    }
+
+    .electricity-total-card-title {
+        font-size: 8px !important;
+    }
+
+    .electricity-total-card-primary {
+        gap: 4px !important;
+    }
+
+    .electricity-total-card-primary-value {
+        font-size: 13px !important;
+    }
+
+    .electricity-total-card-primary-unit,
+    .electricity-total-card-note,
+    .electricity-total-card-footer-label,
+    .electricity-total-card-meter-label {
+        font-size: 7px !important;
+    }
+
+    .electricity-total-card-meta {
+        margin-top: 6px !important;
+        margin-bottom: 4px !important;
+        gap: 6px !important;
+    }
+
+    .electricity-total-card-meter-value {
+        font-size: 8.5px !important;
+    }
+
+    .electricity-total-card-compare {
+        padding: 6px 7px !important;
+        border-radius: 10px !important;
+    }
+
+    .electricity-total-card-compare-item {
+        padding: 2px 6px !important;
+    }
+
+    .electricity-total-card-compare-label {
+        font-size: 6.2px !important;
+    }
+
+    .electricity-total-card-compare-value {
         font-size: 10px !important;
+    }
+
+    .electricity-total-card-footer {
+        gap: 10px !important;
+        margin-top: 4px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .electricity-total-card-delta-block,
+    .electricity-total-card-delta-pct-block {
+        gap: 5px !important;
+    }
+
+    .electricity-total-card-footer-value {
+        font-size: 8.5px !important;
     }
 
     .kpi-daily-dashboard-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 6px !important;
+    }
+
+    .kpi-daily-chart-tile-wide {
+        grid-column: span 2 !important;
     }
 
     .kpi-daily-dashboard-chart {
@@ -442,11 +674,13 @@
     }
 
     .utility-total-table .utility-bar-column {
-        min-width: 138px !important;
+        min-width: 0 !important;
     }
 
     .utility-energy-detail-table {
-        min-width: 800px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
     }
 
     .utility-energy-detail-table th[rowspan="2"] {
@@ -462,19 +696,54 @@
         color: #64748b !important;
     }
 
-    .utility-divider-cell {
-        width: 4px !important;
-        min-width: 4px !important;
-        max-width: 4px !important;
-        padding: 0 !important;
-        background: transparent !important;
-        border-right: 1px solid var(--border-row) !important;
-        font-size: 0 !important;
-        line-height: 0 !important;
+    .utility-total-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
     }
 
-    .utility-energy-group-start {
-        border-left: none !important;
+    .utility-total-table col.col-utility {
+        width: 26% !important;
+    }
+
+    .utility-total-table col.col-consumption-current,
+    .utility-total-table col.col-consumption-previous {
+        width: 10% !important;
+    }
+
+    .utility-total-table col.col-consumption-delta,
+    .utility-total-table col.col-consumption-delta-pct {
+        width: 8.5% !important;
+    }
+
+    .utility-total-table col.col-energy-current,
+    .utility-total-table col.col-energy-previous {
+        width: 10% !important;
+    }
+
+    .utility-total-table col.col-energy-delta-pct {
+        width: 17% !important;
+    }
+
+    .utility-total-table col.col-unit {
+        width: 8% !important;
+    }
+
+    .utility-total-table col.col-current,
+    .utility-total-table col.col-previous {
+        width: 23% !important;
+    }
+
+    .utility-total-table col.col-delta,
+    .utility-total-table col.col-delta-pct {
+        width: 13.5% !important;
+    }
+
+    .utility-total-table .col-utility,
+    .utility-total-table .col-unit,
+    .utility-total-table .utility-energy-table-group,
+    .utility-total-table td {
+        white-space: nowrap !important;
     }
 
     .utility-value-bar-cell {
@@ -861,6 +1130,10 @@
         gap: 8px !important;
     }
 
+    .utility-sensor-trend-card.is-full-width {
+        grid-column: 1 / -1 !important;
+    }
+
     .utility-sensor-trend-cluster {
         padding: 8px 10px 10px !important;
     }
@@ -879,6 +1152,29 @@
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-chart {
         height: 135px !important;
+    }
+
+    .electricity-daily-vertical-head,
+    .electricity-daily-vertical-row {
+        grid-template-columns: 36px minmax(0, 1.15fr) 94px !important;
+    }
+
+    .electricity-daily-vertical-index,
+    .electricity-daily-detail-table .col-index {
+        text-align: center !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+    }
+
+    .electricity-daily-vertical-index {
+        padding: 8px 4px !important;
+    }
+
+    .electricity-daily-detail-table .col-index {
+        width: 42px !important;
+        min-width: 42px !important;
+        padding-left: 4px !important;
+        padding-right: 4px !important;
     }
 
     .utility-sensor-table {
@@ -900,7 +1196,68 @@
     }
 
     .report-header-center {
-        padding: 18px 18px 14px !important;
+        padding: 6px 10px 7px 12px !important;
+        border-radius: 14px !important;
+        border-left-width: 5px !important;
+        box-shadow: none !important;
+    }
+
+    .report-meta-line-icon svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    .report-hero-body {
+        grid-template-columns: minmax(132px, 0.66fr) 1px minmax(0, 1.12fr) !important;
+        gap: 10px !important;
+        padding: 0 4px 0 0 !important;
+    }
+
+    .report-hero-brand-image {
+        width: min(100%, 150px) !important;
+    }
+
+    .report-main-title {
+        font-size: 24px !important;
+        margin: 0 !important;
+    }
+
+    .report-hero-subtitle {
+        font-size: 7.7px !important;
+    }
+
+    .report-meta-line {
+        gap: 3px !important;
+        font-size: 7.2px !important;
+    }
+
+    .report-hero-copy {
+        gap: 3px !important;
+    }
+
+    .report-hero-watermark {
+        top: 50% !important;
+        right: -8px !important;
+        bottom: auto !important;
+        width: 35% !important;
+        opacity: 0.16 !important;
+        transform: translateY(-50%) !important;
+    }
+
+    .report-hero-watermark::before {
+        width: 180px !important;
+        height: 72px !important;
+    }
+
+    .report-hero-watermark::after {
+        width: 140px !important;
+        height: 56px !important;
+    }
+
+    .report-hero-watermark-image {
+        clip-path: inset(0 0 0 60%) !important;
+        transform: scale(1.9) !important;
+        transform-origin: right center !important;
     }
 
     .report-header-v3,

@@ -310,17 +310,16 @@ PDF chart rendering must follow the same stable pattern used by the electricity 
 1. measure `el.clientWidth` and `el.clientHeight`
 2. initialize ECharts with `renderer: "svg"`
 3. disable animation before `setOption`
-4. call `resize()` on:
-   * initial render
-   * `beforeprint`
-   * window `resize`
-   * `ResizeObserver`
-5. flush ZRender after resize for print stability
+4. schedule chart init after layout is ready so print-target containers have real size
+5. flush ZRender after initial resize for print stability
+6. freeze the rendered chart into static SVG markup inside `*_pdf_source.html`
+7. print the staged HTML with Chromium headless into the staging PDF path
 
 Important rule learned from implementation:
 
 * if chart width / spacing looks wrong in PDF, first fix the backend chart option (`grid`, labels, axis spacing)
 * do not depend on ad-hoc JS width forcing as the main solution
+* PDF charts should be treated as static print assets, not long-lived interactive widgets
 
 ---
 

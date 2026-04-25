@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import base64
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 from src.utils.logger import get_logger
@@ -88,6 +90,8 @@ class ReportBuilderService:
                 "workshop_name": meta.get("workshop_name", ""),
                 "energy_unit": meta.get("energy_unit", "kWh"),
                 "kpi_unit": meta.get("kpi_unit", "kWh/Ton"),
+                "company_logo_uri": self._build_company_logo_data_uri(),
+                "utility_header_icon_uri": self._build_icon_data_uri("utilityheader.svg"),
             },
             "period": v3_period_block["period"],
             "flags": v3_period_block["flags"],
@@ -107,6 +111,37 @@ class ReportBuilderService:
         logger.info("Report context V3 built successfully")
 
         return report_context
+
+    def _build_company_logo_data_uri(self) -> str:
+        """Embed the company logo so both HTML preview and PDF render consistently."""
+        for filename in ("logo_company.svg", "logo_company.png"):
+            asset_uri = self._build_icon_data_uri(filename)
+            if asset_uri:
+                return asset_uri
+        return ""
+
+    def _build_icon_data_uri(self, filename: str) -> str:
+        """Embed a template icon asset for stable HTML/PDF rendering."""
+        icon_path = (
+            Path(__file__).resolve().parents[2]
+            / "src"
+            / "templates"
+            / "assets"
+            / "icon"
+            / filename
+        )
+
+        suffix = icon_path.suffix.lower()
+        mime_type = "image/svg+xml" if suffix == ".svg" else "image/png"
+
+        try:
+            icon_bytes = icon_path.read_bytes()
+        except OSError:
+            logger.warning("Unable to read icon asset. path=%s", icon_path)
+            return ""
+
+        encoded = base64.b64encode(icon_bytes).decode("ascii")
+        return f"data:{mime_type};base64,{encoded}"
 
     def _build_v3_period_block(
         self,
@@ -757,6 +792,9 @@ class ReportBuilderService:
                 ),
             )
 
+            for entry_index, entry in enumerate(entries, start=1):
+                entry["index"] = entry_index
+
             safe_column_count = max(1, column_count)
             chunk_size = max(1, (len(entries) + safe_column_count - 1) // safe_column_count)
             column_groups = [
@@ -1027,6 +1065,7 @@ class ReportBuilderService:
                         for row in area_rows
                     ],
                     total_value=current_total_value,
+                    slice_border_radius=6,
                     pie_radius=("39%", "60%"),
                     pie_center=("50%", "58%"),
                     graphic_left="43%",
@@ -1126,7 +1165,7 @@ class ReportBuilderService:
                     "grid": {
                         "left": 32,
                         "right": 12,
-                        "top": 36,
+                        "top": 48,
                         "bottom": 22,
                         "containLabel": True,
                     },
@@ -1146,15 +1185,19 @@ class ReportBuilderService:
                             "name": "Current period",
                             "type": "bar",
                             "barMaxWidth": 26,
-                            "itemStyle": {"color": "#2563eb", "borderRadius": [6, 6, 0, 0]},
-                            "data": current_area_values,
+                            "data": [
+                                self._build_chart_bar_point(value, color="#2563eb")
+                                for value in current_area_values
+                            ],
                         },
                         {
                             "name": "Previous period",
                             "type": "bar",
                             "barMaxWidth": 26,
-                            "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
-                            "data": previous_area_values,
+                            "data": [
+                                self._build_chart_bar_point(value, color="#7c3aed")
+                                for value in previous_area_values
+                            ],
                         },
                     ],
                 },
@@ -1331,7 +1374,7 @@ class ReportBuilderService:
                 "option": self._build_v3_utility_comparison_option(utility_items),
             },
             "deviation_vs_yesterday": {
-                "title": "2) Deviation vs Yesterday (%)",
+                "title": "Deviation vs Yesterday (%)",
                 "subtitle": "Positive value means higher consumption",
                 "option": self._build_v3_utility_deviation_option(utility_items),
             },
@@ -1359,6 +1402,39 @@ class ReportBuilderService:
             return f"{first}\n{second}"
         return display_name
 
+    def _build_chart_bar_point(
+        self,
+        value: Any,
+        *,
+        color: str,
+        border_radius: list[int] | None = None,
+        font_size: int = 10,
+    ) -> dict[str, Any]:
+        """Build one bar datum with a compact value label above the bar."""
+        point = {
+            "value": round(float(value), 4) if isinstance(value, (int, float)) else None,
+            "itemStyle": {
+                "color": color,
+                "borderRadius": border_radius or [6, 6, 0, 0],
+            },
+        }
+
+        if isinstance(value, (int, float)):
+            point["label"] = {
+                "show": True,
+                "position": "top",
+                "distance": 6,
+                "rotate": 28,
+                "formatter": self._fmt_chart_callout(value),
+                "color": "#475569",
+                "fontSize": font_size,
+                "fontWeight": 700,
+            }
+        else:
+            point["label"] = {"show": False}
+
+        return point
+
     def _build_v3_utility_comparison_option(
         self,
         items: list[dict[str, Any]],
@@ -1383,7 +1459,7 @@ class ReportBuilderService:
             "grid": {
                 "left": 32,
                 "right": 12,
-                "top": 36,
+                "top": 48,
                 "bottom": 30,
                 "containLabel": True,
             },
@@ -1408,15 +1484,19 @@ class ReportBuilderService:
                     "name": "Current period",
                     "type": "bar",
                     "barMaxWidth": 24,
-                    "itemStyle": {"color": "#2563eb", "borderRadius": [6, 6, 0, 0]},
-                    "data": current_values,
+                    "data": [
+                        self._build_chart_bar_point(value, color="#2563eb")
+                        for value in current_values
+                    ],
                 },
                 {
                     "name": "Previous period",
                     "type": "bar",
                     "barMaxWidth": 24,
-                    "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
-                    "data": previous_values,
+                    "data": [
+                        self._build_chart_bar_point(value, color="#7c3aed")
+                        for value in previous_values
+                    ],
                 },
             ],
         }
@@ -1519,7 +1599,7 @@ class ReportBuilderService:
         self,
         utility_object: Optional[Dict[str, Any]],
     ) -> list[dict[str, Any]]:
-        """Build grouped dashboard cards for water, air, and steam."""
+        """Build grouped dashboard cards for water, air, chilled water, and steam."""
         if not utility_object:
             return []
 
@@ -1541,6 +1621,13 @@ class ReportBuilderService:
                 "accent_tint": "rgba(22, 163, 74, 0.08)",
                 "value_color": "#16a34a",
             },
+            "chilled_water": {
+                "title": "CHILLED WATER",
+                "icon_key": "chilled-water",
+                "accent_color": "#0ea5b7",
+                "accent_tint": "rgba(14, 165, 183, 0.10)",
+                "value_color": "#0f766e",
+            },
             "steam": {
                 "title": "STEAM (TOTAL)",
                 "icon_key": "steam",
@@ -1556,17 +1643,15 @@ class ReportBuilderService:
 
         for utility_key, meta in metadata.items():
             category = str(meta.get("category") or "").strip().lower()
-            normalized_category = "water" if category in {"water", "chilled_water"} else category
-
-            if normalized_category not in grouped_values:
+            if category not in grouped_values:
                 continue
 
             comp = comparison.get(utility_key, {})
-            grouped_values[normalized_category]["current"] += float(comp.get("current") or 0.0)
-            grouped_values[normalized_category]["previous"] += float(comp.get("previous") or 0.0)
+            grouped_values[category]["current"] += float(comp.get("current") or 0.0)
+            grouped_values[category]["previous"] += float(comp.get("previous") or 0.0)
 
         cards: list[dict[str, Any]] = []
-        for category_key in ["water", "compressed_air", "steam"]:
+        for category_key in ["water", "compressed_air", "chilled_water", "steam"]:
             config = card_map[category_key]
             current_value = round(grouped_values[category_key]["current"], 2)
             previous_value = round(grouped_values[category_key]["previous"], 2)
@@ -1966,6 +2051,8 @@ class ReportBuilderService:
 
         rendered_charts: list[dict[str, Any]] = []
         cluster_label = cluster.get("cluster_label") or "Sensor cluster"
+        cluster_key = str(cluster.get("cluster_key") or "").strip().lower()
+        full_width_flow_pressure = cluster_key in {"ico_chiller", "diode_chiller"}
 
         temperature_chart = chart_lookup.get("temperature")
         if temperature_chart and (temperature_chart.get("series") or []):
@@ -2030,17 +2117,20 @@ class ReportBuilderService:
                 combo_title = "Pressure trend"
                 combo_subtitle = f"{cluster_label} · {pressure_chart.get('unit') or '-'}"
 
-            rendered_charts.append({
+            combo_rendered_chart = {
                 "chart_id": f"utility-sensor-trend-{cluster.get('cluster_key')}-flow-pressure",
                 "chart_key": f"{cluster.get('cluster_key')}_flow_pressure",
                 "title": combo_title,
                 "subtitle": combo_subtitle,
+                "is_full_width": full_width_flow_pressure,
                 "option": self._build_v3_sensor_intraday_option(combo_chart, y_axes=y_axes),
-            })
+            }
+        else:
+            combo_rendered_chart = None
 
         capacity_chart = chart_lookup.get("capacity")
         if capacity_chart and (capacity_chart.get("series") or []):
-            rendered_charts.append({
+            capacity_rendered_chart = {
                 "chart_id": f"utility-sensor-trend-{cluster.get('cluster_key')}-capacity",
                 "chart_key": f"{cluster.get('cluster_key')}_capacity",
                 "title": "Capacity trend",
@@ -2057,7 +2147,19 @@ class ReportBuilderService:
                         }
                     ],
                 ),
-            })
+            }
+        else:
+            capacity_rendered_chart = None
+
+        if full_width_flow_pressure and capacity_rendered_chart is not None:
+            rendered_charts.append(capacity_rendered_chart)
+            if combo_rendered_chart is not None:
+                rendered_charts.append(combo_rendered_chart)
+        else:
+            if combo_rendered_chart is not None:
+                rendered_charts.append(combo_rendered_chart)
+            if capacity_rendered_chart is not None:
+                rendered_charts.append(capacity_rendered_chart)
 
         return rendered_charts
 
@@ -2101,6 +2203,69 @@ class ReportBuilderService:
                 for point in series.get("points") or []
             }
             sensor_key = str(series.get("sensor_key") or "")
+            series_color = series.get("color") or "#2563eb"
+            series_data = [
+                (
+                    round(float(point_lookup[ts_value]["value"]), 4)
+                    if ts_value in point_lookup and isinstance(point_lookup[ts_value].get("value"), (int, float))
+                    else None
+                )
+                for ts_value in all_timestamps
+            ]
+            numeric_points = [
+                (point_index, float(point_value))
+                for point_index, point_value in enumerate(series_data)
+                if isinstance(point_value, (int, float))
+            ]
+            mark_points: list[dict[str, Any]] = []
+
+            if numeric_points:
+                min_index, min_value = min(numeric_points, key=lambda item: item[1])
+                max_index, max_value = max(numeric_points, key=lambda item: item[1])
+
+                if min_index == max_index and abs(min_value - max_value) < 1e-9:
+                    mark_points.append({
+                        "name": "Min/Max",
+                        "coord": [formatted_labels[min_index], round(min_value, 4)],
+                        "value": round(min_value, 4),
+                        "itemStyle": {"color": series_color},
+                        "label": {
+                            "show": True,
+                            "position": "top",
+                            "distance": 8,
+                            "formatter": f"Min/Max {self._fmt_chart_callout(min_value)}",
+                            "color": series_color,
+                            "fontSize": 9,
+                            "fontWeight": 700,
+                            "backgroundColor": "rgba(255,255,255,0.92)",
+                            "padding": [2, 5],
+                            "borderRadius": 4,
+                        },
+                    })
+                else:
+                    for marker_name, marker_index, marker_value in [
+                        ("Min", min_index, min_value),
+                        ("Max", max_index, max_value),
+                    ]:
+                        mark_points.append({
+                            "name": marker_name,
+                            "coord": [formatted_labels[marker_index], round(marker_value, 4)],
+                            "value": round(marker_value, 4),
+                            "itemStyle": {"color": series_color},
+                            "label": {
+                                "show": True,
+                                "position": "top",
+                                "distance": 8,
+                                "formatter": f"{marker_name} {self._fmt_chart_callout(marker_value)}",
+                                "color": series_color,
+                                "fontSize": 9,
+                                "fontWeight": 700,
+                                "backgroundColor": "rgba(255,255,255,0.92)",
+                                "padding": [2, 5],
+                                "borderRadius": 4,
+                            },
+                        })
+
             option_series.append({
                 "name": series.get("label") or series.get("sensor_key") or "-",
                 "type": "line",
@@ -2110,24 +2275,25 @@ class ReportBuilderService:
                 "symbolSize": 5,
                 "lineStyle": {
                     "width": 2.2,
-                    "color": series.get("color") or "#2563eb",
+                    "color": series_color,
                 },
                 "itemStyle": {
-                    "color": series.get("color") or "#2563eb",
+                    "color": series_color,
+                },
+                "areaStyle": {
+                    "color": self._hex_to_rgba(series_color, 0.08),
                 },
                 "emphasis": {
                     "focus": "series",
                 },
                 "connectNulls": False,
                 "yAxisIndex": int(series_axis_map.get(sensor_key, 0)),
-                "data": [
-                    (
-                        round(float(point_lookup[ts_value]["value"]), 4)
-                        if ts_value in point_lookup and isinstance(point_lookup[ts_value].get("value"), (int, float))
-                        else None
-                    )
-                    for ts_value in all_timestamps
-                ],
+                "data": series_data,
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 10,
+                    "data": mark_points,
+                },
             })
 
         option_y_axes = []
@@ -2899,7 +3065,7 @@ class ReportBuilderService:
             "grid": {
                 "left": 32,
                 "right": 12,
-                "top": 36,
+                "top": 48,
                 "bottom": 24,
                 "containLabel": True,
             },
@@ -2919,15 +3085,19 @@ class ReportBuilderService:
                     "name": "Yesterday",
                     "type": "bar",
                     "barMaxWidth": 22,
-                    "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
-                    "data": yesterday_values,
+                    "data": [
+                        self._build_chart_bar_point(value, color="#7c3aed")
+                        for value in yesterday_values
+                    ],
                 },
                 {
                     "name": "Today",
                     "type": "bar",
                     "barMaxWidth": 22,
-                    "itemStyle": {"color": "#2563eb", "borderRadius": [6, 6, 0, 0]},
-                    "data": today_values,
+                    "data": [
+                        self._build_chart_bar_point(value, color="#2563eb")
+                        for value in today_values
+                    ],
                 },
             ],
         }
@@ -3123,6 +3293,7 @@ class ReportBuilderService:
         center_unit_font_size: int = 9,
         center_title_y: int = 24,
         center_unit_y: int = 40,
+        slice_border_radius: int = 0,
     ) -> Dict[str, Any]:
         """Build a detailed donut chart with center total, callouts, and legend."""
         safe_total = float(total_value or 0.0)
@@ -3195,7 +3366,11 @@ class ReportBuilderService:
                     "startAngle": 90,
                     "avoidLabelOverlap": True,
                     "minShowLabelAngle": 1,
-                    "itemStyle": {"borderColor": "#ffffff", "borderWidth": 4},
+                    "itemStyle": {
+                        "borderColor": "#ffffff",
+                        "borderWidth": 4,
+                        "borderRadius": slice_border_radius,
+                    },
                     "label": {"show": True, "color": "#0f172a"},
                     "labelLine": {"show": True},
                     "data": chart_items,
@@ -3577,6 +3752,25 @@ class ReportBuilderService:
         if val is None:
             return "-"
         return f"{float(val):,.2f}"
+
+    def _hex_to_rgba(self, value: str, opacity: float) -> str:
+        """Convert a hex color to rgba text, falling back to a blue tint."""
+        text = str(value or "").strip().lstrip("#")
+        if len(text) == 3:
+            text = "".join(char * 2 for char in text)
+
+        if len(text) != 6:
+            return f"rgba(37, 99, 235, {opacity})"
+
+        try:
+            red = int(text[0:2], 16)
+            green = int(text[2:4], 16)
+            blue = int(text[4:6], 16)
+        except ValueError:
+            return f"rgba(37, 99, 235, {opacity})"
+
+        safe_opacity = max(0.0, min(1.0, float(opacity)))
+        return f"rgba({red}, {green}, {blue}, {safe_opacity})"
 
     def _fmt_or_dash(self, val):
         """Return dash for None, otherwise numeric display including zero."""

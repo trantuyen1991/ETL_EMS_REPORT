@@ -89,7 +89,7 @@ class PDFService:
                 "--no-sandbox",
                 "--hide-scrollbars",
                 "--run-all-compositor-stages-before-draw",
-                "--virtual-time-budget=30000",
+                "--virtual-time-budget=45000",
                 f"--print-to-pdf={str(output_pdf.resolve())}",
                 f"file://{html_path.resolve()}",
             ]

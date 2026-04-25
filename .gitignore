@@ -35,6 +35,16 @@ output/reports/
 *.jpg
 *.jpeg
 *.svg
+!src/templates/assets/icon/
+!src/templates/assets/icon/*.svg
+!src/templates/assets/icon/*.png
+!src/templates/assets/icon/electricityheader.svg
+!src/templates/assets/icon/electricity-total.svg
+!src/templates/assets/icon/kpiheader.svg
+!src/templates/assets/icon/kpi-total.svg
+!src/templates/assets/icon/kpi-diode.svg
+!src/templates/assets/icon/kpi-ico.svg
+!src/templates/assets/icon/kpi-sakari.svg
 debug_*.html
 debug_*.pdf
 *.zip

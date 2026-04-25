@@ -2,16 +2,31 @@
         <!-- ==========================================================
              Header - Daily layout
              ========================================================== -->
-        <div class="report-header-top">
-            <p class="report-small-title">{{ meta.report_title }}</p>
-        </div>
-
         <header class="report-header-v3">
             <div class="report-header-center">
-                <h1 class="report-main-title">{{ meta.workshop_name }}</h1>
-                <p class="report-meta-line">
-                    Created: {{ generated_at }}
-                </p>
+                <div class="report-hero-body">
+                    <div class="report-hero-brand">
+                        <img src="{{ meta.company_logo_uri }}" alt="Company logo" class="report-hero-brand-image">
+                    </div>
+
+                    <div class="report-hero-divider" aria-hidden="true"></div>
+
+                    <div class="report-hero-copy">
+                        <h1 class="report-main-title">{{ meta.workshop_name }}</h1>
+                        <p class="report-hero-subtitle">Daily automatic report • Energy performance overview</p>
+                        <div class="report-meta-line">
+                            <span class="report-meta-line-icon">
+                                {% include "assets/icon/calendar.svg" %}
+                            </span>
+                            <span class="report-meta-line-label">Created:</span>
+                            <span class="report-meta-line-value">{{ generated_at }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-hero-watermark" aria-hidden="true">
+                    <img src="{{ meta.company_logo_uri }}" alt="" class="report-hero-watermark-image">
+                </div>
             </div>
         </header>
 

@@ -11,6 +11,88 @@
     <script>
         {% include "assets/vendor/echarts/echarts.min.js" %}
     </script>
+    <script>
+        window.__scheduleReportChartInit = function (initFn) {
+            let attempts = 0;
+            const maxAttempts = 24;
+
+            function finalize() {
+                window.setTimeout(function () {
+                    window.dispatchEvent(new Event("resize"));
+                }, 140);
+                window.setTimeout(function () {
+                    window.dispatchEvent(new Event("beforeprint"));
+                }, 380);
+            }
+
+            function run() {
+                attempts += 1;
+                const ready = initFn();
+                if (ready === false && attempts < maxAttempts) {
+                    window.setTimeout(run, 160);
+                    return;
+                }
+                finalize();
+            }
+
+            function schedule() {
+                window.requestAnimationFrame(function () {
+                    window.requestAnimationFrame(run);
+                });
+            }
+
+            if (document.readyState === "loading") {
+                window.addEventListener("load", schedule, { once: true });
+            } else {
+                schedule();
+            }
+        };
+    </script>
+    <script>
+        window.__freezeReportCharts = function (charts, chartTargets) {
+            charts.forEach(function (chart, index) {
+                const target = chartTargets[index];
+                if (!chart || !target) {
+                    return;
+                }
+
+                let frozenMarkup = "";
+                if (typeof chart.renderToSVGString === "function") {
+                    frozenMarkup = chart.renderToSVGString();
+                }
+
+                if (typeof chart.dispose === "function") {
+                    chart.dispose();
+                }
+
+                target.innerHTML = "";
+                if (frozenMarkup) {
+                    target.innerHTML = frozenMarkup;
+                    const svg = target.querySelector("svg");
+                    if (svg) {
+                        svg.classList.add("report-chart-print-svg");
+                    }
+                    return;
+                }
+
+                if (typeof chart.getDataURL === "function") {
+                    const dataUrl = chart.getDataURL({
+                        type: "png",
+                        pixelRatio: 2,
+                        excludeComponents: ["toolbox"],
+                    });
+
+                    if (dataUrl) {
+                        const img = document.createElement("img");
+                        img.src = dataUrl;
+                        img.alt = "";
+                        img.className = "report-chart-print-image";
+                        target.appendChild(img);
+                    }
+                }
+            });
+        };
+    </script>
     <style>
         {% include "assets/report_pdf.css" %}
     </style>
@@ -55,45 +137,6 @@
         .electricity-subsection-title {
             break-after: avoid;
             page-break-after: avoid;
-        }
-
-        .report-header-top {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-        }
-
-        .report-small-title {
-            font-size: 10px;
-            font-weight: 500;
-            color: #94a3b8;
-            letter-spacing: 0.2px;
-        }
-
-        .report-header-v3 {
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .report-header-center {
-            padding: 14px 16px 12px;
-            border-radius: 16px;
-            background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-            border: 1px solid #dbeafe;
-            box-shadow: none;
-        }
-
-        .report-main-title {
-            color: #1639a6;
-            font-size: 30px;
-            margin-bottom: 4px;
-        }
-
-        .report-meta-line {
-            color: #475569;
-            font-weight: 600;
-            font-size: 12px;
         }
 
         .report-header-divider {

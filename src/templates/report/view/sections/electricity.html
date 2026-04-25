@@ -2,155 +2,197 @@
 {% if flags.show_electricity_section %}
         <section class="report-section daily-highlight-header electricity-section-shell">
             <div class="section-header">
-                <div class="section-header-title-row">
-                    <span class="section-header-symbol"></span>
-                    <h2>{{ sections.electricity.title }}</h2>
+                <div class="utility-header-shell electricity-header-shell">
+                    <div class="utility-header-main">
+                        <div class="utility-header-icon-wrap">
+                            <span class="utility-header-icon">
+                                {% include "assets/icon/electricityheader.svg" %}
+                            </span>
+                        </div>
+                        <div class="utility-header-copy">
+                            <div class="section-header-title-row utility-header-title-row">
+                                <h2>{{ sections.electricity.title }}</h2>
+                                {% if meta.energy_unit %}
+                                <span class="section-unit-badge section-unit-badge-inline">Unit: {{ meta.energy_unit }}</span>
+                                {% endif %}
+                            </div>
+                            {% if sections.electricity.subtitle %}
+                            <p class="section-subtitle">{{ sections.electricity.subtitle }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if period.label or period.comparison_label %}
+                    <div class="utility-date-chip electricity-header-date-chip">
+                        <span class="utility-date-chip-icon">
+                            {% include "assets/icon/calendar.svg" %}
+                        </span>
+                        <div class="utility-date-chip-copy">
+                            <div class="utility-date-chip-current">
+                                {{ period.label }}
+                            </div>
+                            <div class="utility-date-chip-previous">
+                                vs {{ period.comparison_label }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
-                {% if meta.energy_unit %}
-                <div class="section-meta-row">
-                    <span class="section-unit-badge">Unit: {{ meta.energy_unit }}</span>
-                </div>
-                {% endif %}
-                {% if sections.electricity.subtitle %}
-                <p class="section-subtitle">{{ sections.electricity.subtitle }}</p>
-                {% endif %}
             </div>
 
             <div class="electricity-total-grid">
+                {% set total_delta_class = summary.electricity_snapshot.delta_pct_class or summary.electricity_snapshot.delta_class %}
+                {% if total_delta_class == 'trend-down' %}
+                    {% set total_badge_label = 'WATCH' %}
+                    {% set total_badge_class = 'kpi-badge-watch' %}
+                {% elif total_delta_class == 'trend-up' %}
+                    {% set total_badge_label = 'GOOD' %}
+                    {% set total_badge_class = 'kpi-badge-good' %}
+                {% else %}
+                    {% set total_badge_label = 'STABLE' %}
+                    {% set total_badge_class = 'kpi-badge-stable' %}
+                {% endif %}
                 <div class="electricity-total-card is-total">
-                    <h3 class="electricity-total-card-title">Total</h3>
-
-                    <div class="electricity-total-metric">
-                        <span class="electricity-total-label">
-                            {{ labels.current_period or "Current" }}
+                    <div class="electricity-total-card-top">
+                        <span class="electricity-total-card-icon">
+                            {% include "assets/icon/electricity-total.svg" %}
                         </span>
-                        <span class="electricity-total-value current">
-                            {{ summary.electricity_snapshot.current_display }}
-                        </span>
+                        <div class="electricity-total-card-lead">
+                            <div class="electricity-total-card-title-row">
+                                <h3 class="electricity-total-card-title">TOTAL</h3>
+                                <span class="kpi-daily-card-badge {{ total_badge_class }}">{{ total_badge_label }}</span>
+                            </div>
+                            <div class="electricity-total-card-primary">
+                                <span class="electricity-total-card-primary-value">
+                                    {{ summary.electricity_snapshot.current_display }}
+                                </span>
+                                <span class="electricity-total-card-primary-unit">{{ meta.energy_unit }}</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="electricity-total-metric">
-                        <span class="electricity-total-label">
-                            {{ labels.previous_period or "Previous" }}
-                        </span>
-                        <span class="electricity-total-value previous">
-                            {{ summary.electricity_snapshot.previous_display }}
-                        </span>
+                    <div class="electricity-total-card-compare">
+                        <div class="electricity-total-card-compare-item">
+                            <span class="electricity-total-card-compare-label">{{ labels.current_period | upper }}</span>
+                            <span class="electricity-total-card-compare-value current">
+                                {{ summary.electricity_snapshot.current_display }}
+                            </span>
+                        </div>
+                        <div class="electricity-total-card-compare-item">
+                            <span class="electricity-total-card-compare-label">{{ labels.previous_period | upper | replace("PREVIOUS", "LAST") }}</span>
+                            <span class="electricity-total-card-compare-value previous">
+                                {{ summary.electricity_snapshot.previous_display }}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="electricity-total-metric">
-                        <span class="electricity-total-label">Delta</span>
-                        <span class="electricity-total-value delta {{ summary.electricity_snapshot.delta_class }}">
-                            {{ summary.electricity_snapshot.delta_display }}
-                        </span>
-                    </div>
-
-                    <div class="electricity-total-metric">
-                        <span class="electricity-total-label">Delta %</span>
-                        <span class="electricity-total-value delta-pct {{ summary.electricity_snapshot.delta_pct_class }}">
-                            {{ report.delta_arrow(summary.electricity_snapshot.delta_pct_class) }}
-                            {{ summary.electricity_snapshot.delta_pct_display }}
-                        </span>
-                    </div>
-
-                    <div class="electricity-total-metric electricity-total-metric-stack">
-                        <span class="electricity-total-label">Meter active / total</span>
-                        <span class="electricity-total-value electricity-total-value-compact">
+                    <div class="electricity-total-card-meta">
+                        <span class="electricity-total-card-meter-label">Meter:</span>
+                        <span class="electricity-total-card-meter-value">
                             {{ summary.electricity_snapshot.meter_active_total_display }}
                         </span>
+                    </div>
+
+                    <div class="electricity-total-card-footer">
+                        <div class="electricity-total-card-delta-block">
+                            <span class="electricity-total-card-footer-label">Delta</span>
+                            <span class="electricity-total-card-footer-value {{ summary.electricity_snapshot.delta_class }}">
+                                {{ summary.electricity_snapshot.delta_display }}
+                            </span>
+                        </div>
+                        <div class="electricity-total-card-delta-pct-block">
+                            <span class="electricity-total-card-footer-value delta-pct {{ summary.electricity_snapshot.delta_pct_class }}">
+                                {{ report.delta_arrow(summary.electricity_snapshot.delta_pct_class) }}
+                                {{ summary.electricity_snapshot.delta_pct_display }}
+                            </span>
+                            <span class="electricity-total-card-note">vs {{ labels.previous_period | lower | replace("previous", "last") }}</span>
+                        </div>
                     </div>
                 </div>
 
                 {% for row in sections.electricity.totals.rows %}
+                {% set comparison_rows = sections.electricity.comparison.rows %}
+                {% set ns = namespace(match=None) %}
+                {% for comp in comparison_rows %}
+                    {% if comp.area_key == row.area_key %}
+                        {% set ns.match = comp %}
+                    {% endif %}
+                {% endfor %}
+                {% set area_delta_class = ns.match.delta_pct_class if ns.match else '' %}
+                {% if area_delta_class == 'trend-down' %}
+                    {% set area_badge_label = 'WATCH' %}
+                    {% set area_badge_class = 'kpi-badge-watch' %}
+                {% elif area_delta_class == 'trend-up' %}
+                    {% set area_badge_label = 'GOOD' %}
+                    {% set area_badge_class = 'kpi-badge-good' %}
+                {% else %}
+                    {% set area_badge_label = 'STABLE' %}
+                    {% set area_badge_class = 'kpi-badge-stable' %}
+                {% endif %}
                 <div class="electricity-total-card area-{{ row.area_key }}">
-                    <h3 class="electricity-total-card-title">{{ row.area_name }}</h3>
-
-                    <div class="electricity-total-metric">
-                        <span class="electricity-total-label">
-                            {{ labels.current_period or "Current" }}
+                    <div class="electricity-total-card-top">
+                        <span class="electricity-total-card-icon">
+                            {% if row.area_key == "diode" %}
+                            {% include "assets/icon/kpi-diode.svg" %}
+                            {% elif row.area_key == "ico" %}
+                            {% include "assets/icon/kpi-ico.svg" %}
+                            {% elif row.area_key == "sakari" %}
+                            {% include "assets/icon/kpi-sakari.svg" %}
+                            {% endif %}
                         </span>
-                        <div class="electricity-total-value-group">
-                            <span class="electricity-total-value current">
+                        <div class="electricity-total-card-lead">
+                            <div class="electricity-total-card-title-row">
+                                <h3 class="electricity-total-card-title">{{ row.area_key | upper }}</h3>
+                                <span class="kpi-daily-card-badge {{ area_badge_class }}">{{ area_badge_label }}</span>
+                            </div>
+                            <div class="electricity-total-card-primary">
+                                <span class="electricity-total-card-primary-value">
+                                    {{ row.current_display }}
+                                </span>
+                                <span class="electricity-total-card-primary-unit">{{ meta.energy_unit }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="electricity-total-card-compare">
+                        <div class="electricity-total-card-compare-item">
+                            <span class="electricity-total-card-compare-label">{{ labels.current_period | upper }}</span>
+                            <span class="electricity-total-card-compare-value current">
                                 {{ row.current_display }}
                             </span>
-                            {% if summary.electricity_snapshot.current_display != "-" %}
-                                {% set ns_current_ratio = namespace(value=None) %}
-                                {% if summary.electricity_snapshot.current_display %}
-                                    {% set total_current = summary.electricity_snapshot.current_display | replace(',', '') | float %}
-                                    {% set area_current = row.current_display | replace(',', '') | float %}
-                                    {% if total_current > 0 %}
-                                        {% set ns_current_ratio.value = (area_current / total_current) * 100 %}
-                                    {% endif %}
-                                {% endif %}
-                                {% if ns_current_ratio.value is not none %}
-                                <span class="electricity-total-ratio">{{ report.ratio_note("%.2f"|format(ns_current_ratio.value) ~ "%") }}</span>
-                                {% endif %}
-                            {% endif %}
                         </div>
-                    </div>
-
-                    <div class="electricity-total-metric">
-                        <span class="electricity-total-label">
-                            {{ labels.previous_period or "Previous" }}
-                        </span>
-                        <div class="electricity-total-value-group">
-                            <span class="electricity-total-value previous">
+                        <div class="electricity-total-card-compare-item">
+                            <span class="electricity-total-card-compare-label">{{ labels.previous_period | upper | replace("PREVIOUS", "LAST") }}</span>
+                            <span class="electricity-total-card-compare-value previous">
                                 {{ row.previous_display }}
                             </span>
-                            {% if summary.electricity_snapshot.previous_display != "-" %}
-                                {% set ns_previous_ratio = namespace(value=None) %}
-                                {% if summary.electricity_snapshot.previous_display %}
-                                    {% set total_previous = summary.electricity_snapshot.previous_display | replace(',', '') | float %}
-                                    {% set area_previous = row.previous_display | replace(',', '') | float %}
-                                    {% if total_previous > 0 %}
-                                        {% set ns_previous_ratio.value = (area_previous / total_previous) * 100 %}
-                                    {% endif %}
-                                {% endif %}
-                                {% if ns_previous_ratio.value is not none %}
-                                <span class="electricity-total-ratio">{{ report.ratio_note("%.2f"|format(ns_previous_ratio.value) ~ "%") }}</span>
-                                {% endif %}
-                            {% endif %}
                         </div>
                     </div>
 
-                    {% set comparison_rows = sections.electricity.comparison.rows %}
-                    {% set ns = namespace(match=None) %}
-                    {% for comp in comparison_rows %}
-                        {% if comp.area_key == row.area_key %}
-                            {% set ns.match = comp %}
-                        {% endif %}
-                    {% endfor %}
-
-                    <div class="electricity-total-metric">
-                        <span class="electricity-total-label">Delta</span>
-                        <span class="electricity-total-value delta {{ ns.match.delta_class if ns.match else '' }}">
-                            {{ ns.match.delta_display if ns.match else "-" }}
-                        </span>
-                    </div>
-
-                    <div class="electricity-total-metric">
-                        <span class="electricity-total-label">Delta %</span>
-                        <span class="electricity-total-value delta-pct {{ ns.match.delta_pct_class if ns.match else '' }}">
-                            {% if ns.match %}
-                                {% if ns.match.delta_pct_class == 'trend-up' %}
-                                    <span class="delta-arrow trend-up">▼</span>
-                                {% elif ns.match.delta_pct_class == 'trend-down' %}
-                                    <span class="delta-arrow trend-down">▲</span>
-                                {% else %}
-                                    <span class="delta-arrow trend-neutral">•</span>
-                                {% endif %}
-                                {{ ns.match.delta_pct_display }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </span>
-                    </div>
-
-                    <div class="electricity-total-metric electricity-total-metric-stack">
-                        <span class="electricity-total-label">Meter active / total</span>
-                        <span class="electricity-total-value electricity-total-value-compact">
+                    <div class="electricity-total-card-meta">
+                        <span class="electricity-total-card-meter-label">Meter:</span>
+                        <span class="electricity-total-card-meter-value">
                             {{ row.meter_active_total_display }}
                         </span>
+                    </div>
+
+                    <div class="electricity-total-card-footer">
+                        <div class="electricity-total-card-delta-block">
+                            <span class="electricity-total-card-footer-label">Delta</span>
+                            <span class="electricity-total-card-footer-value {{ ns.match.delta_class if ns.match else '' }}">
+                                {{ ns.match.delta_display if ns.match else "-" }}
+                            </span>
+                        </div>
+                        <div class="electricity-total-card-delta-pct-block">
+                            <span class="electricity-total-card-footer-value delta-pct {{ ns.match.delta_pct_class if ns.match else '' }}">
+                                {% if ns.match %}
+                                    {{ report.delta_arrow(ns.match.delta_pct_class) }}
+                                    {{ ns.match.delta_pct_display }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
+                            <span class="electricity-total-card-note">vs {{ labels.previous_period | lower | replace("previous", "last") }}</span>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -179,7 +221,7 @@
             </div>
 
             <div class="electricity-detail-block">
-                <h3 class="electricity-subsection-title">Top 10 meters</h3>
+                <h3 class="electricity-subsection-title">Top 10 Meter Consumption</h3>
 
                 <div class="electricity-top10-wrap report-table-wrap">
                     <table class="electricity-top10-table electricity-top10-grouped-table report-table-ui">
@@ -273,7 +315,7 @@
 
             {% if not flags.is_daily_report %}
             <div class="electricity-daily-summary-block">
-                <h3 class="electricity-subsection-title">Daily summary</h3>
+                <h3 class="electricity-subsection-title">Daily Energy Summary</h3>
 
                 <div class="electricity-daily-summary-wrap report-table-wrap">
                     <table class="electricity-daily-summary-table report-table-ui">
@@ -348,7 +390,7 @@
             {% endif %}
 
             <div class="electricity-daily-detail-block">
-                <h3 class="electricity-subsection-title">Daily detail tables</h3>
+                <h3 class="electricity-subsection-title">Daily Energy Detail</h3>
 
                 {% if flags.is_daily_report %}
                 <div class="electricity-daily-vertical-grid">
@@ -363,12 +405,14 @@
                             {% for column_group in table.column_groups %}
                             <div class="electricity-daily-vertical-column report-table-wrap">
                                 <div class="electricity-daily-vertical-head">
+                                    <span class="col-index">Index</span>
                                     <span>Meter</span>
                                     <span>Value</span>
                                 </div>
 
                                 {% for entry in column_group %}
                                 <div class="electricity-daily-vertical-row {{ entry.heat_class }} {% if entry.is_max %}is-max{% endif %}">
+                                    <div class="electricity-daily-vertical-index">{{ entry.index }}</div>
                                     <div class="electricity-daily-vertical-meter">{{ entry.meter_name }}</div>
                                     <div class="electricity-daily-vertical-value {% if entry.is_zero %}value-zero{% endif %}">
                                         <div class="electricity-daily-value-bar-cell" style="--detail-fill-width: {{ entry.fill_pct }}%;">
@@ -393,6 +437,7 @@
                         <table class="electricity-daily-detail-table report-table-ui">
                             <thead>
                                 <tr>
+                                    <th class="col-index">Index</th>
                                     {% for column in table.columns %}
                                         {% if column.is_date %}
                                         <th class="col-date sticky-date-col">{{ column.display_name }}</th>
@@ -405,6 +450,7 @@
                             <tbody>
                                 {% for row in table.rows %}
                                 <tr>
+                                    <td class="col-index">{{ loop.index }}</td>
                                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                                     {% for cell in row.cells %}
                                     <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}">
@@ -424,7 +470,7 @@
                 (function () {
                     function initElectricityCharts() {
                         if (!window.echarts) {
-                            return;
+                            return false;
                         }
 
                         const chartConfigs = [
@@ -440,6 +486,7 @@
 
                         const charts = [];
                         const chartTargets = [];
+                        let hasSizedTarget = false;
 
                         chartConfigs.forEach(function (config) {
                             const el = document.getElementById(config.id);
@@ -447,11 +494,28 @@
                                 return;
                             }
 
+                            const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
+                            const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                            if (width <= 8 || height <= 8) {
+                                return;
+                            }
+
+                            const existingChart = echarts.getInstanceByDom(el);
+                            if (existingChart) {
+                                existingChart.dispose();
+                            }
+
                             const chart = echarts.init(el);
                             chart.setOption(config.option, true);
+                            chart.resize({ width: width, height: height });
                             charts.push(chart);
                             chartTargets.push(el);
+                            hasSizedTarget = true;
                         });
+
+                        if (!hasSizedTarget) {
+                            return false;
+                        }
 
                         function resizeCharts() {
                             charts.forEach(function (chart, index) {
@@ -492,13 +556,11 @@
                                 });
                             }
                         }
+
+                        return true;
                     }
 
-                    if (document.readyState === "loading") {
-                        document.addEventListener("DOMContentLoaded", initElectricityCharts);
-                    } else {
-                        initElectricityCharts();
-                    }
+                    window.__scheduleReportChartInit(initElectricityCharts);
                 })();
             </script>
         </section>

@@ -6,7 +6,7 @@
                     <div class="utility-header-main">
                         <div class="utility-header-icon-wrap">
                             <span class="utility-header-icon">
-                                {% include "assets/icon/utilityheader.svg" %}
+                                <img src="{{ meta.utility_header_icon_uri }}" alt="" class="utility-header-icon-image">
                             </span>
                         </div>
                         <div class="utility-header-copy">
@@ -43,7 +43,7 @@
             {% if flags.is_daily_report %}
             <div class="utility-overview-block">
                 <div class="utility-overview-heading">
-                    <h3 class="electricity-subsection-title">OVERVIEW BY UTILITY GROUP</h3>
+                    <h3 class="electricity-subsection-title">Overview By Utility Group</h3>
                     <span class="utility-overview-note">(Not aggregated)</span>
                 </div>
 
@@ -57,6 +57,8 @@
                                     {% include "assets/icon/water.svg" %}
                                     {% elif card.icon_key == "air" %}
                                     {% include "assets/icon/air.svg" %}
+                                    {% elif card.icon_key == "chilled-water" %}
+                                    {% include "assets/icon/chilled-water.svg" %}
                                     {% elif card.icon_key == "steam" %}
                                     {% include "assets/icon/steam.svg" %}
                                     {% endif %}
@@ -81,24 +83,61 @@
                                 <span class="utility-overview-card-compare-label">Yesterday</span>
                                 <span class="utility-overview-card-compare-value previous">{{ card.yesterday_display }}</span>
                             </div>
-                            <div class="utility-overview-card-compare-item">
-                                <span class="utility-overview-card-compare-label">Change</span>
-                                <span class="utility-overview-card-compare-value {{ card.delta_class }}">
-                                    {{ report.delta_arrow(card.delta_class) }}
-                                    {{ card.delta_pct_display }}
-                                </span>
-                                <span class="utility-overview-card-compare-note">vs yesterday</span>
-                            </div>
+                        </div>
+                        <div class="utility-overview-card-delta-row">
+                            <span class="utility-overview-card-compare-value {{ card.delta_class }}">
+                                {{ report.delta_arrow(card.delta_class) }}
+                                {{ card.delta_pct_display }}
+                            </span>
+                            <span class="utility-overview-card-compare-note">vs yesterday</span>
                         </div>
                     </article>
                     {% endfor %}
                 </div>
             </div>
 
+            <div class="utility-chart-block utility-chart-block-daily">
+                <div class="electricity-chart-card utility-chart-card utility-chart-card-daily">
+                    <h3 class="electricity-chart-card-title">
+                        {{ sections.utility.daily_dashboard.variance_chart.title }}
+                    </h3>
+                    <p class="electricity-chart-card-subtitle">
+                        {{ sections.utility.daily_dashboard.variance_chart.subtitle }}
+                    </p>
+                    <div id="utility-deviation-chart" class="electricity-chart utility-comparison-chart utility-comparison-chart-daily"></div>
+                </div>
+            </div>
+
+            <div class="utility-chart-split-grid utility-chart-split-grid-daily">
+                <div class="utility-chart-block utility-chart-block-wide">
+                    <div class="electricity-chart-card utility-chart-card">
+                        <h3 class="electricity-chart-card-title">
+                            {{ sections.utility.charts.comparison_split.wide.title }}
+                        </h3>
+                        <p class="electricity-chart-card-subtitle">
+                            {{ sections.utility.charts.comparison_split.wide.subtitle }}
+                        </p>
+                        <div id="utility-comparison-chart-wide" class="electricity-chart utility-comparison-chart utility-comparison-chart-wide"></div>
+                    </div>
+                </div>
+
+                <div class="utility-chart-block utility-chart-block-narrow">
+                    <div class="electricity-chart-card utility-chart-card">
+                        <h3 class="electricity-chart-card-title">
+                            {{ sections.utility.charts.comparison_split.narrow.title }}
+                        </h3>
+                        <p class="electricity-chart-card-subtitle">
+                            {{ sections.utility.charts.comparison_split.narrow.subtitle }}
+                        </p>
+                        <div id="utility-comparison-chart-narrow" class="electricity-chart utility-comparison-chart utility-comparison-chart-narrow"></div>
+                    </div>
+                </div>
+            </div>
+
             {% if sections.utility.energy.enabled %}
             <div class="utility-energy-block">
                 <div class="utility-overview-heading">
-                    <h3 class="electricity-subsection-title">{{ sections.utility.energy.title }}</h3>
+                    <h3 class="electricity-subsection-title">Utility Energy (Converted to kWh)</h3>
                     {% if sections.utility.energy.summary_note %}
                     <span class="utility-overview-note">{{ sections.utility.energy.summary_note }}</span>
                     {% endif %}
@@ -154,31 +193,34 @@
             </div>
             {% endif %}
 
-            <div class="utility-chart-block utility-chart-block-daily">
-                <div class="electricity-chart-card utility-chart-card utility-chart-card-daily">
-                    <h3 class="electricity-chart-card-title">
-                        {{ sections.utility.daily_dashboard.variance_chart.title }}
-                    </h3>
-                    <p class="electricity-chart-card-subtitle">
-                        {{ sections.utility.daily_dashboard.variance_chart.subtitle }}
-                    </p>
-                    <div id="utility-deviation-chart" class="electricity-chart utility-comparison-chart utility-comparison-chart-daily"></div>
-                </div>
-            </div>
-
             <div class="utility-total-block utility-total-block-daily">
-                <h3 class="electricity-subsection-title">
-                    {% if sections.utility.energy.enabled %}5) Utility Detail Summary{% else %}Utility summary{% endif %}
-                </h3>
+                <h3 class="electricity-subsection-title">Utility Detail Summary</h3>
 
                 <div class="utility-total-table-wrap report-table-wrap">
                     <table class="utility-total-table report-table-ui {% if sections.utility.energy.enabled %}utility-energy-detail-table{% endif %}">
+                        <colgroup>
+                            {% if sections.utility.energy.enabled %}
+                            <col class="col-utility">
+                            <col class="col-consumption-current">
+                            <col class="col-consumption-previous">
+                            <col class="col-consumption-delta">
+                            <col class="col-consumption-delta-pct">
+                            <col class="col-energy-current">
+                            <col class="col-energy-previous">
+                            <col class="col-energy-delta-pct">
+                            {% else %}
+                            <col class="col-utility">
+                            <col class="col-unit">
+                            <col class="col-current">
+                            <col class="col-previous">
+                            <col class="col-delta">
+                            <col class="col-delta-pct">
+                            {% endif %}
+                        </colgroup>
                         <thead>
                             {% if sections.utility.energy.enabled %}
                             <tr>
                                 <th rowspan="2">Utility</th>
-                                <th rowspan="2">Group</th>
-                                <th rowspan="1" class="utility-divider-cell" aria-hidden="true"></th>
                                 <th colspan="4" class="utility-energy-table-group">
                                     Consumption <span class="utility-energy-table-unit">({{ sections.utility.unit_badge or "m³" }})</span>
                                 </th>
@@ -211,8 +253,6 @@
                             {% for row in sections.utility.energy.detail_rows %}
                             <tr>
                                 <td class="col-utility">{{ row.display_name }}</td>
-                                <td>{{ row.group_label }}</td>
-                                <td class="utility-divider-cell" aria-hidden="true"></td>
                                 <td>{{ row.current_display }}</td>
                                 <td>{{ row.previous_display }}</td>
                                 <td class="{{ row.delta_pct_class }}">{{ row.delta_display }}</td>
@@ -253,8 +293,8 @@
                     </table>
                 </div>
             </div>
-
-            <div class="utility-chart-split-grid utility-chart-split-grid-daily">
+            {% else %}
+            <div class="utility-chart-split-grid">
                 <div class="utility-chart-block utility-chart-block-wide">
                     <div class="electricity-chart-card utility-chart-card">
                         <h3 class="electricity-chart-card-title">
@@ -279,12 +319,20 @@
                     </div>
                 </div>
             </div>
-            {% else %}
+
             <div class="utility-total-block">
-                <h3 class="electricity-subsection-title">Utility summary</h3>
+                <h3 class="electricity-subsection-title">Utility Detail Summary</h3>
 
                 <div class="utility-total-table-wrap report-table-wrap">
                     <table class="utility-total-table report-table-ui">
+                        <colgroup>
+                            <col class="col-utility">
+                            <col class="col-unit">
+                            <col class="col-current">
+                            <col class="col-previous">
+                            <col class="col-delta">
+                            <col class="col-delta-pct">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>Utility</th>
@@ -326,34 +374,8 @@
                 </div>
             </div>
 
-            <div class="utility-chart-split-grid">
-                <div class="utility-chart-block utility-chart-block-wide">
-                    <div class="electricity-chart-card utility-chart-card">
-                        <h3 class="electricity-chart-card-title">
-                            {{ sections.utility.charts.comparison_split.wide.title }}
-                        </h3>
-                        <p class="electricity-chart-card-subtitle">
-                            {{ sections.utility.charts.comparison_split.wide.subtitle }}
-                        </p>
-                        <div id="utility-comparison-chart-wide" class="electricity-chart utility-comparison-chart utility-comparison-chart-wide"></div>
-                    </div>
-                </div>
-
-                <div class="utility-chart-block utility-chart-block-narrow">
-                    <div class="electricity-chart-card utility-chart-card">
-                        <h3 class="electricity-chart-card-title">
-                            {{ sections.utility.charts.comparison_split.narrow.title }}
-                        </h3>
-                        <p class="electricity-chart-card-subtitle">
-                            {{ sections.utility.charts.comparison_split.narrow.subtitle }}
-                        </p>
-                        <div id="utility-comparison-chart-narrow" class="electricity-chart utility-comparison-chart utility-comparison-chart-narrow"></div>
-                    </div>
-                </div>
-            </div>
-
             <div class="utility-detail-block">
-                <h3 class="electricity-subsection-title">Daily utility detail</h3>
+                <h3 class="electricity-subsection-title">Daily Utility Detail</h3>
 
                 <div class="utility-detail-table-wrap report-table-wrap">
                     <table class="utility-detail-table report-table-ui">
@@ -388,7 +410,7 @@
                 <div class="utility-sensor-header">
                     <div>
                         <h3 class="electricity-subsection-title">
-                            {{ sensor_monitoring.title or "Sensor monitoring" }}
+                            Sensor Monitoring
                         </h3>
                         {% if sensor_monitoring.subtitle %}
                         <p class="utility-sensor-subtitle">{{ sensor_monitoring.subtitle }}</p>
@@ -551,7 +573,7 @@
 
                             <div class="utility-sensor-trend-preview-grid {% if cluster.chart_count == 1 %}is-single{% endif %}">
                                 {% for chart in cluster.charts %}
-                                <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card">
+                                <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card {% if chart.is_full_width %}is-full-width{% endif %}">
                                     <h3 class="electricity-chart-card-title">{{ chart.title }}</h3>
                                     <p class="electricity-chart-card-subtitle">{{ chart.subtitle }}</p>
                                     <div id="{{ chart.chart_id }}" class="electricity-chart utility-sensor-trend-chart"></div>
@@ -612,7 +634,7 @@
                 (function () {
                     function initUtilityChart() {
                         if (!window.echarts) {
-                            return;
+                            return false;
                         }
 
                         const chartConfigs = [
@@ -651,6 +673,7 @@
 
                         const charts = [];
                         const chartTargets = [];
+                        let hasSizedTarget = false;
 
                         chartConfigs.forEach(function (config) {
                             const el = document.getElementById(config.id);
@@ -660,9 +683,16 @@
 
                             const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
                             const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                            if (width <= 8 || height <= 8) {
+                                return;
+                            }
 
+                            const existingChart = echarts.getInstanceByDom(el);
+                            if (existingChart) {
+                                existingChart.dispose();
+                            }
                             const chart = echarts.init(el, null, {
-                                renderer: "svg",
+                                renderer: "canvas",
                                 width: width,
                                 height: height,
                             });
@@ -674,7 +704,12 @@
                             }
                             charts.push(chart);
                             chartTargets.push(el);
+                            hasSizedTarget = true;
                         });
+
+                        if (!hasSizedTarget) {
+                            return false;
+                        }
 
                         function resizeChart() {
                             charts.forEach(function (chart, index) {
@@ -714,13 +749,11 @@
                                 observer.observe(target);
                             });
                         }
+
+                        return true;
                     }
 
-                    if (document.readyState === "loading") {
-                        document.addEventListener("DOMContentLoaded", initUtilityChart);
-                    } else {
-                        initUtilityChart();
-                    }
+                    window.__scheduleReportChartInit(initUtilityChart);
                 })();
             </script>
         </section>

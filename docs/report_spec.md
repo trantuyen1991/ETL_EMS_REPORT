@@ -330,10 +330,10 @@ Charts must use Apache ECharts.
 ### 11.3 Print Stability Rules
 When exporting PDF, charts may require additional handling:
 - disable animation when needed
-- prefer SVG mode when needed
-- refresh or resize chart before and after print
-- ensure chart size updates correctly when layout changes
+- prefer SVG mode for PDF output
+- initialize only after the chart container has a real measured size
 - apply print-mode chart sizing before Chromium captures the page
+- freeze rendered charts into static SVG markup inside `*_pdf_source.html` before print
 - control final chart height in PDF CSS to protect following tables from overflow
 
 ### 11.4 Future Expansion

@@ -17,6 +17,43 @@
             {% include "assets/vendor/echarts/echarts.min.js" %}
         }
     </script>
+    <script>
+        window.__scheduleReportChartInit = function (initFn) {
+            let attempts = 0;
+            const maxAttempts = 18;
+
+            function finalize() {
+                window.setTimeout(function () {
+                    window.dispatchEvent(new Event("resize"));
+                }, 120);
+                window.setTimeout(function () {
+                    window.dispatchEvent(new Event("beforeprint"));
+                }, 320);
+            }
+
+            function run() {
+                attempts += 1;
+                const ready = initFn();
+                if (ready === false && attempts < maxAttempts) {
+                    window.setTimeout(run, 140);
+                    return;
+                }
+                finalize();
+            }
+
+            function schedule() {
+                window.requestAnimationFrame(function () {
+                    window.requestAnimationFrame(run);
+                });
+            }
+
+            if (document.readyState === "loading") {
+                window.addEventListener("load", schedule, { once: true });
+            } else {
+                schedule();
+            }
+        };
+    </script>
 </head>
 <body>
     <div class="report-container">

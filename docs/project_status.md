@@ -196,9 +196,10 @@ Current stabilized approach:
 - render charts with `renderer: svg`
 - disable animation in option
 - initialize using measured element width/height
-- trigger resize on `beforeprint`, `resize`, and `ResizeObserver`
-- flush ZRender after resize
-- PDF print mode now uses the same chart sizing rules before Chromium print begins
+- schedule chart init after PDF layout is ready
+- flush ZRender after initial resize
+- freeze chart output into static SVG markup inside `*_pdf_source.html`
+- print the staged HTML from `/home/nbt/Reports` with Chromium headless
 - chart height overrides are controlled in PDF CSS to avoid overflow into following sections
 
 Important implementation rule:
