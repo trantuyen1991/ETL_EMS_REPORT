@@ -190,6 +190,10 @@
         margin-bottom: 8px !important;
     }
 
+    .utility-energy-card-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+
     .utility-overview-card {
         min-height: 85px !important;
         padding: 7px 8px !important;
@@ -212,9 +216,19 @@
         font-size: 9px !important;
     }
 
+    .utility-energy-card .utility-overview-card-title {
+        font-size: 7.6px !important;
+        line-height: 1.15 !important;
+    }
+
     .utility-overview-card-icon {
         width: 42px !important;
         height: 42px !important;
+    }
+
+    .utility-energy-card .utility-overview-card-icon {
+        width: 34px !important;
+        height: 34px !important;
     }
 
     .utility-overview-card-primary {
@@ -228,8 +242,16 @@
         font-size: 18px !important;
     }
 
+    .utility-energy-card .utility-overview-card-value {
+        font-size: 14px !important;
+    }
+
     .utility-overview-card-unit {
         font-size: 10px !important;
+    }
+
+    .utility-energy-card .utility-overview-card-unit {
+        font-size: 8px !important;
     }
 
     .utility-overview-card-value-row {
@@ -244,6 +266,11 @@
         padding: 6px 6px 5px !important;
     }
 
+    .utility-energy-card .utility-overview-card-compare-item {
+        min-height: 0 !important;
+        padding: 6px 5px 5px !important;
+    }
+
     .utility-overview-card-compare-label,
     .utility-overview-card-compare-note {
         font-size: 7px !important;
@@ -251,6 +278,15 @@
 
     .utility-overview-card-compare-value {
         font-size: 10px !important;
+    }
+
+    .utility-energy-card .utility-overview-card-compare-label,
+    .utility-energy-card .utility-overview-card-compare-note {
+        font-size: 6.5px !important;
+    }
+
+    .utility-energy-card .utility-overview-card-compare-value {
+        font-size: 8.5px !important;
     }
 
     .utility-overview-card-compare-value.trend-up {
@@ -380,6 +416,19 @@
 
     .utility-energy-detail-table {
         min-width: 920px !important;
+    }
+
+    .utility-energy-detail-table th[rowspan="2"] {
+        vertical-align: middle !important;
+    }
+
+    .utility-energy-table-group {
+        text-align: center !important;
+        white-space: nowrap !important;
+    }
+
+    .utility-energy-table-unit {
+        color: #64748b !important;
     }
 
     .utility-value-bar-cell {

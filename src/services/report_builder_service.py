@@ -1619,6 +1619,7 @@ class ReportBuilderService:
             "enabled": False,
             "title": "UTILITY ENERGY (CONVERTED TO kWh)",
             "unit_badge": "kWh",
+            "summary_note": "",
             "overview_cards": [],
             "detail_rows": [],
         }
@@ -1706,6 +1707,7 @@ class ReportBuilderService:
             "enabled": True,
             "title": "UTILITY ENERGY (CONVERTED TO kWh)",
             "unit_badge": "kWh",
+            "summary_note": "Total = Air + Chilled Water + Boiler",
             "overview_cards": overview_cards,
             "detail_rows": detail_rows,
         }
@@ -1770,7 +1772,7 @@ class ReportBuilderService:
         self,
         category_totals: Dict[str, Dict[str, float]],
     ) -> list[dict[str, Any]]:
-        """Build dashboard cards for total, air, and chilled-water energy."""
+        """Build dashboard cards for total, air, chilled-water, and boiler energy."""
         total_current = sum(item.get("current", 0.0) or 0.0 for item in category_totals.values())
         total_previous = sum(item.get("previous", 0.0) or 0.0 for item in category_totals.values())
 
@@ -1804,6 +1806,16 @@ class ReportBuilderService:
                 "value_color": "#0f766e",
                 "current": category_totals.get("chilled_water", {}).get("current", 0.0) or 0.0,
                 "previous": category_totals.get("chilled_water", {}).get("previous", 0.0) or 0.0,
+            },
+            {
+                "key": "steam",
+                "title": "BOILER ENERGY",
+                "icon_key": "steam",
+                "accent_color": "#7c3aed",
+                "accent_tint": "rgba(124, 58, 237, 0.08)",
+                "value_color": "#7c3aed",
+                "current": category_totals.get("steam", {}).get("current", 0.0) or 0.0,
+                "previous": category_totals.get("steam", {}).get("previous", 0.0) or 0.0,
             },
         ]
 

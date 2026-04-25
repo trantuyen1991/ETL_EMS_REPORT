@@ -100,6 +100,9 @@
                 <div class="utility-energy-block pdf-keep-together">
                     <div class="utility-overview-heading">
                         <h3 class="electricity-subsection-title">{{ sections.utility.energy.title }}</h3>
+                        {% if sections.utility.energy.summary_note %}
+                        <span class="utility-overview-note">{{ sections.utility.energy.summary_note }}</span>
+                        {% endif %}
                     </div>
 
                     <div class="utility-overview-card-grid utility-energy-card-grid">
@@ -114,6 +117,8 @@
                                         {% include "assets/icon/air.svg" %}
                                         {% elif card.icon_key == "chilled-water" %}
                                         {% include "assets/icon/chilled-water.svg" %}
+                                        {% elif card.icon_key == "steam" %}
+                                        {% include "assets/icon/steam.svg" %}
                                         {% endif %}
                                     </span>
                                     <div class="utility-overview-card-primary">
@@ -223,15 +228,23 @@
                             <thead>
                                 {% if sections.utility.energy.enabled %}
                                 <tr>
-                                    <th>Utility</th>
-                                    <th>Group</th>
-                                    <th>{{ labels.current_period or "Current" }} Value</th>
-                                    <th>{{ labels.previous_period or "Previous" }} Value</th>
-                                    <th>Delta Value</th>
+                                    <th rowspan="2">Utility</th>
+                                    <th rowspan="2">Group</th>
+                                    <th colspan="4" class="utility-energy-table-group">
+                                        Consumption <span class="utility-energy-table-unit">({{ sections.utility.unit_badge or "m³" }})</span>
+                                    </th>
+                                    <th colspan="3" class="utility-energy-table-group">
+                                        Utility Energy <span class="utility-energy-table-unit">({{ sections.utility.energy.unit_badge }})</span>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>{{ labels.current_period or "Current" }}</th>
+                                    <th>{{ labels.previous_period or "Previous" }}</th>
+                                    <th>Delta</th>
                                     <th>Delta %</th>
-                                    <th>Utility Energy {{ labels.current_period or "Current" }} (kWh)</th>
-                                    <th>Utility Energy {{ labels.previous_period or "Previous" }} (kWh)</th>
-                                    <th>Utility Energy Delta (%)</th>
+                                    <th>{{ labels.current_period or "Current" }}</th>
+                                    <th>{{ labels.previous_period or "Previous" }}</th>
+                                    <th>Delta %</th>
                                 </tr>
                                 {% else %}
                                 <tr>

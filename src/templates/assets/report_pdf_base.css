@@ -1664,6 +1664,51 @@
             min-width: 1180px;
         }
 
+        .utility-energy-card-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .utility-energy-card .utility-overview-card-title {
+            font-size: 14px;
+            line-height: 1.15;
+        }
+
+        .utility-energy-card .utility-overview-card-value {
+            font-size: 24px;
+        }
+
+        .utility-energy-card .utility-overview-card-icon {
+            width: 58px;
+            height: 58px;
+        }
+
+        .utility-energy-card .utility-overview-card-icon svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .utility-energy-card .utility-overview-card-compare-item {
+            padding: 10px 8px 8px;
+        }
+
+        .utility-energy-card .utility-overview-card-compare-value {
+            font-size: 14px;
+        }
+
+        .utility-energy-detail-table th[rowspan="2"] {
+            vertical-align: middle;
+        }
+
+        .utility-energy-table-group {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .utility-energy-table-unit {
+            font-weight: 700;
+            color: #64748b;
+        }
+
         .utility-total-table .utility-bar-column {
             min-width: 170px;
         }
