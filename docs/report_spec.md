@@ -198,11 +198,23 @@ Utility summary should include:
 - delta
 - delta %
 
+For the `daily` template family, the utility overview cards should:
+- keep the title area to a stable two-line height to avoid uneven card rows
+- show `Current` and `Previous` inside a compact two-column compare block
+- render delta percentage on its own support row with semantic color and short comparison note
+- keep HTML and PDF card structure aligned so density changes do not diverge by renderer
+
 ### 8.4 Daily Utility Detail
 Daily utility detail should:
 - render all days in the period
 - display missing values as "-"
 - remain responsive on mobile and desktop
+
+For utility energy detail tables:
+- keep `Utility` and `Group` as identity columns
+- visually separate identity columns from grouped consumption columns with a narrow divider cell
+- preserve grouped headers for `Consumption` and `Flow Rate`
+- stay printable in PDF mode after width tuning
 
 ### 8.5 Sensor Monitoring Placement
 Sensor monitoring belongs to the Utility domain and should be added under this section when UI rendering is enabled.

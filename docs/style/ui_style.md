@@ -356,7 +356,25 @@ For PDF:
 Utility summary should visually align with electricity and KPI styles.
 Do not invent a separate visual language.
 
-### 10.2 Sensor Monitoring
+Daily utility summary cards should:
+- keep card heights visually consistent across the row
+- reserve stable title height for longer utility names
+- place `Current` and `Previous` in a compact two-column compare area
+- move delta to a lighter support row instead of a full third compare tile when space is tight
+- keep semantic delta color, but make the primary value remain the strongest visual element
+
+Utility section headers should reuse the same boxed heading system as other daily sections and use the approved shared icon asset.
+
+### 10.2 Utility Detail Tables
+Utility detail tables should preserve the shared table system while improving scanability for wide grouped metrics.
+
+Rules:
+- keep identity columns visually distinct from metric groups
+- a narrow divider column is allowed between label columns and grouped numeric columns
+- divider treatment must stay subtle and printable in PDF
+- width reductions for PDF should come from CSS sizing first, not from changing backend context shape
+
+### 10.3 Sensor Monitoring
 Sensor monitoring belongs inside Utility and must look like a related subsection.
 
 Preferred structure:

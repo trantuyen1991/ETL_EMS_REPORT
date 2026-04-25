@@ -1668,9 +1668,21 @@
             grid-template-columns: repeat(4, minmax(0, 1fr));
         }
 
+        .utility-energy-card {
+            min-height: 116px;
+            padding: 10px 12px;
+        }
+
         .utility-energy-card .utility-overview-card-title {
+            display: block;
+            min-height: 2.3em;
             font-size: 14px;
             line-height: 1.15;
+        }
+
+        .utility-energy-card .utility-overview-card-primary {
+            min-height: 54px;
+            justify-content: space-between;
         }
 
         .utility-energy-card .utility-overview-card-value {
@@ -1688,11 +1700,31 @@
         }
 
         .utility-energy-card .utility-overview-card-compare-item {
-            padding: 10px 8px 8px;
+            min-height: 0;
+            padding: 8px 10px 7px;
         }
 
         .utility-energy-card .utility-overview-card-compare-value {
             font-size: 14px;
+        }
+
+        .utility-energy-card-compare {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .utility-energy-card-delta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 6px 0;
+        }
+
+        .utility-energy-card-delta-row .utility-overview-card-compare-value {
+            font-size: 14px;
+        }
+
+        .utility-energy-card-delta-row .utility-overview-card-compare-note {
+            font-size: 10px;
         }
 
         .utility-energy-detail-table th[rowspan="2"] {
@@ -1707,6 +1739,22 @@
         .utility-energy-table-unit {
             font-weight: 700;
             color: #64748b;
+        }
+
+        .utility-divider-cell {
+            width: 6px;
+            min-width: 6px;
+            max-width: 6px;
+            padding: 0 !important;
+            background: transparent;
+            border-right: 1px solid var(--border-row) !important;
+            font-size: 0 !important;
+            line-height: 0 !important;
+            text-align: center !important;
+        }
+
+        .utility-energy-group-start {
+            border-left: none !important;
         }
 
         .utility-total-table .utility-bar-column {

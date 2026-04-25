@@ -90,11 +90,14 @@ KPI logic:
 - Business-level utilities (water, air, steam, etc.): ✅
 - Current vs previous comparison: ✅
 - Utility comparison bar chart: ✅
+- Daily utility cards now use a 2-up current/previous compare row with a dedicated delta line for tighter layout: ✅
+- Utility section header now uses the shared `utilityheader.svg` icon in both HTML and PDF templates: ✅
 
 #### Daily Utility Detail
 - Dense daily rows: ✅
 - Missing handling ("-"): ✅
 - Utility daily header now uses the same boxed highlight style as Electricity: ✅
+- Utility energy detail table now uses a narrow visual divider between identity columns and grouped consumption metrics for better scanability: ✅
 
 ---
 
@@ -141,6 +144,7 @@ Current anomaly rules:
 ### 4.2 Daily UI refinement
 - daily template is the current priority
 - continue improving information density, readability, and PDF page flow
+- keep HTML and PDF utility card density aligned when summary card layout changes
 - periodic family will be adjusted after daily stabilizes
 
 ### 4.3 Sensor Monitoring UI
