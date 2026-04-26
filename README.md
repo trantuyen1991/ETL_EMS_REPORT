@@ -312,6 +312,7 @@ MYSQL_USER=
 MYSQL_PASSWORD=
 
 OUTPUT_DIR=
+PRINT_STAGING_DIR=
 REPORT_ANCHOR_DATE=
 REPORT_FILENAME=
 
@@ -341,7 +342,7 @@ output/reports/
   - resize before print
 - Chromium (snap) cannot write into hidden directories
 - large tables may need pagination handling
-- rendered PDF source should be placed in `/home/nbt/Reports` before print, then copied back into project output
+- rendered PDF source should be placed in a safe non-hidden staging directory such as `/home/nbt/Reports` before print, then copied back into project output
 
 ---
 

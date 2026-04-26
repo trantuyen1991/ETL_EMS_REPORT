@@ -355,6 +355,32 @@ def _build_report_export_stem(env_cfg: dict[str, Any], period) -> str:
     return f"{base_name}_{period.period_type}_{anchor_value.strftime('%Y%m%d')}"
 
 
+def _path_contains_hidden_segment(path: Path) -> bool:
+    """Return True when any path segment is hidden like `.openclaw`."""
+    return any(part.startswith(".") for part in path.parts if part not in ("", ".", ".."))
+
+
+def _resolve_pdf_staging_dir(
+    env_cfg: dict[str, Any],
+    project_output_dir: Path,
+) -> Path:
+    """Resolve a Chromium-safe staging directory for HTML-to-PDF printing."""
+    configured_staging = str(env_cfg.get("PRINT_STAGING_DIR") or "").strip()
+    if configured_staging:
+        return Path(configured_staging)
+
+    configured_output = str(env_cfg.get("OUTPUT_DIR") or "").strip()
+    if configured_output:
+        output_dir = Path(configured_output)
+        if not _path_contains_hidden_segment(output_dir):
+            return output_dir
+
+    if not _path_contains_hidden_segment(project_output_dir):
+        return project_output_dir
+
+    return Path.home() / "Reports"
+
+
 def _render_report_artifacts(
     *,
     renderer: TemplateRenderingService,
@@ -411,7 +437,10 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
     project_output_dir = Path("output/reports")
     project_output_dir.mkdir(parents=True, exist_ok=True)
 
-    staging_output_dir = Path(env_cfg.get("OUTPUT_DIR") or project_output_dir)
+    staging_output_dir = _resolve_pdf_staging_dir(
+        env_cfg=env_cfg,
+        project_output_dir=project_output_dir,
+    )
     staging_output_dir.mkdir(parents=True, exist_ok=True)
 
     rendered_reports: list[dict[str, Any]] = []
