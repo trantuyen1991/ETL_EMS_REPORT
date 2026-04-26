@@ -237,6 +237,11 @@ Stable PDF chart rules:
 - kick off PDF chart init after load using `setTimeout(run, 100)`
 - print from the staging directory, not directly from hidden workspace paths
 
+Local development note:
+
+- prefer a non-hidden project path such as `/home/nbt/workspace/02_MySQL`
+- if the project is moved to a new path, recreate `venv` in the new location instead of copying the old environment as-is
+
 Important operational rule:
 
 - `daily` is always exported

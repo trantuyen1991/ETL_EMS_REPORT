@@ -50,14 +50,18 @@ Differences should be handled at template/CSS/rendering layer, not by duplicatin
 
 ### 3.1 Current Development Runtime
 Current development environment:
-- Ubuntu 22.04
-- Python 3.10
+- Ubuntu 24.04
+- Python 3.12
 
 ### 3.2 Release Direction
 The project is planned to be released as a Windows executable after backend and UI are stabilized.
 
 ### 3.3 Local Export Constraint
-During development, PDF printing through Chromium may fail when writing directly inside the project directory because the project is located under an OpenClaw hidden workspace.
+During development, PDF printing through Chromium may be unreliable when the project is located in a hidden path.
+
+Recommended local setup:
+- keep the actively developed project in a non-hidden path such as `/home/nbt/workspace/02_MySQL`
+- if the project is moved to a new path, recreate the Python virtual environment in the new location
 
 Current workaround:
 - export PDF to an external directory such as `/home/nbt/Reports`

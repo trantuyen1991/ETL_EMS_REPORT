@@ -308,7 +308,7 @@ Recommendation:
 Use after meaningful code/doc changes.
 
 ### Required Steps
-1. `cd ~/.openclaw/workspace/02_MySQL`
+1. `cd /home/nbt/workspace/02_MySQL`
 2. `pwd`
 3. verify path is correct
 4. `mempalace mine .`
