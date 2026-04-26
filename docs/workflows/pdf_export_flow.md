@@ -2,16 +2,15 @@
 
 ## Overview
 
-This document describes the current stable PDF export pipeline confirmed on the baseline tag `stable-pdf-export-20260426`.
+This document describes the current stabilized PDF export workflow for `02_MySQL` after the intermittent missing-chart investigation completed on 2026-04-27.
 
-The goal of this flow is simple:
+The main outcome of that investigation was:
 
-1. render report HTML from backend-built context
-2. stage the PDF source HTML in a safe print directory
-3. let Chromium wait until charts are ready
-4. print a stable PDF without white charts
+- PDF chart init must not be kicked off with `requestAnimationFrame(...)`
+- Chromium headless `--print-to-pdf` was intermittently skipping that callback before `window.status = "ready"`
+- the stable kickoff now uses `setTimeout(run, 100)` after `window.load`
 
-This workflow is intentionally conservative. Several details that may look redundant are part of the current stability baseline and should not be changed casually.
+This workflow should be treated as the current print baseline.
 
 ---
 
@@ -24,11 +23,15 @@ run_production()
     ↓
 _run_report_batch()
     ↓
-build report_context
+resolve scheduled periods for the anchor day
+    ↓
+build report_context per report
     ↓
 render view HTML + PDF source HTML
     ↓
-write PDF source into project output and staging output
+write canonical artifacts into output/reports/
+    ↓
+write staged PDF source HTML into Chromium-safe staging directory
     ↓
 Chromium headless prints staged HTML into staged PDF
     ↓
@@ -37,36 +40,46 @@ copy final PDF back into output/reports/
 
 ---
 
-## 2. Entry Point -> Render -> Export
+## 2. Runtime Entry Points
 
-### Runtime entry point
+### Production entry point
 
 - `src/main.py`
-- `run_production()` is the production entry point
+- `run_production()` is the normal production entry point
 - `__main__` calls `run_production()`
 
 ### Batch render flow
 
-`run_production()` resolves configuration, then calls `_run_report_batch()`.
+`_run_report_batch()` does the following:
 
-`_run_report_batch()`:
-
-1. resolves which report periods must be exported for the effective anchor day
-2. builds report context for each report
-3. calls `_render_report_artifacts()`
-4. writes HTML outputs
-5. calls `export_pdf_from_html()` to create the final PDF
-
-### Template selection
-
-`_select_template_bundle()` chooses the template family by report type:
-
-- `daily` uses dedicated daily templates
-- `weekly` and `monthly` use the shared `periodic` family
+1. resolve the effective anchor day
+2. determine which report periods must be exported for that day
+3. build backend report context for each report
+4. render both view HTML and PDF source HTML
+5. print the staged PDF source with Chromium
+6. copy the staged PDF back into the canonical output directory
 
 ---
 
-## 3. Template Mapping
+## 3. Period Scheduling Rules
+
+Handled by `src/services/period_service.py`.
+
+Rules:
+
+- always export `daily`
+- export `weekly` only when the anchor day is **Sunday**
+- export `monthly` only when the anchor day is **month-end**
+- if both conditions are true, export all applicable reports in one run
+
+Important clarification:
+
+- there is no separate `weekly_previous` file
+- previous-week and previous-month values are comparison data rendered inside the weekly or monthly report itself
+
+---
+
+## 4. Template Mapping
 
 ### View templates
 
@@ -91,37 +104,42 @@ copy final PDF back into output/reports/
 
 ---
 
-## 4. Output Paths
+## 5. Output and Staging Paths
 
 For each report, `_render_report_artifacts()` writes several files.
 
-### Project output
-
-These files stay under the normal project output directory:
+### Canonical project output
 
 - `output/reports/<export_stem>_view.html`
 - `output/reports/<export_stem>_pdf_source.html`
 - `output/reports/<export_stem>.pdf`
 
-### Staging output
+### Chromium staging output
 
-The PDF print flow also writes staging artifacts into a safe non-hidden directory:
+The PDF print flow also writes staging artifacts into a Chromium-safe non-hidden directory:
 
 - `<staging_output_dir>/<export_stem>_pdf_source.html`
 - `<staging_output_dir>/<export_stem>.pdf`
 
-This staging path exists because Chromium headless is more reliable when printing from a normal non-hidden location.
+### Staging resolution rule
 
-### Path responsibility
+`_resolve_pdf_staging_dir()` resolves the staging directory in this order:
 
-- `project_output_dir` is the canonical artifact location inside the repo output
+1. `PRINT_STAGING_DIR` if explicitly configured
+2. `OUTPUT_DIR` if it is a non-hidden path
+3. `project_output_dir` if it is non-hidden
+4. fallback to `~/Reports`
+
+Responsibility split:
+
+- `project_output_dir` is the canonical report artifact location
 - `staging_output_dir` is the print-safe location used only for Chromium staging and print
 
 ---
 
-## 5. Chromium Command
+## 6. Chromium Command
 
-The current command is built in `src/services/pdf_service.py`.
+Built in `src/services/pdf_service.py`.
 
 Current flags:
 
@@ -135,45 +153,55 @@ Current flags:
 - `--print-to-pdf=<output_pdf_path>`
 - `file://<staging_html_path>`
 
-### Why these flags matter
-
-- `--headless`
-  - run Chromium without a visible UI
-- `--disable-gpu`
-  - avoid GPU-related rendering differences in headless mode
-- `--no-sandbox`
-  - required by the current environment
-- `--hide-scrollbars`
-  - keep print output clean
-- `--run-all-compositor-stages-before-draw`
-  - helps Chromium complete compositor work before capture
-- `--virtual-time-budget=45000`
-  - gives the page enough virtual time to finish layout and chart rendering
-- `--window-status=ready`
-  - waits until the page explicitly marks itself ready
-- `--print-to-pdf=...`
-  - writes the PDF to the staging output file
-- `file://...`
-  - prints the staged local HTML file
+These flags are part of the current stable workflow and should not be changed casually.
 
 ---
 
-## 6. Chart Lifecycle
+## 7. Stable PDF Chart Lifecycle
 
-The PDF chart lifecycle is intentionally different from the normal view page.
+The PDF chart lifecycle is intentionally different from the normal interactive view page.
 
-### Stable PDF chart flow
+### Stable flow
 
-1. the PDF template renders chart containers and chart config data
-2. `window.__scheduleReportChartInit(initFn)` waits until the page has loaded
-3. after load, chart init is deferred until layout is stable
-4. each section initializes its charts
-5. rendered charts are frozen into static SVG or image content
-6. Chromium prints the frozen result
+1. render chart containers and chart config into the PDF template
+2. wait for `window.load`
+3. kick off chart init with `setTimeout(run, 100)`
+4. each section measures chart container width and height
+5. initialize ECharts with `renderer: "svg"`
+6. force `animation: false`
+7. `setOption(...)`
+8. `resize(...)`
+9. `chart.getZr().flush()`
+10. freeze the live chart into static SVG markup
+11. mark the page ready for Chromium print
 
-### Chart init sequence
+### Why `setTimeout(run, 100)` matters
 
-Inside each PDF chart section, the current stable sequence is:
+This was the key stabilization change.
+
+Previous behavior:
+
+- chart init kickoff used `requestAnimationFrame(...)`
+
+Observed problem:
+
+- Chromium headless intermittently did not execute the RAF callback before `window.status = "ready"`
+- some runs never reached chart init / freeze
+- resulting PDFs sometimes had missing charts
+
+Current stable behavior:
+
+- chart init kickoff uses `setTimeout(run, 100)`
+- repeated regression batches showed stable chart rendering across:
+  - weekday anchors
+  - weekend anchors
+  - month-end anchors
+
+---
+
+## 8. PDF Chart Init Sequence
+
+Inside each PDF chart section, the stable sequence is:
 
 1. check container width and height
 2. if an old chart instance exists, `dispose()` it
@@ -191,17 +219,17 @@ PDF charts use:
 
 - `renderer: "svg"`
 
-This is part of the stable print pipeline and should be preserved.
-
 ### Animation
 
 PDF charts force:
 
 - `animation: false`
 
-This avoids a print happening while chart animation is still mid-frame.
+This avoids printing while chart animation is still mid-frame.
 
-### Freeze flow
+---
+
+## 9. Freeze Flow
 
 After charts render, `window.__freezeReportCharts()` converts them into static content:
 
@@ -209,11 +237,11 @@ After charts render, `window.__freezeReportCharts()` converts them into static c
 - fallback to `getDataURL()` if needed
 - replace the live chart DOM with frozen SVG or image content
 
-The freeze step is a major part of chart-print stability.
+The stabilized regression runs on the current baseline consistently produced frozen SVG output and no `freeze.empty` events during the verified batches.
 
 ---
 
-## 7. Readiness Mechanism
+## 10. Readiness Mechanism
 
 The PDF shell in `base_pdf.html` uses a simple readiness signal.
 
@@ -221,54 +249,52 @@ The PDF shell in `base_pdf.html` uses a simple readiness signal.
 
 - set `window.status = "loading"` at the start
 - wait for `window.load`
-- wait an additional `3000ms`
+- allow chart init to start through `setTimeout(run, 100)`
+- wait an additional `15000ms`
 - set `window.status = "ready"`
 
 Chromium waits on:
 
 - `--window-status=ready`
 
-### Why this matters
+### Why the delay still exists
 
-This extra delay gives the PDF page time to:
+The delay is still intentionally conservative so that Chromium does not print while sections are still initializing or freezing.
 
-- finish layout
-- let chart init retries complete
-- freeze chart output before print starts
-
-The delay is intentionally simple and should not be shortened casually.
+The stable fix was **not** reducing the delay. The stable fix was replacing the unreliable RAF kickoff.
 
 ---
 
-## 8. Why the Stable Settings Matter
+## 11. Key Lessons Learned
 
-### Disable animation
+### 11.1 Root cause
 
-PDF is a snapshot, not an interactive page.
+The intermittent missing-chart bug was primarily caused by:
 
-If animation is enabled, Chromium may print before the chart reaches its final state. That can produce partial or blank output.
+- unstable chart-init kickoff using `requestAnimationFrame(...)` inside headless Chromium print flow
 
-### Use SVG renderer
+### 11.2 Not the real root cause
 
-SVG output is more deterministic for print and works well with the freeze step.
+The issue was **not** solved by:
 
-### Freeze chart output
+- simply increasing the readiness delay
+- changing chart data logic
+- changing backend report context
 
-Printing a live chart instance is riskier than printing frozen SVG or image markup.
+### 11.3 Practical rule
 
-The freeze step reduces the chance of:
+For this PDF workflow:
 
-- repaint timing issues
-- live resize side effects
-- headless compositor races
+- do not use RAF as the primary chart-init trigger
+- use a deterministic timer-based kickoff after `window.load`
 
 ---
 
-## 9. Known Pitfalls
+## 12. Known Pitfalls
 
 ### Race condition during headless print
 
-If Chromium prints before charts are fully rendered or frozen, the PDF may contain white chart areas.
+If Chromium prints before charts are initialized and frozen, the PDF may contain white or missing chart areas.
 
 ### Container size equals zero
 
@@ -278,98 +304,64 @@ If a chart initializes before the container has real width and height, ECharts m
 
 Animation introduces timing uncertainty. For PDF this is unnecessary risk, so it stays off.
 
-### Printing from the wrong location
+### Hidden-path staging risk
 
-Printing directly from hidden workspace paths is less reliable than printing from the staging directory.
+Printing from hidden or unusual workspace paths is less reliable than printing from a normal staging directory.
 
 ### Changing multiple timing mechanisms at once
 
-Changing init timing, readiness delay, renderer, and freeze flow together makes regressions much harder to isolate.
+Changing kickoff timing, readiness delay, renderer, and freeze flow together makes regressions much harder to isolate.
 
 ---
 
-## 10. DO NOT CHANGE
+## 13. DO NOT CHANGE CASUALLY
 
-These items are part of the current stable baseline and should only be changed with focused regression testing:
+These items are part of the current stable print baseline and should only be changed with focused regression testing:
 
 - Chromium flags in `src/services/pdf_service.py`
 - `--window-status=ready`
 - the `window.status` readiness flow in `base_pdf.html`
-- the `3000ms` readiness delay after `window.load`
-- the staging output print flow
+- the `15000ms` readiness delay after `window.load`
+- timer-based kickoff using `setTimeout(run, 100)`
 - PDF chart `renderer: "svg"`
 - PDF chart `animation: false`
 - the `dispose() -> init() -> setOption() -> resize() -> flush()` sequence
 - the freeze flow in `window.__freezeReportCharts()`
-- the separation between interactive view charts and PDF print charts
+- separation between interactive view charts and PDF print charts
 
 ---
 
-## 11. Debug Guide
-
-When a PDF chart appears white, use a narrow debugging process.
-
-### Check the generated artifacts
-
-1. open `output/reports/*_pdf_source.html`
-2. open the staging `*_pdf_source.html`
-3. compare whether the expected chart markup is already present before print
-
-### Check the first failing pages
-
-Always inspect:
-
-- daily page 1
-- weekly page 1
-- utility pages
-- KPI pages
-
-### Dump DOM from Chromium
-
-Useful approach:
-
-1. run Chromium headless against the staged HTML
-2. use `--dump-dom` to inspect the final DOM Chromium sees
-3. check whether the chart container contains frozen SVG or only an empty wrapper
-
-### Screenshot the staged HTML
-
-If needed:
-
-1. open the staged HTML with Chromium headless
-2. capture a screenshot
-3. compare screenshot vs PDF result
-
-If screenshot looks correct but PDF does not, the problem is likely in print timing rather than in chart init itself.
-
----
-
-## 12. Regression Test Checklist
+## 14. Regression Test Checklist
 
 After any future PDF-related change:
 
 1. run `python3 -m src.main` five times
 2. verify daily page 1 layout
-3. verify weekly page 1 layout
-4. verify electricity charts are visible
-5. verify utility pages are visible
-6. verify KPI pages are visible
-7. confirm no white chart blocks appear intermittently
+3. verify weekly page 1 layout when the anchor is Sunday
+4. verify monthly page 1 layout when the anchor is month-end
+5. verify electricity charts are visible
+6. verify utility charts are visible
+7. verify KPI charts are visible
+8. confirm no white or missing chart blocks appear intermittently
 
-Recommended quick log format:
+Recommended regression anchors:
 
-- run1: daily ok/fail, weekly ok/fail
-- run2: daily ok/fail, weekly ok/fail
-- run3: daily ok/fail, weekly ok/fail
-- run4: daily ok/fail, weekly ok/fail
-- run5: daily ok/fail, weekly ok/fail
+- one normal weekday
+- one Sunday
+- one month-end day
 
 ---
 
-## 13. Stable Baseline Reference
+## 15. Validation Reference
 
-Current stable baseline:
+Validated stabilization batches were run on the main project with these representative anchors:
 
-- tag: `stable-pdf-export-20260426`
+- weekday: `2025-05-14`
+- weekend / Sunday: `2025-05-18`
+- month-end: `2025-05-31`
 
-Use this tag as the reference point before changing PDF timing, renderer choice, chart lifecycle, or Chromium print behavior.
+Observed result:
+
+- PDF sizes remained within a tight stable range per report type
+- no large fail/pass size split remained
+- visual review confirmed charts were consistently present in the tested batches

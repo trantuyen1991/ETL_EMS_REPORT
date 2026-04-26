@@ -209,14 +209,10 @@ Important lesson learned:
 
 ### PDF Export Flow
 
-The current stable PDF export baseline is tagged:
-
-- `stable-pdf-export-20260426`
-
 Current production flow:
 
 1. `python3 -m src.main` calls `run_production()`
-2. the report batch builds `report_context`
+2. the report batch resolves which periods are required for the effective anchor day
 3. the app renders both view HTML and PDF source HTML
 4. the PDF source HTML is written into both `output/reports/` and the print staging directory
 5. Chromium headless prints the staged HTML into a staged PDF
@@ -232,12 +228,21 @@ Template mapping:
 Stable PDF chart rules:
 
 - wait for page readiness using `window.status`
-- keep the extra `3000ms` readiness delay
+- keep the current `15000ms` readiness delay
 - print with Chromium `--window-status=ready`
 - use `renderer: "svg"` for PDF charts
 - keep `animation: false`
 - freeze rendered charts into static content before print
+- do not use `requestAnimationFrame(...)` as the chart-init kickoff for PDF
+- kick off PDF chart init after load using `setTimeout(run, 100)`
 - print from the staging directory, not directly from hidden workspace paths
+
+Important operational rule:
+
+- `daily` is always exported
+- `weekly` is exported only when the anchor day is Sunday
+- `monthly` is exported only when the anchor day is month-end
+- previous-week and previous-month values are comparison data inside the report, not separate output files
 
 Detailed reference:
 
@@ -374,11 +379,12 @@ output/reports/
 ## Known Issues
 
 - PDF chart rendering requires:
-  - disable animation
-  - resize before print
-- Chromium (snap) cannot write into hidden directories
+  - `renderer: "svg"`
+  - `animation: false`
+  - timer-based kickoff after `window.load`
+  - freeze to static SVG before print
 - large tables may need pagination handling
-- rendered PDF source should be placed in a safe non-hidden staging directory such as `/home/nbt/Reports` before print, then copied back into project output
+- staged PDF source should stay in a safe non-hidden print directory when Chromium staging is required
 
 ---
 

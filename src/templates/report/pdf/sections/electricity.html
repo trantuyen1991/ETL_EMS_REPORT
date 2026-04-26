@@ -1,6 +1,6 @@
 {% import "report/macros/common.html" as report %}
 {% if flags.show_electricity_section %}
-        <section class="report-section pdf-electricity-highlight daily-highlight-header electricity-section-shell">
+        <section class="report-section pdf-electricity-highlight daily-highlight-header electricity-section-shell{% if not flags.is_daily_report %} periodic-electricity-section{% endif %}">
             <div class="section-header">
                 <div class="utility-header-shell electricity-header-shell">
                     <div class="utility-header-main">
@@ -85,21 +85,22 @@
                         </div>
                     </div>
 
-                    <div class="electricity-total-card-meta">
-                        <span class="electricity-total-card-meter-label">Meter:</span>
-                        <span class="electricity-total-card-meter-value">
-                            {{ summary.electricity_snapshot.meter_active_total_display }}
-                        </span>
-                    </div>
-
-                    <div class="electricity-total-card-footer">
-                        <div class="electricity-total-card-delta-block">
-                            <span class="electricity-total-card-footer-label">Delta</span>
-                            <span class="electricity-total-card-footer-value {{ summary.electricity_snapshot.delta_class }}">
-                                {{ summary.electricity_snapshot.delta_display }}
-                            </span>
+                    <div class="electricity-total-card-footer energy-card-footer">
+                        <div class="energy-card-meta-row">
+                            <div class="electricity-total-card-delta-block">
+                                <span class="electricity-total-card-footer-label">Delta</span>
+                                <span class="electricity-total-card-footer-value {{ summary.electricity_snapshot.delta_class }}">
+                                    {{ summary.electricity_snapshot.delta_display }}
+                                </span>
+                            </div>
+                            <div class="electricity-total-card-meta">
+                                <span class="electricity-total-card-meter-label">Meter:</span>
+                                <span class="electricity-total-card-meter-value">
+                                    {{ summary.electricity_snapshot.meter_active_total_display }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="electricity-total-card-delta-pct-block">
+                        <div class="energy-card-trend-row">
                             <span class="electricity-total-card-footer-value delta-pct {{ summary.electricity_snapshot.delta_pct_class }}">
                                 {{ report.delta_arrow(summary.electricity_snapshot.delta_pct_class) }}
                                 {{ summary.electricity_snapshot.delta_pct_display }}
@@ -168,21 +169,22 @@
                         </div>
                     </div>
 
-                    <div class="electricity-total-card-meta">
-                        <span class="electricity-total-card-meter-label">Meter:</span>
-                        <span class="electricity-total-card-meter-value">
-                            {{ row.meter_active_total_display }}
-                        </span>
-                    </div>
-
-                    <div class="electricity-total-card-footer">
-                        <div class="electricity-total-card-delta-block">
-                            <span class="electricity-total-card-footer-label">Delta</span>
-                            <span class="electricity-total-card-footer-value {{ ns.match.delta_class if ns.match else '' }}">
-                                {{ ns.match.delta_display if ns.match else "-" }}
-                            </span>
+                    <div class="electricity-total-card-footer energy-card-footer">
+                        <div class="energy-card-meta-row">
+                            <div class="electricity-total-card-delta-block">
+                                <span class="electricity-total-card-footer-label">Delta</span>
+                                <span class="electricity-total-card-footer-value {{ ns.match.delta_class if ns.match else '' }}">
+                                    {{ ns.match.delta_display if ns.match else "-" }}
+                                </span>
+                            </div>
+                            <div class="electricity-total-card-meta">
+                                <span class="electricity-total-card-meter-label">Meter:</span>
+                                <span class="electricity-total-card-meter-value">
+                                    {{ row.meter_active_total_display }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="electricity-total-card-delta-pct-block">
+                        <div class="energy-card-trend-row">
                             <span class="electricity-total-card-footer-value delta-pct {{ ns.match.delta_pct_class if ns.match else '' }}">
                                 {% if ns.match %}
                                     {{ report.delta_arrow(ns.match.delta_pct_class) }}
@@ -198,7 +200,7 @@
                 {% endfor %}
             </div>
 
-            <div class="electricity-chart-grid {% if flags.is_daily_report %}pdf-daily-chart-grid{% else %}pdf-two-chart-grid pdf-chart-page-block{% endif %}">
+            <div class="electricity-chart-grid {% if flags.is_daily_report %}pdf-daily-chart-grid{% else %}pdf-two-chart-grid pdf-chart-page-block periodic-electricity-chart-grid{% endif %}">
                 <div class="electricity-chart-card">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.daily_trend.title }}
@@ -480,8 +482,12 @@
             </div>
             <script>
                 (function () {
-                    function initElectricityCharts() {
+                    function initElectricityCharts(attempt) {
                         if (!window.echarts) {
+                            window.__pdfDebugLog("section.no_echarts", {
+                                section: "electricity",
+                                attempt: attempt,
+                            });
                             return false;
                         }
 
@@ -504,12 +510,31 @@
                         chartConfigs.forEach(function (config) {
                             const el = document.getElementById(config.id);
                             if (!el) {
+                                window.__pdfDebugLog("chart.missing_element", {
+                                    section: "electricity",
+                                    attempt: attempt,
+                                    chartId: config.id,
+                                });
                                 return;
                             }
 
                             const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
                             const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                            window.__pdfDebugLog("chart.measure", {
+                                section: "electricity",
+                                attempt: attempt,
+                                chartId: config.id,
+                                width: width,
+                                height: height,
+                            });
                             if (width <= 8 || height <= 8) {
+                                window.__pdfDebugLog("chart.too_small", {
+                                    section: "electricity",
+                                    attempt: attempt,
+                                    chartId: config.id,
+                                    width: width,
+                                    height: height,
+                                });
                                 return;
                             }
 
@@ -533,19 +558,40 @@
                             chartTargets.push(el);
                             chartSizes.push({ width: width, height: height });
                             hasSizedTarget = true;
+                            window.__pdfDebugLog("chart.ready", {
+                                section: "electricity",
+                                attempt: attempt,
+                                chartId: config.id,
+                                width: width,
+                                height: height,
+                            });
                         });
 
                         if (!hasSizedTarget) {
+                            window.__pdfDebugLog("section.no_sized_target", {
+                                section: "electricity",
+                                attempt: attempt,
+                            });
                             return false;
                         }
 
-                        window.__freezeReportCharts(charts, chartTargets);
-
-                        window.__reportChartsReady = true;
+                        window.__pdfDebugLog("section.freeze_request", {
+                            section: "electricity",
+                            attempt: attempt,
+                            chartCount: charts.length,
+                        });
+                        window.__freezeReportCharts("electricity", charts, chartTargets).then(function () {
+                            window.__reportChartsReady = true;
+                            window.__pdfDebugLog("section.done", {
+                                section: "electricity",
+                                attempt: attempt,
+                                chartCount: charts.length,
+                            });
+                        });
                         return true;
                     }
 
-                    window.__scheduleReportChartInit(initElectricityCharts);
+                    window.__scheduleReportChartInit("electricity", initElectricityCharts);
                 })();
             </script>
         </section>

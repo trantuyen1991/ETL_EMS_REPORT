@@ -25,7 +25,7 @@ Focus:
 - extend sensor monitoring from backend-ready data into daily-first UI
 
 Stable baseline:
-- PDF export stable at tag `stable-pdf-export-20260426`
+- PDF export stabilized after the 2026-04-27 chart-init timing fix and multi-anchor regression batches
 
 ---
 
@@ -141,7 +141,7 @@ Current anomaly rules:
 ## 4. In Progress
 
 ### 4.1 Documentation + release wrapping
-- refresh project docs to match V4 preview behavior
+- refresh project docs to match V4 preview behavior and the stabilized PDF flow
 - keep release tag pending until final approval / final commit step
 
 ### 4.2 Daily UI refinement
@@ -178,19 +178,20 @@ Current anomaly rules:
 - threshold-based alert rules are still heuristic and not business-calibrated yet
 
 ### 5.4 PDF Stability Improvements
-- Chart rendering improved, but still needs regression checks when layout changes
+- Chart rendering is currently stable with the timer-based kickoff fix, but still needs regression checks when layout changes
 - Table pagination still needs improvement on very wide / dense sections
 
 ---
 
 ## 6. Known Issues
 
-### 6.1 PDF Export (Chromium Limitation)
-- Cannot write directly into project directory (OpenClaw workspace)
-- Current workaround:
-  - export to `/home/nbt/Reports`
-  - print PDF there
-  - programmatically copy back to project `output/reports/`
+### 6.1 PDF Export (Chromium Staging Constraint)
+- Chromium headless print is more reliable when staging HTML/PDF in a non-hidden directory
+- Current workflow resolves a staging directory from:
+  - `PRINT_STAGING_DIR`
+  - otherwise `OUTPUT_DIR` when non-hidden
+  - otherwise another safe non-hidden fallback
+- The final PDF is still copied back into project `output/reports/`
 
 ---
 
@@ -199,13 +200,18 @@ Current stabilized approach:
 - render charts with `renderer: svg`
 - disable animation in option
 - initialize using measured element width/height
-- schedule chart init after PDF layout is ready
-- keep the simple readiness signal: `window.status = "loading"` -> wait for `window.load` -> delay `3000ms` -> `window.status = "ready"`
+- kick off chart init after `window.load` using `setTimeout(run, 100)`
+- keep the readiness signal: `window.status = "loading"` -> wait for `window.load` -> delay `15000ms` -> `window.status = "ready"`
 - print Chromium with `--window-status=ready`
 - flush ZRender after initial resize
 - freeze chart output into static SVG markup inside `*_pdf_source.html`
-- print the staged HTML from `/home/nbt/Reports` with Chromium headless
+- stage the HTML in a safe print directory before Chromium print
 - chart height overrides are controlled in PDF CSS to avoid overflow into following sections
+
+Root cause found during investigation:
+- `requestAnimationFrame(...)` was not stable as the PDF chart-init kickoff in headless Chromium
+- intermittent runs never reached chart init / freeze before `window.status = "ready"`
+- replacing RAF kickoff with `setTimeout(run, 100)` removed the fail/pass split in repeated regression batches
 
 Important implementation rule:
 - if chart width looks wrong, first adjust chart option layout (`grid`, axis labels, spacing)
@@ -214,16 +220,16 @@ Important implementation rule:
 Do not change casually:
 - Chromium print flags
 - readiness delay
+- timer-based kickoff (`setTimeout(run, 100)`)
 - staging output flow
 - PDF SVG renderer
 - `animation: false`
 - freeze flow
 
-Reference print flow:
-1. render `report_pdf.html`
-2. write rendered file to `/home/nbt/Reports/report_pdf.html`
-3. print with Chromium headless into `/home/nbt/Reports/*.pdf`
-4. copy final PDF back into `output/reports/`
+Validation completed with repeated 5-run batches on:
+- weekday anchor
+- Sunday anchor
+- month-end anchor
 
 ---
 
@@ -237,8 +243,8 @@ Reference print flow:
 ## 7. Runtime Context
 
 ### Development Environment
-- OS: Ubuntu 22.04
-- Python: 3.10
+- OS: Ubuntu 24.04
+- Python: 3.12
 - PDF engine: Chromium
 
 ### Deployment Target

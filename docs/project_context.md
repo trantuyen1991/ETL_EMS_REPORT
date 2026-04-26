@@ -280,17 +280,19 @@ For this project, the practical print workflow is:
 ```text
 render selected report PDF template
     ↓
-write rendered file to staging output directory
+write rendered file to project output/reports/
     ↓
-print with Chromium headless to staging output PDF
+write staged copy to a Chromium-safe staging directory
+    ↓
+print with Chromium headless to the staged PDF path
     ↓
 copy final PDF back to project output/reports/
 ```
 
 Reason:
 
-* Chromium snap cannot reliably write directly into hidden workspace paths during print
-* `/home/nbt/Reports` is used as the safe print staging area
+* Chromium headless print is more reliable when staging HTML/PDF in a non-hidden directory
+* staging resolution prefers `PRINT_STAGING_DIR`, then `OUTPUT_DIR` when non-hidden, then another safe fallback
 
 ---
 
@@ -317,15 +319,21 @@ Weekly / Monthly report
 
 ### 7.4 PDF Chart Rendering Rule
 
-PDF chart rendering must follow the same stable pattern used by the electricity section:
+PDF chart rendering must follow the current stable pattern:
 
 1. measure `el.clientWidth` and `el.clientHeight`
 2. initialize ECharts with `renderer: "svg"`
 3. disable animation before `setOption`
-4. schedule chart init after layout is ready so print-target containers have real size
+4. kick off chart init after `window.load` using `setTimeout(run, 100)`
 5. flush ZRender after initial resize for print stability
 6. freeze the rendered chart into static SVG markup inside `*_pdf_source.html`
 7. print the staged HTML with Chromium headless into the staging PDF path
+
+Important implementation lesson:
+
+* `requestAnimationFrame(...)` was not stable as the PDF chart-init kickoff in headless Chromium
+* some runs never reached chart init / freeze before `window.status = "ready"`
+* the timer-based kickoff removed that intermittent failure mode during regression testing
 
 Important rule learned from implementation:
 
@@ -343,7 +351,7 @@ project_output_dir
         <export_stem>.pdf
 
 staging_output_dir
-    /home/nbt/Reports (or another safe non-hidden print directory)
+    <non-hidden print-safe directory>
         <export_stem>_pdf_source.html
         <export_stem>.pdf
 ```
@@ -388,6 +396,7 @@ Logic:
 * always export daily
 * if anchor day is Sunday → also export weekly
 * if anchor day is month-end → also export monthly
+* previous-week and previous-month values are rendered inside the weekly or monthly report, not as separate files
 
 Fallback:
 

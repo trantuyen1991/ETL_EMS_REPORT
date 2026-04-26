@@ -13,91 +13,263 @@
     </script>
     <script>
         window.status = "loading";
+        window.__pdfDebug = {
+            startedAt: Date.now(),
+            readyDelayMs: 15000,
+            events: [],
+        };
 
-        window.__scheduleReportChartInit = function (initFn) {
+        window.__pdfDebugLog = function (tag, payload) {
+            const event = {
+                t: Date.now() - window.__pdfDebug.startedAt,
+                tag: tag,
+                payload: payload || {},
+            };
+            window.__pdfDebug.events.push(event);
+            try {
+                console.log("[PDF_DEBUG]", JSON.stringify(event));
+            } catch (error) {
+                console.log("[PDF_DEBUG]", tag, payload || {});
+            }
+        };
+
+        window.__pdfDebugLog("bootstrap", {
+            readyState: document.readyState,
+            url: window.location.href,
+        });
+
+        window.__reportChartTasks = {};
+
+        window.__markReportTask = function (name, patch) {
+            const current = window.__reportChartTasks[name] || {
+                name: name,
+                scheduled: false,
+                completed: false,
+                success: false,
+                attempts: 0,
+            };
+            window.__reportChartTasks[name] = Object.assign(current, patch || {});
+            window.__pdfDebugLog("task.update", window.__reportChartTasks[name]);
+        };
+
+        window.__allReportTasksDone = function () {
+            const taskNames = Object.keys(window.__reportChartTasks);
+            if (!taskNames.length) {
+                return false;
+            }
+            return taskNames.every(function (taskName) {
+                return !!window.__reportChartTasks[taskName].completed;
+            });
+        };
+
+        window.__scheduleReportChartInit = function (name, initFn) {
             let attempts = 0;
             const maxAttempts = 24;
+            window.__markReportTask(name, {
+                scheduled: true,
+                completed: false,
+                success: false,
+                attempts: 0,
+            });
 
             function finalize() {
+                window.__pdfDebugLog("schedule.finalize", {
+                    name: name,
+                    attempts: attempts,
+                });
                 window.setTimeout(function () {
+                    window.__pdfDebugLog("event.dispatch", {
+                        name: name,
+                        type: "resize",
+                    });
                     window.dispatchEvent(new Event("resize"));
                 }, 140);
                 window.setTimeout(function () {
+                    window.__pdfDebugLog("event.dispatch", {
+                        name: name,
+                        type: "beforeprint",
+                    });
                     window.dispatchEvent(new Event("beforeprint"));
                 }, 380);
             }
 
             function run() {
                 attempts += 1;
-                const ready = initFn();
+                window.__pdfDebugLog("schedule.run", {
+                    name: name,
+                    attempt: attempts,
+                });
+                const ready = initFn(attempts);
+                window.__pdfDebugLog("schedule.result", {
+                    name: name,
+                    attempt: attempts,
+                    ready: ready !== false,
+                });
                 if (ready === false && attempts < maxAttempts) {
+                    window.__markReportTask(name, {
+                        attempts: attempts,
+                        completed: false,
+                        success: false,
+                    });
                     window.setTimeout(run, 160);
                     return;
                 }
+                window.__markReportTask(name, {
+                    attempts: attempts,
+                    completed: true,
+                    success: ready !== false,
+                });
                 finalize();
             }
 
             function schedule() {
-                window.requestAnimationFrame(function () {
-                    window.requestAnimationFrame(run);
+                window.__pdfDebugLog("schedule.queue", {
+                    name: name,
                 });
+                window.__pdfDebugLog("schedule.timeout_run", {
+                    name: name,
+                    delayMs: 100,
+                });
+                window.setTimeout(run, 100);
             }
 
             if (document.readyState === "loading") {
+                window.__pdfDebugLog("schedule.wait_load", {
+                    name: name,
+                });
                 window.addEventListener("load", schedule, { once: true });
             } else {
                 schedule();
             }
         };
 
+        window.__writePdfDebugSnapshot = function () {
+            let debugNode = document.getElementById("pdf-debug-json");
+            if (!debugNode) {
+                debugNode = document.createElement("script");
+                debugNode.type = "application/json";
+                debugNode.id = "pdf-debug-json";
+                document.body.appendChild(debugNode);
+            }
+            debugNode.textContent = JSON.stringify({
+                generatedAt: new Date().toISOString(),
+                events: window.__pdfDebug.events,
+                tasks: window.__reportChartTasks,
+                counts: {
+                    liveSvgCount: document.querySelectorAll('svg').length,
+                    frozenSvgCount: document.querySelectorAll('.report-chart-print-svg').length,
+                    frozenImgCount: document.querySelectorAll('.report-chart-print-image').length,
+                }
+            });
+        };
+
         window.addEventListener("load", function () {
+            window.__pdfDebugLog("window.load", {
+                readyDelayMs: window.__pdfDebug.readyDelayMs,
+            });
             window.setTimeout(function () {
+                const taskNames = Object.keys(window.__reportChartTasks);
+                window.__pdfDebugLog("window.ready_check", {
+                    taskNames: taskNames,
+                    allDone: window.__allReportTasksDone(),
+                    tasks: window.__reportChartTasks,
+                    liveSvgCount: document.querySelectorAll('svg').length,
+                    frozenSvgCount: document.querySelectorAll('.report-chart-print-svg').length,
+                    frozenImgCount: document.querySelectorAll('.report-chart-print-image').length,
+                });
                 window.status = "ready";
-            }, 3000);
+                window.__pdfDebugLog("window.ready", {
+                    status: window.status,
+                });
+                window.__writePdfDebugSnapshot();
+            }, window.__pdfDebug.readyDelayMs);
         }, { once: true });
     </script>
     <script>
-        window.__freezeReportCharts = function (charts, chartTargets) {
-            charts.forEach(function (chart, index) {
-                const target = chartTargets[index];
-                if (!chart || !target) {
-                    return;
-                }
+        window.__freezeReportCharts = function (sectionName, charts, chartTargets) {
+            window.__pdfDebugLog("freeze.start", {
+                section: sectionName,
+                chartCount: charts.length,
+                targetCount: chartTargets.length,
+            });
 
-                let frozenMarkup = "";
-                if (typeof chart.renderToSVGString === "function") {
-                    frozenMarkup = chart.renderToSVGString();
-                }
+            return new Promise(function (resolve) {
+                window.requestAnimationFrame(function () {
+                    window.requestAnimationFrame(function () {
+                        charts.forEach(function (chart, index) {
+                            const target = chartTargets[index];
+                            if (!chart || !target) {
+                                window.__pdfDebugLog("freeze.skip", {
+                                    section: sectionName,
+                                    index: index,
+                                    hasChart: !!chart,
+                                    hasTarget: !!target,
+                                });
+                                return;
+                            }
 
-                if (typeof chart.dispose === "function") {
-                    chart.dispose();
-                }
+                            let frozenMarkup = "";
+                            if (typeof chart.renderToSVGString === "function") {
+                                frozenMarkup = chart.renderToSVGString();
+                            }
 
-                target.innerHTML = "";
-                if (frozenMarkup) {
-                    target.innerHTML = frozenMarkup;
-                    const svg = target.querySelector("svg");
-                    if (svg) {
-                        svg.classList.add("report-chart-print-svg");
-                    }
-                    return;
-                }
+                            let dataUrl = "";
+                            if (!frozenMarkup && typeof chart.getDataURL === "function") {
+                                dataUrl = chart.getDataURL({
+                                    type: "png",
+                                    pixelRatio: 2,
+                                    excludeComponents: ["toolbox"],
+                                }) || "";
+                            }
 
-                if (typeof chart.getDataURL === "function") {
-                    const dataUrl = chart.getDataURL({
-                        type: "png",
-                        pixelRatio: 2,
-                        excludeComponents: ["toolbox"],
+                            if (typeof chart.dispose === "function") {
+                                chart.dispose();
+                            }
+
+                            target.innerHTML = "";
+                            if (frozenMarkup) {
+                                target.innerHTML = frozenMarkup;
+                                const svg = target.querySelector("svg");
+                                if (svg) {
+                                    svg.classList.add("report-chart-print-svg");
+                                }
+                                window.__pdfDebugLog("freeze.svg", {
+                                    section: sectionName,
+                                    index: index,
+                                    svgLength: frozenMarkup.length,
+                                    targetId: target.id || null,
+                                });
+                                return;
+                            }
+
+                            if (dataUrl) {
+                                const img = document.createElement("img");
+                                img.src = dataUrl;
+                                img.alt = "";
+                                img.className = "report-chart-print-image";
+                                target.appendChild(img);
+                                window.__pdfDebugLog("freeze.png", {
+                                    section: sectionName,
+                                    index: index,
+                                    dataUrlLength: dataUrl.length,
+                                    targetId: target.id || null,
+                                });
+                                return;
+                            }
+
+                            window.__pdfDebugLog("freeze.empty", {
+                                section: sectionName,
+                                index: index,
+                                targetId: target.id || null,
+                            });
+                        });
+
+                        window.__pdfDebugLog("freeze.end", {
+                            section: sectionName,
+                        });
+                        resolve();
                     });
-
-                    if (dataUrl) {
-                        const img = document.createElement("img");
-                        img.src = dataUrl;
-                        img.alt = "";
-                        img.className = "report-chart-print-image";
-                        target.appendChild(img);
-                    }
-                }
+                });
             });
         };
     </script>
