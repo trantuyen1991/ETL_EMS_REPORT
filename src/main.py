@@ -23,10 +23,10 @@ from src.db.processvalue_repository import ProcessValueRepository
 from src.services.processvalue_service import ProcessValueService
 
 def _bootstrap() -> dict[str, Any]:
-    """Bootstrap application runtime objects for development flow.
+    """Bootstrap application runtime objects for report generation.
 
     Returns:
-        dict[str, Any]: Runtime objects required by the dev flow.
+        dict[str, Any]: Runtime objects required by the report flow.
 
     Example:
         runtime = _bootstrap()
@@ -39,7 +39,7 @@ def _bootstrap() -> dict[str, Any]:
     )
 
     logger = get_logger(__name__)
-    logger.info("=== DEV MODE STARTED ===")
+    logger.info("=== REPORT RUN STARTED ===")
 
     config = load_config(
         env_path=project_root / "config" / ".env",
@@ -58,10 +58,6 @@ def _bootstrap() -> dict[str, Any]:
 
     client = MySQLClient(mysql_config)
 
-    period_service = PeriodService()
-    anchor_date = period_service.resolve_anchor_date_from_config(config)
-    period = period_service.resolve_from_config(config)
-
     sources = get_data_sources()
     repos = {
         name: EnergyDataRepository(client, cfg)
@@ -74,35 +70,8 @@ def _bootstrap() -> dict[str, Any]:
         "config": config,
         "env_cfg": env_cfg,
         "client": client,
-        "anchor_date": anchor_date,
-        "period": period,
         "repos": repos,
     }
-
-
-def _run_generic_source_smoke_test(
-    repos: dict[str, EnergyDataRepository],
-    period,
-) -> None:
-    """Run a quick smoke test for generic dt-based sources."""
-    generic_source_names = [
-        "all_energy",
-        "diode_energy",
-        "ico_energy",
-        "sakari_energy",
-        "utility_usage",
-    ]
-
-    for name in generic_source_names:
-        repo = repos[name]
-        try:
-            rows = repo.get_daily_detail_rows(
-                start_date=period.start_date,
-                end_date=period.end_date,
-            )
-            print(f"[TEST] {name}: rows={len(rows)}")
-        except Exception as exc:
-            print(f"[TEST] {name}: ERROR -> {exc}")
 
 
 def _build_kpi_object(
@@ -283,7 +252,6 @@ def _build_report_context(
     energy_object: dict[str, Any],
     kpi_object: dict[str, Any],
     utility_object: dict[str, Any],
-    client: MySQLClient,
 ) -> dict[str, Any]:
     """Build the unified report context for V2."""
     report_builder = ReportBuilderService()
@@ -460,7 +428,6 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
             energy_object=energy_object,
             kpi_object=kpi_object,
             utility_object=utility_object,
-            client=client,
         )
 
         artifacts = _render_report_artifacts(
@@ -486,66 +453,6 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
         )
 
     return rendered_reports
-
-
-def run_dev_test() -> None:
-    """Run the local development flow for V2 data objects."""
-    runtime = _bootstrap()
-
-    logger = runtime["logger"]
-    env_cfg = runtime["env_cfg"]
-    period = runtime["period"]
-    repos = runtime["repos"]
-
-    _run_generic_source_smoke_test(repos, period)
-
-    kpi_object = _build_kpi_object(repos, period)
-
-    utility_object = _build_utility_object(
-        repos=repos,
-        period=period,
-        client=runtime["client"],
-    )
-    print(
-        f"[TEST] current sensor_monitoring keys="
-        f"{utility_object['current']['sensor_monitoring'].keys()}"
-    )
-    print(
-        f"[TEST] current sensor first_row="
-        f"{utility_object['current']['sensor_monitoring']['daily_rows'][0] if utility_object['current']['sensor_monitoring']['daily_rows'] else None}"
-    )
-    energy_object = _build_energy_object(repos, period, kpi_object)
-
-    report_context = _build_report_context(
-        env_cfg=env_cfg,
-        period=period,
-        energy_object=energy_object,
-        kpi_object=kpi_object,
-        utility_object=utility_object,
-        client=runtime["client"],
-    )
-    #
-    renderer = TemplateRenderingService("src/templates")
-
-    html = renderer.render(_select_template_bundle(period.period_type)["view"], report_context)
-
-    with open("output/reports/debug.html", "w", encoding="utf-8") as f:
-        f.write(html)
-
-    logger.info(
-        (
-            "Resolved report period | period_type=%s start_date=%s end_date=%s "
-            "previous_start_date=%s previous_end_date=%s label=%s"
-        ),
-        period.period_type,
-        period.start_date,
-        period.end_date,
-        period.previous_start_date,
-        period.previous_end_date,
-        period.label,
-    )
-
-
 def run_production() -> None:
     """Run production flow."""
     runtime = _bootstrap()
