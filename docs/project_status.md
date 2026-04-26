@@ -24,6 +24,9 @@ Focus:
 - stabilize PDF chart rendering and print flow
 - extend sensor monitoring from backend-ready data into daily-first UI
 
+Stable baseline:
+- PDF export stable at tag `stable-pdf-export-20260426`
+
 ---
 
 ## 3. Completed Components
@@ -197,6 +200,8 @@ Current stabilized approach:
 - disable animation in option
 - initialize using measured element width/height
 - schedule chart init after PDF layout is ready
+- keep the simple readiness signal: `window.status = "loading"` -> wait for `window.load` -> delay `3000ms` -> `window.status = "ready"`
+- print Chromium with `--window-status=ready`
 - flush ZRender after initial resize
 - freeze chart output into static SVG markup inside `*_pdf_source.html`
 - print the staged HTML from `/home/nbt/Reports` with Chromium headless
@@ -205,6 +210,14 @@ Current stabilized approach:
 Important implementation rule:
 - if chart width looks wrong, first adjust chart option layout (`grid`, axis labels, spacing)
 - avoid solving PDF width issues only with JS width forcing
+
+Do not change casually:
+- Chromium print flags
+- readiness delay
+- staging output flow
+- PDF SVG renderer
+- `animation: false`
+- freeze flow
 
 Reference print flow:
 1. render `report_pdf.html`

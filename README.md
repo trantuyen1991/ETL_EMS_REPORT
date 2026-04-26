@@ -207,6 +207,42 @@ Important lesson learned:
 - if a PDF chart needs more usable width, adjust chart option layout (`grid`, labels, axis spacing) in the backend option builder first
 - do not rely on ad-hoc JS width hacks as the primary fix
 
+### PDF Export Flow
+
+The current stable PDF export baseline is tagged:
+
+- `stable-pdf-export-20260426`
+
+Current production flow:
+
+1. `python3 -m src.main` calls `run_production()`
+2. the report batch builds `report_context`
+3. the app renders both view HTML and PDF source HTML
+4. the PDF source HTML is written into both `output/reports/` and the print staging directory
+5. Chromium headless prints the staged HTML into a staged PDF
+6. the final PDF is copied back into `output/reports/`
+
+Template mapping:
+
+- view daily: `src/templates/report/view/report_view_daily.html`
+- view weekly/monthly: `src/templates/report/view/report_view_periodic.html`
+- PDF daily: `src/templates/report/pdf/report_pdf_daily.html`
+- PDF weekly/monthly: `src/templates/report/pdf/report_pdf_periodic.html`
+
+Stable PDF chart rules:
+
+- wait for page readiness using `window.status`
+- keep the extra `3000ms` readiness delay
+- print with Chromium `--window-status=ready`
+- use `renderer: "svg"` for PDF charts
+- keep `animation: false`
+- freeze rendered charts into static content before print
+- print from the staging directory, not directly from hidden workspace paths
+
+Detailed reference:
+
+- `docs/workflows/pdf_export_flow.md`
+
 ---
 
 ### 6. CSV Export

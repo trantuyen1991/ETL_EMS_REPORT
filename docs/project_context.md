@@ -303,6 +303,18 @@ Reason:
 | CSS        | CDN / dynamic | Local / print-safe |
 | Charts     | Interactive   | Static / stable    |
 
+### 7.3.1 View vs PDF Template Map
+
+```text
+Daily report
+    View -> src/templates/report/view/report_view_daily.html
+    PDF  -> src/templates/report/pdf/report_pdf_daily.html
+
+Weekly / Monthly report
+    View -> src/templates/report/view/report_view_periodic.html
+    PDF  -> src/templates/report/pdf/report_pdf_periodic.html
+```
+
 ### 7.4 PDF Chart Rendering Rule
 
 PDF chart rendering must follow the same stable pattern used by the electricity section:
@@ -320,6 +332,28 @@ Important rule learned from implementation:
 * if chart width / spacing looks wrong in PDF, first fix the backend chart option (`grid`, labels, axis spacing)
 * do not depend on ad-hoc JS width forcing as the main solution
 * PDF charts should be treated as static print assets, not long-lived interactive widgets
+
+### 7.5 Output vs Staging Paths
+
+```text
+project_output_dir
+    output/reports/
+        <export_stem>_view.html
+        <export_stem>_pdf_source.html
+        <export_stem>.pdf
+
+staging_output_dir
+    /home/nbt/Reports (or another safe non-hidden print directory)
+        <export_stem>_pdf_source.html
+        <export_stem>.pdf
+```
+
+Responsibility split:
+
+* `project_output_dir` stores the canonical report artifacts
+* `staging_output_dir` is the Chromium-safe print location
+
+The current stable PDF flow depends on this separation.
 
 ---
 
