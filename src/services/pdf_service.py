@@ -95,16 +95,10 @@ class PDFService:
                 f"file://{html_path.resolve()}",
             ]
 
-            logger.info("Running PDF export command: %s", " ".join(cmd))
-
             result = subprocess.run(cmd, capture_output=True, text=True)
 
-            print("PDF CMD:", " ".join(cmd))
-            print("PDF RETURN CODE:", result.returncode)
-            print("PDF STDOUT:", result.stdout)
-            print("PDF STDERR:", result.stderr)
-
             if result.returncode != 0:
+                logger.debug("PDF export command: %s", " ".join(cmd))
                 logger.error("STDOUT: %s", result.stdout)
                 logger.error("STDERR: %s", result.stderr)
                 raise RuntimeError("PDF export failed.")

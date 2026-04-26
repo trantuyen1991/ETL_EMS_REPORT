@@ -641,10 +641,6 @@
                 (function () {
                     function initUtilityChart(attempt) {
                         if (!window.echarts) {
-                            window.__pdfDebugLog("section.no_echarts", {
-                                section: "utility",
-                                attempt: attempt,
-                            });
                             return false;
                         }
 
@@ -684,37 +680,17 @@
 
                         const charts = [];
                         const chartTargets = [];
-                        const chartSizes = [];
                         let hasSizedTarget = false;
 
                         chartConfigs.forEach(function (config) {
                             const el = document.getElementById(config.id);
                             if (!el) {
-                                window.__pdfDebugLog("chart.missing_element", {
-                                    section: "utility",
-                                    attempt: attempt,
-                                    chartId: config.id,
-                                });
                                 return;
                             }
 
                             const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
                             const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
-                            window.__pdfDebugLog("chart.measure", {
-                                section: "utility",
-                                attempt: attempt,
-                                chartId: config.id,
-                                width: width,
-                                height: height,
-                            });
                             if (width <= 8 || height <= 8) {
-                                window.__pdfDebugLog("chart.too_small", {
-                                    section: "utility",
-                                    attempt: attempt,
-                                    chartId: config.id,
-                                    width: width,
-                                    height: height,
-                                });
                                 return;
                             }
 
@@ -736,42 +712,18 @@
                             }
                             charts.push(chart);
                             chartTargets.push(el);
-                            chartSizes.push({ width: width, height: height });
                             hasSizedTarget = true;
-                            window.__pdfDebugLog("chart.ready", {
-                                section: "utility",
-                                attempt: attempt,
-                                chartId: config.id,
-                                width: width,
-                                height: height,
-                            });
                         });
 
                         if (!hasSizedTarget) {
-                            window.__pdfDebugLog("section.no_sized_target", {
-                                section: "utility",
-                                attempt: attempt,
-                            });
                             return false;
                         }
 
-                        window.__pdfDebugLog("section.freeze_request", {
-                            section: "utility",
-                            attempt: attempt,
-                            chartCount: charts.length,
-                        });
-                        window.__freezeReportCharts("utility", charts, chartTargets).then(function () {
-                            window.__utilityChartReady = true;
-                            window.__pdfDebugLog("section.done", {
-                                section: "utility",
-                                attempt: attempt,
-                                chartCount: charts.length,
-                            });
-                        });
+                        window.__freezeReportCharts("utility", charts, chartTargets);
                         return true;
                     }
 
-                    window.__scheduleReportChartInit("utility", initUtilityChart);
+                    window.__scheduleReportChartInit(initUtilityChart);
                 })();
             </script>
         </section>
