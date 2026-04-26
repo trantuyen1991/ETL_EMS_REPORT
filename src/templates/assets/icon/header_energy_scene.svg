@@ -1,0 +1,97 @@
+<svg viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="sceneSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EAF4FF"/>
+      <stop offset="100%" stop-color="#D7EAFE"/>
+    </linearGradient>
+    <linearGradient id="sceneGround" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#CFE3FA"/>
+      <stop offset="100%" stop-color="#EAF4FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="600" height="180" fill="url(#sceneSky)"/>
+
+  <g opacity="0.55">
+    <path d="M10 128C78 98 150 110 220 96C304 79 360 52 430 59C500 66 543 98 590 88V180H10Z" fill="#D7EAFE"/>
+    <path d="M0 138C88 110 151 122 234 111C304 101 386 77 463 84C531 91 567 117 600 113V180H0Z" fill="#C2DCF7"/>
+  </g>
+
+  <g opacity="0.72" stroke="#7FAFDE" stroke-width="2.4" stroke-linecap="round">
+    <path d="M264 22L560 8"/>
+    <path d="M263 36C338 38 402 62 470 53C523 46 558 30 594 33"/>
+  </g>
+
+  <g opacity="0.34" fill="#FFFFFF">
+    <path d="M348 34C357 25 371 25 379 34C385 31 393 34 395 41H336C339 34 344 31 348 34Z"/>
+    <path d="M498 24C507 17 519 18 526 27C534 24 544 28 546 36H484C487 28 492 25 498 24Z"/>
+  </g>
+
+  <g opacity="0.86" stroke="#6A9ED3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M220 148H274"/>
+    <path d="M247 38L225 148"/>
+    <path d="M247 38L270 148"/>
+    <path d="M232 76H262"/>
+    <path d="M228 94H266"/>
+    <path d="M223 118H271"/>
+    <path d="M234 58L260 58"/>
+    <path d="M229 132L266 132"/>
+  </g>
+
+  <g opacity="0.8" stroke="#8CB5E1" stroke-width="2" stroke-linecap="round">
+    <path d="M241 42L160 82"/>
+    <path d="M250 42L344 70"/>
+    <path d="M258 55L456 49"/>
+    <path d="M263 66L564 66"/>
+  </g>
+
+  <g opacity="0.92" stroke="#7FAFDE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M344 88V148"/>
+    <path d="M344 88L331 100"/>
+    <path d="M344 88L357 100"/>
+    <path d="M344 104L327 116"/>
+    <path d="M344 104L361 116"/>
+    <path d="M344 120L329 132"/>
+    <path d="M344 120L359 132"/>
+
+    <path d="M410 100V148"/>
+    <path d="M410 100L399 110"/>
+    <path d="M410 100L421 110"/>
+    <path d="M410 114L396 125"/>
+    <path d="M410 114L424 125"/>
+
+    <path d="M468 92V148"/>
+    <path d="M468 92L456 103"/>
+    <path d="M468 92L480 103"/>
+    <path d="M468 106L452 118"/>
+    <path d="M468 106L484 118"/>
+  </g>
+
+  <g opacity="0.9" fill="url(#sceneGround)">
+    <path d="M0 148H600V180H0Z"/>
+  </g>
+
+  <g opacity="0.85" fill="#9FC1E8">
+    <rect x="506" y="90" width="26" height="58" rx="2"/>
+    <rect x="536" y="74" width="24" height="74" rx="2"/>
+    <rect x="564" y="104" width="20" height="44" rx="2"/>
+    <rect x="585" y="112" width="14" height="36" rx="2"/>
+    <rect x="430" y="106" width="20" height="42" rx="2"/>
+    <rect x="455" y="95" width="26" height="53" rx="2"/>
+    <rect x="486" y="118" width="15" height="30" rx="2"/>
+  </g>
+
+  <g opacity="0.92" fill="#7DAADA">
+    <rect x="404" y="113" width="64" height="35" rx="3"/>
+    <rect x="472" y="123" width="44" height="25" rx="3"/>
+    <rect x="524" y="117" width="32" height="31" rx="2"/>
+    <rect x="548" y="83" width="11" height="65" rx="2"/>
+    <rect x="566" y="107" width="9" height="41" rx="2"/>
+    <path d="M418 148V127H432L439 148Z"/>
+    <path d="M442 148V127H456L463 148Z"/>
+  </g>
+
+  <g opacity="0.75" stroke="#B2D0F0" stroke-width="2" stroke-linecap="round">
+    <path d="M0 133C88 113 158 126 244 115C333 104 420 88 516 94C551 96 577 102 600 104"/>
+  </g>
+</svg>

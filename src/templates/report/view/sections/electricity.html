@@ -1,6 +1,6 @@
 {% import "report/macros/common.html" as report %}
 {% if flags.show_electricity_section %}
-        <section class="report-section daily-highlight-header electricity-section-shell">
+        <section class="report-section daily-highlight-header electricity-section-shell{% if not flags.is_daily_report %} periodic-electricity-section{% endif %}">
             <div class="section-header">
                 <div class="utility-header-shell electricity-header-shell">
                     <div class="utility-header-main">
@@ -85,21 +85,22 @@
                         </div>
                     </div>
 
-                    <div class="electricity-total-card-meta">
-                        <span class="electricity-total-card-meter-label">Meter:</span>
-                        <span class="electricity-total-card-meter-value">
-                            {{ summary.electricity_snapshot.meter_active_total_display }}
-                        </span>
-                    </div>
-
-                    <div class="electricity-total-card-footer">
-                        <div class="electricity-total-card-delta-block">
-                            <span class="electricity-total-card-footer-label">Delta</span>
-                            <span class="electricity-total-card-footer-value {{ summary.electricity_snapshot.delta_class }}">
-                                {{ summary.electricity_snapshot.delta_display }}
-                            </span>
+                    <div class="electricity-total-card-footer energy-card-footer">
+                        <div class="energy-card-meta-row">
+                            <div class="electricity-total-card-delta-block">
+                                <span class="electricity-total-card-footer-label">Delta</span>
+                                <span class="electricity-total-card-footer-value {{ summary.electricity_snapshot.delta_class }}">
+                                    {{ summary.electricity_snapshot.delta_display }}
+                                </span>
+                            </div>
+                            <div class="electricity-total-card-meta">
+                                <span class="electricity-total-card-meter-label">Meter:</span>
+                                <span class="electricity-total-card-meter-value">
+                                    {{ summary.electricity_snapshot.meter_active_total_display }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="electricity-total-card-delta-pct-block">
+                        <div class="energy-card-trend-row">
                             <span class="electricity-total-card-footer-value delta-pct {{ summary.electricity_snapshot.delta_pct_class }}">
                                 {{ report.delta_arrow(summary.electricity_snapshot.delta_pct_class) }}
                                 {{ summary.electricity_snapshot.delta_pct_display }}
@@ -168,21 +169,22 @@
                         </div>
                     </div>
 
-                    <div class="electricity-total-card-meta">
-                        <span class="electricity-total-card-meter-label">Meter:</span>
-                        <span class="electricity-total-card-meter-value">
-                            {{ row.meter_active_total_display }}
-                        </span>
-                    </div>
-
-                    <div class="electricity-total-card-footer">
-                        <div class="electricity-total-card-delta-block">
-                            <span class="electricity-total-card-footer-label">Delta</span>
-                            <span class="electricity-total-card-footer-value {{ ns.match.delta_class if ns.match else '' }}">
-                                {{ ns.match.delta_display if ns.match else "-" }}
-                            </span>
+                    <div class="electricity-total-card-footer energy-card-footer">
+                        <div class="energy-card-meta-row">
+                            <div class="electricity-total-card-delta-block">
+                                <span class="electricity-total-card-footer-label">Delta</span>
+                                <span class="electricity-total-card-footer-value {{ ns.match.delta_class if ns.match else '' }}">
+                                    {{ ns.match.delta_display if ns.match else "-" }}
+                                </span>
+                            </div>
+                            <div class="electricity-total-card-meta">
+                                <span class="electricity-total-card-meter-label">Meter:</span>
+                                <span class="electricity-total-card-meter-value">
+                                    {{ row.meter_active_total_display }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="electricity-total-card-delta-pct-block">
+                        <div class="energy-card-trend-row">
                             <span class="electricity-total-card-footer-value delta-pct {{ ns.match.delta_pct_class if ns.match else '' }}">
                                 {% if ns.match %}
                                     {{ report.delta_arrow(ns.match.delta_pct_class) }}
@@ -198,7 +200,7 @@
                 {% endfor %}
             </div>
 
-            <div class="electricity-chart-grid {% if flags.is_daily_report %}electricity-chart-grid-daily{% endif %}">
+            <div class="electricity-chart-grid {% if flags.is_daily_report %}electricity-chart-grid-daily{% else %}periodic-electricity-chart-grid{% endif %}">
                 <div class="electricity-chart-card">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.daily_trend.title }}

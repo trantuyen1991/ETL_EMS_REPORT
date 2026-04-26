@@ -91,6 +91,7 @@ class ReportBuilderService:
                 "energy_unit": meta.get("energy_unit", "kWh"),
                 "kpi_unit": meta.get("kpi_unit", "kWh/Ton"),
                 "company_logo_uri": self._build_company_logo_data_uri(),
+                "header_background_uri": self._build_icon_data_uri("title_background.png"),
                 "utility_header_icon_uri": self._build_icon_data_uri("utilityheader.svg"),
             },
             "period": v3_period_block["period"],
@@ -1000,17 +1001,35 @@ class ReportBuilderService:
             key=lambda row: row.get("date") or datetime.min.date(),
         )
 
-        max_daily_points = max(len(current_daily_rows), len(previous_daily_rows))
-        daily_labels = [f"D{index}" for index in range(1, max_daily_points + 1)]
+        is_weekly_or_monthly = period_type in {"weekly", "monthly"}
 
-        current_daily_values = [
-            self._parse_display_number(row.get("total_energy_display"))
-            for row in current_daily_rows
-        ]
-        previous_daily_values = [
-            self._parse_display_number(row.get("total_energy_display"))
-            for row in previous_daily_rows
-        ]
+        if is_weekly_or_monthly:
+            current_daily_values = self._build_periodic_energy_trend_values(
+                energy_period_object=energy_object.get("current", {}) or {},
+            )
+            previous_daily_values = self._build_periodic_energy_trend_values(
+                energy_period_object=energy_object.get("previous", {}) or {},
+            )
+        else:
+            current_daily_values = [
+                self._parse_display_number(row.get("total_energy_display"))
+                for row in current_daily_rows
+            ]
+            previous_daily_values = [
+                self._parse_display_number(row.get("total_energy_display"))
+                for row in previous_daily_rows
+            ]
+
+        max_daily_points = max(len(current_daily_values), len(previous_daily_values))
+        if is_weekly_or_monthly:
+            daily_labels = self._build_periodic_energy_trend_labels(
+                current_daily_rows=current_daily_rows,
+                previous_daily_rows=previous_daily_rows,
+                max_daily_points=max_daily_points,
+                period_type=period_type,
+            )
+        else:
+            daily_labels = [f"D{index}" for index in range(1, max_daily_points + 1)]
 
         if len(current_daily_values) < max_daily_points:
             current_daily_values.extend([None] * (max_daily_points - len(current_daily_values)))
@@ -1165,8 +1184,8 @@ class ReportBuilderService:
                     "grid": {
                         "left": 32,
                         "right": 12,
-                        "top": 48,
-                        "bottom": 22,
+                        "top": 56,
+                        "bottom": 26,
                         "containLabel": True,
                     },
                     "xAxis": {
@@ -1184,18 +1203,38 @@ class ReportBuilderService:
                         {
                             "name": "Current period",
                             "type": "bar",
-                            "barMaxWidth": 26,
+                            "barMaxWidth": 22,
+                            "labelLayout": {
+                                "hideOverlap": True,
+                            },
                             "data": [
-                                self._build_chart_bar_point(value, color="#2563eb")
+                                self._build_chart_bar_point(
+                                    value,
+                                    color="#2563eb",
+                                    font_size=8,
+                                    label_rotate=16,
+                                    label_distance=4,
+                                    formatter=self._fmt_chart_compact(value),
+                                )
                                 for value in current_area_values
                             ],
                         },
                         {
                             "name": "Previous period",
                             "type": "bar",
-                            "barMaxWidth": 26,
+                            "barMaxWidth": 22,
+                            "labelLayout": {
+                                "hideOverlap": True,
+                            },
                             "data": [
-                                self._build_chart_bar_point(value, color="#7c3aed")
+                                self._build_chart_bar_point(
+                                    value,
+                                    color="#7c3aed",
+                                    font_size=8,
+                                    label_rotate=16,
+                                    label_distance=4,
+                                    formatter=self._fmt_chart_compact(value),
+                                )
                                 for value in previous_area_values
                             ],
                         },
@@ -1203,6 +1242,85 @@ class ReportBuilderService:
                 },
             },
         }
+
+    def _build_periodic_energy_trend_values(
+        self,
+        *,
+        energy_period_object: Dict[str, Any],
+    ) -> list[float | None]:
+        """Resolve periodic daily trend values with fallback to area daily totals."""
+        summary_rows = sorted(
+            energy_period_object.get("daily_summary_rows", []),
+            key=lambda row: row.get("date") or datetime.min.date(),
+        )
+        summary_by_date = {
+            row.get("date"): row
+            for row in summary_rows
+            if row.get("date") is not None
+        }
+
+        area_total_by_date: dict[date, float] = {}
+        for table in energy_period_object.get("daily_tables", []) or []:
+            for row in table.get("rows", []) or []:
+                dt_value = row.get("date")
+                official_total = row.get("official_daily_total")
+                if dt_value is None or not isinstance(official_total, (int, float)):
+                    continue
+                area_total_by_date[dt_value] = (
+                    area_total_by_date.get(dt_value, 0.0) + float(official_total)
+                )
+
+        all_dates = sorted(set(summary_by_date.keys()) | set(area_total_by_date.keys()))
+        values: list[float | None] = []
+
+        for dt_value in all_dates:
+            summary_value = self._parse_display_number(
+                summary_by_date.get(dt_value, {}).get("total_energy_display")
+            )
+            fallback_value = area_total_by_date.get(dt_value)
+
+            if summary_value is None:
+                resolved_value = fallback_value
+            elif (
+                summary_value == 0.0
+                and isinstance(fallback_value, (int, float))
+                and fallback_value > 0.0
+            ):
+                resolved_value = fallback_value
+            else:
+                resolved_value = summary_value
+
+            values.append(round(float(resolved_value), 4) if resolved_value is not None else None)
+
+        return values
+
+    def _build_periodic_energy_trend_labels(
+        self,
+        *,
+        current_daily_rows: list[dict[str, Any]],
+        previous_daily_rows: list[dict[str, Any]],
+        max_daily_points: int,
+        period_type: str,
+    ) -> list[str]:
+        """Build aligned x-axis labels for periodic electricity trend charts."""
+        if max_daily_points <= 0:
+            return []
+
+        label_source_rows = current_daily_rows if current_daily_rows else previous_daily_rows
+        label_dates = [
+            row.get("date")
+            for row in label_source_rows
+            if row.get("date") is not None
+        ]
+
+        normalized_period = str(period_type or "").strip().lower()
+        if normalized_period == "weekly" and len(label_dates) >= max_daily_points:
+            return [dt.strftime("%a") for dt in label_dates[:max_daily_points]]
+
+        if normalized_period == "monthly" and len(label_dates) >= max_daily_points:
+            return [str(dt.day) for dt in label_dates[:max_daily_points]]
+
+        return [f"D{index}" for index in range(1, max_daily_points + 1)]
 
     def _parse_display_number(self, value: Any) -> float | None:
         """Parse a formatted numeric display string back to float."""
@@ -1409,6 +1527,9 @@ class ReportBuilderService:
         color: str,
         border_radius: list[int] | None = None,
         font_size: int = 10,
+        formatter: str | None = None,
+        label_rotate: int = 28,
+        label_distance: int = 6,
     ) -> dict[str, Any]:
         """Build one bar datum with a compact value label above the bar."""
         point = {
@@ -1423,9 +1544,9 @@ class ReportBuilderService:
             point["label"] = {
                 "show": True,
                 "position": "top",
-                "distance": 6,
-                "rotate": 28,
-                "formatter": self._fmt_chart_callout(value),
+                "distance": label_distance,
+                "rotate": label_rotate,
+                "formatter": formatter or self._fmt_chart_callout(value),
                 "color": "#475569",
                 "fontSize": font_size,
                 "fontWeight": 700,
@@ -3801,6 +3922,20 @@ class ReportBuilderService:
         if val is None:
             return "-"
         return f"{float(val):,.1f}"
+
+    def _fmt_chart_compact(self, val: Any) -> str:
+        """Format bar labels into short k/M strings to reduce overlap."""
+        if val is None:
+            return "-"
+
+        numeric_value = float(val)
+        abs_value = abs(numeric_value)
+
+        if abs_value >= 1_000_000:
+            return f"{numeric_value / 1_000_000:.1f}M"
+        if abs_value >= 1_000:
+            return f"{numeric_value / 1_000:.1f}k"
+        return f"{numeric_value:,.1f}"
 
     def _consumption_trend_class(self, val):
         """Return trend class for consumption/intensity metrics.
