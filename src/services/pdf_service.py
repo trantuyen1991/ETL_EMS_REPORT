@@ -90,6 +90,7 @@ class PDFService:
                 "--hide-scrollbars",
                 "--run-all-compositor-stages-before-draw",
                 "--virtual-time-budget=45000",
+                "--window-status=ready",
                 f"--print-to-pdf={str(output_pdf.resolve())}",
                 f"file://{html_path.resolve()}",
             ]

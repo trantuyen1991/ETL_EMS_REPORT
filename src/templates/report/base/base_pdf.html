@@ -12,6 +12,8 @@
         {% include "assets/vendor/echarts/echarts.min.js" %}
     </script>
     <script>
+        window.status = "loading";
+
         window.__scheduleReportChartInit = function (initFn) {
             let attempts = 0;
             const maxAttempts = 24;
@@ -47,6 +49,12 @@
                 schedule();
             }
         };
+
+        window.addEventListener("load", function () {
+            window.setTimeout(function () {
+                window.status = "ready";
+            }, 3000);
+        }, { once: true });
     </script>
     <script>
         window.__freezeReportCharts = function (charts, chartTargets) {
