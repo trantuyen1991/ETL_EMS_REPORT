@@ -1812,14 +1812,14 @@
 
         .electricity-daily-vertical-row {
             border-top: 1px solid var(--border-row);
-            background: #ffffff;
+            background: var(--report-components-card-background, #ffffff);
         }
 
         .electricity-daily-vertical-index {
             padding: 10px 8px;
             text-align: center;
             font-weight: 700;
-            color: #64748b;
+            color: var(--report-components-chart-meta-subtle-color, #64748b);
         }
 
         .electricity-daily-vertical-meter {
@@ -1853,7 +1853,7 @@
             width: var(--detail-fill-width, 0%);
             height: 18px;
             border-radius: 0 6px 6px 0;
-            background: var(--detail-accent-color, #60a5fa);
+            background: var(--detail-accent-color, var(--report-color-brand-primary, #60a5fa));
             opacity: 0.22;
         }
 
@@ -1863,16 +1863,16 @@
             width: 100%;
             text-align: right;
             font-weight: 700;
-            color: #0f172a;
+            color: var(--report-components-chart-meta-value-color, #0f172a);
         }
 
         .electricity-daily-vertical-value.value-zero .electricity-daily-value-bar-label {
-            color: #0f172a;
+            color: var(--report-components-chart-meta-value-color, #0f172a);
             font-weight: 500;
         }
 
         .electricity-daily-vertical-row.is-max .electricity-daily-value-bar-label {
-            color: #0f172a;
+            color: var(--report-components-chart-meta-value-color, #0f172a);
         }
 
         .electricity-daily-vertical-row.heat-1 {
@@ -1880,15 +1880,15 @@
         }
 
         .electricity-daily-vertical-row.heat-2 {
-            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.06)) 0%, #ffffff 90%);
+            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.06)) 0%, var(--report-components-card-background, #ffffff) 90%);
         }
 
         .electricity-daily-vertical-row.heat-3 {
-            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.1)) 0%, #ffffff 82%);
+            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.1)) 0%, var(--report-components-card-background, #ffffff) 82%);
         }
 
         .electricity-daily-vertical-row.heat-4 {
-            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, #ffffff 74%);
+            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, var(--report-components-card-background, #ffffff) 74%);
         }
 
         .electricity-daily-detail-table-block {
@@ -3289,9 +3289,53 @@
         }
 
         .kpi-summary-table .kpi-metric-header {
-            background: linear-gradient(180deg, #f5f8fc 0%, #edf2f8 100%);
-            color: #475569;
+            background: linear-gradient(180deg, var(--report-color-page-background, #f5f8fc) 0%, var(--report-color-header-background, #edf2f8) 100%);
+            color: var(--report-components-chart-meta-text-color, #475569);
             font-weight: 800;
+        }
+
+        .kpi-summary-table .kpi-group-total {
+            --kpi-group-accent: #2d74ff;
+            --kpi-group-divider: #9ec3ff;
+            --kpi-group-header-bg: linear-gradient(180deg, rgba(45, 116, 255, 0.18) 0%, #f7fbff 100%);
+            --kpi-group-subheader-bg: #eef6ff;
+            --kpi-group-cell-bg: rgba(238, 245, 255, 0.55);
+            --kpi-group-title-color: #1748b5;
+            --kpi-group-primary: #2160df;
+            --kpi-group-secondary: #385eb4;
+        }
+
+        .kpi-summary-table .kpi-group-diode {
+            --kpi-group-accent: #2d74ff;
+            --kpi-group-divider: #c3d9ff;
+            --kpi-group-header-bg: linear-gradient(180deg, rgba(45, 116, 255, 0.15) 0%, #fbfdff 100%);
+            --kpi-group-subheader-bg: #f1f7ff;
+            --kpi-group-cell-bg: rgba(241, 247, 255, 0.62);
+            --kpi-group-title-color: #1748b5;
+            --kpi-group-primary: #2160df;
+            --kpi-group-secondary: #385eb4;
+        }
+
+        .kpi-summary-table .kpi-group-ico {
+            --kpi-group-accent: #22a34a;
+            --kpi-group-divider: #bfe8cb;
+            --kpi-group-header-bg: linear-gradient(180deg, rgba(34, 163, 74, 0.16) 0%, #fbfefb 100%);
+            --kpi-group-subheader-bg: #eefaf2;
+            --kpi-group-cell-bg: rgba(238, 250, 242, 0.60);
+            --kpi-group-title-color: #14803b;
+            --kpi-group-primary: #14803b;
+            --kpi-group-secondary: #2f9e55;
+        }
+
+        .kpi-summary-table .kpi-group-sakari {
+            --kpi-group-accent: #f59e0b;
+            --kpi-group-divider: #fbd2a2;
+            --kpi-group-header-bg: linear-gradient(180deg, rgba(245, 158, 11, 0.16) 0%, #fffaf2 100%);
+            --kpi-group-subheader-bg: #fff5e8;
+            --kpi-group-cell-bg: rgba(255, 245, 232, 0.65);
+            --kpi-group-title-color: #d97706;
+            --kpi-group-primary: #d97706;
+            --kpi-group-secondary: var(--report-color-brand-accent, #a855f7);
         }
 
         .kpi-summary-table .kpi-group-header {
@@ -3303,59 +3347,34 @@
 
         .kpi-summary-table .kpi-group-subheader {
             font-weight: 700;
-            color: #475569;
+            color: var(--report-components-chart-meta-text-color, #475569);
             padding-top: 10px;
             padding-bottom: 10px;
         }
 
-        .kpi-summary-table .kpi-group-header.kpi-group-total {
-            background: linear-gradient(180deg, rgba(45, 116, 255, 0.18) 0%, #f7fbff 100%);
-            box-shadow: inset 0 6px 0 #2d74ff;
-            color: #1748b5;
+        .kpi-summary-table .kpi-group-header[class*="kpi-group-"] {
+            background: var(--kpi-group-header-bg);
+            box-shadow: inset 0 6px 0 var(--kpi-group-accent);
+            color: var(--kpi-group-title-color);
         }
 
-        .kpi-summary-table .kpi-group-subheader.kpi-group-total {
-            background: #eef6ff;
+        .kpi-summary-table .kpi-group-subheader[class*="kpi-group-"] {
+            background: var(--kpi-group-subheader-bg);
         }
 
-        .kpi-summary-table .kpi-group-header.kpi-group-diode {
-            background: linear-gradient(180deg, rgba(45, 116, 255, 0.15) 0%, #fbfdff 100%);
-            box-shadow: inset 0 6px 0 #2d74ff;
-            color: #1748b5;
+        .kpi-summary-table .kpi-group-divider-total.kpi-group-start,
+        .kpi-summary-table .kpi-group-divider-diode.kpi-group-start,
+        .kpi-summary-table .kpi-group-divider-ico.kpi-group-start,
+        .kpi-summary-table .kpi-group-divider-sakari.kpi-group-start {
+            border-left: 3px solid var(--kpi-group-divider) !important;
         }
 
-        .kpi-summary-table .kpi-group-subheader.kpi-group-diode {
-            background: #f1f7ff;
+        .kpi-summary-table .kpi-group-divider-total.kpi-group-end,
+        .kpi-summary-table .kpi-group-divider-diode.kpi-group-end,
+        .kpi-summary-table .kpi-group-divider-ico.kpi-group-end,
+        .kpi-summary-table .kpi-group-divider-sakari.kpi-group-end {
+            border-right: 3px solid var(--kpi-group-divider) !important;
         }
-
-        .kpi-summary-table .kpi-group-header.kpi-group-ico {
-            background: linear-gradient(180deg, rgba(34, 163, 74, 0.16) 0%, #fbfefb 100%);
-            box-shadow: inset 0 6px 0 #22a34a;
-            color: #14803b;
-        }
-
-        .kpi-summary-table .kpi-group-subheader.kpi-group-ico {
-            background: #eefaf2;
-        }
-
-        .kpi-summary-table .kpi-group-header.kpi-group-sakari {
-            background: linear-gradient(180deg, rgba(245, 158, 11, 0.16) 0%, #fffaf2 100%);
-            box-shadow: inset 0 6px 0 #f59e0b;
-            color: #d97706;
-        }
-
-        .kpi-summary-table .kpi-group-subheader.kpi-group-sakari {
-            background: #fff5e8;
-        }
-
-        .kpi-summary-table .kpi-group-divider-total.kpi-group-start { border-left: 3px solid #9ec3ff !important; }
-        .kpi-summary-table .kpi-group-divider-total.kpi-group-end { border-right: 3px solid #9ec3ff !important; }
-        .kpi-summary-table .kpi-group-divider-diode.kpi-group-start { border-left: 3px solid #c3d9ff !important; }
-        .kpi-summary-table .kpi-group-divider-diode.kpi-group-end { border-right: 3px solid #c3d9ff !important; }
-        .kpi-summary-table .kpi-group-divider-ico.kpi-group-start { border-left: 3px solid #bfe8cb !important; }
-        .kpi-summary-table .kpi-group-divider-ico.kpi-group-end { border-right: 3px solid #bfe8cb !important; }
-        .kpi-summary-table .kpi-group-divider-sakari.kpi-group-start { border-left: 3px solid #fbd2a2 !important; }
-        .kpi-summary-table .kpi-group-divider-sakari.kpi-group-end { border-right: 3px solid #fbd2a2 !important; }
 
         .kpi-summary-table .col-value,
         .kpi-summary-table .col-total {
@@ -3364,16 +3383,15 @@
         }
 
         .kpi-summary-table .kpi-group-cell {
-            background: #ffffff;
+            background: var(--report-components-card-background, #ffffff);
         }
 
-        .kpi-summary-table .kpi-group-cell.kpi-group-total { background: rgba(238, 245, 255, 0.55); }
-        .kpi-summary-table .kpi-group-cell.kpi-group-diode { background: rgba(241, 247, 255, 0.62); }
-        .kpi-summary-table .kpi-group-cell.kpi-group-ico { background: rgba(238, 250, 242, 0.60); }
-        .kpi-summary-table .kpi-group-cell.kpi-group-sakari { background: rgba(255, 245, 232, 0.65); }
+        .kpi-summary-table .kpi-group-cell[class*="kpi-group-"] {
+            background: var(--kpi-group-cell-bg, var(--report-components-card-background, #ffffff));
+        }
 
         .kpi-summary-table .col-total {
-            color: #1748b5;
+            color: var(--kpi-group-title-color, var(--report-color-brand-primary, #1748b5));
             font-weight: 800;
         }
 
@@ -3387,40 +3405,13 @@
             font-weight: 700;
         }
 
-        .kpi-summary-table .kpi-group-cell.kpi-group-total.col-today,
-        .kpi-summary-table .kpi-group-cell.kpi-group-total.col-total {
-            color: #2160df;
+        .kpi-summary-table .kpi-group-cell.col-today,
+        .kpi-summary-table .kpi-group-cell.col-total {
+            color: var(--kpi-group-primary, var(--brand));
         }
 
-        .kpi-summary-table .kpi-group-cell.kpi-group-total.col-yesterday {
-            color: #385eb4;
-        }
-
-        .kpi-summary-table .kpi-group-cell.kpi-group-diode.col-today,
-        .kpi-summary-table .kpi-group-cell.kpi-group-diode.col-total {
-            color: #2160df;
-        }
-
-        .kpi-summary-table .kpi-group-cell.kpi-group-diode.col-yesterday {
-            color: #385eb4;
-        }
-
-        .kpi-summary-table .kpi-group-cell.kpi-group-ico.col-today,
-        .kpi-summary-table .kpi-group-cell.kpi-group-ico.col-total {
-            color: #14803b;
-        }
-
-        .kpi-summary-table .kpi-group-cell.kpi-group-ico.col-yesterday {
-            color: #2f9e55;
-        }
-
-        .kpi-summary-table .kpi-group-cell.kpi-group-sakari.col-today,
-        .kpi-summary-table .kpi-group-cell.kpi-group-sakari.col-total {
-            color: #d97706;
-        }
-
-        .kpi-summary-table .kpi-group-cell.kpi-group-sakari.col-yesterday {
-            color: #a855f7;
+        .kpi-summary-table .kpi-group-cell.col-yesterday {
+            color: var(--kpi-group-secondary, var(--accent));
         }
 
         .kpi-chart-card {
