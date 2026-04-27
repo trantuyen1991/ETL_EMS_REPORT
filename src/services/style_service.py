@@ -168,6 +168,18 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {
                 "background": "#f3f4f6",
                 "borderColor": "#d1d5db",
             },
+            "info": {
+                "textColor": "#0369a1",
+                "background": "#e0f2fe",
+                "borderColor": "#bae6fd",
+            },
+        },
+        "badge": {
+            "textColor": "#475569",
+            "background": "#e2e8f0",
+            "borderColor": "#cbd5e1",
+            "fontSize": "10px",
+            "fontWeight": "800",
         },
         "trend": {
             "up": {"color": "#0f7b35"},

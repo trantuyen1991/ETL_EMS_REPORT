@@ -453,8 +453,9 @@
 
     </style>
 </head>
-<body class="pdf-render-mode">
-    <div class="report-container">
+{% set report_scope = 'daily' if period.type == 'daily' else 'periodic' %}
+<body class="pdf-render-mode report-body report-family-{{ report_scope }} report-period-{{ period.type | default('unknown') }}">
+    <div class="report-container report-container-{{ report_scope }}">
         {% block content %}{% endblock %}
     </div>
 

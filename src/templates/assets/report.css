@@ -60,6 +60,30 @@
             padding: 0;
         }
 
+        .report-family-daily {
+            --bg-card: var(--report-components-card-background, var(--report-color-card-background));
+            --bg-header: var(--report-components-table-header-background, var(--report-color-table-header-background));
+            --bg-header-strong: var(--report-components-table-header-background, var(--report-color-header-background-strong));
+            --border-soft: var(--report-components-card-border-color, var(--report-color-border-soft));
+            --border-row: var(--report-components-table-border-color, var(--report-color-border-row));
+            --shadow-card: var(--report-components-card-shadow, var(--report-shadow-card));
+            --radius-md: var(--report-components-card-border-radius, var(--report-radius-medium));
+            --radius-lg: var(--report-components-card-border-radius, var(--report-radius-large));
+        }
+
+        .report-family-daily .electricity-total-card,
+        .report-family-daily .kpi-daily-card,
+        .report-family-daily .utility-overview-card {
+            border-radius: var(--report-components-card-border-radius, 16px);
+        }
+
+        .report-family-daily .utility-overview-card,
+        .report-family-daily .utility-sensor-overview-card,
+        .report-family-daily .utility-sensor-group-card,
+        .report-family-daily .kpi-plant-card {
+            box-shadow: var(--report-components-card-shadow, var(--shadow-card));
+        }
+
         h1,
         h2,
         h3,
@@ -582,11 +606,11 @@
             gap: 6px;
             padding: 4px 10px;
             border-radius: 999px;
-            font-size: 11.5px;
-            font-weight: 700;
-            color: #1e3a8a;
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
+            font-size: var(--report-components-badge-font-size, 11.5px);
+            font-weight: var(--report-components-badge-font-weight, 700);
+            color: var(--report-components-badge-text-color, #1e3a8a);
+            background: var(--report-components-badge-background, #eff6ff);
+            border: 1px solid var(--report-components-badge-border-color, #bfdbfe);
         }
 
         .section-placeholder {
@@ -620,7 +644,7 @@
 
         .surface-card {
             border: 1px solid var(--border-soft);
-            border-radius: 12px;
+            border-radius: var(--report-components-card-border-radius, 12px);
             background: var(--bg-card);
             box-shadow: var(--shadow-card);
         }
@@ -629,7 +653,7 @@
             width: 100%;
             overflow-x: auto;
             border: 1px solid var(--border-soft);
-            border-radius: 12px;
+            border-radius: var(--report-components-card-border-radius, 12px);
             background: var(--bg-card);
             box-shadow: var(--shadow-card);
         }
@@ -641,19 +665,20 @@
 
         .surface-table th,
         .surface-table td {
-            padding: 10px 12px;
+            padding: var(--report-components-table-cell-padding, 10px 12px);
             border-bottom: 1px solid var(--border-row);
             vertical-align: middle;
             text-align: left;
             white-space: nowrap;
             font-size: 13px;
+            color: var(--report-components-table-text-color, var(--text-main));
         }
 
         .surface-table thead th {
             background: var(--bg-header);
             font-size: 12px;
             font-weight: 700;
-            color: #475569;
+            color: var(--report-components-table-header-text-color, #475569);
         }
 
         .surface-table tbody tr:last-child td {
@@ -669,7 +694,7 @@
             overflow-x: auto;
             overflow-y: visible;
             border: 1px solid var(--border-soft);
-            border-radius: 12px;
+            border-radius: var(--report-components-card-border-radius, 12px);
             background: var(--bg-card);
             box-shadow: var(--shadow-card);
         }
@@ -681,12 +706,13 @@
 
         .report-table-ui th,
         .report-table-ui td {
-            padding: 9px 11px;
+            padding: var(--report-components-table-cell-padding, 9px 11px);
             border-bottom: 1px solid var(--border-row);
             vertical-align: middle;
             text-align: left;
             white-space: nowrap;
             font-size: 12.5px;
+            color: var(--report-components-table-text-color, var(--text-main));
             transition: background-color 0.15s ease, color 0.15s ease;
         }
 
@@ -697,7 +723,7 @@
             background: var(--bg-header);
             font-size: 11.5px;
             font-weight: 700;
-            color: #475569;
+            color: var(--report-components-table-header-text-color, #475569);
             letter-spacing: 0.02em;
             box-shadow: inset 0 -1px 0 var(--border-row);
         }
@@ -769,7 +795,7 @@
         }
 
         .report-table-ui tbody tr:nth-child(even) .sticky-date-col {
-            background: #fcfcfc;
+            background: var(--report-components-table-stripe-background, #fcfcfc);
         }
 
         .report-table-ui .value-zero {
@@ -867,27 +893,27 @@
             text-align: center;
             padding: 3px 10px;
             border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
+            font-size: var(--report-components-badge-font-size, 11px);
+            font-weight: var(--report-components-badge-font-weight, 700);
             border: 1px solid transparent;
         }
 
         .status-ok {
-            background: #e8f5e9;
-            color: #1b5e20;
-            border-color: #b7dfba;
+            background: var(--report-components-status-badge-success-background, #e8f5e9);
+            color: var(--report-components-status-badge-success-text-color, #1b5e20);
+            border-color: var(--report-components-status-badge-success-border-color, #b7dfba);
         }
 
         .status-partial {
-            background: #fff4db;
-            color: #8a5a00;
-            border-color: #e3c37f;
+            background: var(--report-components-status-badge-warning-background, #fff4db);
+            color: var(--report-components-status-badge-warning-text-color, #8a5a00);
+            border-color: var(--report-components-status-badge-warning-border-color, #e3c37f);
         }
 
         .status-missing {
-            background: #fdecec;
-            color: #a61b1b;
-            border-color: #e4aaaa;
+            background: var(--report-components-status-badge-danger-background, #fdecec);
+            color: var(--report-components-status-badge-danger-text-color, #a61b1b);
+            border-color: var(--report-components-status-badge-danger-border-color, #e4aaaa);
         }
 
         .row-ok {
@@ -1635,19 +1661,21 @@
 
         .report-table th,
         .report-table td {
-            border: 1px solid #d9d9d9;
-            padding: 8px 10px;
+            border: 1px solid var(--report-components-table-border-color, #d9d9d9);
+            padding: var(--report-components-table-cell-padding, 8px 10px);
             vertical-align: middle;
             white-space: nowrap;
+            color: var(--report-components-table-text-color, var(--text-main));
         }
 
         .report-table th {
             background: var(--bg-header-strong);
             font-weight: 700;
+            color: var(--report-components-table-header-text-color, var(--text-dark));
         }
 
         .report-table tbody tr:nth-child(even) {
-            background: #fcfcfc;
+            background: var(--report-components-table-stripe-background, #fcfcfc);
         }
 
         .report-table thead th {
@@ -1663,8 +1691,8 @@
             max-height: 420px;
             overflow-x: auto;
             overflow-y: auto;
-            border: 1px solid #d9d9d9;
-            border-radius: var(--radius-md);
+            border: 1px solid var(--report-components-table-border-color, #d9d9d9);
+            border-radius: var(--report-components-card-border-radius, var(--radius-md));
             background: var(--bg-card);
         }
 
@@ -2810,11 +2838,11 @@
 
         .utility-sensor-overview-card {
             padding: 12px 14px;
-            border-radius: 14px;
-            border: 1px solid #dbe4ee;
+            border-radius: var(--report-components-card-border-radius, 14px);
+            border: 1px solid var(--report-components-card-border-color, #dbe4ee);
             border-top: 4px solid var(--sensor-accent, #64748b);
-            background: linear-gradient(180deg, #ffffff 0%, var(--sensor-tint, rgba(148, 163, 184, 0.1)) 100%);
-            box-shadow: var(--shadow-card);
+            background: linear-gradient(180deg, var(--report-components-card-background, #ffffff) 0%, var(--sensor-tint, rgba(148, 163, 184, 0.1)) 100%);
+            box-shadow: var(--report-components-card-shadow, var(--shadow-card));
         }
 
         .utility-sensor-overview-title {
@@ -2853,7 +2881,7 @@
         }
 
         .utility-sensor-overview-value.has-alert {
-            color: #b45309;
+            color: var(--report-components-status-badge-warning-text-color, #b45309);
         }
 
         .utility-sensor-group-grid {
@@ -2864,10 +2892,10 @@
 
         .utility-sensor-group-card {
             padding: 14px;
-            border-radius: 16px;
-            border: 1px solid #dbe4ee;
+            border-radius: var(--report-components-card-border-radius, 16px);
+            border: 1px solid var(--report-components-card-border-color, #dbe4ee);
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, var(--sensor-tint, rgba(148, 163, 184, 0.08)) 100%);
-            box-shadow: var(--shadow-card);
+            box-shadow: var(--report-components-card-shadow, var(--shadow-card));
             break-inside: avoid;
         }
 
@@ -2900,17 +2928,17 @@
             min-width: 66px;
             padding: 4px 8px;
             border-radius: 999px;
-            font-size: 10px;
-            font-weight: 800;
-            color: #334155;
-            background: rgba(255, 255, 255, 0.76);
-            border: 1px solid #dbe4ee;
+            font-size: var(--report-components-badge-font-size, 10px);
+            font-weight: var(--report-components-badge-font-weight, 800);
+            color: var(--report-components-badge-text-color, #334155);
+            background: var(--report-components-badge-background, rgba(255, 255, 255, 0.76));
+            border: 1px solid var(--report-components-badge-border-color, #dbe4ee);
         }
 
         .utility-sensor-group-badge.has-alert {
-            color: #9a3412;
-            background: #fff7ed;
-            border-color: #fdba74;
+            color: var(--report-components-status-badge-warning-text-color, #9a3412);
+            background: var(--report-components-status-badge-warning-background, #fff7ed);
+            border-color: var(--report-components-status-badge-warning-border-color, #fdba74);
         }
 
         .utility-sensor-range-list {
@@ -3525,42 +3553,42 @@
             min-width: 72px;
             padding: 4px 10px;
             border-radius: 999px;
-            font-size: 10px;
-            font-weight: 800;
+            font-size: var(--report-components-badge-font-size, 10px);
+            font-weight: var(--report-components-badge-font-weight, 800);
             line-height: 1;
             border: 1px solid transparent;
-            background: #e2e8f0;
-            color: #475569;
+            background: var(--report-components-badge-background, #e2e8f0);
+            color: var(--report-components-badge-text-color, #475569);
         }
 
         .kpi-badge-good {
-            background: #dcfce7;
-            border-color: #bbf7d0;
-            color: #15803d;
+            background: var(--report-components-status-badge-success-background, #dcfce7);
+            border-color: var(--report-components-status-badge-success-border-color, #bbf7d0);
+            color: var(--report-components-status-badge-success-text-color, #15803d);
         }
 
         .kpi-badge-watch {
-            background: #ffedd5;
-            border-color: #fed7aa;
-            color: #c2410c;
+            background: var(--report-components-status-badge-warning-background, #ffedd5);
+            border-color: var(--report-components-status-badge-warning-border-color, #fed7aa);
+            color: var(--report-components-status-badge-warning-text-color, #c2410c);
         }
 
         .kpi-badge-stable {
-            background: #e0f2fe;
-            border-color: #bae6fd;
-            color: #0369a1;
+            background: var(--report-components-status-badge-info-background, #e0f2fe);
+            border-color: var(--report-components-status-badge-info-border-color, #bae6fd);
+            color: var(--report-components-status-badge-info-text-color, #0369a1);
         }
 
         .kpi-badge-neutral {
-            background: #e2e8f0;
-            border-color: #cbd5e1;
-            color: #475569;
+            background: var(--report-components-status-badge-neutral-background, #e2e8f0);
+            border-color: var(--report-components-status-badge-neutral-border-color, #cbd5e1);
+            color: var(--report-components-status-badge-neutral-text-color, #475569);
         }
 
         .kpi-daily-card.is-total .kpi-daily-card-badge {
-            background: rgba(233, 255, 241, 0.96);
-            border-color: #ace9c0;
-            color: #1f8a46;
+            background: var(--report-components-status-badge-success-background, rgba(233, 255, 241, 0.96));
+            border-color: var(--report-components-status-badge-success-border-color, #ace9c0);
+            color: var(--report-components-status-badge-success-text-color, #1f8a46);
         }
 
         .kpi-daily-card-unit,
@@ -3671,12 +3699,11 @@
         }
 
         .kpi-plant-card {
-            border: 1px solid var(--border-soft);
-            border-radius: 12px;
-            background: #f8fbff;
-            border-color: #cfe0ff;
-            padding: 14px 16px;
-            box-shadow: var(--shadow-card);
+            border: 1px solid var(--report-components-card-border-color, var(--border-soft));
+            border-radius: var(--report-components-card-border-radius, 12px);
+            background: var(--report-components-card-background, #f8fbff);
+            padding: var(--report-components-card-padding, 14px 16px);
+            box-shadow: var(--report-components-card-shadow, var(--shadow-card));
         }
 
         .kpi-plant-card-title {
