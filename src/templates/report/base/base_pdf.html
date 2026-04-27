@@ -111,6 +111,23 @@
     <style>
         {% include "assets/report_pdf.css" %}
     </style>
+    {% if report_style_css %}
+    <style>
+        {{ report_style_css | safe }}
+    </style>
+    {% endif %}
+    <script>
+        (function () {
+            if (!window.echarts) {
+                return;
+            }
+
+            var reportChartThemeName = {{ (chart_theme_name or 'report_default') | tojson }};
+            var reportChartTheme = {{ (chart_theme_json or '{}') | safe }};
+            echarts.registerTheme(reportChartThemeName, reportChartTheme);
+            window.REPORT_CHART_THEME_NAME = reportChartThemeName;
+        })();
+    </script>
     <style>
         @page {
             size: A4 portrait;

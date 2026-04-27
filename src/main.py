@@ -16,6 +16,7 @@ from src.utils.logger import get_logger, setup_logging
 from src.services.template_service import TemplateRenderingService
 from src.services.energy_service import EnergyService
 from src.services.pdf_service import PDFService
+from src.services.style_service import ReportStyleService
 
 from datetime import datetime, date
 from src.config.utility_metadata import get_utility_sensor_metadata
@@ -247,6 +248,7 @@ def _build_energy_object(
     return energy_object
 
 def _build_report_context(
+    project_root: Path,
     env_cfg: dict[str, Any],
     period,
     energy_object: dict[str, Any],
@@ -284,6 +286,9 @@ def _build_report_context(
         utility_object=utility_object,
         mode="html",
     )
+
+    style_context = ReportStyleService(project_root / "config" / "report_style.json").build_render_context()
+    report_context.update(style_context)
 
     return report_context
 
@@ -423,6 +428,7 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
         energy_object = _build_energy_object(repos, period, kpi_object)
 
         report_context = _build_report_context(
+            project_root=runtime["project_root"],
             env_cfg=env_cfg,
             period=period,
             energy_object=energy_object,
