@@ -396,6 +396,8 @@ class UtilityService:
             period_days.append(current_day)
             current_day = current_day.fromordinal(current_day.toordinal() + 1)
 
+        is_period_report = len(period_days) > 1
+
         daily_rows: list[dict[str, Any]] = []
 
         for dt_value in period_days:
@@ -516,12 +518,37 @@ class UtilityService:
             enabled=is_intraday_period,
         )
 
+        period_rollup = self._build_period_sensor_rollup(
+            daily_stats=daily_stats,
+            period_days=period_days,
+            sensor_metadata=sensor_metadata,
+            group_order=group_order,
+            group_labels=group_labels,
+            group_visuals=group_visuals,
+        ) if is_period_report else {
+            "enabled": False,
+            "mode": "intraday_snapshot",
+            "period_days": len(period_days),
+            "days_with_any_data": 0,
+            "sensor_count": 0,
+            "active_sensor_count": 0,
+            "anomaly_sensor_count": 0,
+            "overview_cards": [],
+            "groups": [],
+            "anomaly_rows": [],
+        }
+
         return {
             "enabled": True,
             "title": "Sensor monitoring",
-            "subtitle": "Daily range, average, and anomaly scan by sensor group.",
+            "subtitle": (
+                "Daily range, average, and anomaly scan by sensor group."
+                if not is_period_report
+                else "Full-period min, average, max, coverage, and anomaly scan by sensor group."
+            ),
             "focus_date": focus_date,
             "focus_date_display": self._format_date_with_weekday(focus_date),
+            "representation_mode": "period_snapshot_plus_rollup" if is_period_report else "intraday_snapshot",
             "sensor_count": total_sensor_count,
             "active_sensor_count": active_sensor_count,
             "overview_cards": [
@@ -543,6 +570,211 @@ class UtilityService:
             "daily_rows": daily_rows,
             "trend_mode": "intraday" if is_intraday_period else "aggregate_only",
             "trend_clusters": trend_clusters,
+            "period_rollup": period_rollup,
+        }
+
+    def _build_period_sensor_rollup(
+        self,
+        *,
+        daily_stats: dict[date, dict[str, dict[str, float | None]]],
+        period_days: list[date],
+        sensor_metadata: dict[str, dict[str, Any]],
+        group_order: list[str],
+        group_labels: dict[str, str],
+        group_visuals: dict[str, dict[str, str]],
+    ) -> dict[str, Any]:
+        """Build true period-level sensor rollup from all daily stats in range."""
+        total_sensor_count = 0
+        active_sensor_count = 0
+        anomaly_rows: list[dict[str, Any]] = []
+        sensor_groups: list[dict[str, Any]] = []
+
+        days_with_any_data = 0
+        for dt_value in period_days:
+            day_stats = daily_stats.get(dt_value, {}) or {}
+            if any(int((stats or {}).get("non_null_count") or 0) > 0 for stats in day_stats.values()):
+                days_with_any_data += 1
+
+        for group_key in group_order:
+            group_label = group_labels.get(group_key, group_key.replace("_", " ").title())
+            visual = group_visuals.get(group_key, group_visuals["default"])
+            sensor_rows: list[dict[str, Any]] = []
+
+            for sensor_key, meta in sensor_metadata.items():
+                if meta.get("group") != group_key:
+                    continue
+
+                aggregated_stats = self._aggregate_period_sensor_stats(
+                    daily_stats=daily_stats,
+                    period_days=period_days,
+                    sensor_key=sensor_key,
+                )
+                row = self._build_sensor_detail_row(
+                    sensor_key=sensor_key,
+                    meta=meta,
+                    sensor_stats=aggregated_stats,
+                    context_scope="period",
+                )
+
+                row["days_with_data"] = aggregated_stats.get("days_with_data", 0)
+                row["days_without_data"] = max(0, len(period_days) - int(aggregated_stats.get("days_with_data") or 0))
+                row["days_with_data_display"] = f"{int(aggregated_stats.get('days_with_data') or 0)}/{len(period_days)} days"
+                row["last_data_date"] = aggregated_stats.get("last_data_date")
+                row["last_data_date_display"] = self._format_date_with_weekday(aggregated_stats.get("last_data_date"))
+                sensor_rows.append(row)
+
+                total_sensor_count += 1
+                if row["has_data"]:
+                    active_sensor_count += 1
+
+                if row["has_alert"]:
+                    anomaly_rows.append({
+                        "sensor_key": sensor_key,
+                        "display_name": row["display_name"],
+                        "group_key": group_key,
+                        "group_label": group_label,
+                        "measurement_type": row["measurement_type_label"],
+                        "flag_summary": row["flag_summary"],
+                        "flag_detail_summary": row["flag_detail_summary"],
+                        "flag_count": row["flag_count"],
+                        "primary_flag": row["primary_flag"],
+                        "severity_label": row["severity_label"],
+                        "severity_class": row["severity_class"],
+                        "anomaly_score": row["anomaly_score"],
+                        "min_display": row["min_display"],
+                        "avg_display": row["avg_display"],
+                        "max_display": row["max_display"],
+                        "latest_display": row["latest_display"],
+                        "days_with_data": row["days_with_data"],
+                        "days_with_data_display": row["days_with_data_display"],
+                        "last_data_date_display": row["last_data_date_display"],
+                    })
+
+            sensor_rows.sort(
+                key=lambda item: (
+                    item["severity_rank"],
+                    item["measurement_type_label"],
+                    item["display_name"],
+                )
+            )
+
+            sensor_groups.append({
+                "key": group_key,
+                "label": group_label,
+                "accent_color": visual["accent_color"],
+                "accent_tint": visual["accent_tint"],
+                "sensor_count": len(sensor_rows),
+                "active_sensor_count": sum(1 for item in sensor_rows if item["has_data"]),
+                "anomaly_count": sum(1 for item in sensor_rows if item["has_alert"]),
+                "critical_count": sum(1 for item in sensor_rows if item["severity_class"] == "is-critical"),
+                "warning_count": sum(1 for item in sensor_rows if item["severity_class"] == "is-warning"),
+                "sensors": sensor_rows,
+            })
+
+        anomaly_rows.sort(
+            key=lambda item: (
+                0 if item["severity_class"] == "is-critical" else 1,
+                -item["anomaly_score"],
+                item["group_label"],
+                item["display_name"],
+            )
+        )
+
+        return {
+            "enabled": True,
+            "mode": "period_rollup",
+            "title": "Sensor monitoring",
+            "subtitle": "Full-period min, average, max, coverage, and anomaly scan by sensor group.",
+            "period_days": len(period_days),
+            "days_with_any_data": days_with_any_data,
+            "sensor_count": total_sensor_count,
+            "active_sensor_count": active_sensor_count,
+            "anomaly_sensor_count": len(anomaly_rows),
+            "overview_cards": [
+                {
+                    "label": group["label"],
+                    "accent_color": group["accent_color"],
+                    "accent_tint": group["accent_tint"],
+                    "sensor_count": group["sensor_count"],
+                    "active_sensor_count": group["active_sensor_count"],
+                    "anomaly_count": group["anomaly_count"],
+                    "critical_count": group["critical_count"],
+                    "warning_count": group["warning_count"],
+                }
+                for group in sensor_groups
+            ],
+            "groups": sensor_groups,
+            "anomaly_rows": anomaly_rows,
+        }
+
+    def _aggregate_period_sensor_stats(
+        self,
+        *,
+        daily_stats: dict[date, dict[str, dict[str, float | None]]],
+        period_days: list[date],
+        sensor_key: str,
+    ) -> dict[str, Any]:
+        """Aggregate one sensor across the full reporting period."""
+        min_candidates: list[float] = []
+        max_candidates: list[float] = []
+        sample_count = 0
+        non_null_count = 0
+        zero_count = 0
+        negative_count = 0
+        weighted_avg_sum = 0.0
+        latest_value = None
+        last_data_date = None
+        days_with_data = 0
+
+        for dt_value in period_days:
+            stats = (daily_stats.get(dt_value, {}) or {}).get(sensor_key, {}) or {}
+
+            day_sample_count = int(stats.get("sample_count") or 0)
+            day_non_null_count = int(stats.get("non_null_count") or 0)
+            sample_count += day_sample_count
+            non_null_count += day_non_null_count
+            zero_count += int(stats.get("zero_count") or 0)
+            negative_count += int(stats.get("negative_count") or 0)
+
+            day_min = stats.get("min")
+            if isinstance(day_min, (int, float)):
+                min_candidates.append(float(day_min))
+
+            day_max = stats.get("max")
+            if isinstance(day_max, (int, float)):
+                max_candidates.append(float(day_max))
+
+            day_sum = stats.get("value_sum")
+            if isinstance(day_sum, (int, float)) and day_non_null_count > 0:
+                weighted_avg_sum += float(day_sum)
+            else:
+                day_avg = stats.get("avg")
+                if isinstance(day_avg, (int, float)) and day_non_null_count > 0:
+                    weighted_avg_sum += float(day_avg) * day_non_null_count
+
+            day_latest = stats.get("latest")
+            if isinstance(day_latest, (int, float)):
+                latest_value = float(day_latest)
+                last_data_date = dt_value
+
+            if day_non_null_count > 0:
+                days_with_data += 1
+
+        avg_value = None
+        if non_null_count > 0:
+            avg_value = round(weighted_avg_sum / non_null_count, 4)
+
+        return {
+            "min": round(min(min_candidates), 4) if min_candidates else None,
+            "avg": avg_value,
+            "max": round(max(max_candidates), 4) if max_candidates else None,
+            "sample_count": sample_count,
+            "non_null_count": non_null_count,
+            "zero_count": zero_count,
+            "negative_count": negative_count,
+            "latest": round(latest_value, 4) if latest_value is not None else None,
+            "days_with_data": days_with_data,
+            "last_data_date": last_data_date,
         }
 
     def _build_sensor_detail_row(
@@ -551,6 +783,7 @@ class UtilityService:
         sensor_key: str,
         meta: dict[str, Any],
         sensor_stats: dict[str, Any],
+        context_scope: str = "day",
     ) -> dict[str, Any]:
         """Build one daily sensor detail row for UI rendering."""
         min_value = sensor_stats.get("min")
@@ -636,6 +869,7 @@ class UtilityService:
             latest_drift_ratio=latest_drift_ratio,
             negative_tolerance_abs=negative_tolerance_abs,
             negative_excess_abs=negative_excess_abs,
+            context_scope=context_scope,
         )
 
         severity_class = "is-normal"
@@ -701,6 +935,7 @@ class UtilityService:
             "max_display": self._fmt_or_dash(max_value),
             "latest_display": self._fmt_or_dash(latest_value),
             "avg_position_pct": round(avg_position_pct, 2),
+            "context_scope": context_scope,
         }
 
     def _build_sensor_flags(
@@ -723,15 +958,17 @@ class UtilityService:
         latest_drift_ratio: float | None,
         negative_tolerance_abs: float,
         negative_excess_abs: float | None,
+        context_scope: str = "day",
     ) -> list[dict[str, str]]:
         """Build lightweight anomaly flags for one sensor."""
         flags: list[dict[str, str]] = []
 
         if not has_data:
+            scope_label = "period" if str(context_scope).strip().lower() == "period" else "day"
             return [{
                 "code": "no_data",
                 "label": "Missing data",
-                "detail": "No valid samples were captured for this day.",
+                "detail": f"No valid samples were captured for this {scope_label}.",
                 "severity": "critical",
                 "priority": 100,
             }]
@@ -841,7 +1078,8 @@ class UtilityService:
                 })
 
         if (
-            bool(rules.get("track_latest_drift", False))
+            str(context_scope).strip().lower() != "period"
+            and bool(rules.get("track_latest_drift", False))
             and latest_value is not None
             and latest_drift_ratio is not None
         ):

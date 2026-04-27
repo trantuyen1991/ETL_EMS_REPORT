@@ -583,52 +583,76 @@
     }
 
     .utility-energy-chart-grid {
-        gap: 4px !important;
-        margin-top: 4px !important;
+        gap: 8px !important;
+        margin-top: 8px !important;
+    }
+
+    .utility-energy-chart-card {
+        padding: 12px 12px 10px !important;
+    }
+
+    .utility-energy-chart-card .electricity-chart-card-subtitle {
+        margin-bottom: 6px !important;
     }
 
     .utility-energy-trend-chart,
     .utility-energy-distribution-chart {
-        height: 182px !important;
+        height: 214px !important;
     }
 
     .utility-energy-distribution-layout {
-        gap: 4px !important;
+        grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr) !important;
+        gap: 6px !important;
+    }
+
+    .utility-energy-distribution-center-value {
+        font-size: 10px !important;
+    }
+
+    .utility-energy-distribution-center-unit {
+        font-size: 7px !important;
+    }
+
+    .utility-energy-distribution-center-caption {
+        font-size: 6.5px !important;
+        margin-top: 2px !important;
     }
 
     .utility-energy-distribution-legend {
-        gap: 5px !important;
+        gap: 6px !important;
     }
 
     .utility-energy-distribution-legend-item {
-        gap: 5px !important;
+        gap: 6px !important;
     }
 
     .utility-energy-distribution-dot {
-        width: 7px !important;
-        height: 7px !important;
+        width: 8px !important;
+        height: 8px !important;
         margin-top: 3px !important;
     }
 
     .utility-energy-distribution-legend-name {
-        font-size: 8px !important;
+        font-size: 8.4px !important;
+        line-height: 1.2 !important;
     }
 
     .utility-energy-distribution-legend-value,
     .utility-energy-distribution-total-label {
-        font-size: 7.4px !important;
+        font-size: 7.8px !important;
     }
 
     .utility-energy-distribution-total {
         padding-top: 4px !important;
+        gap: 4px !important;
     }
 
     .utility-energy-distribution-total-value {
-        font-size: 10px !important;
+        font-size: 11px !important;
     }
 
     .utility-energy-distribution-total-value span {
-        font-size: 7.2px !important;
+        font-size: 7.4px !important;
     }
 
     .kpi-daily-grouped-bar-chart {
@@ -1204,6 +1228,43 @@
         display: none !important;
     }
 
+    .utility-sensor-header.is-period-heading {
+        margin-bottom: 8px !important;
+    }
+
+    .utility-sensor-heading-shell {
+        padding: 8px 9px !important;
+        border-radius: 10px !important;
+    }
+
+    .utility-sensor-heading-main {
+        gap: 8px !important;
+    }
+
+    .utility-sensor-heading-icon {
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 9px !important;
+    }
+
+    .utility-sensor-heading-icon svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    .utility-sensor-heading-eyebrow {
+        font-size: 6.5px !important;
+        margin-bottom: 1px !important;
+    }
+
+    .utility-sensor-heading-title {
+        margin-bottom: 2px !important;
+    }
+
+    .utility-sensor-statline-period {
+        margin-top: 6px !important;
+    }
+
     .utility-sensor-subtitle {
         margin-bottom: 6px !important;
         font-size: 9px !important;
@@ -1291,9 +1352,15 @@
         margin-bottom: 5px !important;
     }
 
+    .utility-sensor-range-track::before,
+    .utility-sensor-range-track::after {
+        top: 2px !important;
+        height: 7px !important;
+    }
+
     .utility-sensor-range-line {
-        top: 4px !important;
-        height: 3px !important;
+        top: 3px !important;
+        height: 4px !important;
     }
 
     .utility-sensor-range-dot {

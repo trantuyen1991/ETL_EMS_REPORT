@@ -2248,25 +2248,70 @@
         .utility-energy-chart-grid {
             display: grid;
             grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
-            gap: 10px;
+            gap: 12px;
             align-items: stretch;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
         .utility-energy-chart-card {
             min-height: 100%;
+            padding: 14px 16px 12px;
+        }
+
+        .utility-energy-chart-card .electricity-chart-card-subtitle {
+            margin-bottom: 8px;
         }
 
         .utility-energy-trend-chart,
         .utility-energy-distribution-chart {
-            height: 290px;
+            height: 300px;
         }
 
         .utility-energy-distribution-layout {
             display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-            gap: 8px;
+            grid-template-columns: minmax(0, 1.24fr) minmax(0, 0.76fr);
+            gap: 10px;
             align-items: center;
+        }
+
+        .utility-energy-distribution-chart-wrap {
+            position: relative;
+            min-width: 0;
+        }
+
+        .utility-energy-distribution-center {
+            position: absolute;
+            left: 42%;
+            top: 56%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            pointer-events: none;
+            line-height: 1.08;
+        }
+
+        .utility-energy-distribution-center-value {
+            font-size: 17px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .utility-energy-distribution-center-unit {
+            margin-top: 2px;
+            font-size: 9px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .utility-energy-distribution-center-caption {
+            margin-top: 3px;
+            font-size: 8px;
+            font-weight: 600;
+            color: #64748b;
+            white-space: nowrap;
         }
 
         .utility-energy-distribution-legend {
@@ -2293,18 +2338,19 @@
         .utility-energy-distribution-legend-copy {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
             min-width: 0;
         }
 
         .utility-energy-distribution-legend-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: #0f172a;
+            line-height: 1.25;
         }
 
         .utility-energy-distribution-legend-value {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: #334155;
             line-height: 1.35;
@@ -2320,13 +2366,13 @@
             padding-top: 8px;
             border-top: 1px solid #e2e8f0;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: baseline;
-            gap: 8px;
+            gap: 6px;
         }
 
         .utility-energy-distribution-total-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: #475569;
         }
@@ -2338,7 +2384,7 @@
         }
 
         .utility-energy-distribution-total-value span {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: #64748b;
         }
@@ -2572,6 +2618,66 @@
             justify-content: space-between;
             gap: 12px;
             margin-bottom: 6px;
+        }
+
+        .utility-sensor-header.is-period-heading {
+            margin-bottom: 14px;
+        }
+
+        .utility-sensor-heading-shell {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(29, 120, 232, 0.16);
+            background: linear-gradient(135deg, rgba(29, 120, 232, 0.1) 0%, rgba(255, 255, 255, 0.98) 42%, rgba(16, 185, 129, 0.08) 100%);
+            box-shadow: var(--shadow-card);
+        }
+
+        .utility-sensor-heading-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .utility-sensor-heading-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            color: #1d78e8;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(29, 120, 232, 0.18);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+            flex-shrink: 0;
+        }
+
+        .utility-sensor-heading-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2;
+        }
+
+        .utility-sensor-heading-copy {
+            min-width: 0;
+        }
+
+        .utility-sensor-heading-eyebrow {
+            margin: 0 0 3px 0;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #1d4ed8;
+        }
+
+        .utility-sensor-heading-title {
+            margin-bottom: 4px;
+        }
+
+        .utility-sensor-statline-period {
+            margin: 12px 0 0 0;
         }
 
         .utility-sensor-subtitle {
@@ -2880,28 +2986,57 @@
             position: relative;
             height: 18px;
             margin-bottom: 8px;
+            overflow: visible;
+        }
+
+        .utility-sensor-range-track::before,
+        .utility-sensor-range-track::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            width: 2px;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.55);
+            z-index: 2;
+        }
+
+        .utility-sensor-range-track::before {
+            left: 0;
+        }
+
+        .utility-sensor-range-track::after {
+            right: 0;
         }
 
         .utility-sensor-range-line {
             position: absolute;
             left: 0;
             right: 0;
-            top: 8px;
-            height: 4px;
+            top: 7px;
+            height: 5px;
             border-radius: 999px;
-            background: linear-gradient(90deg, rgba(203, 213, 225, 0.56) 0%, var(--sensor-accent, #64748b) 52%, rgba(203, 213, 225, 0.56) 100%);
+            background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 100%);
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+        }
+
+        .utility-periodic-section .utility-sensor-range-line {
+            background: linear-gradient(90deg, rgba(203, 213, 225, 0.92) 0%, rgba(148, 163, 184, 0.94) 100%);
+            border-color: rgba(100, 116, 139, 0.26);
         }
 
         .utility-sensor-range-dot {
             position: absolute;
-            top: 1px;
+            top: 0;
             width: 16px;
             height: 16px;
             border-radius: 50%;
             background: var(--sensor-accent, #64748b);
             border: 3px solid #ffffff;
-            box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35);
+            box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35), 0 2px 5px rgba(15, 23, 42, 0.12);
             transform: translateX(-50%);
+            z-index: 3;
         }
 
         .utility-sensor-range-values {

@@ -113,9 +113,11 @@ KPI logic:
 
 ### 3.4 Sensor Monitoring (Utility Extension)
 
-Status: 🟢 **Step 1 implemented for daily**
+Status:
+- 🟢 Daily dedicated UI implemented
+- 🟢 Periodic Utility rollout implemented for the current staged scope
 
-Backend:
+Backend already available:
 - Sensor data fetched from `processvalue`: ✅
 - Configured sensor metadata for 18 sensors across 6 groups: ✅
 - Daily aggregation (`min`, `avg`, `max`, `latest`): ✅
@@ -125,18 +127,41 @@ Backend:
 - Negative tolerance handling for light negative values: ✅
 - Sensor-specific anomaly overrides: ✅
 - Context structure prepared for both compact table and daily v2 cards: ✅
+- Period-ready data already present for current period snapshot:
+  - overview cards by group ✅
+  - grouped sensor detail rows ✅
+  - anomaly scan rows ✅
+  - daily summary table rows ✅
 
-UI:
+UI already implemented:
 - Daily sensor monitoring overview cards by group: ✅
 - Daily sensor range cards using `min / avg / max`: ✅
 - Anomaly scan table with alert highlighting: ✅
 - Alert reason helper text on sensor cards: ✅
 - `Reason` column in anomaly scan table with operator-friendly wording: ✅
 - Periodic compact table remains available as fallback view: ✅
+- Periodic full-period rollup semantics enabled in UI: ✅
+- Periodic line charts by unit using daily aggregate data: ✅
+
+Periodic rollout roadmap:
+- Step 1, document and lock scope to `periodic` -> `Utility` only: ✅
+- Step 2, promote backend-ready, period-safe blocks into periodic UI: ✅
+  - stat pills
+  - overview cards
+  - grouped sensor cards
+  - anomaly scan table
+  - keep existing daily summary table
+- Step 3, extend backend for true period semantics: ✅
+  - anomaly rollup across the whole period
+  - period-level trend datasets for chart exploration
+- Remaining follow-up:
+  - current vs previous comparison block
+  - heatmap exploration
+  - completeness summary block after anomaly semantics are approved
 
 Current anomaly rules:
-- `No data` → critical
-- `Negative exceeds tolerance` → critical
+- `No data` -> critical
+- `Negative exceeds tolerance` -> critical
 - `Low coverage` / `Partial coverage`
 - `All zero` / `Zero-heavy`
 - `Flat signal`
@@ -164,6 +189,10 @@ Current anomaly rules:
 - Step 3:
   - add periodic sensor monitoring trend / heatmap exploration
   - decide whether to promote selected daily charts into periodic family
+- Deferred follow-up after the 2026-04-27 period-rollup audit:
+  - keep validating whether anomaly heuristics are business-meaningful, not only technically consistent
+  - review the 6 currently-flagged weekly sensors with domain context before finalizing threshold logic
+  - consider a compact completeness block (`full / partial / no data`) after anomaly semantics are approved
 
 ---
 
@@ -180,9 +209,10 @@ Current anomaly rules:
   - period-based show/hide logic
 
 ### 5.3 Sensor Monitoring Expansion
-- periodic trend UI is not implemented yet
-- heatmap / line trend / anomaly trend are planned next-stage candidates
+- periodic trend UI now exists inside `Utility` only, using daily aggregate period lines grouped by unit
+- heatmap / anomaly-trend exploration remain next-stage candidates
 - threshold-based alert rules are still heuristic and not business-calibrated yet
+- anomaly follow-up from the latest correctness audit is intentionally documented for a later business review pass
 
 ### 5.4 PDF Stability Improvements
 - Chart rendering is currently stable with the timer-based kickoff fix, but still needs regression checks when layout changes

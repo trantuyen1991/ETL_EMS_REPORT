@@ -104,6 +104,7 @@ class ProcessValueService:
                     "min": self._compute_min(values),
                     "avg": self._compute_avg(values),
                     "max": self._compute_max(values),
+                    "value_sum": self._compute_sum(values),
                     "sample_count": len(rows_by_day[dt_value]),
                     "non_null_count": len(values),
                     "zero_count": self._count_zero_values(values),
@@ -224,6 +225,12 @@ class ProcessValueService:
         if not values:
             return None
         return round(max(values), 4)
+
+    def _compute_sum(self, values: List[float]) -> Optional[float]:
+        """Compute raw numeric sum for downstream weighted aggregation."""
+        if not values:
+            return None
+        return float(sum(values))
 
     def _extract_latest_numeric_value(
         self,

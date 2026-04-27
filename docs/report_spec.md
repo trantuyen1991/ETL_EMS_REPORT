@@ -268,8 +268,32 @@ Current system groups:
 - `Domestic Water`
 
 ### 8.7 Periodic Sensor Monitoring Rule
-For the `periodic` template family, sensor monitoring currently remains a compact table view.
-Trend charts and heatmap-style views are planned for a later phase.
+For the `periodic` template family, sensor monitoring rollout must stay inside the utility-only scope.
+
+Implemented periodic scope:
+- header stat pills
+- overview cards by sensor group
+- grouped sensor cards using full-period rollup semantics
+- anomaly scan table
+- existing daily summary table as supporting detail
+- period trend charts using daily aggregate values, grouped by unit
+- documented follow-up list for business calibration of anomaly heuristics after correctness audits
+
+Remaining follow-up scope:
+- current vs previous comparison for sensor monitoring
+- heatmap exploration
+- optional completeness summary block after anomaly semantics are approved
+
+Guardrails:
+- scope is limited to `Utility` inside the `periodic` family
+- do not modify Electricity or unrelated shared layout while rolling out this block
+- if shared CSS becomes necessary, review impact before applying it
+
+Period trend rules:
+- stay inside `Utility -> Sensor Monitoring`
+- prefer daily aggregate trend semantics over end-of-period snapshot semantics
+- avoid mixing unrelated units on the same axis without explicit grouping
+- keep daily template behavior unchanged while enabling periodic-only charts
 
 ### 8.8 Periodic Utility Energy Chart Rules
 For the `periodic` template family:
@@ -318,6 +342,8 @@ Backend context already supports utility sensor monitoring.
 
 ### 10.2 Intended UI Direction
 Sensor monitoring UI should be designed as a Utility subsection, not a separate unrelated section.
+
+For periodic reports, the first visible rollout should reuse existing backend data before introducing any new period-specific analytics.
 
 ### 10.3 Current Backend Contract
 Current backend contract is designed to support:

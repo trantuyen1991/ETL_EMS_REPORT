@@ -1803,6 +1803,7 @@ class ReportBuilderService:
             **(utility_object.get("current", {}).get("sensor_monitoring", {}) or {}),
         }
         sensor_monitoring["trend_clusters_render"] = self._build_v3_sensor_trend_clusters(sensor_monitoring)
+        sensor_monitoring["period_trend_charts_render"] = self._build_v3_period_sensor_trend_charts(sensor_monitoring)
 
         return {
             "title": "UTILITY OVERVIEW",
@@ -2814,6 +2815,12 @@ class ReportBuilderService:
         ]
 
         period_badge = self._resolve_utility_energy_period_badge(period_type)
+        trend_title = self._resolve_utility_energy_trend_title(
+            period_type=period_type,
+            day_count=len(labels),
+        )
+        distribution_title = self._resolve_utility_energy_distribution_title(period_badge)
+
         distribution_items = []
         total_current = 0.0
         for key, label, color in category_defs:
@@ -2836,8 +2843,8 @@ class ReportBuilderService:
 
         return {
             "trend": {
-                "title": "Utility Energy trend",
-                "subtitle": "Current period daily total by energy group",
+                "title": trend_title,
+                "subtitle": "Unit: kWh",
                 "option": self._build_v3_utility_energy_trend_option(
                     labels=labels,
                     air_values=category_series["compressed_air"],
@@ -2847,9 +2854,10 @@ class ReportBuilderService:
                 ),
             },
             "distribution": {
-                "title": "Utility Distribution",
-                "subtitle": f"Current period share ({period_badge.lower()})",
+                "title": distribution_title,
+                "subtitle": "Unit: kWh",
                 "period_badge": period_badge,
+                "center_caption": f"Total ({period_badge})",
                 "total_display": self._fmt(total_current),
                 "total_unit": "kWh",
                 "legend_items": distribution_items,
@@ -2888,11 +2896,25 @@ class ReportBuilderService:
     def _resolve_utility_energy_period_badge(self, period_type: str) -> str:
         """Return a short current-period badge label for utility-energy widgets."""
         mapping = {
-            "weekly": "This week",
-            "monthly": "This month",
+            "weekly": "This Week",
+            "monthly": "This Month",
             "daily": "Today",
         }
-        return mapping.get(period_type, "Current period")
+        return mapping.get(period_type, "Current Period")
+
+    def _resolve_utility_energy_trend_title(self, *, period_type: str, day_count: int) -> str:
+        """Return a compact trend title aligned with the periodic design."""
+        if period_type == "weekly" and day_count > 0:
+            return f"Utility Energy Trend ({day_count} Days)"
+        if period_type == "monthly" and day_count > 0:
+            return f"Utility Energy Trend ({day_count} Days)"
+        if period_type == "daily":
+            return "Utility Energy Trend (Today)"
+        return "Utility Energy Trend"
+
+    def _resolve_utility_energy_distribution_title(self, period_badge: str) -> str:
+        """Return a compact distribution title aligned with the periodic design."""
+        return f"Utility Distribution ({period_badge})"
 
     def _build_v3_utility_energy_trend_option(
         self,
@@ -2904,11 +2926,45 @@ class ReportBuilderService:
         total_values: list[float],
     ) -> Dict[str, Any]:
         """Build periodic utility-energy trend line chart."""
+        rotate_labels = 28
+        bottom_space = 52
         series_defs = [
-            ("Air Energy", "#16a34a", air_values),
-            ("Chilled Water Energy", "#0ea5b7", chilled_values),
-            ("Boiler Energy", "#7c3aed", steam_values),
-            ("Total Utility Energy", "#2563eb", total_values),
+            {
+                "name": "Air Energy",
+                "color": "#16a34a",
+                "values": air_values,
+                "label_position": "top",
+                "line_width": 2.3,
+                "symbol_size": 6,
+                "z": 4,
+            },
+            {
+                "name": "Chilled Water Energy",
+                "color": "#0ea5b7",
+                "values": chilled_values,
+                "label_position": "bottom",
+                "line_width": 2.3,
+                "symbol_size": 6,
+                "z": 3,
+            },
+            {
+                "name": "Boiler Energy",
+                "color": "#7c3aed",
+                "values": steam_values,
+                "label_position": "bottom",
+                "line_width": 2.3,
+                "symbol_size": 6,
+                "z": 2,
+            },
+            {
+                "name": "Total Utility Energy",
+                "color": "#2563eb",
+                "values": total_values,
+                "label_position": "top",
+                "line_width": 3.0,
+                "symbol_size": 7,
+                "z": 5,
+            },
         ]
 
         return {
@@ -2917,17 +2973,17 @@ class ReportBuilderService:
                 "axisPointer": {"type": "line"},
             },
             "legend": {
-                "top": 6,
+                "top": 4,
                 "left": 8,
                 "itemWidth": 12,
                 "itemHeight": 8,
-                "textStyle": {"fontSize": 10},
+                "textStyle": {"fontSize": 10, "fontWeight": 600, "color": "#334155"},
             },
             "grid": {
-                "left": 32,
+                "left": 18,
                 "right": 12,
-                "top": 40,
-                "bottom": 46,
+                "top": 44,
+                "bottom": bottom_space,
                 "containLabel": True,
             },
             "xAxis": {
@@ -2937,7 +2993,7 @@ class ReportBuilderService:
                 "axisLabel": {
                     "color": "#64748b",
                     "interval": 0,
-                    "rotate": 28,
+                    "rotate": rotate_labels,
                     "fontSize": 9,
                     "margin": 12,
                 },
@@ -2946,39 +3002,42 @@ class ReportBuilderService:
             },
             "yAxis": {
                 "type": "value",
-                "axisLabel": {"color": "#64748b"},
-                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                "axisLabel": {"color": "#64748b", "fontSize": 9},
+                "splitLine": {"lineStyle": {"color": "#e2e8f0", "type": "dashed"}},
             },
             "series": [
                 {
-                    "name": name,
+                    "name": item["name"],
                     "type": "line",
                     "smooth": False,
+                    "connectNulls": True,
                     "symbol": "circle",
-                    "symbolSize": 7,
+                    "symbolSize": item["symbol_size"],
                     "showSymbol": True,
-                    "lineStyle": {"width": 2.5, "color": color},
-                    "itemStyle": {"color": color},
-                    "areaStyle": {"color": self._hex_to_rgba(color, 0.10)},
+                    "z": item["z"],
+                    "lineStyle": {"width": item["line_width"], "color": item["color"]},
+                    "itemStyle": {"color": item["color"]},
                     "label": {
                         "show": True,
-                        "position": "top",
+                        "position": item["label_position"],
+                        "distance": 6,
                         "fontSize": 8,
-                        "color": color,
-                        "backgroundColor": "rgba(255,255,255,0.92)",
+                        "fontWeight": 700,
+                        "color": item["color"],
+                        "backgroundColor": "rgba(255,255,255,0.96)",
                         "padding": [2, 4],
                         "borderRadius": 4,
                     },
                     "data": [
                         {
                             "value": value,
-                            "label": {"formatter": self._fmt_chart_compact(value)},
+                            "label": {"formatter": self._fmt_chart_series_label(value)},
                         }
                         if value is not None else None
-                        for value in values
+                        for value in item["values"]
                     ],
                 }
-                for name, color, values in series_defs
+                for item in series_defs
             ],
         }
 
@@ -2995,15 +3054,15 @@ class ReportBuilderService:
             "series": [
                 {
                     "type": "pie",
-                    "radius": ["52%", "76%"],
-                    "center": ["37%", "56%"],
+                    "radius": ["56%", "86%"],
+                    "center": ["42%", "56%"],
                     "startAngle": 90,
                     "avoidLabelOverlap": True,
-                    "minShowLabelAngle": 2,
+                    "minShowLabelAngle": 4,
                     "itemStyle": {
                         "borderColor": "#ffffff",
                         "borderWidth": 3,
-                        "borderRadius": 8,
+                        "borderRadius": 10,
                     },
                     "label": {
                         "show": True,
@@ -3015,52 +3074,6 @@ class ReportBuilderService:
                     },
                     "labelLine": {"show": False},
                     "data": items,
-                }
-            ],
-            "graphic": [
-                {
-                    "type": "group",
-                    "left": "37%",
-                    "top": "53%",
-                    "silent": True,
-                    "children": [
-                        {
-                            "type": "text",
-                            "x": 0,
-                            "y": -8,
-                            "style": {
-                                "text": self._fmt_chart_total(total_value),
-                                "textAlign": "center",
-                                "fill": "#0f172a",
-                                "fontSize": 17,
-                                "fontWeight": 800,
-                            },
-                        },
-                        {
-                            "type": "text",
-                            "x": 0,
-                            "y": 14,
-                            "style": {
-                                "text": "kWh",
-                                "textAlign": "center",
-                                "fill": "#334155",
-                                "fontSize": 10,
-                                "fontWeight": 700,
-                            },
-                        },
-                        {
-                            "type": "text",
-                            "x": 0,
-                            "y": 34,
-                            "style": {
-                                "text": period_badge,
-                                "textAlign": "center",
-                                "fill": "#64748b",
-                                "fontSize": 9,
-                                "fontWeight": 600,
-                            },
-                        },
-                    ],
                 }
             ],
         }
@@ -3137,6 +3150,163 @@ class ReportBuilderService:
             "current_display": self._format_date_short_label(period.get("end_date")),
             "previous_display": self._format_date_short_label(period.get("previous_end_date")),
         }
+
+    def _build_v3_period_sensor_trend_charts(
+        self,
+        sensor_monitoring: Dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Build daily aggregate line charts for periodic utility sensor monitoring."""
+        trend_mode = str(sensor_monitoring.get("trend_mode") or "").strip().lower()
+        daily_rows = sensor_monitoring.get("daily_rows") or []
+        metric_columns = sensor_monitoring.get("metric_columns") or []
+
+        if trend_mode == "intraday" or not daily_rows or not metric_columns:
+            return []
+
+        labels = []
+        for row in daily_rows:
+            row_date = row.get("date")
+            if isinstance(row_date, datetime):
+                row_date = row_date.date()
+            if isinstance(row_date, date):
+                labels.append(row_date.strftime("%m/%d"))
+            else:
+                labels.append(str(row.get("date_display") or "-"))
+
+        palette = [
+            "#2563eb",
+            "#0f766e",
+            "#7c3aed",
+            "#f59e0b",
+            "#dc2626",
+            "#0891b2",
+            "#65a30d",
+            "#9333ea",
+        ]
+
+        metrics_by_unit: dict[str, list[dict[str, Any]]] = {}
+        for metric in metric_columns:
+            unit = str(metric.get("unit") or "-").strip() or "-"
+            metrics_by_unit.setdefault(unit, []).append(metric)
+
+        rendered_charts: list[dict[str, Any]] = []
+        for unit_index, (unit, metrics) in enumerate(metrics_by_unit.items()):
+            option_series: list[dict[str, Any]] = []
+            for metric_index, metric in enumerate(metrics):
+                metric_key = str(metric.get("key") or "").strip()
+                if not metric_key:
+                    continue
+
+                series_data = []
+                has_numeric_point = False
+                for row in daily_rows:
+                    metric_row = (row.get("metrics") or {}).get(metric_key) or {}
+                    avg_value = metric_row.get("avg")
+                    if isinstance(avg_value, (int, float)):
+                        has_numeric_point = True
+                        series_data.append(round(float(avg_value), 4))
+                    else:
+                        series_data.append(None)
+
+                if not has_numeric_point:
+                    continue
+
+                series_color = palette[(unit_index * 3 + metric_index) % len(palette)]
+                option_series.append({
+                    "name": metric.get("display_name") or metric_key,
+                    "type": "line",
+                    "smooth": False,
+                    "showSymbol": True,
+                    "symbol": "circle",
+                    "symbolSize": 7,
+                    "connectNulls": False,
+                    "lineStyle": {
+                        "width": 2.4,
+                        "color": series_color,
+                    },
+                    "itemStyle": {
+                        "color": series_color,
+                    },
+                    "emphasis": {
+                        "focus": "series",
+                    },
+                    "data": series_data,
+                })
+
+            if not option_series:
+                continue
+
+            rendered_charts.append({
+                "chart_id": f"utility-sensor-period-trend-{self._slugify(unit) or unit_index}",
+                "chart_key": f"period_trend_{self._slugify(unit) or unit_index}",
+                "title": "Sensor daily average trend",
+                "subtitle": f"Period view · grouped by unit ({unit})",
+                "is_full_width": len(option_series) >= 4,
+                "option": {
+                    "color": [series.get("itemStyle", {}).get("color") for series in option_series],
+                    "tooltip": {
+                        "trigger": "axis",
+                        "axisPointer": {"type": "line"},
+                    },
+                    "legend": {
+                        "top": 0,
+                        "left": 8,
+                        "right": 8,
+                        "itemWidth": 12,
+                        "itemHeight": 8,
+                        "icon": "roundRect",
+                        "textStyle": {
+                            "fontSize": 11,
+                            "fontWeight": 600,
+                            "color": "#334155",
+                        },
+                    },
+                    "grid": {
+                        "left": 20,
+                        "right": 16,
+                        "top": 54,
+                        "bottom": 30,
+                        "containLabel": True,
+                    },
+                    "xAxis": {
+                        "type": "category",
+                        "boundaryGap": False,
+                        "data": labels,
+                        "axisLabel": {
+                            "color": "#64748b",
+                            "fontSize": 10,
+                        },
+                        "axisLine": {
+                            "lineStyle": {
+                                "color": "#cbd5e1",
+                            },
+                        },
+                    },
+                    "yAxis": {
+                        "type": "value",
+                        "name": unit,
+                        "nameLocation": "end",
+                        "nameGap": 12,
+                        "nameTextStyle": {
+                            "fontSize": 10,
+                            "fontWeight": 700,
+                            "color": "#475569",
+                        },
+                        "axisLabel": {
+                            "color": "#64748b",
+                            "fontSize": 10,
+                        },
+                        "splitLine": {
+                            "lineStyle": {
+                                "color": "rgba(148, 163, 184, 0.22)",
+                            },
+                        },
+                    },
+                    "series": option_series,
+                },
+            })
+
+        return rendered_charts
 
     def _build_v3_sensor_trend_clusters(
         self,
@@ -4934,6 +5104,16 @@ class ReportBuilderService:
             return "-"
         return f"{float(val):,.1f}"
 
+    def _fmt_chart_series_label(self, val: Any) -> str:
+        """Format line-series point labels with full readable values."""
+        if val is None:
+            return "-"
+
+        numeric_value = float(val)
+        if abs(numeric_value - round(numeric_value)) < 0.0001:
+            return f"{numeric_value:,.0f}"
+        return f"{numeric_value:,.1f}"
+
     def _fmt_chart_compact(self, val: Any) -> str:
         """Format bar labels into short k/M strings to reduce overlap."""
         if val is None:
@@ -4995,6 +5175,25 @@ class ReportBuilderService:
             return str(value)
 
         return value.strftime("%b %d, %Y")
+
+    def _slugify(self, value: Any) -> str:
+        """Return a simple slug for chart ids and keys."""
+        text = str(value or "").strip().lower()
+        if not text:
+            return ""
+
+        slug_chars: list[str] = []
+        prev_dash = False
+        for char in text:
+            if char.isalnum():
+                slug_chars.append(char)
+                prev_dash = False
+            else:
+                if not prev_dash:
+                    slug_chars.append("-")
+                    prev_dash = True
+
+        return "".join(slug_chars).strip("-")
 
     def _build_energy_snapshot(self, energy_object) -> dict[str, Any]:
         """Build executive energy snapshot."""

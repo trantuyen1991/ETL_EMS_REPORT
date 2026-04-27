@@ -493,7 +493,14 @@
                                 <h3 class="electricity-chart-card-title">{{ sections.utility.energy.charts.distribution.title }}</h3>
                                 <p class="electricity-chart-card-subtitle">{{ sections.utility.energy.charts.distribution.subtitle }}</p>
                                 <div class="utility-energy-distribution-layout">
-                                    <div id="utility-energy-distribution-chart" class="electricity-chart utility-energy-distribution-chart"></div>
+                                    <div class="utility-energy-distribution-chart-wrap">
+                                        <div id="utility-energy-distribution-chart" class="electricity-chart utility-energy-distribution-chart"></div>
+                                        <div class="utility-energy-distribution-center" aria-hidden="true">
+                                            <span class="utility-energy-distribution-center-value">{{ sections.utility.energy.charts.distribution.total_display }}</span>
+                                            <span class="utility-energy-distribution-center-unit">kWh</span>
+                                            <span class="utility-energy-distribution-center-caption">{{ sections.utility.energy.charts.distribution.center_caption }}</span>
+                                        </div>
+                                    </div>
                                     <div class="utility-energy-distribution-legend">
                                         {% for item in sections.utility.energy.charts.distribution.legend_items %}
                                         <div class="utility-energy-distribution-legend-item">
@@ -505,7 +512,7 @@
                                         </div>
                                         {% endfor %}
                                         <div class="utility-energy-distribution-total">
-                                            <span class="utility-energy-distribution-total-label">Total</span>
+                                            <span class="utility-energy-distribution-total-label">Total:</span>
                                             <span class="utility-energy-distribution-total-value">{{ sections.utility.energy.charts.distribution.total_display }} <span>kWh</span></span>
                                         </div>
                                     </div>
@@ -603,31 +610,59 @@
             </div>
 
             {% set sensor_monitoring = sections.utility.sensor_monitoring %}
+            {% set period_sensor_rollup = sensor_monitoring.period_rollup if sensor_monitoring.period_rollup is defined else None %}
+            {% set sensor_monitoring_view = sensor_monitoring if flags.is_daily_report or not period_sensor_rollup or not period_sensor_rollup.enabled else period_sensor_rollup %}
+            {% set sensor_monitoring_subtitle = sensor_monitoring_view.subtitle if sensor_monitoring_view.subtitle is defined and sensor_monitoring_view.subtitle else sensor_monitoring.subtitle %}
             {% if sensor_monitoring.enabled %}
             <div class="utility-sensor-block">
-                <div class="utility-sensor-header">
+                <div class="utility-sensor-header{% if not flags.is_daily_report %} is-period-heading{% endif %}">
+                    {% if flags.is_daily_report %}
                     <div>
                         <h3 class="electricity-subsection-title">
                             Sensor Monitoring
                         </h3>
-                        {% if sensor_monitoring.subtitle %}
-                        <p class="utility-sensor-subtitle">{{ sensor_monitoring.subtitle }}</p>
+                        {% if sensor_monitoring_subtitle %}
+                        <p class="utility-sensor-subtitle">{{ sensor_monitoring_subtitle }}</p>
                         {% endif %}
-                        {% if flags.is_daily_report %}
                         <div class="utility-sensor-statline">
                             <span class="utility-sensor-statpill">{{ sensor_monitoring.focus_date_display }}</span>
-                            <span class="utility-sensor-statpill">{{ sensor_monitoring.active_sensor_count }}/{{ sensor_monitoring.sensor_count }} sensors active</span>
-                            <span class="utility-sensor-statpill {% if sensor_monitoring.anomaly_rows %}has-alert{% endif %}">
-                                {{ sensor_monitoring.anomaly_rows|length }} alert{% if sensor_monitoring.anomaly_rows|length != 1 %}s{% endif %}
+                            <span class="utility-sensor-statpill">{{ sensor_monitoring_view.active_sensor_count }}/{{ sensor_monitoring_view.sensor_count }} sensors active</span>
+                            <span class="utility-sensor-statpill {% if sensor_monitoring_view.anomaly_rows %}has-alert{% endif %}">
+                                {{ sensor_monitoring_view.anomaly_rows|length }} alert{% if sensor_monitoring_view.anomaly_rows|length != 1 %}s{% endif %}
                             </span>
                         </div>
-                        {% endif %}
                     </div>
+                    {% else %}
+                    <div class="utility-sensor-heading-shell">
+                        <div class="utility-sensor-heading-main">
+                            <span class="utility-sensor-heading-icon" aria-hidden="true">
+                                {% include "assets/icon/utilityheader.svg" %}
+                            </span>
+                            <div class="utility-sensor-heading-copy">
+                                <div class="utility-sensor-heading-eyebrow">Period Utility Insight</div>
+                                <h3 class="electricity-subsection-title utility-sensor-heading-title">
+                                    Sensor Monitoring
+                                </h3>
+                                {% if sensor_monitoring_subtitle %}
+                                <p class="utility-sensor-subtitle">{{ sensor_monitoring_subtitle }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="utility-sensor-statline utility-sensor-statline-period">
+                            <span class="utility-sensor-statpill">Period: {{ sensor_monitoring_view.period_days }} day{% if sensor_monitoring_view.period_days != 1 %}s{% endif %}</span>
+                            <span class="utility-sensor-statpill">Data days: {{ sensor_monitoring_view.days_with_any_data }}/{{ sensor_monitoring_view.period_days }}</span>
+                            <span class="utility-sensor-statpill">{{ sensor_monitoring_view.active_sensor_count }}/{{ sensor_monitoring_view.sensor_count }} sensors active</span>
+                            <span class="utility-sensor-statpill {% if sensor_monitoring_view.anomaly_rows %}has-alert{% endif %}">
+                                {{ sensor_monitoring_view.anomaly_rows|length }} alert{% if sensor_monitoring_view.anomaly_rows|length != 1 %}s{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
 
-                {% if flags.is_daily_report %}
+                {% if sensor_monitoring_view.overview_cards %}
                 <div class="utility-sensor-overview-grid">
-                    {% for card in sensor_monitoring.overview_cards %}
+                    {% for card in sensor_monitoring_view.overview_cards %}
                     <div class="utility-sensor-overview-card" style="--sensor-accent: {{ card.accent_color }}; --sensor-tint: {{ card.accent_tint }};">
                         <div class="utility-sensor-overview-title">{{ card.label }}</div>
                         <div class="utility-sensor-overview-metrics">
@@ -643,14 +678,39 @@
                     </div>
                     {% endfor %}
                 </div>
+                {% endif %}
+
+                {% if not flags.is_daily_report and sensor_monitoring.period_trend_charts_render %}
+                <div class="utility-sensor-trend-preview-block pdf-keep-together">
+                    <div class="utility-sensor-trend-preview-head">
+                        <div>
+                            <h4 class="utility-sensor-anomaly-title">Period sensor trend</h4>
+                            <p class="utility-sensor-subtitle">
+                                Daily average trend by monitored business metric, grouped by source unit
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="utility-sensor-trend-preview-grid {% if sensor_monitoring.period_trend_charts_render|length == 1 %}is-single{% endif %}">
+                        {% for chart in sensor_monitoring.period_trend_charts_render %}
+                        <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card pdf-keep-together {% if chart.is_full_width %}is-full-width{% endif %}">
+                            <h3 class="electricity-chart-card-title">{{ chart.title }}</h3>
+                            <p class="electricity-chart-card-subtitle">{{ chart.subtitle }}</p>
+                            <div id="{{ chart.chart_id }}" class="electricity-chart utility-sensor-trend-chart"></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
 
                 <div class="utility-sensor-group-grid">
-                    {% for group in sensor_monitoring.groups %}
+                    {% for group in sensor_monitoring_view.groups %}
                     <div class="utility-sensor-group-card" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
                         <div class="utility-sensor-group-head">
                             <div>
                                 <h4 class="utility-sensor-group-title">{{ group.label }}</h4>
-                                <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data</p>
+                                <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data{% if not flags.is_daily_report %} in period{% endif %}</p>
                             </div>
                             <span class="utility-sensor-group-badge {% if group.anomaly_count > 0 %}has-alert{% endif %}">
                                 {{ group.anomaly_count }} alert{% if group.anomaly_count != 1 %}s{% endif %}
@@ -663,7 +723,7 @@
                                 <div class="utility-sensor-range-top">
                                     <div>
                                         <div class="utility-sensor-range-name">{{ sensor.display_name }}</div>
-                                        <div class="utility-sensor-range-submeta">{{ sensor.unit }} · {{ sensor.measurement_type_label }}</div>
+                                        <div class="utility-sensor-range-submeta">{{ sensor.unit }} · {{ sensor.measurement_type_label }}{% if not flags.is_daily_report and sensor.days_with_data_display is defined %} · {{ sensor.days_with_data_display }}{% endif %}</div>
                                     </div>
                                     <span class="utility-sensor-range-flag {{ sensor.severity_class }}">{{ sensor.flag_summary }}</span>
                                 </div>
@@ -697,9 +757,9 @@
                     {% endfor %}
                 </div>
 
-                {% if sensor_monitoring.anomaly_rows %}
+                {% if sensor_monitoring_view.anomaly_rows %}
                 <div class="utility-sensor-anomaly-block">
-                    <h4 class="utility-sensor-anomaly-title">Sensor anomaly scan</h4>
+                    <h4 class="utility-sensor-anomaly-title">{% if flags.is_daily_report %}Sensor anomaly scan{% else %}Period anomaly scan{% endif %}</h4>
                     <div class="utility-sensor-anomaly-wrap report-table-wrap">
                         <table class="utility-sensor-anomaly-table report-table-ui">
                             <thead>
@@ -707,7 +767,11 @@
                                     <th>Sensor</th>
                                     <th>Group</th>
                                     <th>Type</th>
+                                    {% if flags.is_daily_report %}
                                     <th>Latest</th>
+                                    {% else %}
+                                    <th>Data days</th>
+                                    {% endif %}
                                     <th>Min</th>
                                     <th>Avg</th>
                                     <th>Max</th>
@@ -715,12 +779,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for row in sensor_monitoring.anomaly_rows %}
+                                {% for row in sensor_monitoring_view.anomaly_rows %}
                                 <tr class="{{ row.severity_class }}">
                                     <td>{{ row.display_name }}</td>
                                     <td>{{ row.group_label }}</td>
                                     <td>{{ row.measurement_type }}</td>
+                                    {% if flags.is_daily_report %}
                                     <td>{{ row.latest_display }}</td>
+                                    {% else %}
+                                    <td>{{ row.days_with_data_display }}</td>
+                                    {% endif %}
                                     <td>{{ row.min_display }}</td>
                                     <td>{{ row.avg_display }}</td>
                                     <td>{{ row.max_display }}</td>
@@ -740,7 +808,7 @@
                 </div>
                 {% endif %}
 
-                {% if sensor_monitoring.trend_clusters_render %}
+                {% if flags.is_daily_report and sensor_monitoring.trend_clusters_render %}
                 <div class="utility-sensor-trend-preview-block pdf-keep-together">
                     <div class="utility-sensor-trend-preview-head">
                         <div>
@@ -783,7 +851,8 @@
                     </div>
                 </div>
                 {% endif %}
-                {% else %}
+
+                {% if not flags.is_daily_report %}
                 <div class="utility-sensor-table-wrap report-table-wrap">
                     <table class="utility-sensor-table report-table-ui">
                         <thead>
@@ -882,6 +951,12 @@
                                 option: {{ chart.option | tojson }},
                             },
                             {% endfor %}
+                            {% endfor %}
+                            {% for chart in sensor_monitoring.period_trend_charts_render or [] %}
+                            {
+                                id: "{{ chart.chart_id }}",
+                                option: {{ chart.option | tojson }},
+                            },
                             {% endfor %}
                         ];
 

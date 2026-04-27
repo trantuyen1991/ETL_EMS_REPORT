@@ -163,6 +163,24 @@ Daily UI V2 currently includes:
   - primary by system group (`ICO Chiller`, `DIODE Chiller`, `ICO Air`, `DIODE Air`, `Boiler`, `Domestic Water`)
   - secondary ordering by measurement type (`Temperature`, `Pressure`, `Flow`, `Capacity`)
 
+Periodic sensor monitoring rollout is split into controlled phases:
+- Implemented in current periodic Utility scope:
+  - header stat pills
+  - overview cards by group
+  - grouped sensor cards
+  - anomaly scan table
+  - existing daily summary table as supporting detail
+  - full-period rollup semantics instead of end-of-period snapshot wording
+  - period line charts using daily aggregate trend data, grouped by unit
+- Deferred / next-stage items:
+  - current vs previous sensor-monitoring comparison
+  - heatmap exploration
+  - completeness summary block when anomaly semantics are approved
+  - business review of anomaly heuristics after technical correctness audits
+- Scope guard:
+  - changes must stay inside `Utility` for the `periodic` family
+  - do not modify Electricity or unrelated shared layout while rolling out sensor monitoring
+
 Current anomaly engine highlights:
 - measurement-type-aware anomaly defaults
 - negative tolerance handling:
