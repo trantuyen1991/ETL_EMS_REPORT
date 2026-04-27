@@ -193,6 +193,24 @@
         "fontSize": "12px",
         "fontWeight": "500",
         "textColor": "#64748b"
+      },
+      "chartLegend": {
+        "fontSize": "11px",
+        "fontWeight": "700",
+        "textColor": "#64748b",
+        "itemGap": "8px"
+      },
+      "chartMeta": {
+        "valueColor": "#0f172a",
+        "textColor": "#334155",
+        "subtleColor": "#64748b",
+        "labelFontSize": "11px",
+        "smallFontSize": "9px"
+      },
+      "chartLayout": {
+        "gridGap": "12px",
+        "subtitleMarginBottom": "10px",
+        "noteMarginTop": "10px"
       }
     },
     "echartsTheme": {
