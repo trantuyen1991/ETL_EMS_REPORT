@@ -502,3 +502,43 @@ The report should remain:
 - readable
 - data-dense but understandable
 - suitable for both daily operations and export sharing
+
+---
+
+## 15. Style and Theme Configuration Direction
+
+### 15.1 Centralization Goal
+Report presentation tokens should move toward a centralized JSON configuration instead of staying hard-coded across templates and CSS assets.
+
+Initial direction:
+- introduce `config/report_style.json`
+- keep the file human-editable and fast to inspect
+- use it as the source for colors, fonts, spacing, radius, and chart palette defaults
+
+### 15.2 Render Rule
+Custom report presentation must be rendered inline into output artifacts.
+
+Required behavior:
+- HTML view may continue using CDN vendor libraries where already allowed
+- PDF source must continue using local vendor libraries for print safety
+- custom style/theme must not depend on extra generated theme asset files
+- custom CSS variables / CSS blocks should be emitted inline from backend context
+- ECharts theme registration should also be emitted inline from backend context
+
+### 15.3 Rollout Strategy
+The style/theme refactor should be executed gradually:
+1. create the JSON style config and token structure
+2. add a backend style helper / service
+3. wire style context into render flow
+4. apply the new token flow to the daily family first
+5. expand from title / section heading into cards, tables, semantic styles, and chart shells
+6. port the stable pattern into the periodic family
+
+### 15.4 Scope Guard
+This refactor is presentation-only.
+
+Must not change:
+- KPI business logic
+- utility / energy aggregation logic
+- ETL pipeline behavior
+- report period resolution logic

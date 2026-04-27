@@ -58,6 +58,11 @@ Current template files:
 
 **Version: V4 preview (milestone tags are created only for approved stable checkpoints)**
 
+Current architecture direction:
+- keep the current two-family report system (`daily` / `periodic`)
+- move report presentation tokens toward a centralized JSON style config
+- render custom style/theme inline into HTML / PDF source instead of shipping extra theme assets
+
 ---
 
 ## Implemented Features
@@ -136,6 +141,13 @@ Periodic KPI rollout currently includes:
 - period summary matrix filled with actual production-day counts instead of anchor-day snapshot values
 - period KPI detail rotated into a stacked vertical layout for PDF page-width control
 
+Upcoming presentation refactor direction:
+- introduce `config/report_style.json` as the central style token source
+- generate inline CSS variables / CSS blocks from backend context
+- generate inline ECharts theme registration from the same config
+- refactor daily family first, then extend the same pattern to the periodic family
+- keep HTML output single-file for custom style/theme concerns
+- keep PDF source on local vendor libraries while still rendering custom style/theme inline
 ---
 
 ### 4. Utility Section

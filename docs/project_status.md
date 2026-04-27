@@ -23,7 +23,7 @@ Focus:
 - refine daily UI first, then continue periodic polish
 - stabilize PDF chart rendering and print flow
 - extend sensor monitoring from backend-ready data into daily-first UI
-
+- begin centralizing report presentation tokens into a JSON-driven inline style/theme layer
 Stable baseline:
 - PDF export stabilized after the 2026-04-27 chart-init timing fix and multi-anchor regression batches
 
@@ -387,8 +387,11 @@ Expected behavior:
 
 Immediate next priorities:
 
-1. Finalize docs + release note consistency for V4 preview
-2. Continue daily template refinement
-3. Complete sensor monitoring UI
-4. Implement CSV export wiring in production flow
-5. Continue PDF regression hardening for future layout changes
+1. Introduce `config/report_style.json` as the first centralized style-token source
+2. Add a backend style helper that can emit inline CSS variables and inline ECharts theme data
+3. Apply the new style-token flow to the daily family first, starting from report title and section headings
+4. Extend the same pattern gradually into cards, tables, semantic badges/trends, and chart shells
+5. Port the proven pattern to the periodic family after the daily rollout is stable
+6. Keep business/data logic unchanged while the presentation layer is being refactored
+7. Continue sensor monitoring / CSV follow-up only after the presentation refactor checkpoint is stable
+8. Continue PDF regression hardening for future layout changes
