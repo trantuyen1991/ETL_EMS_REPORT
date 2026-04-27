@@ -84,6 +84,30 @@
             box-shadow: var(--report-components-card-shadow, var(--shadow-card));
         }
 
+        .report-family-daily .electricity-chart-card,
+        .report-family-daily .utility-chart-card,
+        .report-family-daily .kpi-chart-card,
+        .report-family-daily .utility-energy-chart-card {
+            border-color: var(--report-components-chart-card-border-color, var(--report-components-card-border-color, var(--border-soft)));
+            border-radius: var(--report-components-chart-card-border-radius, var(--report-components-card-border-radius, 12px));
+            background: var(--report-components-chart-card-background, var(--bg-card));
+            box-shadow: var(--report-components-chart-card-shadow, var(--report-components-card-shadow, var(--shadow-card)));
+        }
+
+        .report-family-daily .electricity-chart-card-title {
+            color: var(--report-components-chart-card-title-color, var(--text-main));
+        }
+
+        .report-family-daily .electricity-chart-card-subtitle {
+            color: var(--report-components-chart-card-subtitle-color, var(--text-muted));
+        }
+
+        .report-family-daily .kpi-daily-dashboard-note {
+            font-size: var(--report-components-chart-note-font-size, 12px);
+            font-weight: var(--report-components-chart-note-font-weight, 500);
+            color: var(--report-components-chart-note-text-color, var(--text-muted));
+        }
+
         h1,
         h2,
         h3,
@@ -1217,10 +1241,10 @@
 
         .electricity-chart-card {
             border: 1px solid var(--border-soft);
-            border-radius: 12px;
-            background: var(--bg-card);
-            padding: 12px 14px 10px;
-            box-shadow: var(--shadow-card);
+            border-radius: var(--report-components-chart-card-border-radius, 12px);
+            background: var(--report-components-chart-card-background, var(--bg-card));
+            padding: var(--report-components-chart-card-padding, 12px 14px 10px);
+            box-shadow: var(--report-components-chart-card-shadow, var(--shadow-card));
             break-inside: avoid;
             page-break-inside: avoid;
         }
@@ -1240,14 +1264,14 @@
             margin: 0;
             font-size: 14px;
             font-weight: 700;
-            color: var(--text-main);
+            color: var(--report-components-chart-card-title-color, var(--text-main));
         }
 
         .electricity-chart-card-subtitle {
             margin: 4px 0 10px;
             font-size: 11.5px;
             line-height: 1.35;
-            color: var(--text-muted);
+            color: var(--report-components-chart-card-subtitle-color, var(--text-muted));
         }
 
         .electricity-chart {
@@ -1275,7 +1299,7 @@
             justify-content: flex-start;
             gap: 8px;
             margin-top: 8px;
-            color: #64748b;
+            color: var(--report-components-chart-note-text-color, #64748b);
             font-size: 11px;
             font-weight: 700;
         }
@@ -3620,8 +3644,9 @@
 
         .kpi-daily-dashboard-note {
             margin: 10px 2px 0;
-            font-size: 12px;
-            color: var(--text-muted);
+            font-size: var(--report-components-chart-note-font-size, 12px);
+            font-weight: var(--report-components-chart-note-font-weight, 500);
+            color: var(--report-components-chart-note-text-color, var(--text-muted));
             line-height: 1.45;
         }
 

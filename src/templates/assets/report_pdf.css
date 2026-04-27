@@ -65,6 +65,9 @@
 
     .pdf-daily-chart-grid .electricity-chart-card {
         padding: 6px 8px 2px !important;
+        border-radius: var(--report-components-chart-card-border-radius, 10px) !important;
+        background: var(--report-components-chart-card-background, #ffffff) !important;
+        border-color: var(--report-components-chart-card-border-color, #cfe0ff) !important;
     }
 
     .electricity-area-top10-table-block,
@@ -127,12 +130,14 @@
 
     .pdf-daily-chart-grid .electricity-chart-card-title {
         font-size: 12px !important;
+        color: var(--report-components-chart-card-title-color, var(--text-main)) !important;
     }
 
     .pdf-daily-chart-grid .electricity-chart-card-subtitle {
         margin: 1px 0 3px !important;
         font-size: 9px !important;
         line-height: 1.2 !important;
+        color: var(--report-components-chart-card-subtitle-color, var(--text-muted)) !important;
     }
 
     .pdf-daily-chart-grid .electricity-chart {
@@ -898,6 +903,7 @@
     .kpi-daily-dashboard-note {
         margin-top: 6px !important;
         font-size: 8px !important;
+        color: var(--report-components-chart-note-text-color, var(--text-muted)) !important;
     }
 
     .utility-chart-block,
@@ -1239,11 +1245,13 @@
     .electricity-chart-card-title {
         margin-bottom: 1px !important;
         font-size: 12px !important;
+        color: var(--report-components-chart-card-title-color, var(--text-main)) !important;
     }
 
     .electricity-chart-card-subtitle {
         margin: 1px 0 4px !important;
         font-size: 9px !important;
+        color: var(--report-components-chart-card-subtitle-color, var(--text-muted)) !important;
     }
 
     .pdf-page-break-after {

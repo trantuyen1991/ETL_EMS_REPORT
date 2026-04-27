@@ -204,6 +204,11 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {
             "titleColor": "#111827",
             "subtitleColor": "#64748b",
         },
+        "chartNote": {
+            "fontSize": "12px",
+            "fontWeight": "500",
+            "textColor": "#64748b",
+        },
     },
     "echartsTheme": {
         "themeName": "report_default",
