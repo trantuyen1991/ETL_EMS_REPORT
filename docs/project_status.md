@@ -374,10 +374,12 @@ Expected behavior:
 - Must use project documentation (`report_spec.md`, `kpi_report_ruler.md`, etc.)
 - Must stay consistent with real implementation
 
-### 11.4 Future Integration with MemPalace
-- Auto context recall
-- Auto documentation sync
-- Long-term project memory support
+### 11.4 MemPalace-First Project Recall
+- Default project recall path: `mempalace search`
+- Do not rely on `memory_search` as the default recall path for this project while quota/availability remains unstable
+- Recalled context must still be checked against the live repo and rendered outputs
+- Future follow-up:
+  - restore `memory_search` only as an optional secondary recall path when availability is confirmed again
 
 ---
 

@@ -312,6 +312,9 @@ At the start of important tasks:
 When user references past work:
 - use stored context
 - avoid re-deriving known information
+- for this project, prefer `mempalace search` as the default recall path
+- use `memory_search` only when it is explicitly needed and confirmed available again
+- always cross-check recalled context against the live repo before acting
 
 ---
 
@@ -321,6 +324,9 @@ After sessions:
 - identify meaningful updates
 - propose memory updates
 - wait for approval
+- when project mining is explicitly needed, use the dedicated binary path:
+  - `/home/nbt/services/mempalace/.venv/bin/mempalace mine .`
+  - optional status check: `/home/nbt/services/mempalace/.venv/bin/mempalace status`
 
 ---
 

@@ -24,7 +24,7 @@ Steps:
 - update docs
 - commit
 - create tag
-- run mempalace mine .
+- run `/home/nbt/services/mempalace/.venv/bin/mempalace mine .`
 
 ---
 
@@ -55,7 +55,7 @@ Rules:
 After any code/doc change:
 
 cd project  
-mempalace mine .
+/home/nbt/services/mempalace/.venv/bin/mempalace mine .
 
 ---
 

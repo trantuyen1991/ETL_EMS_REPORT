@@ -156,8 +156,8 @@ Purpose:
 Actions:
 1. Ensure the terminal is in the correct project folder
 2. Run `pwd`
-3. Run `mempalace mine .`
-4. Optionally run `mempalace status`
+3. Run `/home/nbt/services/mempalace/.venv/bin/mempalace mine .`
+4. Optionally run `/home/nbt/services/mempalace/.venv/bin/mempalace status`
 
 ---
 
@@ -311,12 +311,13 @@ Use after meaningful code/doc changes.
 1. `cd /home/nbt/workspace/02_MySQL`
 2. `pwd`
 3. verify path is correct
-4. `mempalace mine .`
-5. optionally `mempalace status`
+4. `/home/nbt/services/mempalace/.venv/bin/mempalace mine .`
+5. optionally `/home/nbt/services/mempalace/.venv/bin/mempalace status`
 
 ### Important Rule
-- Never run `mempalace mine .` from `~`
+- Never run `/home/nbt/services/mempalace/.venv/bin/mempalace mine .` from `~`
 - Always confirm project path first
+- MemPalace for this project is no longer assumed to come from system Python; use the dedicated venv binary path above
 
 ---
 
