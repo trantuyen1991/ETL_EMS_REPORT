@@ -1,4 +1,40 @@
 {% import "report/macros/common.html" as report %}
+{% macro render_periodic_area_summary(area_rows, area_summary_order, extra_block_class='') %}
+<div class="electricity-daily-summary-block {{ extra_block_class }}">
+    <h3 class="electricity-subsection-title">Daily Energy Summary</h3>
+
+    <div class="electricity-daily-summary-wrap report-table-wrap electricity-daily-summary-area-wrap">
+        <table class="electricity-daily-summary-table electricity-daily-summary-area-table report-table-ui">
+            <thead>
+                <tr>
+                    <th class="col-date sticky-date-col" rowspan="2">Date</th>
+                    {% for area_key, area_name in area_summary_order %}
+                    <th colspan="2" class="area-group-header {% if loop.first %}area-group-start{% endif %} area-group-end">{{ area_name }}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for area_key, area_name in area_summary_order %}
+                    <th class="area-group-start">Total</th>
+                    <th class="area-group-end">Avg / meter active</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in area_rows %}
+                <tr>
+                    <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                    {% for area_key, area_name in area_summary_order %}
+                    {% set area_row = row.areas[area_key] %}
+                    <td class="col-total-energy area-group-start">{{ area_row.total_display }}</td>
+                    <td class="col-avg-active area-group-end">{{ area_row.avg_per_active_display }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endmacro %}
 {% if flags.show_electricity_section %}
         <section class="report-section daily-highlight-header electricity-section-shell{% if not flags.is_daily_report %} periodic-electricity-section{% endif %}">
             <div class="section-header">
@@ -200,6 +236,10 @@
                 {% endfor %}
             </div>
 
+            {% if not flags.is_daily_report %}
+            {% set area_summary_order = [('plant', 'Plant'), ('diode', 'DIODE Workshop'), ('ico', 'ICO Workshop'), ('sakari', 'SAKARI Workshop')] %}
+            {% endif %}
+
             <div class="electricity-chart-grid {% if flags.is_daily_report %}electricity-chart-grid-daily{% else %}periodic-electricity-chart-grid{% endif %}">
                 <div class="electricity-chart-card">
                     <h3 class="electricity-chart-card-title">
@@ -221,6 +261,10 @@
                     <div id="electricity-area-comparison-chart" class="electricity-chart"></div>
                 </div>
             </div>
+
+            {% if flags.is_weekly_report %}
+            {{ render_periodic_area_summary(sections.electricity.daily_summary.area_rows, area_summary_order) }}
+            {% endif %}
 
             <div class="electricity-detail-block">
                 <h3 class="electricity-subsection-title">Top 10 Meter Consumption</h3>
@@ -315,80 +359,8 @@
                 </p>
             </div>
 
-            {% if not flags.is_daily_report %}
-            <div class="electricity-daily-summary-block">
-                <h3 class="electricity-subsection-title">Daily Energy Summary</h3>
-
-                <div class="electricity-daily-summary-wrap report-table-wrap">
-                    <table class="electricity-daily-summary-table report-table-ui">
-                        <thead>
-                            <tr>
-                                <th class="col-date sticky-date-col">Date</th>
-                                <th>Total energy</th>
-                                <th>Top 1 meter</th>
-                                <th>Top 1 value</th>
-                                <th>Active meter</th>
-                                <th>Avg / active</th>
-                                <th>Total meter</th>
-                                <th>Inactive meter</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in sections.electricity.daily_summary.rows %}
-                            <tr>
-                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
-                                <td class="col-total-energy">{{ row.total_energy_display }}</td>
-                                <td class="col-top1-meter">{{ row.top_1_meter }}</td>
-                                <td class="col-top1-value">
-                                    <span class="value">{{ row.top_1_value_display }}</span>
-                                    {% if row.top_1_pct_display %}
-                                    {{ report.ratio_note(row.top_1_pct_display) }}
-                                    {% endif %}
-                                </td>
-                                <td class="col-active">{{ row.active_meter_count }}</td>
-                                <td class="col-avg-active">{{ row.average_per_active_display }}</td>
-                                <td class="col-total">{{ row.total_meter_count }}</td>
-                                <td class="col-inactive">{{ row.inactive_meter_count }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                {% set area_summary_order = [('plant', 'Plant'), ('diode', 'DIODE Workshop'), ('ico', 'ICO Workshop'), ('sakari', 'SAKARI Workshop')] %}
-                <div class="electricity-daily-summary-wrap report-table-wrap electricity-daily-summary-area-wrap">
-                    <table class="electricity-daily-summary-table electricity-daily-summary-area-table report-table-ui">
-                        <thead>
-                            <tr>
-                                <th class="col-date sticky-date-col" rowspan="2">Date</th>
-                                {% for area_key, area_name in area_summary_order %}
-                                <th colspan="3" class="area-group-header {% if loop.first %}area-group-start{% endif %} area-group-end">{{ area_name }}</th>
-                                {% endfor %}
-                            </tr>
-                            <tr>
-                                {% for area_key, area_name in area_summary_order %}
-                                <th class="area-group-start">Total</th>
-                                <th>Active meter / total</th>
-                                <th class="area-group-end">Avg / meter active</th>
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in sections.electricity.daily_summary.area_rows %}
-                            <tr>
-                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
-                                {% for area_key, area_name in area_summary_order %}
-                                {% set area_row = row.areas[area_key] %}
-                                <td class="col-total-energy area-group-start">{{ area_row.total_display }}</td>
-                                <td class="col-active-total">{{ area_row.active_total_display }}</td>
-                                <td class="col-avg-active area-group-end">{{ area_row.avg_per_active_display }}</td>
-                                {% endfor %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            {% if flags.is_monthly_report %}
+            {{ render_periodic_area_summary(sections.electricity.daily_summary.area_rows, area_summary_order) }}
             {% endif %}
 
             <div class="electricity-daily-detail-block">
