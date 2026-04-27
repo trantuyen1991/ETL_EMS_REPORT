@@ -94,6 +94,11 @@ REPORT_ANCHOR_DATE (.env)
   - area daily summary table added below plant daily summary
   - daily vertical detail tables sorted highest-to-lowest with ranking-aligned fill bars
   - PDF layout keeps plant Top 10 immediately after electricity charts on page 1
+  - periodic electricity chart stack now adds:
+    - a daily-total heatmap by area using total kWh per day
+    - a static HTML/CSS heatmap legend for PDF stability
+    - a period-only area delta chart (`Current - Previous`) with delta kWh and delta % labels
+  - periodic area comparison axis labels are forced readable for workshop names including `ICO`
 
 ---
 
@@ -132,6 +137,11 @@ Includes:
 - water
 - air
 - steam
+- utility-energy rollup cards for `Total Utility Energy`, `Air Energy`, `Chilled Water Energy`, and `Boiler Energy`
+- periodic utility-energy cards reuse the compact current/previous compare style from the daily family
+- periodic utility-energy charts now include:
+  - `Utility Energy trend` as a daily-total line chart by utility energy group
+  - `Utility Distribution` as a donut chart with a right-side legend and total kWh summary
 
 #### 4.2 Sensor Monitoring
 - data from `processvalue`

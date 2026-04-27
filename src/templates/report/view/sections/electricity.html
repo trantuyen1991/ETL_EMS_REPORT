@@ -241,7 +241,7 @@
             {% endif %}
 
             <div class="electricity-chart-grid {% if flags.is_daily_report %}electricity-chart-grid-daily{% else %}periodic-electricity-chart-grid{% endif %}">
-                <div class="electricity-chart-card">
+                <div class="electricity-chart-card electricity-chart-card-primary">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.daily_trend.title }}
                     </h3>
@@ -260,11 +260,38 @@
                     </p>
                     <div id="electricity-area-comparison-chart" class="electricity-chart"></div>
                 </div>
-            </div>
 
-            {% if flags.is_weekly_report %}
-            {{ render_periodic_area_summary(sections.electricity.daily_summary.area_rows, area_summary_order) }}
-            {% endif %}
+                {% if not flags.is_daily_report and sections.electricity.charts.period_heatmap.option %}
+                <div class="electricity-chart-card electricity-heatmap-card">
+                    <h3 class="electricity-chart-card-title">
+                        {{ sections.electricity.charts.period_heatmap.title }}
+                    </h3>
+                    <p class="electricity-chart-card-subtitle">
+                        {{ sections.electricity.charts.period_heatmap.subtitle }}
+                    </p>
+                    <div id="electricity-period-heatmap-chart" class="electricity-heatmap-chart"></div>
+                    <div class="electricity-heatmap-legend" aria-hidden="true">
+                        <span class="legend-label">Low</span>
+                        <span class="legend-bar"></span>
+                        <span class="legend-unit">kWh</span>
+                        <span class="legend-bar legend-bar-strong"></span>
+                        <span class="legend-label">High</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if not flags.is_daily_report and sections.electricity.charts.period_area_delta.option %}
+                <div class="electricity-chart-card electricity-delta-card">
+                    <h3 class="electricity-chart-card-title">
+                        {{ sections.electricity.charts.period_area_delta.title }}
+                    </h3>
+                    <p class="electricity-chart-card-subtitle">
+                        {{ sections.electricity.charts.period_area_delta.subtitle }}
+                    </p>
+                    <div id="electricity-period-area-delta-chart" class="electricity-delta-chart"></div>
+                </div>
+                {% endif %}
+            </div>
 
             <div class="electricity-detail-block">
                 <h3 class="electricity-subsection-title">Top 10 Meter Consumption</h3>
@@ -359,7 +386,7 @@
                 </p>
             </div>
 
-            {% if flags.is_monthly_report %}
+            {% if not flags.is_daily_report %}
             {{ render_periodic_area_summary(sections.electricity.daily_summary.area_rows, area_summary_order) }}
             {% endif %}
 
@@ -404,20 +431,52 @@
                 </div>
                 {% else %}
                 {% for table in sections.electricity.daily_detail_tables %}
-                <div class="electricity-daily-detail-table-block">
-                    <h4 class="electricity-subsection-title">{{ table.title }}</h4>
+                    {% if table.area_key == 'diode' %}
+                        {% set detail_accent_color = '#2563eb' %}
+                        {% set detail_accent_tint = 'rgba(37, 99, 235, 0.12)' %}
+                        {% set detail_head_bg = '#e8f1ff' %}
+                        {% set detail_soft_bg = '#f8fbff' %}
+                        {% set detail_strong_bg = '#deecff' %}
+                    {% elif table.area_key == 'ico' %}
+                        {% set detail_accent_color = '#84cc16' %}
+                        {% set detail_accent_tint = 'rgba(132, 204, 22, 0.16)' %}
+                        {% set detail_head_bg = '#f3fae8' %}
+                        {% set detail_soft_bg = '#fbfdf5' %}
+                        {% set detail_strong_bg = '#e7f6c8' %}
+                    {% else %}
+                        {% set detail_accent_color = '#f59e0b' %}
+                        {% set detail_accent_tint = 'rgba(245, 158, 11, 0.16)' %}
+                        {% set detail_head_bg = '#fff5df' %}
+                        {% set detail_soft_bg = '#fffaf0' %}
+                        {% set detail_strong_bg = '#ffe7b0' %}
+                    {% endif %}
 
-                    <div class="electricity-daily-detail-table-wrap report-table-wrap">
-                        <table class="electricity-daily-detail-table report-table-ui">
+                    {% set meter_columns = table.columns[1:] %}
+                    {% set chunk_size = 14 %}
+                    {% set total_chunks = ((meter_columns|length + chunk_size - 1) // chunk_size) %}
+
+                    {% for chunk_index in range(total_chunks) %}
+                        {% set start = chunk_index * chunk_size %}
+                        {% set end = start + chunk_size %}
+                        {% set column_chunk = meter_columns[start:end] %}
+
+                <div class="electricity-daily-vertical-table-block electricity-periodic-detail-table-block area-{{ table.area_key }}"
+                    style="--detail-accent-color: {{ detail_accent_color }}; --detail-accent-tint: {{ detail_accent_tint }}; --detail-head-bg: {{ detail_head_bg }}; --detail-soft-bg: {{ detail_soft_bg }}; --detail-strong-bg: {{ detail_strong_bg }};">
+                    <h4 class="electricity-subsection-title">
+                        {{ table.title }}
+                        {% if total_chunks > 1 %}
+                            (Part {{ chunk_index + 1 }}/{{ total_chunks }})
+                        {% endif %}
+                    </h4>
+
+                    <div class="electricity-daily-detail-table-wrap electricity-periodic-detail-wrap report-table-wrap">
+                        <table class="electricity-daily-detail-table electricity-periodic-detail-table report-table-ui">
                             <thead>
                                 <tr>
                                     <th class="col-index">Index</th>
-                                    {% for column in table.columns %}
-                                        {% if column.is_date %}
-                                        <th class="col-date sticky-date-col">{{ column.display_name }}</th>
-                                        {% else %}
-                                        <th>{{ column.display_name }}</th>
-                                        {% endif %}
+                                    <th class="col-date sticky-date-col">Date</th>
+                                    {% for column in column_chunk %}
+                                    <th>{{ column.display_name }}</th>
                                     {% endfor %}
                                 </tr>
                             </thead>
@@ -426,7 +485,7 @@
                                 <tr>
                                     <td class="col-index">{{ loop.index }}</td>
                                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
-                                    {% for cell in row.cells %}
+                                    {% for cell in row.cells[start:end] %}
                                     <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}">
                                         {{ cell.display }}
                                     </td>
@@ -437,6 +496,7 @@
                         </table>
                     </div>
                 </div>
+                    {% endfor %}
                 {% endfor %}
                 {% endif %}
             </div>
@@ -456,6 +516,18 @@
                                 id: "electricity-area-comparison-chart",
                                 option: {{ sections.electricity.charts.area_comparison.option | tojson }},
                             },
+                            {% if not flags.is_daily_report and sections.electricity.charts.period_heatmap.option %}
+                            {
+                                id: "electricity-period-heatmap-chart",
+                                option: {{ sections.electricity.charts.period_heatmap.option | tojson }},
+                            },
+                            {% endif %}
+                            {% if not flags.is_daily_report and sections.electricity.charts.period_area_delta.option %}
+                            {
+                                id: "electricity-period-area-delta-chart",
+                                option: {{ sections.electricity.charts.period_area_delta.option | tojson }},
+                            },
+                            {% endif %}
                         ];
 
                         const charts = [];

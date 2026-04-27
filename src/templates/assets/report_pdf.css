@@ -17,6 +17,11 @@
         gap: 6px !important;
     }
 
+    .periodic-electricity-chart-grid.pdf-two-chart-grid {
+        grid-template-columns: minmax(0, 3.3fr) minmax(0, 1.7fr) !important;
+        align-items: start !important;
+    }
+
     .pdf-single-chart-grid {
         grid-template-columns: 1fr !important;
         gap: 6px !important;
@@ -42,6 +47,20 @@
         min-width: 0 !important;
         overflow: hidden !important;
         padding: 6px 8px 4px !important;
+    }
+
+    .electricity-chart-stack {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        min-width: 0 !important;
+    }
+
+    .electricity-chart-pair-grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr) !important;
+        gap: 6px !important;
+        align-items: stretch !important;
     }
 
     .pdf-daily-chart-grid .electricity-chart-card {
@@ -76,7 +95,34 @@
     }
 
     .periodic-electricity-chart-grid .electricity-chart {
-        height: 232px !important;
+        height: 220px !important;
+    }
+
+    .electricity-heatmap-chart {
+        width: 100% !important;
+        height: 150px !important;
+        overflow: hidden !important;
+    }
+
+    .electricity-delta-chart {
+        width: 100% !important;
+        height: 150px !important;
+        overflow: hidden !important;
+    }
+
+    .electricity-heatmap-legend {
+        gap: 5px !important;
+        margin-top: 5px !important;
+        font-size: 8px !important;
+    }
+
+    .electricity-heatmap-legend .legend-bar {
+        width: 54px !important;
+        height: 6px !important;
+    }
+
+    .electricity-heatmap-legend .legend-unit {
+        min-width: 20px !important;
     }
 
     .pdf-daily-chart-grid .electricity-chart-card-title {
@@ -169,6 +215,37 @@
         stroke: none !important;
     }
 
+    .electricity-section-shell .section-header {
+        padding: 6px 9px 5px !important;
+    }
+
+    .electricity-header-shell {
+        gap: 8px !important;
+    }
+
+    .electricity-section-shell .utility-header-main {
+        gap: 8px !important;
+    }
+
+    .electricity-section-shell .utility-header-icon {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .electricity-section-shell .utility-header-icon svg {
+        width: 19px !important;
+        height: 19px !important;
+    }
+
+    .electricity-section-shell .section-header h2 {
+        font-size: 14px !important;
+    }
+
+    .electricity-section-shell .section-subtitle {
+        margin-top: 1px !important;
+        font-size: 9px !important;
+    }
+
     .utility-date-chip {
         gap: 6px !important;
         padding: 7px 9px !important;
@@ -242,6 +319,43 @@
     }
 
     .electricity-header-date-chip {
+        min-width: 152px !important;
+        padding: 6px 8px !important;
+    }
+
+    .utility-periodic-section .section-header {
+        padding: 7px 10px 6px !important;
+    }
+
+    .utility-periodic-section .utility-header-shell {
+        gap: 8px !important;
+    }
+
+    .utility-periodic-section .utility-header-main {
+        gap: 9px !important;
+    }
+
+    .utility-periodic-section .utility-header-icon {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .utility-periodic-section .utility-header-icon svg,
+    .utility-periodic-section .utility-header-icon img {
+        width: 19px !important;
+        height: 19px !important;
+    }
+
+    .utility-periodic-section .section-header h2 {
+        font-size: 14px !important;
+    }
+
+    .utility-periodic-section .section-subtitle {
+        margin-top: 2px !important;
+        font-size: 8px !important;
+    }
+
+    .utility-periodic-section .utility-date-chip {
         min-width: 152px !important;
         padding: 6px 8px !important;
     }
@@ -436,9 +550,18 @@
         gap: 2px !important;
     }
 
+    .utility-periodic-chart-grid {
+        gap: 2px !important;
+        margin-bottom: 2px !important;
+    }
+
     .utility-chart-split-grid {
         gap: 2px !important;
         margin-bottom: 2px !important;
+    }
+
+    .utility-chart-split-grid-periodic {
+        margin-top: 2px !important;
     }
 
     .utility-chart-card {
@@ -449,10 +572,63 @@
         height: 160px !important;
     }
 
-    .utility-comparison-chart-wide,
-    .utility-comparison-chart-narrow,
+    .utility-period-type-trend-chart,
     .utility-comparison-chart-daily {
-        height: 160px !important;
+        height: 220px !important;
+    }
+
+    .utility-comparison-chart-wide,
+    .utility-comparison-chart-narrow {
+        height: 176px !important;
+    }
+
+    .utility-energy-chart-grid {
+        gap: 4px !important;
+        margin-top: 4px !important;
+    }
+
+    .utility-energy-trend-chart,
+    .utility-energy-distribution-chart {
+        height: 182px !important;
+    }
+
+    .utility-energy-distribution-layout {
+        gap: 4px !important;
+    }
+
+    .utility-energy-distribution-legend {
+        gap: 5px !important;
+    }
+
+    .utility-energy-distribution-legend-item {
+        gap: 5px !important;
+    }
+
+    .utility-energy-distribution-dot {
+        width: 7px !important;
+        height: 7px !important;
+        margin-top: 3px !important;
+    }
+
+    .utility-energy-distribution-legend-name {
+        font-size: 8px !important;
+    }
+
+    .utility-energy-distribution-legend-value,
+    .utility-energy-distribution-total-label {
+        font-size: 7.4px !important;
+    }
+
+    .utility-energy-distribution-total {
+        padding-top: 4px !important;
+    }
+
+    .utility-energy-distribution-total-value {
+        font-size: 10px !important;
+    }
+
+    .utility-energy-distribution-total-value span {
+        font-size: 7.2px !important;
     }
 
     .kpi-daily-grouped-bar-chart {
@@ -1221,6 +1397,36 @@
         text-align: center !important;
         font-weight: 700 !important;
         color: #64748b !important;
+    }
+
+    .electricity-periodic-detail-table-block {
+        margin-bottom: 10px !important;
+    }
+
+    .electricity-periodic-detail-wrap {
+        border-top-width: 3px !important;
+        border-radius: 10px !important;
+    }
+
+    .electricity-periodic-detail-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+    }
+
+    .electricity-periodic-detail-table th,
+    .electricity-periodic-detail-table td {
+        padding: 5px 6px !important;
+        font-size: 8.5px !important;
+    }
+
+    .electricity-periodic-detail-table .col-date {
+        min-width: 72px !important;
+        white-space: nowrap !important;
+    }
+
+    .electricity-periodic-detail-table .col-value {
+        font-weight: 600 !important;
     }
 
     .electricity-daily-vertical-index {

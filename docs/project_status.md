@@ -67,6 +67,10 @@ Stable baseline:
 - Top 10 by area (3 extra tables): ✅
 - PDF layout rule: keep plant Top 10 after charts on page 1: ✅
 - Daily section header style unified across Electricity / Utility / KPI: ✅
+- Periodic electricity heatmap using daily total kWh by area: ✅
+- Static HTML/CSS heatmap legend for PDF stability: ✅
+- Periodic area delta chart (`Current - Previous`) with delta kWh and delta % labels: ✅
+- Periodic area comparison labels tuned for dense workshop names including `ICO`: ✅
 
 ### 3.2 Energy KPI Section
 - KPI summary matrix by area + total: ✅
@@ -94,6 +98,9 @@ KPI logic:
 - Current vs previous comparison: ✅
 - Utility comparison bar chart: ✅
 - Daily utility cards now use a 2-up current/previous compare row with a dedicated delta line for tighter layout: ✅
+- Periodic utility-energy overview cards now reuse the same compact compare-card pattern: ✅
+- Periodic utility-energy trend line chart: ✅
+- Periodic utility distribution donut chart with right-side legend + total kWh: ✅
 - Utility section header now uses the shared `utilityheader.svg` icon in both HTML and PDF templates: ✅
 
 #### Daily Utility Detail
@@ -145,10 +152,10 @@ Current anomaly rules:
 - keep release tag pending until final approval / final commit step
 
 ### 4.2 Daily UI refinement
-- daily template is the current priority
+- daily template remains the main priority
 - continue improving information density, readability, and PDF page flow
 - keep HTML and PDF utility card density aligned when summary card layout changes
-- periodic family will be adjusted after daily stabilizes
+- periodic family has targeted polish in progress for Electricity and Utility chart readability / print stability
 
 ### 4.3 Sensor Monitoring UI
 - Step 2:

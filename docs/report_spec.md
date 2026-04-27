@@ -152,6 +152,11 @@ This section should include:
 - daily summary table
 - daily detail tables per area
 
+For the `periodic` template family, the electricity chart block should also support:
+- a daily-total heatmap by area
+- a period-only area delta chart (`Current - Previous`)
+- PDF-safe static legend treatment when heatmap scale guidance is shown
+
 ### 7.3 Total Logic
 Plant and area official totals must come from pre-calculated values stored in `energy_kpi`, not from summing all raw energy view columns.
 
@@ -179,6 +184,15 @@ Daily detail tables should:
 - support responsive horizontal scrolling in HTML view
 - remain printable in PDF mode without breaking layout
 
+### 7.7 Periodic Electricity Chart Rules
+For the `periodic` template family:
+- the heatmap should use daily total kWh by area, not average per active meter
+- heatmap row colors should stay aligned with the area summary palette
+- the total / plant row should use a distinct teal treatment
+- the heatmap legend in PDF should be rendered as static HTML/CSS instead of interactive ECharts visualMap controls
+- the area delta chart should show both delta kWh and delta % labels for quick attribution
+- area comparison labels must stay readable for dense workshop names, including `ICO`
+
 ---
 
 ## 8. Utility Usage Section
@@ -192,6 +206,11 @@ This section should include:
 - daily utility detail table
 - sensor monitoring block
 - section header styling consistent with Electricity in the daily template
+
+For the `periodic` template family, the utility-energy subsection should also support:
+- four overview cards for `Total Utility Energy`, `Air Energy`, `Chilled Water Energy`, and `Boiler Energy`
+- a `Utility Energy trend` line chart
+- a `Utility Distribution` donut chart with a right-side legend and total kWh block
 
 ### 8.3 Utility Summary
 Utility summary should include:
@@ -207,6 +226,11 @@ For the `daily` template family, the utility overview cards should:
 - show `Current` and `Previous` inside a compact two-column compare block
 - render delta percentage on its own support row with semantic color and short comparison note
 - keep HTML and PDF card structure aligned so density changes do not diverge by renderer
+
+For the `periodic` template family, the utility-energy overview cards should:
+- reuse the same compact current/previous compare layout pattern
+- keep the delta row visually separated under the compare block
+- stay consistent between HTML and PDF renderers
 
 ### 8.4 Daily Utility Detail
 Daily utility detail should:
@@ -246,6 +270,14 @@ Current system groups:
 ### 8.7 Periodic Sensor Monitoring Rule
 For the `periodic` template family, sensor monitoring currently remains a compact table view.
 Trend charts and heatmap-style views are planned for a later phase.
+
+### 8.8 Periodic Utility Energy Chart Rules
+For the `periodic` template family:
+- the utility trend chart should plot daily total kWh by utility energy group
+- the trend chart should align visually with the other large periodic chart cards
+- the distribution chart should use a PDF-stable donut layout
+- the distribution legend should be rendered as regular HTML content beside the donut, not hidden inside the chart only
+- the legend should show value and percentage for each utility energy group
 
 ---
 
