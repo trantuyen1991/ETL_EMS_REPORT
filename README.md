@@ -56,7 +56,7 @@ Current template files:
 
 ## Current Version
 
-**Version: V4 preview (release tag pending final confirmation)**
+**Version: V4 preview (milestone tags are created only for approved stable checkpoints)**
 
 ---
 
@@ -108,7 +108,10 @@ REPORT_ANCHOR_DATE (.env)
 - Includes:
 - grouped KPI summary matrix by area + total
 - `Today / Yesterday / Delta %` layout for daily summary matrix
+- period summary matrix reuses the same structure with period labels such as `This Week / Previous Week` and `This Month / Previous Month`
+- period `Production day` row now counts actual production days within each current / previous period
 - Daily KPI detail
+- periodic KPI detail now uses a vertical area-stacked layout (`Plant / ICO / DIODE / SAKARI`) so the PDF fits A4 width more reliably
 - grouped daily KPI dashboard cards
 - grouped daily KPI chart set
 
@@ -126,6 +129,12 @@ Daily UI refinement currently includes:
 - header-only color treatment for grouped columns
 - daily KPI cards now show both `Today` and `Yesterday`
 - daily KPI section header now matches the boxed Electricity header style
+
+Periodic KPI rollout currently includes:
+- period header/date chip aligned with the Utility section style
+- period dashboard charts reused from the daily KPI family with current/previous period labels
+- period summary matrix filled with actual production-day counts instead of anchor-day snapshot values
+- period KPI detail rotated into a stacked vertical layout for PDF page-width control
 
 ---
 

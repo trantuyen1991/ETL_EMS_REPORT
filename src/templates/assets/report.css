@@ -3859,6 +3859,52 @@
             color: #0f766e;
         }
 
+        .kpi-periodic-detail-table {
+            min-width: 0;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .kpi-periodic-detail-table th,
+        .kpi-periodic-detail-table td {
+            padding: 7px 8px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .kpi-periodic-detail-table .col-date {
+            width: 108px;
+            min-width: 108px;
+            text-align: left;
+        }
+
+        .kpi-periodic-detail-table .col-source {
+            width: 56px;
+            min-width: 56px;
+        }
+
+        .kpi-periodic-detail-table .col-area {
+            width: 74px;
+            min-width: 74px;
+            font-weight: 700;
+            color: var(--text-main);
+            background: #f8fbff;
+        }
+
+        .kpi-periodic-detail-table .col-kpi,
+        .kpi-periodic-detail-table .col-production,
+        .kpi-periodic-detail-table .col-energy {
+            font-size: 10.75px;
+        }
+
+        .kpi-periodic-detail-table .row-submetric td {
+            border-top-color: #eef4fa;
+        }
+
+        .kpi-periodic-detail-table .row-group-end td {
+            border-bottom: 2px solid #dbeafe;
+        }
+
         /* ==========================================================================
         Footer
         ========================================================================== */

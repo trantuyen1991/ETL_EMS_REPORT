@@ -3859,7 +3859,10 @@ class ReportBuilderService:
             anchor_date=anchor_date,
             previous_anchor_date=previous_anchor_date,
         )
-        charts = self._build_v3_kpi_charts(kpi_object)
+        charts = self._build_v3_kpi_charts(
+            kpi_object,
+            period_type=period_type,
+        )
 
         return {
             "title": "ENERGY KPI",
@@ -3954,24 +3957,28 @@ class ReportBuilderService:
                 "metric_label": "Production day",
                 "cells": {
                     "ico": build_area_cell(
-                        current_anchor_row.get("ico_prod") if current_anchor_row else None,
-                        previous_anchor_row.get("ico_prod") if previous_anchor_row else None,
+                        self._count_kpi_production_days(current_daily_rows, "ico_prod"),
+                        self._count_kpi_production_days(previous_daily_rows, "ico_prod"),
                         trend_mode="generic",
+                        formatter="int",
                     ),
                     "diode": build_area_cell(
-                        current_anchor_row.get("diode_prod") if current_anchor_row else None,
-                        previous_anchor_row.get("diode_prod") if previous_anchor_row else None,
+                        self._count_kpi_production_days(current_daily_rows, "diode_prod"),
+                        self._count_kpi_production_days(previous_daily_rows, "diode_prod"),
                         trend_mode="generic",
+                        formatter="int",
                     ),
                     "sakari": build_area_cell(
-                        current_anchor_row.get("sakari_prod") if current_anchor_row else None,
-                        previous_anchor_row.get("sakari_prod") if previous_anchor_row else None,
+                        self._count_kpi_production_days(current_daily_rows, "sakari_prod"),
+                        self._count_kpi_production_days(previous_daily_rows, "sakari_prod"),
                         trend_mode="generic",
+                        formatter="int",
                     ),
                     "total": build_area_cell(
-                        current_anchor_row.get("prod") if current_anchor_row else None,
-                        previous_anchor_row.get("prod") if previous_anchor_row else None,
+                        self._count_kpi_production_days(current_daily_rows, "prod"),
+                        self._count_kpi_production_days(previous_daily_rows, "prod"),
                         trend_mode="generic",
+                        formatter="int",
                     ),
                 },
             })
@@ -4080,9 +4087,28 @@ class ReportBuilderService:
 
         return None
 
+    def _count_kpi_production_days(
+        self,
+        daily_rows: list[dict[str, Any]],
+        production_key: str,
+    ) -> int:
+        """Count days in a period where the selected production metric is positive."""
+        count = 0
+        for row in daily_rows:
+            value = row.get(production_key)
+            if value is None:
+                continue
+            try:
+                if float(value) > 0:
+                    count += 1
+            except (TypeError, ValueError):
+                continue
+        return count
+
     def _build_v3_kpi_charts(
         self,
         kpi_object: Optional[Dict[str, Any]],
+        period_type: str = "",
     ) -> Dict[str, Any]:
         """Build KPI charts for the report."""
         if not kpi_object:
@@ -4100,6 +4126,17 @@ class ReportBuilderService:
             row.get("dt").strftime("%d") if row.get("dt") else "-"
             for row in daily_rows
         ]
+
+        normalized_period_type = str(period_type or "").strip().lower()
+        if normalized_period_type == "monthly":
+            current_label = "This Month"
+            previous_label = "Previous Month"
+        elif normalized_period_type == "weekly":
+            current_label = "This Week"
+            previous_label = "Previous Week"
+        else:
+            current_label = "Today"
+            previous_label = "Yesterday"
 
         return {
             "daily_grouped_bar": {
@@ -4163,12 +4200,19 @@ class ReportBuilderService:
                     ],
                 },
             },
-            "daily_dashboard": self._build_v3_kpi_daily_dashboard(kpi_object),
+            "daily_dashboard": self._build_v3_kpi_daily_dashboard(
+                kpi_object,
+                current_label=current_label,
+                previous_label=previous_label,
+            ),
         }
 
     def _build_v3_kpi_daily_dashboard(
         self,
         kpi_object: Optional[Dict[str, Any]],
+        *,
+        current_label: str = "Today",
+        previous_label: str = "Yesterday",
     ) -> Dict[str, Any]:
         """Build the daily KPI dashboard cards and charts shown in daily reports."""
         if not kpi_object:
@@ -4293,31 +4337,41 @@ class ReportBuilderService:
                 },
             })
 
+        is_daily_comparison = current_label == "Today" and previous_label == "Yesterday"
+        compare_title = "Energy KPI: Today vs yesterday" if is_daily_comparison else "Energy KPI comparison"
+        compare_subtitle = "KPI comparison by Total and workshop" if is_daily_comparison else f"{current_label} vs {previous_label.lower()} by Total and workshop"
+        waterfall_subtitle = "Decomposition of the Total KPI movement" if is_daily_comparison else f"Decomposition of KPI movement from {previous_label.lower()} to {current_label.lower()}"
+        variance_title = "Deviation vs yesterday (%)" if is_daily_comparison else f"Deviation vs {previous_label.lower()} (%)"
+
         return {
             "cards": cards,
             "note": "Energy KPI = Energy (kWh) / Production (Ton)",
             "charts": {
                 "compare_bar": {
-                    "title": "Energy KPI: Today vs yesterday",
-                    "subtitle": "KPI comparison by Total and workshop",
+                    "title": compare_title,
+                    "subtitle": compare_subtitle,
                     "option": self._build_v3_kpi_compare_bar_option(
                         labels=["Total", "DIODE", "ICO", "SAKARI"],
                         yesterday_values=yesterday_values,
                         today_values=today_values,
+                        previous_series_name=previous_label,
+                        current_series_name=current_label,
                     ),
                 },
                 "waterfall": {
                     "title": "Total KPI change explanation",
-                    "subtitle": "Decomposition of the Total KPI movement",
+                    "subtitle": waterfall_subtitle,
                     "option": self._build_v3_kpi_waterfall_option(
                         previous_kpi=prev_total_kpi,
                         energy_impact=energy_impact,
                         production_impact=production_impact,
                         current_kpi=curr_total_kpi,
+                        previous_label=previous_label,
+                        current_label=current_label,
                     ),
                 },
                 "variance": {
-                    "title": "Deviation vs yesterday (%)",
+                    "title": variance_title,
                     "subtitle": "Positive KPI change means higher energy intensity",
                     "option": self._build_v3_kpi_variance_option(variance_items),
                 },
@@ -4350,6 +4404,8 @@ class ReportBuilderService:
         labels: list[str],
         yesterday_values: list[float | None],
         today_values: list[float | None],
+        previous_series_name: str = "Yesterday",
+        current_series_name: str = "Today",
     ) -> Dict[str, Any]:
         """Build the daily KPI compare bar option."""
         return {
@@ -4384,7 +4440,7 @@ class ReportBuilderService:
             },
             "series": [
                 {
-                    "name": "Yesterday",
+                    "name": previous_series_name,
                     "type": "bar",
                     "barMaxWidth": 22,
                     "data": [
@@ -4393,7 +4449,7 @@ class ReportBuilderService:
                     ],
                 },
                 {
-                    "name": "Today",
+                    "name": current_series_name,
                     "type": "bar",
                     "barMaxWidth": 22,
                     "data": [
@@ -4411,6 +4467,8 @@ class ReportBuilderService:
         energy_impact: float,
         production_impact: float,
         current_kpi: float,
+        previous_label: str = "Yesterday",
+        current_label: str = "Today",
     ) -> Dict[str, Any]:
         """Build a waterfall-like chart for total KPI movement."""
         energy_base = previous_kpi if energy_impact >= 0 else previous_kpi + energy_impact
@@ -4428,7 +4486,12 @@ class ReportBuilderService:
             },
             "xAxis": {
                 "type": "category",
-                "data": ["Yesterday\nKPI", "Energy\nimpact", "Production\nimpact", "Today\nKPI"],
+                "data": [
+                    f"{previous_label}\\nKPI",
+                    "Energy\nimpact",
+                    "Production\nimpact",
+                    f"{current_label}\\nKPI",
+                ],
                 "axisLabel": {"color": "#64748b", "fontSize": 10, "interval": 0, "lineHeight": 11},
                 "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
             },

@@ -318,6 +318,8 @@ This section should include:
 - daily KPI detail
 - KPI coverage information
 - section header styling consistent with Electricity in the daily template
+- period header/date-chip styling aligned with the Utility section in the periodic template
+- period chart wording that follows the resolved labels such as `This Week / Previous Week` or `This Month / Previous Month`
 
 ### 9.3 KPI Daily Detail
 Daily KPI detail should include:
@@ -329,9 +331,21 @@ Daily KPI detail should include:
 - KPI values
 - coverage note
 
+For the periodic template:
+- the detail table should be rendered in a vertical area-stacked layout
+- each report date should expand into `Plant`, `ICO`, `DIODE`, and `SAKARI` sub-rows
+- shared `date / status / source` cells may span the four area rows
+- the layout should stay within A4 PDF width without depending on landscape overflow
+
 ### 9.4 Coverage
 Coverage must be visible and explicit.
 Missing dates must still be rendered in daily KPI detail.
+
+### 9.5 Production Day Rule
+For non-daily KPI summary matrices:
+- `Production day` means the count of dates in the resolved current / previous period where the relevant production metric is greater than zero
+- counts must be calculated per area and for plant total
+- do not use anchor-day snapshot production values for this row
 
 ---
 

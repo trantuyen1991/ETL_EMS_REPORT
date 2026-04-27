@@ -1,6 +1,6 @@
 {% import "report/macros/common.html" as report %}
 {% if flags.show_kpi_section %}
-        <section class="report-section daily-highlight-header kpi-section-shell">
+        <section class="report-section daily-highlight-header kpi-section-shell{% if not flags.is_daily_report %} kpi-periodic-section{% endif %}">
             <div class="section-header">
                 <div class="utility-header-shell kpi-header-shell">
                     <div class="utility-header-main">
@@ -35,12 +35,25 @@
                             </div>
                         </div>
                     </div>
+                    {% elif period.label or period.comparison_label %}
+                    <div class="utility-date-chip kpi-header-date-chip">
+                        <span class="utility-date-chip-icon">
+                            {% include "assets/icon/calendar.svg" %}
+                        </span>
+                        <div class="utility-date-chip-copy">
+                            <div class="utility-date-chip-current">
+                                {{ period.label }}
+                            </div>
+                            <div class="utility-date-chip-previous">
+                                vs {{ period.comparison_label }}
+                            </div>
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
             </div>
 
-            {% if flags.is_daily_report %}
-            <div class="kpi-daily-dashboard">
+            <div class="kpi-daily-dashboard{% if not flags.is_daily_report %} kpi-periodic-dashboard{% endif %}">
                 <div class="kpi-daily-card-grid">
                     {% for card in sections.kpi.charts.daily_dashboard.cards %}
                     <div class="kpi-daily-card kpi-daily-card-{{ card.key }} {% if card.is_total %}is-total{% endif %}">
@@ -122,8 +135,8 @@
                             </tr>
                             <tr>
                                 {% for column in sections.kpi.summary_matrix.group_columns %}
-                                <th class="kpi-group-start kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Today</th>
-                                <th class="kpi-group-subheader kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Yesterday</th>
+                                <th class="kpi-group-start kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">{{ labels.current_period }}</th>
+                                <th class="kpi-group-subheader kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">{{ labels.previous_period }}</th>
                                 <th class="kpi-group-end kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Delta %</th>
                                 {% endfor %}
                             </tr>
@@ -147,128 +160,56 @@
                     </table>
                 </div>
             </div>
-            {% else %}
-            <div class="kpi-summary-block">
-                <h3 class="electricity-subsection-title">KPI Summary Matrix</h3>
-
-                <div class="kpi-summary-table-wrap report-table-wrap">
-                    <table class="kpi-summary-table report-table-ui">
-                        <thead>
-                            <tr>
-                                <th rowspan="2" class="kpi-metric-header">Metric</th>
-                                {% for column in sections.kpi.summary_matrix.group_columns %}
-                                <th colspan="3" class="kpi-group-header kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if loop.first %}kpi-group-start{% endif %} kpi-group-end {% if column.is_total %}is-total{% endif %}">{{ column.label }}</th>
-                                {% endfor %}
-                            </tr>
-                            <tr>
-                                {% for column in sections.kpi.summary_matrix.group_columns %}
-                                <th class="kpi-group-start kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Today</th>
-                                <th class="kpi-group-subheader kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Yesterday</th>
-                                <th class="kpi-group-end kpi-group-subheader kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">Delta %</th>
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in sections.kpi.summary_matrix.rows %}
-                            <tr>
-                                <td class="col-metric">{{ row.metric_label }}</td>
-                                {% for column in sections.kpi.summary_matrix.group_columns %}
-                                {% set cell = row.cells[column.key] %}
-                                <td class="col-value col-today {% if column.key == 'total' %}col-total{% endif %} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-start">{{ cell.today_display }}</td>
-                                <td class="col-value col-yesterday kpi-group-cell kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">{{ cell.yesterday_display }}</td>
-                                <td class="col-delta-pct {{ cell.delta.class }} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-end">
-                                    {{ report.delta_arrow(cell.delta.class, cell.delta.arrow) }}
-                                    {{ cell.delta.display }}
-                                </td>
-                                {% endfor %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="kpi-chart-block">
-                <div class="electricity-chart-card kpi-chart-card">
-                    <h3 class="electricity-chart-card-title">
-                        {{ sections.kpi.charts.daily_grouped_bar.title }}
-                    </h3>
-                    <p class="electricity-chart-card-subtitle">
-                        {{ sections.kpi.charts.daily_grouped_bar.subtitle }}
-                    </p>
-                    <div id="kpi-daily-grouped-bar-chart" class="electricity-chart kpi-daily-grouped-bar-chart"></div>
-                </div>
-            </div>
-            {% endif %}
 
             {% if not flags.is_daily_report %}
-            <div class="kpi-daily-detail-block">
+            <div class="kpi-daily-detail-block kpi-periodic-detail-block">
                 <h3 class="electricity-subsection-title">Daily KPI Detail</h3>
 
                 <div class="kpi-daily-detail-table-wrap report-table-wrap">
-                    <table class="kpi-daily-detail-table report-table-ui {% if flags.is_daily_report %}is-daily-condensed{% endif %}">
+                    <table class="kpi-daily-detail-table kpi-periodic-detail-table report-table-ui">
                         <thead>
                             <tr>
-                                {% if not flags.is_daily_report %}
-                                <th class="col-date" rowspan="2">Date</th>
-                                {% endif %}
-                                <th rowspan="2">Status</th>
-                                {% if not flags.is_daily_report %}
-                                <th class="col-source" rowspan="2">Source</th>
-                                {% endif %}
-
-                                <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">Plant</th>
-                                <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">ICO</th>
-                                <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">DIODE</th>
-                                <th colspan="3" class="kpi-detail-group-header kpi-detail-group-start kpi-detail-group-end">SAKARI</th>
-                            </tr>
-                            <tr>
-                                <th class="kpi-detail-group-start">KPI</th>
-                                <th>Product</th>
-                                <th class="kpi-detail-group-end">Energy</th>
-
-                                <th class="kpi-detail-group-start">KPI</th>
-                                <th>Product</th>
-                                <th class="kpi-detail-group-end">Energy</th>
-
-                                <th class="kpi-detail-group-start">KPI</th>
-                                <th>Product</th>
-                                <th class="kpi-detail-group-end">Energy</th>
-
-                                <th class="kpi-detail-group-start">KPI</th>
-                                <th>Product</th>
-                                <th class="kpi-detail-group-end">Energy</th>
+                                <th class="col-date">Date</th>
+                                <th>Status</th>
+                                <th class="col-source">Source</th>
+                                <th class="col-area">Area</th>
+                                <th class="col-kpi">KPI</th>
+                                <th class="col-production">Product</th>
+                                <th class="col-energy">Energy</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for row in sections.kpi.daily_detail.rows %}
                             <tr class="{{ row.row_class }}">
-                                {% if not flags.is_daily_report %}
-                                <td class="col-date">{{ row.date_display }}</td>
-                                {% endif %}
-                                <td>
+                                <td class="col-date" rowspan="4">{{ row.date_display }}</td>
+                                <td rowspan="4">
                                     <span class="status-pill {{ row.status_class }}">
                                         {{ row.status }}
                                     </span>
                                 </td>
-                                {% if not flags.is_daily_report %}
-                                <td class="col-source">{{ row.time_frame_source or "-" }}</td>
-                                {% endif %}
-
-                                <td class="col-kpi kpi-detail-group-start">{{ row.plant_kpi_display }}</td>
+                                <td class="col-source" rowspan="4">{{ row.time_frame_source or "-" }}</td>
+                                <td class="col-area">Plant</td>
+                                <td class="col-kpi">{{ row.plant_kpi_display }}</td>
                                 <td class="col-production">{{ row.plant_prod_display }}</td>
-                                <td class="col-energy kpi-detail-group-end">{{ row.plant_energy_display }}</td>
-
-                                <td class="col-kpi kpi-detail-group-start">{{ row.ico_kpi_display }}</td>
+                                <td class="col-energy">{{ row.plant_energy_display }}</td>
+                            </tr>
+                            <tr class="{{ row.row_class }} row-submetric">
+                                <td class="col-area">ICO</td>
+                                <td class="col-kpi">{{ row.ico_kpi_display }}</td>
                                 <td class="col-production">{{ row.ico_prod_display }}</td>
-                                <td class="col-energy kpi-detail-group-end">{{ row.ico_energy_display }}</td>
-
-                                <td class="col-kpi kpi-detail-group-start">{{ row.diode_kpi_display }}</td>
+                                <td class="col-energy">{{ row.ico_energy_display }}</td>
+                            </tr>
+                            <tr class="{{ row.row_class }} row-submetric">
+                                <td class="col-area">DIODE</td>
+                                <td class="col-kpi">{{ row.diode_kpi_display }}</td>
                                 <td class="col-production">{{ row.diode_prod_display }}</td>
-                                <td class="col-energy kpi-detail-group-end">{{ row.diode_energy_display }}</td>
-
-                                <td class="col-kpi kpi-detail-group-start">{{ row.sakari_kpi_display }}</td>
+                                <td class="col-energy">{{ row.diode_energy_display }}</td>
+                            </tr>
+                            <tr class="{{ row.row_class }} row-submetric row-group-end">
+                                <td class="col-area">SAKARI</td>
+                                <td class="col-kpi">{{ row.sakari_kpi_display }}</td>
                                 <td class="col-production">{{ row.sakari_prod_display }}</td>
-                                <td class="col-energy kpi-detail-group-end">{{ row.sakari_energy_display }}</td>
+                                <td class="col-energy">{{ row.sakari_energy_display }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -285,7 +226,6 @@
                         }
 
                         const chartConfigs = [
-                            {% if flags.is_daily_report %}
                             {
                                 id: "kpi-daily-compare-chart",
                                 option: {{ sections.kpi.charts.daily_dashboard.charts.compare_bar.option | tojson }},
@@ -298,12 +238,6 @@
                                 id: "kpi-daily-variance-chart",
                                 option: {{ sections.kpi.charts.daily_dashboard.charts.variance.option | tojson }},
                             },
-                            {% else %}
-                            {
-                                id: "kpi-daily-grouped-bar-chart",
-                                option: {{ sections.kpi.charts.daily_grouped_bar.option | tojson }},
-                            },
-                            {% endif %}
                         ];
 
                         const charts = [];

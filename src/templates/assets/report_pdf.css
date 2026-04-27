@@ -1196,6 +1196,46 @@
         padding: 3px 4px !important;
     }
 
+    .kpi-periodic-detail-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed !important;
+    }
+
+    .kpi-periodic-detail-table th,
+    .kpi-periodic-detail-table td {
+        padding: 4px 4px !important;
+        font-size: 7.5px !important;
+        white-space: nowrap !important;
+    }
+
+    .kpi-periodic-detail-table .col-date {
+        width: 78px !important;
+        min-width: 78px !important;
+    }
+
+    .kpi-periodic-detail-table .col-source {
+        width: 42px !important;
+        min-width: 42px !important;
+    }
+
+    .kpi-periodic-detail-table .col-area {
+        width: 52px !important;
+        min-width: 52px !important;
+        font-weight: 700 !important;
+        background: #f8fbff !important;
+    }
+
+    .kpi-periodic-detail-table .col-kpi,
+    .kpi-periodic-detail-table .col-production,
+    .kpi-periodic-detail-table .col-energy {
+        font-size: 7.25px !important;
+    }
+
+    .kpi-periodic-detail-table .row-group-end td {
+        border-bottom: 1.5px solid #dbeafe !important;
+    }
+
     .electricity-chart-card-title {
         margin-bottom: 1px !important;
         font-size: 12px !important;

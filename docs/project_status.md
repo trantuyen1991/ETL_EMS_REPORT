@@ -76,12 +76,16 @@ Stable baseline:
 - KPI summary matrix by area + total: ✅
 - KPI summary matrix reordered to `Total -> DIODE -> ICO -> SAKARI`: ✅
 - KPI summary matrix now shows `Today / Yesterday / Delta %`: ✅
+- Period KPI summary matrix now reuses the same structure with `This Week / Previous Week` and `This Month / Previous Month` labels: ✅
+- Period `Production day` row now counts actual production days in each compared period: ✅
 - Header-only grouped color styling for summary matrix: ✅
 - Delta% by area and total: ✅
 - Delta color rule by metric type: ✅
 - Daily KPI grouped bar chart: ✅
 - Daily KPI cards now include `Today / Yesterday` comparison: ✅
+- Period KPI dashboard now reuses the daily chart family with period labels: ✅
 - Daily KPI detail (with coverage status): ✅
+- Period KPI detail now uses a vertical area-stacked layout for A4/PDF width control: ✅
 - KPI daily header now uses the same boxed highlight style as Electricity: ✅
 
 KPI logic:
@@ -174,7 +178,7 @@ Current anomaly rules:
 
 ### 4.1 Documentation + release wrapping
 - refresh project docs to match V4 preview behavior and the stabilized PDF flow
-- keep release tag pending until final approval / final commit step
+- create milestone tags only on explicit approval after docs + render verification are stable
 
 ### 4.2 Daily UI refinement
 - daily template remains the main priority
