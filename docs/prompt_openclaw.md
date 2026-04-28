@@ -314,6 +314,9 @@ When user references past work:
 - avoid re-deriving known information
 - for this project, prefer `mempalace search` as the default recall path
 - use `memory_search` only when it is explicitly needed and confirmed available again
+- prefer the MemPalace CLI directly when recall matters:
+  - `/home/nbt/services/mempalace/.venv/bin/mempalace search "<query>"`
+- do not rely on the `mempalace__mempalace_search` wrapper until its internal `Error finding id` failure is fixed
 - always cross-check recalled context against the live repo before acting
 
 ---

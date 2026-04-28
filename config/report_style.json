@@ -88,15 +88,6 @@
         "padding": "16px",
         "shadow": "0 4px 12px rgba(15, 23, 42, 0.04)"
       },
-      "table": {
-        "headerBackground": "#f8fafc",
-        "stripeBackground": "#fafafa",
-        "borderColor": "#e5e7eb",
-        "textColor": "#1f2937",
-        "headerTextColor": "#111827",
-        "cellPadding": "8px 10px",
-        "denseCellPadding": "4px 6px"
-      },
       "statusBadge": {
         "success": {
           "textColor": "#0f7b35",
@@ -178,75 +169,6 @@
         "gridGap": "12px",
         "subtitleMarginBottom": "10px",
         "noteMarginTop": "10px"
-      },
-      "summaryCard": {
-        "gridGap": "16px",
-        "borderRadius": "16px",
-        "compareBlockMarginTop": "2px",
-        "comparePadding": "7px 8px",
-        "compareItemMinHeight": "30px",
-        "compareLabelFontSize": "10px",
-        "compareLabelFontWeight": "800",
-        "compareLabelColor": "#64748b",
-        "compareLabelLetterSpacing": "0.05em",
-        "compareValueFontSize": "15px",
-        "total": {
-          "minHeight": "150px",
-          "padding": "11px 14px 10px",
-          "titleRowGap": "9px",
-          "primaryValueFontSize": "20px",
-          "footerGap": "6px",
-          "footerMarginTop": "8px"
-        },
-        "utility": {
-          "minHeight": "154px",
-          "padding": "12px 13px",
-          "topGap": "10px",
-          "primaryValueFontSize": "20px",
-          "deltaPaddingTop": "8px"
-        },
-        "kpi": {
-          "minHeight": "172px",
-          "padding": "12px 14px 12px",
-          "topGap": "10px",
-          "footerMarginTop": "12px"
-        },
-        "pdf": {
-          "total": {
-            "height": "130px",
-            "minHeight": "130px",
-            "padding": "8px 9px",
-            "borderRadius": "10px",
-            "topGap": "6px",
-            "topMarginBottom": "6px",
-            "leadGap": "3px",
-            "titleRowGap": "6px",
-            "iconSize": "28px",
-            "iconGlyphSize": "15px",
-            "titleFontSize": "8px",
-            "primaryGap": "4px",
-            "primaryValueFontSize": "13px",
-            "supportingFontSize": "7px",
-            "metaMarginTop": "6px",
-            "metaMarginBottom": "4px",
-            "metaGap": "6px",
-            "meterValueFontSize": "8.5px",
-            "comparePadding": "5px 6px",
-            "compareItemPadding": "2px 5px",
-            "compareLabelFontSize": "6.2px",
-            "compareValueFontSize": "10px",
-            "footerGap": "10px",
-            "footerMarginTop": "4px",
-            "footerRowGap": "2px",
-            "footerPaddingTop": "2px",
-            "deltaGap": "5px",
-            "footerValueFontSize": "8.5px",
-            "metaRowGap": "6px",
-            "metaValueGap": "4px",
-            "trendRowGap": "3px",
-            "trendNoteFontSize": "6.4px"
-          }
-        }
       },
       "report": {
         "container": {
