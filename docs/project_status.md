@@ -388,10 +388,17 @@ Expected behavior:
 
 Immediate next priorities:
 
-1. Keep the current style/theme rollout stable and avoid broad shared-CSS churn unless a concrete periodic regression appears
-2. Treat remaining periodic hard-coded values as optional follow-up only when they materially improve maintainability or visual consistency
-3. Update documentation whenever style tokens expand or periodic styling scope changes
-4. Re-mine project memory after meaningful docs/code checkpoints
-5. Keep business/data logic unchanged while presentation work continues
-6. Continue sensor monitoring / CSV follow-up only after the presentation checkpoint remains stable
-7. Continue PDF regression hardening for future layout changes
+1. Start the next layout batch with a documented header and top-summary rule for both template families
+2. Keep the current style/theme rollout stable and avoid broad shared-CSS churn unless a concrete periodic regression appears
+3. Treat remaining periodic hard-coded values as optional follow-up only when they materially improve maintainability or visual consistency
+4. Update documentation whenever style tokens expand or periodic styling scope changes
+5. Re-mine project memory after meaningful docs/code checkpoints
+6. Keep business/data logic unchanged while presentation work continues
+7. Continue sensor monitoring / CSV follow-up only after the presentation checkpoint remains stable
+8. Continue PDF regression hardening for future layout changes
+
+Header and top-summary rule for the upcoming layout batch:
+- `period-strip-v1` remains `periodic`-only by design
+- reason: `periodic` reports summarize a true date range and benefit from a dedicated range strip, while `daily` reports do not need the same treatment
+- the intended cleanup target is not structural sameness between the two families
+- instead, the next checkpoint should harmonize visual hierarchy, vertical rhythm, spacing density, and the transition from header into the first section while preserving the semantic difference between `daily` and `periodic`

@@ -154,6 +154,15 @@ Presentation refactor direction and current implementation state:
   - daily family rollout is completed through headers, cards, tables, badges, chart shells, chart notes, chart spacing, legends, and metadata
   - periodic family has completed the tokenized base port plus first scoped cleanup for electricity periodic detail, KPI periodic detail accents, and utility sensor range states
   - final periodic audit found some remaining hard-coded values, but they are now mostly section-specific visual recipes rather than shared family blockers
+
+Layout refresh decision before the next batch:
+- `period-strip-v1` should remain a `periodic`-only element
+- this is intentional because the `periodic` family represents a true date range summary while `daily` does not need the same strip
+- the next layout pass should therefore target consistent visual hierarchy and page rhythm, not force `daily` and `periodic` to use identical top-of-page structures
+- practical implication:
+  - keep the daily hero header compact
+  - keep the periodic hero header plus period strip
+  - align spacing, density, first-section entry rhythm, and section-opening balance across both families without removing the semantic distinction
 ---
 
 ### 4. Utility Section

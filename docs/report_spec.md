@@ -549,3 +549,22 @@ Must not change:
 - utility / energy aggregation logic
 - ETL pipeline behavior
 - report period resolution logic
+
+### 15.5 Daily vs Periodic Header Rule for the Next Layout Batch
+The two report families should remain related, but not identical.
+
+Required rule:
+- `period-strip-v1` stays available only in the `periodic` family
+
+Reasoning:
+- `periodic` reports summarize a real date range and need an explicit range strip near the top of page 1
+- `daily` reports already communicate their scope through the daily header/date context and do not need the same extra summary band
+
+Layout implication:
+- do not remove the semantic distinction just to make the two families look mechanically symmetrical
+- the next layout batch should instead align:
+  - visual hierarchy
+  - top-of-page rhythm
+  - spacing density
+  - transition from header into the first section
+- this means `daily` may keep a simpler top entry while `periodic` keeps the additional period strip, as long as both families feel like part of the same report system
