@@ -2,13 +2,15 @@
 
 ## Overview
 
-This document describes the current stabilized PDF export workflow for `02_MySQL` after the intermittent missing-chart investigation completed on 2026-04-27.
+This document describes the current stabilized PDF export workflow for `02_MySQL` after the intermittent missing-chart investigation completed on 2026-04-27 and the document-shrink investigation completed on 2026-04-28.
 
-The main outcome of that investigation was:
+The main outcomes of those investigations were:
 
 - PDF chart init must not be kicked off with `requestAnimationFrame(...)`
-- Chromium headless `--print-to-pdf` was intermittently skipping that callback before `window.status = "ready"`
+- raw Chromium `--print-to-pdf` defaults do not provide enough print control for stable family-to-family scaling
 - the stable kickoff now uses `setTimeout(run, 100)` after `window.load`
+- the stable print path now prefers Chrome DevTools Protocol `Page.printToPDF` with explicit `scale=1.0` and `preferCSSPageSize=true`
+- wide periodic tables must be kept inside document width or Chromium may shrink the whole exported PDF
 
 This workflow should be treated as the current print baseline.
 
@@ -137,11 +139,26 @@ Responsibility split:
 
 ---
 
-## 6. Chromium Command
+## 6. Chromium Print Path
 
 Built in `src/services/pdf_service.py`.
 
-Current flags:
+### Primary path
+
+The current primary print path uses Chrome DevTools Protocol.
+
+Key controls:
+- `Emulation.setEmulatedMedia` with `media=print`
+- `Page.printToPDF`
+- `scale=1.0`
+- `preferCSSPageSize=true`
+- `printBackground=true`
+
+This path exists to avoid document-level auto-fit differences between report families.
+
+### Fallback path
+
+If CDP print fails, the service falls back to the legacy Chromium CLI path:
 
 - `--headless`
 - `--disable-gpu`
@@ -153,7 +170,7 @@ Current flags:
 - `--print-to-pdf=<output_pdf_path>`
 - `file://<staging_html_path>`
 
-These flags are part of the current stable workflow and should not be changed casually.
+The fallback should remain available, but it is no longer the preferred stability baseline.
 
 ---
 
@@ -196,6 +213,7 @@ Current stable behavior:
   - weekday anchors
   - weekend anchors
   - month-end anchors
+- print now also runs through CDP with explicit page-size and scale control before any fallback to legacy CLI mode
 
 ---
 

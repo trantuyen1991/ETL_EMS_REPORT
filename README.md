@@ -246,6 +246,22 @@ V4 additions:
   - PDF source HTML
   - PDF
 - PDF export via Chromium (headless)
+- current stable PDF path uses Chrome DevTools Protocol print control with fixed `scale=1.0`, `preferCSSPageSize=true`, print media emulation, and a legacy CLI fallback only when CDP print fails
+
+### PDF chart rendering workflow
+
+### PDF width-scaling note
+
+A critical layout bug was confirmed during the 2026-04-28 layout checkpoint:
+- `daily` and `periodic` could look identical in `*_pdf_source.html` but still export at visibly different physical scale in the final PDF
+- the confirmed root cause was not the Electricity total cards themselves
+- the true overflow came from the `periodic` Utility Sensor Monitoring detail table, which pushed weekly `scroll_width` far beyond page width and caused the whole periodic document to be shrunk during print
+
+Current protective rules:
+- control final print through CDP instead of relying only on raw `--print-to-pdf` defaults
+- keep `preferCSSPageSize=true` and `scale=1.0`
+- keep periodic Utility sensor table width constrained to the A4 printable area in PDF CSS
+- when daily and periodic PDFs look different at the same viewer zoom, first check document-level `scroll_width` before tuning local card CSS
 
 ### PDF chart rendering workflow
 

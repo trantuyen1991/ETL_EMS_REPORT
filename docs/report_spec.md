@@ -67,6 +67,11 @@ Current workaround:
 - export PDF to an external directory such as `/home/nbt/Reports`
 - then copy the file back into the configured project output directory if needed
 
+Current print-path rule:
+- use Chromium headless through a controlled Chrome DevTools Protocol print path when available
+- lock `scale=1.0` and `preferCSSPageSize=true`
+- keep the legacy `--print-to-pdf` CLI path as fallback only
+
 This is an implementation/runtime note and should not change report business logic.
 
 ---
@@ -278,6 +283,7 @@ Implemented periodic scope:
 - existing daily summary table as supporting detail
 - period trend charts using daily aggregate values, grouped by unit
 - documented follow-up list for business calibration of anomaly heuristics after correctness audits
+- PDF width guard so the periodic sensor detail table stays inside the A4 printable width and does not shrink the whole periodic document during export
 
 Remaining follow-up scope:
 - current vs previous comparison for sensor monitoring
@@ -411,6 +417,7 @@ When exporting PDF, charts may require additional handling:
 - apply print-mode chart sizing before Chromium captures the page
 - freeze rendered charts into static SVG markup inside `*_pdf_source.html` before print
 - control final chart height in PDF CSS to protect following tables from overflow
+- when final PDF scale looks wrong even though `*_pdf_source.html` looks correct, inspect document-level overflow such as wide tables before tuning local component sizes
 
 ### 11.4 Future Expansion
 More charts will be added over time.
@@ -426,6 +433,10 @@ Because the system now has a dedicated `daily` family and a shared `periodic` fa
 
 ### 12.1 Paper Target
 PDF rendering is designed for fixed A4 output.
+
+Primary export rule:
+- print through a controlled CDP `Page.printToPDF` path with `scale=1.0` and `preferCSSPageSize=true` whenever available
+- use the raw Chromium `--print-to-pdf` path only as fallback
 
 ### 12.2 CSS Separation
 PDF mode must use dedicated CSS optimized for:

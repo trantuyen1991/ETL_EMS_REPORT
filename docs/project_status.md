@@ -25,8 +25,10 @@ Focus:
 - keep sensor monitoring follow-up behind the now-stable presentation checkpoint
 Stable baseline:
 - PDF export stabilized after the 2026-04-27 chart-init timing fix and multi-anchor regression batches
+- PDF print flow now also uses a controlled Chrome DevTools Protocol path with `scale=1.0` and `preferCSSPageSize=true`, keeping the old Chromium CLI print as fallback only
 - style/theme core is now active through backend-generated inline CSS variables and inline ECharts theme registration
 - daily family rollout is complete, and periodic family has completed the tokenized base port plus the first scoped detail cleanup
+- the 2026-04-28 periodic shrink bug was traced to a Utility Sensor Monitoring table overflow in PDF, and the weekly document width is now back in sync with daily at document level
 
 ---
 
@@ -221,6 +223,8 @@ Current anomaly rules:
 
 ### 5.4 PDF Stability Improvements
 - Chart rendering is currently stable with the timer-based kickoff fix, but still needs regression checks when layout changes
+- The main print path now uses CDP-controlled PDF export instead of depending only on raw `--print-to-pdf` defaults
+- A major periodic-vs-daily PDF scale mismatch was resolved by fixing overflow in the periodic Utility Sensor Monitoring detail table rather than continuing to tune Electricity total-card CSS
 - Table pagination still needs improvement on very wide / dense sections
 
 ---
@@ -244,11 +248,14 @@ Current stabilized approach:
 - initialize using measured element width/height
 - kick off chart init after `window.load` using `setTimeout(run, 100)`
 - keep the readiness signal: `window.status = "loading"` -> wait for `window.load` -> delay `15000ms` -> `window.status = "ready"`
-- print Chromium with `--window-status=ready`
+- print through Chrome headless after `window.status = "ready"`
+- use CDP `Page.printToPDF` with `scale=1.0`, `preferCSSPageSize=true`, and print media emulation
+- keep the legacy CLI `--print-to-pdf` path as fallback only
 - flush ZRender after initial resize
 - freeze chart output into static SVG markup inside `*_pdf_source.html`
 - stage the HTML in a safe print directory before Chromium print
 - chart height overrides are controlled in PDF CSS to avoid overflow into following sections
+- when PDF physical scale differs between `daily` and `periodic`, inspect document-level `scroll_width` for hidden overflow before adjusting local component sizing
 
 Root cause found during investigation:
 - `requestAnimationFrame(...)` was not stable as the PDF chart-init kickoff in headless Chromium
@@ -258,6 +265,7 @@ Root cause found during investigation:
 Important implementation rule:
 - if chart width looks wrong, first adjust chart option layout (`grid`, axis labels, spacing)
 - avoid solving PDF width issues only with JS width forcing
+- if one whole template family prints smaller than another at the same viewer zoom, treat it as a document-overflow / print-fit problem first, not as a card-height problem
 
 Do not change casually:
 - Chromium print flags
