@@ -188,6 +188,86 @@
             color: var(--report-components-chart-meta-text-color, #475569);
         }
 
+        .report-family-periodic .electricity-periodic-detail-wrap {
+            border: 1px solid var(--report-components-card-border-color, #d7e2ef);
+            border-top: 4px solid var(--report-components-section-header-accent-color, var(--report-color-brand-primary, #2563eb));
+            background: linear-gradient(180deg, var(--report-components-card-background, rgba(255, 255, 255, 0.98)) 0%, var(--detail-accent-tint, rgba(37, 99, 235, 0.08)) 100%);
+            box-shadow: var(--report-components-card-shadow, var(--shadow-card));
+        }
+
+        .report-family-periodic .electricity-periodic-detail-table thead th {
+            color: var(--report-components-table-header-text-color, var(--text-main));
+        }
+
+        .report-family-periodic .electricity-periodic-detail-table .value-max {
+            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, var(--report-components-card-background, #ffffff) 100%);
+            color: var(--detail-accent-color, var(--report-color-brand-primary, #1d4ed8));
+            border-bottom: 2px solid var(--detail-accent-color, var(--report-color-brand-primary, #3b82f6));
+        }
+
+        .report-family-periodic .electricity-periodic-detail-table .heat-2 {
+            background: linear-gradient(90deg, var(--detail-soft-bg, #f8fbff) 0%, var(--report-components-card-background, rgba(255, 255, 255, 0.94)) 100%);
+        }
+
+        .report-family-periodic .electricity-periodic-detail-table .heat-3 {
+            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, var(--report-components-card-background, #ffffff) 88%);
+        }
+
+        .report-family-periodic .electricity-periodic-detail-table .heat-4 {
+            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, var(--report-components-card-background, #ffffff) 96%);
+        }
+
+        .report-family-periodic .kpi-periodic-detail-table .col-area {
+            color: var(--report-components-table-text-color, var(--text-main));
+            background: var(--report-components-table-header-background, #f8fbff);
+        }
+
+        .report-family-periodic .kpi-periodic-detail-table .row-submetric td {
+            border-top-color: var(--report-color-border-row, #eef4fa);
+        }
+
+        .report-family-periodic .kpi-periodic-detail-table .row-group-end td {
+            border-bottom: 2px solid var(--report-components-section-header-accent-color, var(--report-color-brand-primary, #dbeafe));
+        }
+
+        .report-family-periodic .utility-sensor-range-row {
+            border-color: var(--report-components-card-border-color, rgba(203, 213, 225, 0.9));
+            background: rgba(255, 255, 255, 0.78);
+        }
+
+        .report-family-periodic .utility-sensor-range-row.is-warning {
+            border-color: var(--report-components-status-badge-warning-border-color, #fdba74);
+            background: linear-gradient(180deg, var(--report-components-card-background, #ffffff) 0%, var(--report-components-status-badge-warning-background, #fffaf0) 100%);
+        }
+
+        .report-family-periodic .utility-sensor-range-row.is-critical {
+            border-color: var(--report-components-status-badge-danger-border-color, #fca5a5);
+            background: linear-gradient(180deg, var(--report-components-card-background, #ffffff) 0%, var(--report-components-status-badge-danger-background, #fff5f5) 100%);
+        }
+
+        .report-family-periodic .utility-sensor-range-flag {
+            color: var(--report-components-status-badge-success-text-color, #0f766e);
+            background: var(--report-components-status-badge-success-background, #ecfdf5);
+            border-color: var(--report-components-status-badge-success-border-color, #a7f3d0);
+        }
+
+        .report-family-periodic .utility-sensor-range-flag.is-warning {
+            color: var(--report-components-status-badge-warning-text-color, #9a3412);
+            background: var(--report-components-status-badge-warning-background, #fff7ed);
+            border-color: var(--report-components-status-badge-warning-border-color, #fdba74);
+        }
+
+        .report-family-periodic .utility-sensor-range-flag.is-critical {
+            color: var(--report-components-status-badge-danger-text-color, #b42318);
+            background: var(--report-components-status-badge-danger-background, #fff1f2);
+            border-color: var(--report-components-status-badge-danger-border-color, #fda4af);
+        }
+
+        .report-family-periodic .utility-sensor-range-line {
+            background: linear-gradient(90deg, var(--report-color-header-background-strong, #e2e8f0) 0%, var(--report-color-border-default, #cbd5e1) 100%);
+            border-color: var(--report-color-border-row, rgba(148, 163, 184, 0.24));
+        }
+
         h1,
         h2,
         h3,
