@@ -121,6 +121,42 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {
             "fontWeight": "500",
             "color": "#6b7280",
         },
+        "reportHeader": {
+            "background": {
+                "width": "100%",
+                "height": "100%",
+                "objectFit": "cover",
+                "objectPosition": "center center",
+            },
+            "overlay": {
+                "minHeight": "132px",
+                "gridTemplateColumns": "420px minmax(0, 1fr)",
+                "padding": "0 300px 0 0",
+            },
+            "logoSlot": {
+                "alignItems": "center",
+                "justifyContent": "flex-start",
+                "paddingLeft": "34px",
+            },
+            "logoCrop": {
+                "width": "202px",
+                "height": "36px",
+            },
+            "pdf": {
+                "overlay": {
+                    "minHeight": "122px",
+                    "gridTemplateColumns": "330px minmax(0, 1fr)",
+                    "padding": "0 182px 0 0",
+                },
+                "logoSlot": {
+                    "paddingLeft": "22px",
+                },
+                "logoCrop": {
+                    "width": "140px",
+                    "height": "24px",
+                },
+            },
+        },
         "sectionHeader": {
             "titleFontSize": "18px",
             "titleFontWeight": "700",
@@ -226,6 +262,121 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {
             "gridGap": "12px",
             "subtitleMarginBottom": "10px",
             "noteMarginTop": "10px",
+        },
+        "chartHeights": {
+            "shared": {
+                "electricity": {
+                    "monthlyTrend": "262px",
+                    "monthlyArea": "174px",
+                    "monthlyHeatmap": "192px",
+                    "monthlyDelta": "178px",
+                },
+            },
+            "view": {
+                "electricity": {
+                    "base": "340px",
+                    "periodicBase": "356px",
+                    "periodicWeeklyPrimary": "392px",
+                    "heatmapBase": "228px",
+                    "periodicWeeklySecondary": "252px",
+                    "periodicDelta": "252px",
+                },
+                "utility": {
+                    "comparison": "272px",
+                    "periodTrend": "326px",
+                    "splitSecondary": "292px",
+                    "energy": "308px",
+                    "sensorTrend": "220px",
+                },
+                "kpi": {
+                    "dashboard": "288px",
+                },
+            },
+            "pdfBase": {
+                "electricity": {
+                    "base": "384px",
+                    "periodicBase": "364px",
+                    "periodicWeeklyPrimary": "404px",
+                    "heatmapBase": "228px",
+                    "periodicWeeklySecondary": "258px",
+                    "periodicDelta": "252px",
+                },
+                "utility": {
+                    "comparison": "214px",
+                    "periodTrend": "274px",
+                    "splitSecondary": "230px",
+                    "energy": "272px",
+                    "sensorTrend": "220px",
+                },
+                "kpi": {
+                    "dashboard": "288px",
+                },
+            },
+            "pdfCompact": {
+                "electricity": {
+                    "base": "216px",
+                    "periodicBase": "224px",
+                    "periodicWeeklyPrimary": "244px",
+                    "heatmapBase": "156px",
+                    "periodicWeeklySecondary": "184px",
+                    "periodicDelta": "178px",
+                },
+                "utility": {
+                    "comparison": "168px",
+                    "periodTrend": "228px",
+                    "splitSecondary": "186px",
+                    "energy": "220px",
+                    "sensorTrend": "156px",
+                    "sensorTrendSingle": "142px",
+                },
+                "kpi": {
+                    "dashboard": "196px",
+                },
+            },
+        },
+        "chartGrid": {
+            "electricity": {
+                "dailyTrend": {"left": 26, "right": 12, "top": 36, "bottom": 46, "containLabel": True},
+                "areaComparison": {"left": 32, "right": 12, "top": 56, "bottom": 38, "containLabel": True},
+                "periodAreaDelta": {"left": 72, "right": 22, "top": 8, "bottom": 10, "containLabel": False},
+                "periodHeatmap": {"left": 58, "right": 18, "top": 10, "bottom": 44, "containLabel": False},
+                "periodHeatmapDense": {"left": 58, "right": 18, "top": 10, "bottom": 62, "containLabel": False},
+                "periodHeatmapMonthly": {"left": 18, "right": 18, "top": 10, "bottom": 62, "containLabel": False}
+            },
+            "utility": {
+                "comparison": {"left": 28, "right": 10, "top": 42, "bottom": 32, "containLabel": True},
+                "typeTrend": {"left": 32, "right": 10, "top": 36, "bottom": 46, "containLabel": True},
+                "deviation": {"left": 118, "right": 24, "top": 18, "bottom": 28},
+                "energyTrend": {"left": 18, "right": 12, "top": 44, "bottom": 52, "containLabel": True},
+                "periodSensorTrend": {"left": 20, "right": 16, "top": 54, "bottom": 30, "containLabel": True},
+                "sensorCluster": {"left": 38, "right": 14, "top": 38, "bottom": 28, "containLabel": True}
+            },
+            "kpi": {
+                "dailyGroupedBar": {"left": 32, "right": 12, "top": 36, "bottom": 22, "containLabel": True},
+                "compareBar": {"left": 32, "right": 12, "top": 48, "bottom": 24, "containLabel": True},
+                "waterfall": {"left": 32, "right": 12, "top": 20, "bottom": 34, "containLabel": True},
+                "variance": {"left": 70, "right": 16, "top": 12, "bottom": 18, "containLabel": False}
+            }
+        },
+        "chartLegendPosition": {
+            "electricity": {
+                "dailyTrend": {"top": 6},
+                "areaComparison": {"top": 6},
+                "areaShare": {"top": "3%"}
+            },
+            "utility": {
+                "comparison": {"top": 6},
+                "typeTrend": {"top": 6},
+                "mix": {"bottom": 0},
+                "energyTrend": {"top": 4},
+                "periodSensorTrend": {"top": 0},
+                "sensorCluster": {"top": 6}
+            },
+            "kpi": {
+                "dailyGroupedBar": {"top": 6},
+                "compareBar": {"top": 6},
+                "contribution": {"top": "5%"}
+            }
         },
         "summaryCard": {
             "gridGap": "16px",

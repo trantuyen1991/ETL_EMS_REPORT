@@ -23,6 +23,7 @@ class ReportBuilderService:
         kpi_object: Optional[Dict[str, Any]],
         utility_object: Optional[Dict[str, Any]],
         mode: str = "html",
+        style_config: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Build the V3 report context.
@@ -48,6 +49,8 @@ class ReportBuilderService:
                 mode="html",
             )
         """
+        self._style_config = style_config or {}
+
         v3_period_block = self._build_v3_period_block(
             period=period,
             kpi_object=kpi_object,
@@ -112,6 +115,53 @@ class ReportBuilderService:
         logger.info("Report context V3 built successfully")
 
         return report_context
+
+    def _resolve_chart_grid(
+        self,
+        defaults: Dict[str, Any],
+        *path: str,
+    ) -> Dict[str, Any]:
+        """Resolve chart grid tokens from style config with safe defaults."""
+        result = dict(defaults)
+        current: Any = ((self._style_config or {}).get("components", {}) or {}).get("chartGrid", {}) or {}
+
+        for key in path:
+            if not isinstance(current, dict):
+                current = {}
+                break
+            current = current.get(key, {})
+
+        if isinstance(current, dict):
+            for key in ("left", "right", "top", "bottom", "containLabel"):
+                if current.get(key) is not None:
+                    result[key] = current.get(key)
+
+        return result
+
+    def _resolve_chart_legend(
+        self,
+        defaults: Dict[str, Any],
+        *path: str,
+    ) -> Dict[str, Any]:
+        """Resolve chart legend top/bottom tokens from style config with safe defaults."""
+        result = dict(defaults)
+        current: Any = ((self._style_config or {}).get("components", {}) or {}).get("chartLegendPosition", {}) or {}
+
+        for key in path:
+            if not isinstance(current, dict):
+                current = {}
+                break
+            current = current.get(key, {})
+
+        if isinstance(current, dict):
+            if "top" in current and current.get("top") is not None:
+                result["top"] = current.get("top")
+                result.pop("bottom", None)
+            if "bottom" in current and current.get("bottom") is not None:
+                result["bottom"] = current.get("bottom")
+                result.pop("top", None)
+
+        return result
 
     def _build_company_logo_data_uri(self) -> str:
         """Embed the company logo so both HTML preview and PDF render consistently."""
@@ -1088,6 +1138,7 @@ class ReportBuilderService:
                         for row in area_rows
                     ],
                     total_value=current_total_value,
+                    legend_path=("electricity", "areaShare"),
                     slice_border_radius=6,
                     pie_radius=("39%", "60%"),
                     pie_center=("50%", "58%"),
@@ -1107,6 +1158,20 @@ class ReportBuilderService:
             periodic_heatmap_chart = {}
             periodic_area_delta_chart = {}
         else:
+            is_monthly_period = period_type == "monthly"
+            current_line_data = self._build_chart_line_points(
+                current_daily_values,
+                color="#2563eb",
+                label_formatter=self._fmt_chart_compact if is_monthly_period else None,
+                show_only_min_max=is_monthly_period,
+            )
+            previous_line_data = self._build_chart_line_points(
+                previous_daily_values,
+                color="#7c3aed",
+                label_formatter=self._fmt_chart_compact if is_monthly_period else None,
+                show_only_min_max=is_monthly_period,
+            )
+
             share_chart = {
                 "title": "Daily trend",
                 "subtitle": "Current vs previous period",
@@ -1116,19 +1181,27 @@ class ReportBuilderService:
                         "trigger": "axis",
                         "axisPointer": {"type": "line"},
                     },
-                    "legend": {
-                        "top": 6,
-                        "left": 8,
-                        "itemWidth": 12,
-                        "itemHeight": 8,
-                    },
-                    "grid": {
-                        "left": 26,
-                        "right": 12,
-                        "top": 36,
-                        "bottom": 46,
-                        "containLabel": True,
-                    },
+                    "legend": self._resolve_chart_legend(
+                        {
+                            "top": 6,
+                            "left": 8,
+                            "itemWidth": 12,
+                            "itemHeight": 8,
+                        },
+                        "electricity",
+                        "dailyTrend",
+                    ),
+                    "grid": self._resolve_chart_grid(
+                        {
+                            "left": 26,
+                            "right": 12,
+                            "top": 36,
+                            "bottom": 46,
+                            "containLabel": True,
+                        },
+                        "electricity",
+                        "dailyTrend",
+                    ),
                     "xAxis": {
                         "type": "category",
                         "boundaryGap": False,
@@ -1158,7 +1231,7 @@ class ReportBuilderService:
                             "itemStyle": {"color": "#2563eb"},
                             "areaStyle": {"color": "rgba(37, 99, 235, 0.12)"},
                             "label": {
-                                "show": True,
+                                "show": not is_monthly_period,
                                 "position": "top",
                                 "formatter": "{c}",
                                 "fontSize": 8,
@@ -1167,7 +1240,7 @@ class ReportBuilderService:
                                 "padding": [2, 4],
                                 "borderRadius": 4,
                             },
-                            "data": current_daily_values,
+                            "data": current_line_data,
                         },
                         {
                             "name": "Previous period",
@@ -1180,7 +1253,7 @@ class ReportBuilderService:
                             "itemStyle": {"color": "#7c3aed"},
                             "areaStyle": {"color": "rgba(124, 58, 237, 0.08)"},
                             "label": {
-                                "show": True,
+                                "show": not is_monthly_period,
                                 "position": "bottom",
                                 "formatter": "{c}",
                                 "fontSize": 8,
@@ -1189,7 +1262,7 @@ class ReportBuilderService:
                                 "padding": [2, 4],
                                 "borderRadius": 4,
                             },
-                            "data": previous_daily_values,
+                            "data": previous_line_data,
                         },
                     ],
                 },
@@ -1215,19 +1288,27 @@ class ReportBuilderService:
                         "trigger": "axis",
                         "axisPointer": {"type": "shadow"},
                     },
-                    "legend": {
-                        "top": 6,
-                        "left": 8,
-                        "itemWidth": 12,
-                        "itemHeight": 8,
-                    },
-                    "grid": {
-                        "left": 32,
-                        "right": 12,
-                        "top": 56,
-                        "bottom": 38,
-                        "containLabel": True,
-                    },
+                    "legend": self._resolve_chart_legend(
+                        {
+                            "top": 6,
+                            "left": 8,
+                            "itemWidth": 12,
+                            "itemHeight": 8,
+                        },
+                        "electricity",
+                        "areaComparison",
+                    ),
+                    "grid": self._resolve_chart_grid(
+                        {
+                            "left": 32,
+                            "right": 12,
+                            "top": 56,
+                            "bottom": 38,
+                            "containLabel": True,
+                        },
+                        "electricity",
+                        "areaComparison",
+                    ),
                     "xAxis": {
                         "type": "category",
                         "data": area_labels,
@@ -1361,13 +1442,17 @@ class ReportBuilderService:
                     "trigger": "axis",
                     "axisPointer": {"type": "shadow"},
                 },
-                "grid": {
-                    "left": 72,
-                    "right": 22,
-                    "top": 8,
-                    "bottom": 10,
-                    "containLabel": False,
-                },
+                "grid": self._resolve_chart_grid(
+                    {
+                        "left": 72,
+                        "right": 22,
+                        "top": 8,
+                        "bottom": 10,
+                        "containLabel": False,
+                    },
+                    "electricity",
+                    "periodAreaDelta",
+                ),
                 "xAxis": {
                     "type": "value",
                     "min": -axis_limit,
@@ -1438,7 +1523,7 @@ class ReportBuilderService:
             return {}
 
         x_labels = [
-            self._format_heatmap_column_label(row.get("date"), period_type)
+            self._format_periodic_axis_date_label(row.get("date"), period_type)
             for row in area_summary_rows
         ]
         x_labels.append("Avg")
@@ -1482,6 +1567,13 @@ class ReportBuilderService:
             "ico": area_visual_map.get("ico", {}),
             "sakari": area_visual_map.get("sakari", {}),
         }
+        area_legend = [
+            {
+                "label": label,
+                "color": row_palettes.get(area_key, {}).get("bar_color", "#2563eb"),
+            }
+            for area_key, label in row_defs
+        ]
 
         heatmap_data = []
         for row_index, row_values in enumerate(row_value_map):
@@ -1496,9 +1588,13 @@ class ReportBuilderService:
                 if raw_value is None:
                     continue
 
-                display_value = (
-                    f"{raw_value:.2f}" if col_index == len(row_values) - 1 else f"{raw_value:.1f}"
-                )
+                is_avg_col = col_index == len(row_values) - 1
+                if period_type == "monthly":
+                    display_value = self._fmt_chart_compact(raw_value)
+                else:
+                    display_value = (
+                        f"{raw_value:.2f}" if is_avg_col else f"{raw_value:.1f}"
+                    )
                 intensity = 0.45
                 if row_span > 0:
                     intensity = 0.28 + (0.68 * ((float(raw_value) - row_min) / row_span))
@@ -1518,17 +1614,22 @@ class ReportBuilderService:
         return {
             "title": "Daily total heatmap",
             "subtitle": "kWh by area and total",
+            "area_legend": area_legend if period_type == "monthly" else [],
             "option": {
                 "tooltip": {
                     "position": "top",
                 },
-                "grid": {
-                    "left": 58,
-                    "right": 18,
-                    "top": 10,
-                    "bottom": bottom_gap,
-                    "containLabel": False,
-                },
+                "grid": self._resolve_chart_grid(
+                    {
+                        "left": 18 if period_type == "monthly" else 58,
+                        "right": 18,
+                        "top": 10,
+                        "bottom": bottom_gap,
+                        "containLabel": False,
+                    },
+                    "electricity",
+                    "periodHeatmapMonthly" if period_type == "monthly" else ("periodHeatmapDense" if len(x_labels) > 8 else "periodHeatmap"),
+                ),
                 "xAxis": {
                     "type": "category",
                     "data": x_labels,
@@ -1548,6 +1649,7 @@ class ReportBuilderService:
                     "axisLine": {"show": False},
                     "axisTick": {"show": False},
                     "axisLabel": {
+                        "show": period_type != "monthly",
                         "fontWeight": 700,
                         "color": "#334155",
                     },
@@ -1558,7 +1660,7 @@ class ReportBuilderService:
                         "type": "heatmap",
                         "data": heatmap_data,
                         "label": {
-                            "show": True,
+                            "show": period_type != "monthly",
                             "fontSize": 8,
                             "fontWeight": 700,
                             "color": "#0f172a",
@@ -1646,11 +1748,11 @@ class ReportBuilderService:
 
         normalized_period = str(period_type or "").strip().lower()
         if normalized_period in {"weekly", "monthly"} and len(label_dates) >= max_daily_points:
-            return [self._format_periodic_axis_date_label(dt) for dt in label_dates[:max_daily_points]]
+            return [self._format_periodic_axis_date_label(dt, normalized_period) for dt in label_dates[:max_daily_points]]
 
         return [f"D{index}" for index in range(1, max_daily_points + 1)]
 
-    def _format_periodic_axis_date_label(self, value) -> str:
+    def _format_periodic_axis_date_label(self, value, period_type: str = "") -> str:
         """Format periodic chart x-axis label like Apr 14 (Mon)."""
         if value in (None, ""):
             return "-"
@@ -1662,6 +1764,10 @@ class ReportBuilderService:
 
         if not isinstance(value, date):
             return str(value)
+
+        normalized_period = str(period_type or "").strip().lower()
+        if normalized_period == "monthly" and value.day % 2 == 1:
+            return ""
 
         return f"{value.strftime('%b')} {value.day} ({value.strftime('%a')})"
 
@@ -1681,6 +1787,8 @@ class ReportBuilderService:
         normalized_period = str(period_type or "").strip().lower()
         if normalized_period == "weekly":
             return value.strftime("%a")
+        if normalized_period == "monthly" and value.day % 2 == 1:
+            return ""
 
         return f"{value.strftime('%b')} {value.day}"
 
@@ -1992,6 +2100,56 @@ class ReportBuilderService:
 
         return point
 
+    def _build_chart_line_points(
+        self,
+        values: list[Any],
+        *,
+        color: str,
+        label_formatter=None,
+        show_only_min_max: bool = False,
+    ) -> list[dict[str, Any] | None]:
+        """Build line-series data points with optional per-point label override."""
+        points: list[dict[str, Any] | None] = []
+        target_indices: set[int] = set()
+
+        if show_only_min_max:
+            numeric_pairs = [
+                (index, float(value))
+                for index, value in enumerate(values)
+                if isinstance(value, (int, float))
+            ]
+            if numeric_pairs:
+                min_value = min(value for _index, value in numeric_pairs)
+                max_value = max(value for _index, value in numeric_pairs)
+                for index, numeric_value in numeric_pairs:
+                    if numeric_value == min_value:
+                        target_indices.add(index)
+                        break
+                for index, numeric_value in numeric_pairs:
+                    if numeric_value == max_value:
+                        target_indices.add(index)
+                        break
+
+        for index, value in enumerate(values):
+            if not isinstance(value, (int, float)):
+                points.append(None)
+                continue
+
+            point: dict[str, Any] = {
+                "value": round(float(value), 4),
+                "itemStyle": {"color": color},
+            }
+            if label_formatter is not None:
+                point["label"] = {
+                    "show": (index in target_indices) if show_only_min_max else True,
+                    "formatter": label_formatter(value),
+                }
+            elif show_only_min_max:
+                point["label"] = {"show": index in target_indices}
+            points.append(point)
+
+        return points
+
     def _build_v3_utility_comparison_option(
         self,
         items: list[dict[str, Any]],
@@ -2007,19 +2165,27 @@ class ReportBuilderService:
                 "trigger": "axis",
                 "axisPointer": {"type": "shadow"},
             },
-            "legend": {
-                "top": 6,
-                "left": 8,
-                "itemWidth": 12,
-                "itemHeight": 8,
-            },
-            "grid": {
-                "left": 28,
-                "right": 10,
-                "top": 42,
-                "bottom": 32,
-                "containLabel": True,
-            },
+            "legend": self._resolve_chart_legend(
+                {
+                    "top": 6,
+                    "left": 8,
+                    "itemWidth": 12,
+                    "itemHeight": 8,
+                },
+                "utility",
+                "comparison",
+            ),
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 28,
+                    "right": 10,
+                    "top": 42,
+                    "bottom": 32,
+                    "containLabel": True,
+                },
+                "utility",
+                "comparison",
+            ),
             "xAxis": {
                 "type": "category",
                 "data": chart_labels,
@@ -2127,19 +2293,27 @@ class ReportBuilderService:
                 "trigger": "axis",
                 "axisPointer": {"type": "line"},
             },
-            "legend": {
-                "top": 6,
-                "left": 8,
-                "itemWidth": 12,
-                "itemHeight": 8,
-            },
-            "grid": {
-                "left": 32,
-                "right": 10,
-                "top": 36,
-                "bottom": 46,
-                "containLabel": True,
-            },
+            "legend": self._resolve_chart_legend(
+                {
+                    "top": 6,
+                    "left": 8,
+                    "itemWidth": 12,
+                    "itemHeight": 8,
+                },
+                "utility",
+                "typeTrend",
+            ),
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 32,
+                    "right": 10,
+                    "top": 36,
+                    "bottom": 46,
+                    "containLabel": True,
+                },
+                "utility",
+                "typeTrend",
+            ),
             "xAxis": {
                 "type": "category",
                 "boundaryGap": False,
@@ -2238,16 +2412,20 @@ class ReportBuilderService:
             "tooltip": {
                 "trigger": "item",
             },
-            "legend": {
-                "bottom": 0,
-                "left": "center",
-                "itemWidth": 11,
-                "itemHeight": 8,
-                "textStyle": {
-                    "fontSize": 9,
-                    "color": "#475569",
+            "legend": self._resolve_chart_legend(
+                {
+                    "bottom": 0,
+                    "left": "center",
+                    "itemWidth": 11,
+                    "itemHeight": 8,
+                    "textStyle": {
+                        "fontSize": 9,
+                        "color": "#475569",
+                    },
                 },
-            },
+                "utility",
+                "mix",
+            ),
             "title": [
                 {
                     "text": self._fmt_chart_compact(total_value),
@@ -2336,12 +2514,16 @@ class ReportBuilderService:
                 "trigger": "axis",
                 "axisPointer": {"type": "shadow"},
             },
-            "grid": {
-                "left": 118,
-                "right": 24,
-                "top": 18,
-                "bottom": 28,
-            },
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 118,
+                    "right": 24,
+                    "top": 18,
+                    "bottom": 28,
+                },
+                "utility",
+                "deviation",
+            ),
             "xAxis": {
                 "type": "value",
                 "min": round(axis_min - 1.0, 2),
@@ -2972,20 +3154,28 @@ class ReportBuilderService:
                 "trigger": "axis",
                 "axisPointer": {"type": "line"},
             },
-            "legend": {
-                "top": 4,
-                "left": 8,
-                "itemWidth": 12,
-                "itemHeight": 8,
-                "textStyle": {"fontSize": 10, "fontWeight": 600, "color": "#334155"},
-            },
-            "grid": {
-                "left": 18,
-                "right": 12,
-                "top": 44,
-                "bottom": bottom_space,
-                "containLabel": True,
-            },
+            "legend": self._resolve_chart_legend(
+                {
+                    "top": 4,
+                    "left": 8,
+                    "itemWidth": 12,
+                    "itemHeight": 8,
+                    "textStyle": {"fontSize": 10, "fontWeight": 600, "color": "#334155"},
+                },
+                "utility",
+                "energyTrend",
+            ),
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 18,
+                    "right": 12,
+                    "top": 44,
+                    "bottom": bottom_space,
+                    "containLabel": True,
+                },
+                "utility",
+                "energyTrend",
+            ),
             "xAxis": {
                 "type": "category",
                 "boundaryGap": False,
@@ -3248,26 +3438,34 @@ class ReportBuilderService:
                         "trigger": "axis",
                         "axisPointer": {"type": "line"},
                     },
-                    "legend": {
-                        "top": 0,
-                        "left": 8,
-                        "right": 8,
-                        "itemWidth": 12,
-                        "itemHeight": 8,
-                        "icon": "roundRect",
-                        "textStyle": {
-                            "fontSize": 11,
-                            "fontWeight": 600,
-                            "color": "#334155",
+                    "legend": self._resolve_chart_legend(
+                        {
+                            "top": 0,
+                            "left": 8,
+                            "right": 8,
+                            "itemWidth": 12,
+                            "itemHeight": 8,
+                            "icon": "roundRect",
+                            "textStyle": {
+                                "fontSize": 11,
+                                "fontWeight": 600,
+                                "color": "#334155",
+                            },
                         },
-                    },
-                    "grid": {
-                        "left": 20,
-                        "right": 16,
-                        "top": 54,
-                        "bottom": 30,
-                        "containLabel": True,
-                    },
+                        "utility",
+                        "periodSensorTrend",
+                    ),
+                    "grid": self._resolve_chart_grid(
+                        {
+                            "left": 20,
+                            "right": 16,
+                            "top": 54,
+                            "bottom": 30,
+                            "containLabel": True,
+                        },
+                        "utility",
+                        "periodSensorTrend",
+                    ),
                     "xAxis": {
                         "type": "category",
                         "boundaryGap": False,
@@ -3620,20 +3818,28 @@ class ReportBuilderService:
                 "trigger": "axis",
                 "axisPointer": {"type": "line"},
             },
-            "legend": {
-                "top": 6,
-                "left": 8,
-                "itemWidth": 12,
-                "itemHeight": 8,
-                "textStyle": {"color": "#475569", "fontSize": 10},
-            },
-            "grid": {
-                "left": 38,
-                "right": 14,
-                "top": 38,
-                "bottom": 28,
-                "containLabel": True,
-            },
+            "legend": self._resolve_chart_legend(
+                {
+                    "top": 6,
+                    "left": 8,
+                    "itemWidth": 12,
+                    "itemHeight": 8,
+                    "textStyle": {"color": "#475569", "fontSize": 10},
+                },
+                "utility",
+                "sensorCluster",
+            ),
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 38,
+                    "right": 14,
+                    "top": 38,
+                    "bottom": 28,
+                    "containLabel": True,
+                },
+                "utility",
+                "sensorCluster",
+            ),
             "xAxis": {
                 "type": "category",
                 "data": formatted_labels,
@@ -4148,19 +4354,27 @@ class ReportBuilderService:
                         "trigger": "axis",
                         "axisPointer": {"type": "shadow"},
                     },
-                    "legend": {
-                        "top": 6,
-                        "left": 8,
-                        "itemWidth": 12,
-                        "itemHeight": 8,
-                    },
-                    "grid": {
-                        "left": 32,
-                        "right": 12,
-                        "top": 36,
-                        "bottom": 22,
-                        "containLabel": True,
-                    },
+                    "legend": self._resolve_chart_legend(
+                        {
+                            "top": 6,
+                            "left": 8,
+                            "itemWidth": 12,
+                            "itemHeight": 8,
+                        },
+                        "kpi",
+                        "dailyGroupedBar",
+                    ),
+                    "grid": self._resolve_chart_grid(
+                        {
+                            "left": 32,
+                            "right": 12,
+                            "top": 36,
+                            "bottom": 22,
+                            "containLabel": True,
+                        },
+                        "kpi",
+                        "dailyGroupedBar",
+                    ),
                     "xAxis": {
                         "type": "category",
                         "data": labels,
@@ -4414,19 +4628,27 @@ class ReportBuilderService:
                 "trigger": "axis",
                 "axisPointer": {"type": "shadow"},
             },
-            "legend": {
-                "top": 6,
-                "left": 8,
-                "itemWidth": 12,
-                "itemHeight": 8,
-            },
-            "grid": {
-                "left": 32,
-                "right": 12,
-                "top": 48,
-                "bottom": 24,
-                "containLabel": True,
-            },
+            "legend": self._resolve_chart_legend(
+                {
+                    "top": 6,
+                    "left": 8,
+                    "itemWidth": 12,
+                    "itemHeight": 8,
+                },
+                "kpi",
+                "compareBar",
+            ),
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 32,
+                    "right": 12,
+                    "top": 48,
+                    "bottom": 24,
+                    "containLabel": True,
+                },
+                "kpi",
+                "compareBar",
+            ),
             "xAxis": {
                 "type": "category",
                 "data": labels,
@@ -4477,13 +4699,17 @@ class ReportBuilderService:
 
         return {
             "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
-            "grid": {
-                "left": 32,
-                "right": 12,
-                "top": 20,
-                "bottom": 34,
-                "containLabel": True,
-            },
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 32,
+                    "right": 12,
+                    "top": 20,
+                    "bottom": 34,
+                    "containLabel": True,
+                },
+                "kpi",
+                "waterfall",
+            ),
             "xAxis": {
                 "type": "category",
                 "data": [
@@ -4589,13 +4815,17 @@ class ReportBuilderService:
 
         return {
             "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
-            "grid": {
-                "left": 70,
-                "right": 16,
-                "top": 12,
-                "bottom": 18,
-                "containLabel": False,
-            },
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 70,
+                    "right": 16,
+                    "top": 12,
+                    "bottom": 18,
+                    "containLabel": False,
+                },
+                "kpi",
+                "variance",
+            ),
             "xAxis": {
                 "type": "value",
                 "axisLabel": {"color": "#64748b", "formatter": "{value}%"},
@@ -4635,6 +4865,7 @@ class ReportBuilderService:
             legend_left="center",
             legend_right=0,
             legend_top="5%",
+            legend_path=("kpi", "contribution"),
         )
 
     def _build_v3_contribution_donut_option(
@@ -4653,6 +4884,7 @@ class ReportBuilderService:
         legend_left: str | int = "right",
         legend_right: int = 10,
         legend_top: str = "middle",
+        legend_path: tuple[str, ...] = (),
         center_value_font_size: int = 17,
         center_title_font_size: int = 10,
         center_unit_font_size: int = 9,
@@ -4711,17 +4943,20 @@ class ReportBuilderService:
 
         return {
             "tooltip": {"trigger": "item", "formatter": "{b}: {c} ({d}%)"},
-            "legend": {
-                "orient": legend_orient,
-                "left": legend_left,
-                "right": legend_right,
-                "top": legend_top,
-                "itemWidth": 14,
-                "itemHeight": 14,
-                "icon": "roundRect",
-                "textStyle": {"color": "#475569", "fontSize": 10, "fontWeight": 500},
-                "itemGap": 12,
-            },
+            "legend": self._resolve_chart_legend(
+                {
+                    "orient": legend_orient,
+                    "left": legend_left,
+                    "right": legend_right,
+                    "top": legend_top,
+                    "itemWidth": 14,
+                    "itemHeight": 14,
+                    "icon": "roundRect",
+                    "textStyle": {"color": "#475569", "fontSize": 10, "fontWeight": 500},
+                    "itemGap": 12,
+                },
+                *legend_path,
+            ),
             "series": [
                 {
                     "name": "Energy contribution",

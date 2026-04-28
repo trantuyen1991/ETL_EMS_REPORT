@@ -278,6 +278,9 @@ def _build_report_context(
         "previous_end_date": period.previous_end_date,
     }
 
+    style_service = ReportStyleService(project_root / "config" / "report_style.json")
+    style_context = style_service.build_render_context()
+
     report_context = report_builder.build_report_context_v3(
         meta=meta,
         period=period_info,
@@ -285,9 +288,9 @@ def _build_report_context(
         kpi_object=kpi_object,
         utility_object=utility_object,
         mode="html",
+        style_config=style_context.get("report_style"),
     )
 
-    style_context = ReportStyleService(project_root / "config" / "report_style.json").build_render_context()
     report_context.update(style_context)
 
     return report_context

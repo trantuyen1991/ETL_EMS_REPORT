@@ -238,10 +238,12 @@
 
             {% if not flags.is_daily_report %}
             {% set area_summary_order = [('plant', 'Plant'), ('diode', 'DIODE Workshop'), ('ico', 'ICO Workshop'), ('sakari', 'SAKARI Workshop')] %}
+            {% set is_weekly_period = period.type == 'weekly' %}
+            {% set is_monthly_period = period.type == 'monthly' %}
             {% endif %}
 
-            <div class="electricity-chart-grid {% if flags.is_daily_report %}electricity-chart-grid-daily{% else %}periodic-electricity-chart-grid{% endif %}">
-                <div class="electricity-chart-card electricity-chart-card-primary">
+            <div class="electricity-chart-grid {% if flags.is_daily_report %}electricity-chart-grid-daily{% else %}periodic-electricity-chart-grid{% if is_weekly_period %} periodic-electricity-chart-grid-weekly{% elif is_monthly_period %} periodic-electricity-chart-grid-monthly{% endif %}{% endif %}">
+                <div class="electricity-chart-card electricity-chart-card-primary electricity-chart-card-trend">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.daily_trend.title }}
                     </h3>
@@ -251,7 +253,7 @@
                     <div id="electricity-daily-trend-chart" class="electricity-chart"></div>
                 </div>
 
-                <div class="electricity-chart-card">
+                <div class="electricity-chart-card electricity-chart-card-area">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.area_comparison.title }}
                     </h3>
@@ -262,7 +264,7 @@
                 </div>
 
                 {% if not flags.is_daily_report and sections.electricity.charts.period_heatmap.option %}
-                <div class="electricity-chart-card electricity-heatmap-card">
+                <div class="electricity-chart-card electricity-heatmap-card electricity-chart-card-heatmap">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.period_heatmap.title }}
                     </h3>
@@ -277,11 +279,21 @@
                         <span class="legend-bar legend-bar-strong"></span>
                         <span class="legend-label">High</span>
                     </div>
+                    {% if sections.electricity.charts.period_heatmap.area_legend %}
+                    <div class="electricity-heatmap-area-legend" aria-hidden="true">
+                        {% for item in sections.electricity.charts.period_heatmap.area_legend %}
+                        <span class="electricity-heatmap-area-legend-item">
+                            <span class="electricity-heatmap-area-legend-dot" style="background: {{ item.color }};"></span>
+                            <span class="electricity-heatmap-area-legend-label">{{ item.label }}</span>
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </div>
                 {% endif %}
 
                 {% if not flags.is_daily_report and sections.electricity.charts.period_area_delta.option %}
-                <div class="electricity-chart-card electricity-delta-card">
+                <div class="electricity-chart-card electricity-delta-card electricity-chart-card-delta">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.period_area_delta.title }}
                     </h3>

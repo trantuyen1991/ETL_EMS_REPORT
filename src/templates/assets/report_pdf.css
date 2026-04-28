@@ -22,6 +22,35 @@
         align-items: stretch !important;
     }
 
+    .periodic-electricity-chart-grid-weekly.pdf-two-chart-grid {
+        grid-template-columns: minmax(0, 2.9fr) minmax(0, 2.1fr) !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly.pdf-two-chart-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly.pdf-two-chart-grid .electricity-chart-card-trend,
+    .periodic-electricity-chart-grid-monthly.pdf-two-chart-grid .electricity-chart-card-heatmap {
+        grid-column: 1 / -1 !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly.pdf-two-chart-grid .electricity-chart-card-trend {
+        order: 1 !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly.pdf-two-chart-grid .electricity-chart-card-area {
+        order: 2 !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly.pdf-two-chart-grid .electricity-chart-card-delta {
+        order: 3 !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly.pdf-two-chart-grid .electricity-chart-card-heatmap {
+        order: 4 !important;
+    }
+
     .pdf-single-chart-grid {
         grid-template-columns: 1fr !important;
         gap: 6px !important;
@@ -41,6 +70,17 @@
     .pdf-chart-page-block {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly.pdf-two-chart-grid.pdf-chart-page-block {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+        margin-top: 6px !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly.pdf-two-chart-grid .electricity-chart-card-trend {
+        break-before: auto !important;
+        page-break-before: auto !important;
     }
 
     .electricity-chart-card {
@@ -93,28 +133,53 @@
 
     .electricity-chart {
         width: 100% !important;
-        height: 216px !important;
+        height: var(--report-components-chart-heights-pdf-compact-electricity-base, 216px) !important;
         overflow: hidden !important;
     }
 
     .periodic-electricity-chart-grid .electricity-chart {
-        height: 224px !important;
+        height: var(--report-components-chart-heights-pdf-compact-electricity-periodic-base, 224px) !important;
+    }
+
+    .periodic-electricity-chart-grid-weekly .electricity-chart {
+        height: var(--report-components-chart-heights-pdf-compact-electricity-periodic-weekly-primary, 244px) !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart {
+        height: var(--report-components-chart-heights-shared-electricity-monthly-trend, 262px) !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly .electricity-chart-card-area .electricity-chart {
+        height: var(--report-components-chart-heights-shared-electricity-monthly-area, 174px) !important;
     }
 
     .electricity-heatmap-chart {
         width: 100% !important;
-        height: 156px !important;
+        height: var(--report-components-chart-heights-pdf-compact-electricity-heatmap-base, 156px) !important;
         overflow: hidden !important;
+    }
+
+    .periodic-electricity-chart-grid-weekly .electricity-heatmap-chart,
+    .periodic-electricity-chart-grid-weekly .electricity-delta-chart {
+        height: var(--report-components-chart-heights-pdf-compact-electricity-periodic-weekly-secondary, 184px) !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart {
+        height: var(--report-components-chart-heights-shared-electricity-monthly-heatmap, 192px) !important;
     }
 
     .electricity-delta-chart {
         width: 100% !important;
-        height: 156px !important;
+        height: var(--report-components-chart-heights-pdf-compact-electricity-heatmap-base, 156px) !important;
         overflow: hidden !important;
     }
 
     .periodic-electricity-chart-grid .electricity-delta-chart {
-        height: 178px !important;
+        height: var(--report-components-chart-heights-pdf-compact-electricity-periodic-delta, 178px) !important;
+    }
+
+    .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart {
+        height: var(--report-components-chart-heights-shared-electricity-monthly-delta, 178px) !important;
     }
 
     .electricity-heatmap-legend {
@@ -130,6 +195,21 @@
 
     .electricity-heatmap-legend .legend-unit {
         min-width: 20px !important;
+    }
+
+    .electricity-heatmap-area-legend {
+        gap: 6px 10px !important;
+        margin-top: 6px !important;
+    }
+
+    .electricity-heatmap-area-legend-item {
+        gap: 4px !important;
+        font-size: 8px !important;
+    }
+
+    .electricity-heatmap-area-legend-dot {
+        width: 7px !important;
+        height: 7px !important;
     }
 
     .pdf-daily-chart-grid .electricity-chart-card-title {
@@ -578,17 +658,17 @@
     }
 
     .utility-comparison-chart {
-        height: 168px !important;
+        height: var(--report-components-chart-heights-pdf-compact-utility-comparison, 168px) !important;
     }
 
     .utility-period-type-trend-chart,
     .utility-comparison-chart-daily {
-        height: 228px !important;
+        height: var(--report-components-chart-heights-pdf-compact-utility-period-trend, 228px) !important;
     }
 
     .utility-comparison-chart-wide,
     .utility-comparison-chart-narrow {
-        height: 186px !important;
+        height: var(--report-components-chart-heights-pdf-compact-utility-split-secondary, 186px) !important;
     }
 
     .utility-energy-chart-grid {
@@ -606,7 +686,7 @@
 
     .utility-energy-trend-chart,
     .utility-energy-distribution-chart {
-        height: 220px !important;
+        height: var(--report-components-chart-heights-pdf-compact-utility-energy, 220px) !important;
     }
 
     .utility-energy-distribution-layout {
@@ -758,7 +838,7 @@
     }
 
     .kpi-daily-dashboard-chart {
-        height: 196px !important;
+        height: var(--report-components-chart-heights-pdf-compact-kpi-dashboard, 196px) !important;
     }
 
     .kpi-daily-dashboard-note {
@@ -1353,7 +1433,7 @@
     }
 
     .utility-sensor-trend-chart {
-        height: 156px !important;
+        height: var(--report-components-chart-heights-pdf-compact-utility-sensor-trend, 156px) !important;
     }
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-card {
@@ -1361,7 +1441,7 @@
     }
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-chart {
-        height: 142px !important;
+        height: var(--report-components-chart-heights-pdf-compact-utility-sensor-trend-single, 142px) !important;
     }
 
     .electricity-daily-vertical-head,
@@ -1470,19 +1550,19 @@
     }
 
     .report-header-overlay {
-        min-height: 122px !important;
+        min-height: var(--report-components-report-header-pdf-overlay-min-height, var(--report-components-report-header-overlay-min-height, 122px)) !important;
         display: grid !important;
-        grid-template-columns: 330px minmax(0, 1fr) !important;
-        padding: 0 182px 0 0 !important;
+        grid-template-columns: var(--report-components-report-header-pdf-overlay-grid-template-columns, var(--report-components-report-header-overlay-grid-template-columns, 330px minmax(0, 1fr))) !important;
+        padding: var(--report-components-report-header-pdf-overlay-padding, var(--report-components-report-header-overlay-padding, 0 182px 0 0)) !important;
     }
 
     .report-banner-logo-slot {
-        padding-left: 22px !important;
+        padding-left: var(--report-components-report-header-pdf-logo-slot-padding-left, var(--report-components-report-header-logo-slot-padding-left, 22px)) !important;
     }
 
     .report-banner-logo-crop {
-        width: 140px !important;
-        height: 24px !important;
+        width: var(--report-components-report-header-pdf-logo-crop-width, var(--report-components-report-header-logo-crop-width, 140px)) !important;
+        height: var(--report-components-report-header-pdf-logo-crop-height, var(--report-components-report-header-logo-crop-height, 24px)) !important;
     }
 
     .report-banner-logo-image {

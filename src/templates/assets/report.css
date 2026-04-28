@@ -319,31 +319,32 @@
         .report-header-background {
             position: absolute;
             inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            width: var(--report-components-report-header-background-width, 100%);
+            height: var(--report-components-report-header-background-height, 100%);
+            object-fit: var(--report-components-report-header-background-object-fit, cover);
+            object-position: var(--report-components-report-header-background-object-position, center center);
         }
 
         .report-header-overlay {
             position: relative;
             z-index: 1;
-            min-height: 132px;
+            min-height: var(--report-components-report-header-overlay-min-height, 132px);
             display: grid;
-            grid-template-columns: 420px minmax(0, 1fr);
+            grid-template-columns: var(--report-components-report-header-overlay-grid-template-columns, 420px minmax(0, 1fr));
             align-items: center;
-            padding: 0 300px 0 0;
+            padding: var(--report-components-report-header-overlay-padding, 0 300px 0 0);
         }
 
         .report-banner-logo-slot {
             display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding-left: 34px;
+            align-items: var(--report-components-report-header-logo-slot-align-items, center);
+            justify-content: var(--report-components-report-header-logo-slot-justify-content, flex-start);
+            padding-left: var(--report-components-report-header-logo-slot-padding-left, 34px);
         }
 
         .report-banner-logo-crop {
-            width: 202px;
-            height: 36px;
+            width: var(--report-components-report-header-logo-crop-width, 202px);
+            height: var(--report-components-report-header-logo-crop-height, 36px);
             overflow: hidden;
             position: relative;
         }
@@ -1478,6 +1479,36 @@
             align-items: stretch;
         }
 
+        .periodic-electricity-chart-grid-weekly {
+            grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+        }
+
+        .periodic-electricity-chart-grid-monthly {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-auto-flow: row;
+        }
+
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend,
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap {
+            grid-column: 1 / -1;
+        }
+
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend {
+            order: 1;
+        }
+
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-area {
+            order: 2;
+        }
+
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta {
+            order: 3;
+        }
+
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap {
+            order: 4;
+        }
+
         .electricity-chart-stack {
             display: flex;
             flex-direction: column;
@@ -1529,25 +1560,50 @@
 
         .electricity-chart {
             width: 100%;
-            height: 340px;
+            height: var(--report-components-chart-heights-view-electricity-base, 340px);
         }
 
         .periodic-electricity-chart-grid .electricity-chart {
-            height: 356px;
+            height: var(--report-components-chart-heights-view-electricity-periodic-base, 356px);
+        }
+
+        .periodic-electricity-chart-grid-weekly .electricity-chart {
+            height: var(--report-components-chart-heights-view-electricity-periodic-weekly-primary, 392px);
+        }
+
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart {
+            height: var(--report-components-chart-heights-shared-electricity-monthly-trend, 262px);
+        }
+
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-area .electricity-chart {
+            height: var(--report-components-chart-heights-shared-electricity-monthly-area, 174px);
         }
 
         .electricity-heatmap-chart {
             width: 100%;
-            height: 228px;
+            height: var(--report-components-chart-heights-view-electricity-heatmap-base, 228px);
+        }
+
+        .periodic-electricity-chart-grid-weekly .electricity-heatmap-chart,
+        .periodic-electricity-chart-grid-weekly .electricity-delta-chart {
+            height: var(--report-components-chart-heights-view-electricity-periodic-weekly-secondary, 252px);
+        }
+
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart {
+            height: var(--report-components-chart-heights-shared-electricity-monthly-heatmap, 192px);
         }
 
         .electricity-delta-chart {
             width: 100%;
-            height: 228px;
+            height: var(--report-components-chart-heights-view-electricity-heatmap-base, 228px);
         }
 
         .periodic-electricity-chart-grid .electricity-delta-chart {
-            height: 252px;
+            height: var(--report-components-chart-heights-view-electricity-periodic-delta, 252px);
+        }
+
+        .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart {
+            height: var(--report-components-chart-heights-shared-electricity-monthly-delta, 178px);
         }
 
         .electricity-heatmap-legend {
@@ -1578,6 +1634,35 @@
             min-width: 28px;
             text-align: center;
             color: var(--report-components-chart-meta-text-color, #475569);
+        }
+
+        .electricity-heatmap-area-legend {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 10px 14px;
+            margin-top: 8px;
+        }
+
+        .electricity-heatmap-area-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--report-components-chart-meta-text-color, #334155);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .electricity-heatmap-area-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+        }
+
+        .electricity-heatmap-area-legend-label {
+            white-space: nowrap;
         }
 
         .electricity-delta-card .electricity-chart-card-subtitle {
@@ -2446,17 +2531,17 @@
         }
 
         .utility-comparison-chart {
-            height: 272px;
+            height: var(--report-components-chart-heights-view-utility-comparison, 272px);
         }
 
         .utility-period-type-trend-chart,
         .utility-comparison-chart-daily {
-            height: 326px;
+            height: var(--report-components-chart-heights-view-utility-period-trend, 326px);
         }
 
         .utility-comparison-chart-wide,
         .utility-comparison-chart-narrow {
-            height: 292px;
+            height: var(--report-components-chart-heights-view-utility-split-secondary, 292px);
         }
 
         .utility-total-table {
@@ -2494,7 +2579,7 @@
 
         .utility-energy-trend-chart,
         .utility-energy-distribution-chart {
-            height: 308px;
+            height: var(--report-components-chart-heights-view-utility-energy, 308px);
         }
 
         .utility-energy-distribution-layout {
@@ -3423,7 +3508,7 @@
         }
 
         .utility-sensor-trend-chart {
-            height: 220px;
+            height: var(--report-components-chart-heights-view-utility-sensor-trend, 220px);
         }
 
         /* ==========================================================================
@@ -3876,7 +3961,7 @@
         }
 
         .kpi-daily-dashboard-chart {
-            height: 288px;
+            height: var(--report-components-chart-heights-view-kpi-dashboard, 288px);
         }
 
         .kpi-daily-dashboard-note {
