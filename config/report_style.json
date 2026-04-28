@@ -271,14 +271,14 @@
           },
           "banner": {
             "background": {
-              "width": "100%",
-              "height": "100%",
+              "width": "110%",
+              "height": "125%",
               "objectFit": "cover",
               "objectPosition": "center center"
             },
             "overlay": {
               "minHeight": "132px",
-              "gridTemplateColumns": "420px minmax(0, 1fr)",
+              "gridTemplateColumns": "250px minmax(0, 1fr)",
               "padding": "0 300px 0 0"
             },
             "logoSlot": {
@@ -287,20 +287,20 @@
               "paddingLeft": "34px"
             },
             "logoCrop": {
-              "width": "202px",
+              "width": "220px",
               "height": "36px"
             },
             "pdf": {
               "overlay": {
                 "minHeight": "122px",
-                "gridTemplateColumns": "330px minmax(0, 1fr)",
+                "gridTemplateColumns": "250px minmax(0, 1fr)",
                 "padding": "0 182px 0 0"
               },
               "logoSlot": {
                 "paddingLeft": "22px"
               },
               "logoCrop": {
-                "width": "140px",
+                "width": "160px",
                 "height": "24px"
               }
             }
