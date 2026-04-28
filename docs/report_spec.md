@@ -35,6 +35,29 @@ Purpose:
 - print-safe layout
 - reduced visual effects for stable export
 
+### 2.3 CSS Output Layers
+The report currently uses three stylesheet layers for three closely related but different rendering targets.
+
+1. `src/templates/assets/report.css`
+   - used by `report/base/base_view.html`
+   - primary target is the interactive HTML view
+   - optimized for responsive reading, browser scrolling, and screen-sized chart cards
+
+2. `src/templates/assets/report_pdf_base.css`
+   - used by `report/base/base_pdf.html` before the compact print overrides
+   - primary target is the PDF source HTML shell
+   - keeps the PDF document structurally aligned with the view while already forcing print-safe foundations
+
+3. `src/templates/assets/report_pdf.css`
+   - also used by `report/base/base_pdf.html`, after `report_pdf_base.css`
+   - primary target is the final compact A4 print/export pass
+   - applies the tighter overrides needed for pagination, reduced whitespace, smaller text, and compact chart heights
+
+This means `view`, `pdfBase`, and `pdfCompact` are not arbitrary token buckets. They correspond to three render contexts:
+- `view` = interactive HTML output
+- `pdfBase` = PDF source HTML baseline
+- `pdfCompact` = final print-tuned compact PDF layer
+
 ### 2.3 Shared Context Rule
 All template families must consume the same backend report context as much as possible.
 Differences should be handled at template/CSS/rendering layer, not by duplicating business logic.

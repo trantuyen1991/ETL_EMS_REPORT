@@ -101,8 +101,28 @@ Important clarification:
 
 - View shell:
   - `src/templates/report/base/base_view.html`
+  - includes `assets/report.css`
 - PDF shell:
   - `src/templates/report/base/base_pdf.html`
+  - includes `assets/report_pdf_base.css` first
+  - then includes `assets/report_pdf.css` as the compact print override layer
+
+### CSS layer intent
+
+The CSS split is intentional, because the project renders two different HTML artifacts and one final print-tuned presentation mode:
+
+1. view HTML
+   - screen-oriented layout
+   - responsive spacing
+   - interactive chart behavior
+
+2. PDF source HTML (`pdfBase`)
+   - print-safe baseline for the document Chromium will capture
+   - same overall product identity as the view, but without relying on screen-only assumptions
+
+3. compact PDF override (`pdfCompact`)
+   - last-mile compression for A4 pagination
+   - tighter card heights, smaller gaps, and denser chart/table layout where print requires it
 
 ---
 

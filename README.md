@@ -314,6 +314,21 @@ Template mapping:
 - PDF daily: `src/templates/report/pdf/report_pdf_daily.html`
 - PDF weekly/monthly: `src/templates/report/pdf/report_pdf_periodic.html`
 
+CSS layer mapping:
+
+- `src/templates/assets/report.css`
+  - base stylesheet for the interactive HTML view output
+- `src/templates/assets/report_pdf_base.css`
+  - base stylesheet for the PDF source HTML before print-specific overrides
+- `src/templates/assets/report_pdf.css`
+  - print-tuned override layer applied on top of `report_pdf_base.css` for the final compact A4 export path
+
+Why the split exists:
+
+- the view page optimizes for on-screen reading, scrolling, and interactive charts
+- the PDF source page must already be print-safe before Chromium captures it
+- the final compact PDF layer needs tighter spacing, smaller typography, and different chart heights than either the normal view or the PDF source shell
+
 Stable PDF chart rules:
 
 - wait for page readiness using `window.status`
