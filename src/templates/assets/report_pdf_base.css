@@ -2536,17 +2536,17 @@
         }
 
         .utility-comparison-chart {
-            height: var(--report-components-chart-heights-pdf-base-utility-comparison, 214px);
+            height: var(--report-components-report-section-utility-chart-comparison-height-pdf-base, 214px);
         }
 
         .utility-period-type-trend-chart,
         .utility-comparison-chart-daily {
-            height: var(--report-components-chart-heights-pdf-base-utility-period-trend, 274px);
+            height: var(--report-components-report-section-utility-chart-period-trend-height-pdf-base, 274px);
         }
 
         .utility-comparison-chart-wide,
         .utility-comparison-chart-narrow {
-            height: var(--report-components-chart-heights-pdf-base-utility-split-secondary, 230px);
+            height: var(--report-components-report-section-utility-chart-type-trend-height-pdf-base, 230px);
         }
 
         .utility-total-table {
@@ -2584,7 +2584,7 @@
 
         .utility-energy-trend-chart,
         .utility-energy-distribution-chart {
-            height: var(--report-components-chart-heights-pdf-base-utility-energy, 272px);
+            height: var(--report-components-report-section-utility-chart-energy-trend-height-pdf-base, 272px);
         }
 
         .utility-energy-distribution-layout {
@@ -3531,7 +3531,7 @@
         }
 
         .utility-sensor-trend-chart {
-            height: var(--report-components-chart-heights-pdf-base-utility-sensor-trend, 220px);
+            height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-base, 220px);
         }
 
         /* ==========================================================================
@@ -3984,7 +3984,7 @@
         }
 
         .kpi-daily-dashboard-chart {
-            height: var(--report-components-chart-heights-pdf-base-kpi-dashboard, 288px);
+            height: var(--report-components-report-section-kpi-chart-dashboard-height-pdf-base, 288px);
         }
 
         .kpi-daily-dashboard-note {

@@ -674,17 +674,17 @@
     }
 
     .utility-comparison-chart {
-        height: var(--report-components-chart-heights-pdf-compact-utility-comparison, 168px) !important;
+        height: var(--report-components-report-section-utility-chart-comparison-height-pdf-compact, 168px) !important;
     }
 
     .utility-period-type-trend-chart,
     .utility-comparison-chart-daily {
-        height: var(--report-components-chart-heights-pdf-compact-utility-period-trend, 228px) !important;
+        height: var(--report-components-report-section-utility-chart-period-trend-height-pdf-compact, 228px) !important;
     }
 
     .utility-comparison-chart-wide,
     .utility-comparison-chart-narrow {
-        height: var(--report-components-chart-heights-pdf-compact-utility-split-secondary, 186px) !important;
+        height: var(--report-components-report-section-utility-chart-type-trend-height-pdf-compact, 186px) !important;
     }
 
     .utility-energy-chart-grid {
@@ -702,7 +702,7 @@
 
     .utility-energy-trend-chart,
     .utility-energy-distribution-chart {
-        height: var(--report-components-chart-heights-pdf-compact-utility-energy, 220px) !important;
+        height: var(--report-components-report-section-utility-chart-energy-trend-height-pdf-compact, 220px) !important;
     }
 
     .utility-energy-distribution-layout {
@@ -854,7 +854,7 @@
     }
 
     .kpi-daily-dashboard-chart {
-        height: var(--report-components-chart-heights-pdf-compact-kpi-dashboard, 196px) !important;
+        height: var(--report-components-report-section-kpi-chart-dashboard-height-pdf-compact, 196px) !important;
     }
 
     .kpi-daily-dashboard-note {
@@ -1449,7 +1449,7 @@
     }
 
     .utility-sensor-trend-chart {
-        height: var(--report-components-chart-heights-pdf-compact-utility-sensor-trend, 156px) !important;
+        height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-compact-default, 156px) !important;
     }
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-card {
@@ -1457,7 +1457,7 @@
     }
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-chart {
-        height: var(--report-components-chart-heights-pdf-compact-utility-sensor-trend-single, 142px) !important;
+        height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-compact-single, 142px) !important;
     }
 
     .electricity-daily-vertical-head,
