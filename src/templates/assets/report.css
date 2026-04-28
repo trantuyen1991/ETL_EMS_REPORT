@@ -1464,8 +1464,8 @@
         .electricity-chart-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-            margin: 14px 0 12px;
+            gap: 16px;
+            margin: 16px 0 14px;
         }
 
         .electricity-chart-grid.electricity-chart-grid-daily {
@@ -1474,21 +1474,21 @@
         }
 
         .periodic-electricity-chart-grid {
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-            align-items: start;
+            grid-template-columns: minmax(0, 1.24fr) minmax(0, 0.96fr);
+            align-items: stretch;
         }
 
         .electricity-chart-stack {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             min-width: 0;
         }
 
         .electricity-chart-pair-grid {
             display: grid;
             grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-            gap: 12px;
+            gap: 14px;
             align-items: stretch;
         }
 
@@ -1496,7 +1496,7 @@
             border: 1px solid var(--border-soft);
             border-radius: var(--report-components-chart-card-border-radius, 12px);
             background: var(--report-components-chart-card-background, var(--bg-card));
-            padding: var(--report-components-chart-card-padding, 12px 14px 10px);
+            padding: var(--report-components-chart-card-padding, 14px 16px 12px);
             box-shadow: var(--report-components-chart-card-shadow, var(--shadow-card));
             break-inside: avoid;
             page-break-inside: avoid;
@@ -1521,29 +1521,33 @@
         }
 
         .electricity-chart-card-subtitle {
-            margin: 4px 0 var(--report-components-chart-layout-subtitle-margin-bottom, 10px);
+            margin: 5px 0 var(--report-components-chart-layout-subtitle-margin-bottom, 12px);
             font-size: 11.5px;
-            line-height: 1.35;
+            line-height: 1.4;
             color: var(--report-components-chart-card-subtitle-color, var(--text-muted));
         }
 
         .electricity-chart {
             width: 100%;
-            height: 350px;
+            height: 340px;
         }
 
         .periodic-electricity-chart-grid .electricity-chart {
-            height: 366px;
+            height: 356px;
         }
 
         .electricity-heatmap-chart {
             width: 100%;
-            height: 220px;
+            height: 228px;
         }
 
         .electricity-delta-chart {
             width: 100%;
-            height: 220px;
+            height: 228px;
+        }
+
+        .periodic-electricity-chart-grid .electricity-delta-chart {
+            height: 252px;
         }
 
         .electricity-heatmap-legend {
@@ -2402,31 +2406,31 @@
         .utility-chart-detail-stack {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 8px;
         }
 
         .utility-periodic-chart-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
-            gap: 4px;
+            grid-template-columns: minmax(0, 1.42fr) minmax(0, 0.98fr);
+            gap: 12px;
             align-items: stretch;
-            margin-bottom: 4px;
+            margin-bottom: 10px;
         }
 
         .utility-chart-split-grid {
             display: grid;
             grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
-            gap: 2px;
+            gap: 10px;
             align-items: stretch;
-            margin-bottom: 4px;
+            margin-bottom: 10px;
         }
 
         .utility-chart-split-grid-periodic {
-            margin-top: 2px;
+            margin-top: 6px;
         }
 
         .utility-chart-split-grid-daily {
-            margin-top: 4px;
+            margin-top: 8px;
         }
 
         .utility-detail-block {
@@ -2438,21 +2442,21 @@
         }
 
         .utility-chart-card {
-            padding-bottom: 8px;
+            padding-bottom: 10px;
         }
 
         .utility-comparison-chart {
-            height: 260px;
+            height: 272px;
         }
 
         .utility-period-type-trend-chart,
         .utility-comparison-chart-daily {
-            height: 320px;
+            height: 326px;
         }
 
         .utility-comparison-chart-wide,
         .utility-comparison-chart-narrow {
-            height: 286px;
+            height: 292px;
         }
 
         .utility-total-table {
@@ -2474,9 +2478,9 @@
         .utility-energy-chart-grid {
             display: grid;
             grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
-            gap: 12px;
+            gap: 14px;
             align-items: stretch;
-            margin-top: 12px;
+            margin-top: 14px;
         }
 
         .utility-energy-chart-card {
@@ -2485,18 +2489,18 @@
         }
 
         .utility-energy-chart-card .electricity-chart-card-subtitle {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .utility-energy-trend-chart,
         .utility-energy-distribution-chart {
-            height: 300px;
+            height: 308px;
         }
 
         .utility-energy-distribution-layout {
             display: grid;
-            grid-template-columns: minmax(0, 1.24fr) minmax(0, 0.76fr);
-            gap: 10px;
+            grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+            gap: 12px;
             align-items: center;
         }
 
@@ -3403,7 +3407,7 @@
         .utility-sensor-trend-preview-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            gap: 14px;
         }
 
         .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-card {
@@ -3419,7 +3423,7 @@
         }
 
         .utility-sensor-trend-chart {
-            height: 210px;
+            height: 220px;
         }
 
         /* ==========================================================================
@@ -3860,7 +3864,7 @@
         .kpi-daily-dashboard-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            gap: 14px;
         }
 
         .kpi-daily-chart-tile {
@@ -3872,7 +3876,7 @@
         }
 
         .kpi-daily-dashboard-chart {
-            height: 280px;
+            height: 288px;
         }
 
         .kpi-daily-dashboard-note {

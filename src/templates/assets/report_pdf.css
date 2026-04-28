@@ -14,12 +14,12 @@
 
     .pdf-two-chart-grid {
         grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) !important;
-        gap: 6px !important;
+        gap: 8px !important;
     }
 
     .periodic-electricity-chart-grid.pdf-two-chart-grid {
-        grid-template-columns: minmax(0, 3.3fr) minmax(0, 1.7fr) !important;
-        align-items: start !important;
+        grid-template-columns: minmax(0, 3.15fr) minmax(0, 1.85fr) !important;
+        align-items: stretch !important;
     }
 
     .pdf-single-chart-grid {
@@ -29,8 +29,8 @@
 
     .pdf-daily-chart-grid {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-        gap: 6px !important;
-        margin: 10px 0 8px !important;
+        gap: 8px !important;
+        margin: 10px 0 10px !important;
     }
 
     .utility-chart-split-grid {
@@ -46,20 +46,20 @@
     .electricity-chart-card {
         min-width: 0 !important;
         overflow: hidden !important;
-        padding: 6px 8px 4px !important;
+        padding: 7px 10px 5px !important;
     }
 
     .electricity-chart-stack {
         display: flex !important;
         flex-direction: column !important;
-        gap: 6px !important;
+        gap: 8px !important;
         min-width: 0 !important;
     }
 
     .electricity-chart-pair-grid {
         display: grid !important;
         grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr) !important;
-        gap: 6px !important;
+        gap: 8px !important;
         align-items: stretch !important;
     }
 
@@ -93,24 +93,28 @@
 
     .electricity-chart {
         width: 100% !important;
-        height: 212px !important;
+        height: 216px !important;
         overflow: hidden !important;
     }
 
     .periodic-electricity-chart-grid .electricity-chart {
-        height: 220px !important;
+        height: 224px !important;
     }
 
     .electricity-heatmap-chart {
         width: 100% !important;
-        height: 150px !important;
+        height: 156px !important;
         overflow: hidden !important;
     }
 
     .electricity-delta-chart {
         width: 100% !important;
-        height: 150px !important;
+        height: 156px !important;
         overflow: hidden !important;
+    }
+
+    .periodic-electricity-chart-grid .electricity-delta-chart {
+        height: 178px !important;
     }
 
     .electricity-heatmap-legend {
@@ -134,14 +138,14 @@
     }
 
     .pdf-daily-chart-grid .electricity-chart-card-subtitle {
-        margin: 1px 0 3px !important;
-        font-size: 9px !important;
-        line-height: 1.2 !important;
+        margin: 2px 0 4px !important;
+        font-size: 9.1px !important;
+        line-height: 1.25 !important;
         color: var(--report-components-chart-card-subtitle-color, var(--text-muted)) !important;
     }
 
     .pdf-daily-chart-grid .electricity-chart {
-        height: 250px !important;
+        height: 252px !important;
     }
 
     .electricity-top10-wrap.report-table-wrap {
@@ -548,66 +552,66 @@
     }
 
     .utility-chart-split-grid-daily {
-        margin-top: 2px !important;
+        margin-top: 6px !important;
     }
 
     .utility-chart-detail-stack {
-        gap: 2px !important;
+        gap: 6px !important;
     }
 
     .utility-periodic-chart-grid {
-        gap: 2px !important;
-        margin-bottom: 2px !important;
+        gap: 8px !important;
+        margin-bottom: 8px !important;
     }
 
     .utility-chart-split-grid {
-        gap: 2px !important;
-        margin-bottom: 2px !important;
+        gap: 8px !important;
+        margin-bottom: 8px !important;
     }
 
     .utility-chart-split-grid-periodic {
-        margin-top: 2px !important;
+        margin-top: 6px !important;
     }
 
     .utility-chart-card {
-        padding-bottom: 4px !important;
+        padding-bottom: 6px !important;
     }
 
     .utility-comparison-chart {
-        height: 160px !important;
+        height: 168px !important;
     }
 
     .utility-period-type-trend-chart,
     .utility-comparison-chart-daily {
-        height: 220px !important;
+        height: 228px !important;
     }
 
     .utility-comparison-chart-wide,
     .utility-comparison-chart-narrow {
-        height: 176px !important;
+        height: 186px !important;
     }
 
     .utility-energy-chart-grid {
-        gap: 8px !important;
-        margin-top: 8px !important;
+        gap: 10px !important;
+        margin-top: 10px !important;
     }
 
     .utility-energy-chart-card {
-        padding: 12px 12px 10px !important;
+        padding: 12px 13px 10px !important;
     }
 
     .utility-energy-chart-card .electricity-chart-card-subtitle {
-        margin-bottom: 6px !important;
+        margin-bottom: 8px !important;
     }
 
     .utility-energy-trend-chart,
     .utility-energy-distribution-chart {
-        height: 214px !important;
+        height: 220px !important;
     }
 
     .utility-energy-distribution-layout {
         grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr) !important;
-        gap: 6px !important;
+        gap: 8px !important;
     }
 
     .utility-energy-distribution-center-value {
@@ -746,7 +750,7 @@
 
     .kpi-daily-dashboard-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 6px !important;
+        gap: 8px !important;
     }
 
     .kpi-daily-chart-tile-wide {
@@ -754,7 +758,7 @@
     }
 
     .kpi-daily-dashboard-chart {
-        height: 190px !important;
+        height: 196px !important;
     }
 
     .kpi-daily-dashboard-note {
@@ -1100,14 +1104,15 @@
     }
 
     .electricity-chart-card-title {
-        margin-bottom: 1px !important;
+        margin-bottom: 2px !important;
         font-size: 12px !important;
         color: var(--report-components-chart-card-title-color, var(--text-main)) !important;
     }
 
     .electricity-chart-card-subtitle {
-        margin: 1px 0 4px !important;
-        font-size: 9px !important;
+        margin: 2px 0 5px !important;
+        font-size: 9.1px !important;
+        line-height: 1.25 !important;
         color: var(--report-components-chart-card-subtitle-color, var(--text-muted)) !important;
     }
 
@@ -1332,7 +1337,7 @@
     .utility-sensor-trend-preview-grid {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 8px !important;
+        gap: 10px !important;
     }
 
     .utility-sensor-trend-card.is-full-width {
@@ -1348,7 +1353,7 @@
     }
 
     .utility-sensor-trend-chart {
-        height: 150px !important;
+        height: 156px !important;
     }
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-card {
@@ -1356,7 +1361,7 @@
     }
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-chart {
-        height: 135px !important;
+        height: 142px !important;
     }
 
     .electricity-daily-vertical-head,
