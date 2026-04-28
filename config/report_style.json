@@ -100,6 +100,42 @@
         "fontWeight": "500",
         "color": "#6b7280"
       },
+      "reportHeader": {
+        "background": {
+          "width": "100%",
+          "height": "100%",
+          "objectFit": "cover",
+          "objectPosition": "center center"
+        },
+        "overlay": {
+          "minHeight": "132px",
+          "gridTemplateColumns": "420px minmax(0, 1fr)",
+          "padding": "0 300px 0 0"
+        },
+        "logoSlot": {
+          "alignItems": "center",
+          "justifyContent": "flex-start",
+          "paddingLeft": "34px"
+        },
+        "logoCrop": {
+          "width": "202px",
+          "height": "36px"
+        },
+        "pdf": {
+          "overlay": {
+            "minHeight": "122px",
+            "gridTemplateColumns": "330px minmax(0, 1fr)",
+            "padding": "0 182px 0 0"
+          },
+          "logoSlot": {
+            "paddingLeft": "22px"
+          },
+          "logoCrop": {
+            "width": "140px",
+            "height": "24px"
+          }
+        }
+      },
       "sectionHeader": {
         "titleFontSize": "18px",
         "titleFontWeight": "700",
@@ -273,13 +309,220 @@
           "kpi": {
             "dashboard": "196px"
           }
+        }
+      },
+      "sections": {
+        "electricity": {
+          "charts": {
+            "dailyTrend": {
+              "grid": {
+                "left": 20,
+                "right": 12,
+                "top": 20,
+                "bottom": 15,
+                "containLabel": true
+              },
+              "legend": {
+                "bottom": "center"
+              }
+            },
+            "areaComparison": {
+              "grid": {
+                "left": 25,
+                "right": 12,
+                "top": 20,
+                "bottom": 15,
+                "containLabel": true
+              },
+              "legend": {
+                "bottom": "center"
+              }
+            },
+            "areaShare": {
+              "legend": {
+                "top": "center"
+              }
+            },
+            "periodAreaDelta": {
+              "grid": {
+                "left": 52,
+                "right": 32,
+                "top": 8,
+                "bottom": 15,
+                "containLabel": false
+              }
+            },
+            "periodHeatmap": {
+              "default": {
+                "grid": {
+                  "left": 58,
+                  "right": 18,
+                  "top": 10,
+                  "bottom": 30,
+                  "containLabel": false
+                }
+              },
+              "dense": {
+                "grid": {
+                  "left": 58,
+                  "right": 18,
+                  "top": 10,
+                  "bottom": 62,
+                  "containLabel": false
+                }
+              },
+              "monthly": {
+                "grid": {
+                  "left": 18,
+                  "right": 18,
+                  "top": 10,
+                  "bottom": 62,
+                  "containLabel": false
+                }
+              }
+            },
+            "monthly": {
+              "trend": {
+                "height": "130px"
+              },
+              "areaComparison": {
+                "height": "130px"
+              },
+              "heatmap": {
+                "height": "130px"
+              },
+              "delta": {
+                "height": "130px"
+              }
+            }
+          }
         },
-        "shared": {
-          "electricity": {
-            "monthlyTrend": "130px",
-            "monthlyArea": "130px",
-            "monthlyHeatmap": "130px",
-            "monthlyDelta": "130px"
+        "utility": {
+          "charts": {
+            "comparison": {
+              "grid": {
+                "left": 28,
+                "right": 10,
+                "top": 42,
+                "bottom": 32,
+                "containLabel": true
+              },
+              "legend": {
+                "top": "left"
+              }
+            },
+            "typeTrend": {
+              "grid": {
+                "left": 32,
+                "right": 10,
+                "top": 36,
+                "bottom": 46,
+                "containLabel": true
+              },
+              "legend": {
+                "top": "left"
+              }
+            },
+            "mix": {
+              "legend": {
+                "bottom": "center"
+              }
+            },
+            "deviation": {
+              "grid": {
+                "left": 118,
+                "right": 24,
+                "top": 18,
+                "bottom": 28
+              }
+            },
+            "energyTrend": {
+              "grid": {
+                "left": 18,
+                "right": 12,
+                "top": 44,
+                "bottom": 52,
+                "containLabel": true
+              },
+              "legend": {
+                "top": "left"
+              }
+            },
+            "periodSensorTrend": {
+              "grid": {
+                "left": 20,
+                "right": 16,
+                "top": 54,
+                "bottom": 30,
+                "containLabel": true
+              },
+              "legend": {
+                "top": "left"
+              }
+            },
+            "sensorCluster": {
+              "grid": {
+                "left": 38,
+                "right": 14,
+                "top": 38,
+                "bottom": 28,
+                "containLabel": true
+              },
+              "legend": {
+                "top": "left"
+              }
+            }
+          }
+        },
+        "kpi": {
+          "charts": {
+            "dailyGroupedBar": {
+              "grid": {
+                "left": 32,
+                "right": 12,
+                "top": 36,
+                "bottom": 22,
+                "containLabel": true
+              },
+              "legend": {
+                "top": "left"
+              }
+            },
+            "compareBar": {
+              "grid": {
+                "left": 32,
+                "right": 12,
+                "top": 48,
+                "bottom": 24,
+                "containLabel": true
+              },
+              "legend": {
+                "top": "left"
+              }
+            },
+            "waterfall": {
+              "grid": {
+                "left": 32,
+                "right": 12,
+                "top": 20,
+                "bottom": 34,
+                "containLabel": true
+              }
+            },
+            "variance": {
+              "grid": {
+                "left": 70,
+                "right": 16,
+                "top": 12,
+                "bottom": 18,
+                "containLabel": false
+              }
+            },
+            "contribution": {
+              "legend": {
+                "top": "center"
+              }
+            }
           }
         }
       },
@@ -349,205 +592,6 @@
             "metaValueGap": "4px",
             "trendRowGap": "3px",
             "trendNoteFontSize": "6.4px"
-          }
-        }
-      },
-      "chartGrid": {
-        "electricity": {
-          "dailyTrend": {
-            "left": 20,
-            "right": 12,
-            "top": 20,
-            "bottom": 15,
-            "containLabel": true
-          },
-          "areaComparison": {
-            "left": 25,
-            "right": 12,
-            "top": 20,
-            "bottom": 15,
-            "containLabel": true
-          },
-          "periodAreaDelta": {
-            "left": 52,
-            "right": 32,
-            "top": 8,
-            "bottom": 15,
-            "containLabel": false
-          },
-          "periodHeatmap": {
-            "left": 58,
-            "right": 18,
-            "top": 10,
-            "bottom": 30,
-            "containLabel": false
-          },
-          "periodHeatmapDense": {
-            "left": 58,
-            "right": 18,
-            "top": 10,
-            "bottom": 62,
-            "containLabel": false
-          },
-          "periodHeatmapMonthly": {
-            "left": 18,
-            "right": 18,
-            "top": 10,
-            "bottom": 62,
-            "containLabel": false
-          }
-        },
-        "utility": {
-          "comparison": {
-            "left": 28,
-            "right": 10,
-            "top": 42,
-            "bottom": 32,
-            "containLabel": true
-          },
-          "typeTrend": {
-            "left": 32,
-            "right": 10,
-            "top": 36,
-            "bottom": 46,
-            "containLabel": true
-          },
-          "deviation": {
-            "left": 118,
-            "right": 24,
-            "top": 18,
-            "bottom": 28
-          },
-          "energyTrend": {
-            "left": 18,
-            "right": 12,
-            "top": 44,
-            "bottom": 52,
-            "containLabel": true
-          },
-          "periodSensorTrend": {
-            "left": 20,
-            "right": 16,
-            "top": 54,
-            "bottom": 30,
-            "containLabel": true
-          },
-          "sensorCluster": {
-            "left": 38,
-            "right": 14,
-            "top": 38,
-            "bottom": 28,
-            "containLabel": true
-          }
-        },
-        "kpi": {
-          "dailyGroupedBar": {
-            "left": 32,
-            "right": 12,
-            "top": 36,
-            "bottom": 22,
-            "containLabel": true
-          },
-          "compareBar": {
-            "left": 32,
-            "right": 12,
-            "top": 48,
-            "bottom": 24,
-            "containLabel": true
-          },
-          "waterfall": {
-            "left": 32,
-            "right": 12,
-            "top": 20,
-            "bottom": 34,
-            "containLabel": true
-          },
-          "variance": {
-            "left": 70,
-            "right": 16,
-            "top": 12,
-            "bottom": 18,
-            "containLabel": false
-          }
-        }
-      },
-      "chartLegendPosition": {
-        "electricity": {
-          "dailyTrend": {
-            "bottom": "center"
-          },
-          "areaComparison": {
-            "bottom": "center"
-          },
-          "areaShare": {
-            "top": "center"
-          }
-        },
-        "utility": {
-          "comparison": {
-            "top": "left"
-          },
-          "typeTrend": {
-            "top": "left"
-          },
-          "mix": {
-            "bottom": "center"
-          },
-          "energyTrend": {
-            "top": "left"
-          },
-          "periodSensorTrend": {
-            "top": "left"
-          },
-          "sensorCluster": {
-            "top": "left"
-          }
-        },
-        "kpi": {
-          "dailyGroupedBar": {
-            "top": "left"
-          },
-          "compareBar": {
-            "top": "left"
-          },
-          "contribution": {
-            "top": "center"
-          }
-        }
-      },
-      "reportHeader": {
-        "background": {
-          "width": "100%",
-          "height": "100%",
-          "objectFit": "cover",
-          "objectPosition": "center center"
-        },
-        "overlay": {
-          "minHeight": "132px",
-          "gridTemplateColumns": "420px minmax(0, 1fr)",
-          "padding": "0 300px 0 0"
-        },
-        "logoSlot": {
-          "alignItems": "center",
-          "justifyContent": "flex-start",
-          "paddingLeft": "34px"
-        },
-        "logoCrop": {
-          "width": "202px",
-          "height": "36px"
-        },
-        "pdf": {
-          "overlay": {
-            "minHeight": "122px",
-            "gridTemplateColumns": "330px minmax(0, 1fr)",
-            "padding": "0 182px 0 0"
-          },
-          "logoSlot": {
-            "paddingLeft": "22px"
-          },
-          "logoCrop": {
-            "width": "140px",
-            "height": "24px"
           }
         }
       }

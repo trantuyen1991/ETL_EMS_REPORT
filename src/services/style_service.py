@@ -264,14 +264,6 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {
             "noteMarginTop": "10px",
         },
         "chartHeights": {
-            "shared": {
-                "electricity": {
-                    "monthlyTrend": "262px",
-                    "monthlyArea": "174px",
-                    "monthlyHeatmap": "192px",
-                    "monthlyDelta": "178px",
-                },
-            },
             "view": {
                 "electricity": {
                     "base": "340px",
@@ -334,48 +326,92 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {
                 },
             },
         },
-        "chartGrid": {
+        "sections": {
             "electricity": {
-                "dailyTrend": {"left": 26, "right": 12, "top": 36, "bottom": 46, "containLabel": True},
-                "areaComparison": {"left": 32, "right": 12, "top": 56, "bottom": 38, "containLabel": True},
-                "periodAreaDelta": {"left": 72, "right": 22, "top": 8, "bottom": 10, "containLabel": False},
-                "periodHeatmap": {"left": 58, "right": 18, "top": 10, "bottom": 44, "containLabel": False},
-                "periodHeatmapDense": {"left": 58, "right": 18, "top": 10, "bottom": 62, "containLabel": False},
-                "periodHeatmapMonthly": {"left": 18, "right": 18, "top": 10, "bottom": 62, "containLabel": False}
+                "charts": {
+                    "dailyTrend": {
+                        "grid": {"left": 26, "right": 12, "top": 36, "bottom": 46, "containLabel": True},
+                        "legend": {"top": "left"}
+                    },
+                    "areaComparison": {
+                        "grid": {"left": 32, "right": 12, "top": 56, "bottom": 38, "containLabel": True},
+                        "legend": {"top": "left"}
+                    },
+                    "areaShare": {
+                        "legend": {"top": "center"}
+                    },
+                    "periodAreaDelta": {
+                        "grid": {"left": 72, "right": 22, "top": 8, "bottom": 10, "containLabel": False}
+                    },
+                    "periodHeatmap": {
+                        "default": {
+                            "grid": {"left": 58, "right": 18, "top": 10, "bottom": 44, "containLabel": False}
+                        },
+                        "dense": {
+                            "grid": {"left": 58, "right": 18, "top": 10, "bottom": 62, "containLabel": False}
+                        },
+                        "monthly": {
+                            "grid": {"left": 18, "right": 18, "top": 10, "bottom": 62, "containLabel": False}
+                        }
+                    },
+                    "monthly": {
+                        "trend": {"height": "262px"},
+                        "areaComparison": {"height": "174px"},
+                        "heatmap": {"height": "192px"},
+                        "delta": {"height": "178px"}
+                    }
+                }
             },
             "utility": {
-                "comparison": {"left": 28, "right": 10, "top": 42, "bottom": 32, "containLabel": True},
-                "typeTrend": {"left": 32, "right": 10, "top": 36, "bottom": 46, "containLabel": True},
-                "deviation": {"left": 118, "right": 24, "top": 18, "bottom": 28},
-                "energyTrend": {"left": 18, "right": 12, "top": 44, "bottom": 52, "containLabel": True},
-                "periodSensorTrend": {"left": 20, "right": 16, "top": 54, "bottom": 30, "containLabel": True},
-                "sensorCluster": {"left": 38, "right": 14, "top": 38, "bottom": 28, "containLabel": True}
+                "charts": {
+                    "comparison": {
+                        "grid": {"left": 28, "right": 10, "top": 42, "bottom": 32, "containLabel": True},
+                        "legend": {"top": "left"}
+                    },
+                    "typeTrend": {
+                        "grid": {"left": 32, "right": 10, "top": 36, "bottom": 46, "containLabel": True},
+                        "legend": {"top": "left"}
+                    },
+                    "mix": {
+                        "legend": {"bottom": "center"}
+                    },
+                    "deviation": {
+                        "grid": {"left": 118, "right": 24, "top": 18, "bottom": 28}
+                    },
+                    "energyTrend": {
+                        "grid": {"left": 18, "right": 12, "top": 44, "bottom": 52, "containLabel": True},
+                        "legend": {"top": "left"}
+                    },
+                    "periodSensorTrend": {
+                        "grid": {"left": 20, "right": 16, "top": 54, "bottom": 30, "containLabel": True},
+                        "legend": {"top": "left"}
+                    },
+                    "sensorCluster": {
+                        "grid": {"left": 38, "right": 14, "top": 38, "bottom": 28, "containLabel": True},
+                        "legend": {"top": "left"}
+                    }
+                }
             },
             "kpi": {
-                "dailyGroupedBar": {"left": 32, "right": 12, "top": 36, "bottom": 22, "containLabel": True},
-                "compareBar": {"left": 32, "right": 12, "top": 48, "bottom": 24, "containLabel": True},
-                "waterfall": {"left": 32, "right": 12, "top": 20, "bottom": 34, "containLabel": True},
-                "variance": {"left": 70, "right": 16, "top": 12, "bottom": 18, "containLabel": False}
-            }
-        },
-        "chartLegendPosition": {
-            "electricity": {
-                "dailyTrend": {"top": "left"},
-                "areaComparison": {"top": "left"},
-                "areaShare": {"top": "center"}
-            },
-            "utility": {
-                "comparison": {"top": "left"},
-                "typeTrend": {"top": "left"},
-                "mix": {"bottom": "center"},
-                "energyTrend": {"top": "left"},
-                "periodSensorTrend": {"top": "left"},
-                "sensorCluster": {"top": "left"}
-            },
-            "kpi": {
-                "dailyGroupedBar": {"top": "left"},
-                "compareBar": {"top": "left"},
-                "contribution": {"top": "center"}
+                "charts": {
+                    "dailyGroupedBar": {
+                        "grid": {"left": 32, "right": 12, "top": 36, "bottom": 22, "containLabel": True},
+                        "legend": {"top": "left"}
+                    },
+                    "compareBar": {
+                        "grid": {"left": 32, "right": 12, "top": 48, "bottom": 24, "containLabel": True},
+                        "legend": {"top": "left"}
+                    },
+                    "waterfall": {
+                        "grid": {"left": 32, "right": 12, "top": 20, "bottom": 34, "containLabel": True}
+                    },
+                    "variance": {
+                        "grid": {"left": 70, "right": 16, "top": 12, "bottom": 18, "containLabel": False}
+                    },
+                    "contribution": {
+                        "legend": {"top": "center"}
+                    }
+                }
             }
         },
         "summaryCard": {

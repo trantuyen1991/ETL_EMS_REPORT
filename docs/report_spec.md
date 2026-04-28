@@ -44,6 +44,19 @@ Differences should be handled at template/CSS/rendering layer, not by duplicatin
 - `periodic` is shared by `weekly` and `monthly`
 - template family selection is resolved in backend from the report period type
 
+### 2.5 Style Config Structure Rule
+`config/report_style.json` should be organized so that:
+- common report-wide tokens stay near the top
+- object-specific tokens branch by real report structure
+- section-specific tuning is easier to find than flat token buckets
+
+Preferred direction:
+- root report parts first, such as `titleHeader`, `section`, `footer`
+- then section branch, such as `electric`, `utility`, `kpi`
+- then object type, such as `card`, `chart`, `table`
+- then concrete object, such as `dailyTrend`, `total`, `sensorMonitoring`
+- each concrete object should own its full local styling where practical, for example `weekly`, `monthly`, `legend`, `grid`, `width`, `height`
+
 ---
 
 ## 3. Runtime and Deployment Context
@@ -148,6 +161,9 @@ Typical summary strip may include:
 ### 7.1 Purpose
 Show official electricity totals and meter-level detail for the selected period.
 
+Style-config navigation target:
+- `report -> section -> electric -> ...`
+
 ### 7.2 Content
 This section should include:
 - plant total summary card
@@ -204,6 +220,9 @@ For the `periodic` template family:
 
 ### 8.1 Purpose
 Show business-level utility consumption values and their comparison across periods.
+
+Style-config navigation target:
+- `report -> section -> utility -> ...`
 
 ### 8.2 Content
 This section should include:
@@ -312,6 +331,9 @@ For the `periodic` template family:
 ---
 
 ## 9. Energy KPI Section
+
+Style-config navigation target:
+- `report -> section -> kpi -> ...`
 
 ### 9.1 Purpose
 Show energy intensity based on energy and production context.

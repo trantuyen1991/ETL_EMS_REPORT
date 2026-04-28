@@ -116,20 +116,32 @@ class ReportBuilderService:
 
         return report_context
 
+    def _get_section_chart_node(self, *path: str) -> Dict[str, Any]:
+        """Resolve one chart node under components.sections.<section>.charts.*."""
+        if not path:
+            return {}
+
+        section_key, *branch_path = path
+        current: Any = (((self._style_config or {}).get("components", {}) or {}).get("sections", {}) or {})
+        current = current.get(section_key, {}) if isinstance(current, dict) else {}
+        current = current.get("charts", {}) if isinstance(current, dict) else {}
+
+        for key in branch_path:
+            if not isinstance(current, dict):
+                return {}
+            current = current.get(key, {})
+
+        return current if isinstance(current, dict) else {}
+
     def _resolve_chart_grid(
         self,
         defaults: Dict[str, Any],
         *path: str,
     ) -> Dict[str, Any]:
-        """Resolve chart grid tokens from style config with safe defaults."""
+        """Resolve chart grid tokens from section-tree style config with safe defaults."""
         result = dict(defaults)
-        current: Any = ((self._style_config or {}).get("components", {}) or {}).get("chartGrid", {}) or {}
-
-        for key in path:
-            if not isinstance(current, dict):
-                current = {}
-                break
-            current = current.get(key, {})
+        node = self._get_section_chart_node(*path)
+        current = node.get("grid", {}) if isinstance(node, dict) else {}
 
         if isinstance(current, dict):
             for key in ("left", "right", "top", "bottom", "containLabel"):
@@ -143,15 +155,10 @@ class ReportBuilderService:
         defaults: Dict[str, Any],
         *path: str,
     ) -> Dict[str, Any]:
-        """Resolve chart legend position tokens from style config with safe defaults."""
+        """Resolve chart legend position tokens from section-tree style config with safe defaults."""
         result = dict(defaults)
-        current: Any = ((self._style_config or {}).get("components", {}) or {}).get("chartLegendPosition", {}) or {}
-
-        for key in path:
-            if not isinstance(current, dict):
-                current = {}
-                break
-            current = current.get(key, {})
+        node = self._get_section_chart_node(*path)
+        current = node.get("legend", {}) if isinstance(node, dict) else {}
 
         if not isinstance(current, dict):
             return result
@@ -1647,7 +1654,8 @@ class ReportBuilderService:
                         "containLabel": False,
                     },
                     "electricity",
-                    "periodHeatmapMonthly" if period_type == "monthly" else ("periodHeatmapDense" if len(x_labels) > 8 else "periodHeatmap"),
+                    "periodHeatmap",
+                    "monthly" if period_type == "monthly" else ("dense" if len(x_labels) > 8 else "default"),
                 ),
                 "xAxis": {
                     "type": "category",

@@ -62,6 +62,8 @@ Current architecture direction:
 - keep the current two-family report system (`daily` / `periodic`)
 - move report presentation tokens toward a centralized JSON style config
 - render custom style/theme inline into HTML / PDF source instead of shipping extra theme assets
+- organize `config/report_style.json` so common report-wide tokens stay near the top, while section-specific tokens branch by report part -> section -> object type -> object
+- prefer section-owned chart/card/table objects over flat token buckets when the goal is to tune one concrete report object
 
 ---
 
@@ -153,6 +155,8 @@ Presentation refactor direction and current implementation state:
   - inline CSS variables and inline ECharts theme registration are emitted from `ReportStyleService`
   - daily family rollout is completed through headers, cards, tables, badges, chart shells, chart notes, chart spacing, legends, and metadata
   - periodic family has completed the tokenized base port plus first scoped cleanup for electricity periodic detail, KPI periodic detail accents, and utility sensor range states
+  - legend placement now supports shorthand object form such as `{ "top": "left" }` and `{ "bottom": "center" }`
+  - chart grid / legend / monthly chart-height tokens have started moving from flat buckets into section-owned trees such as `components.sections.electricity.charts.*`
   - final periodic audit found some remaining hard-coded values, but they are now mostly section-specific visual recipes rather than shared family blockers
 
 Layout refresh decision before the next batch:

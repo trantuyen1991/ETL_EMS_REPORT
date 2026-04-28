@@ -1572,11 +1572,11 @@
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart {
-            height: var(--report-components-chart-heights-shared-electricity-monthly-trend, 262px);
+            height: var(--report-components-sections-electricity-charts-monthly-trend-height, 262px);
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-area .electricity-chart {
-            height: var(--report-components-chart-heights-shared-electricity-monthly-area, 174px);
+            height: var(--report-components-sections-electricity-charts-monthly-area-comparison-height, 174px);
         }
 
         .electricity-heatmap-chart {
@@ -1590,7 +1590,7 @@
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart {
-            height: var(--report-components-chart-heights-shared-electricity-monthly-heatmap, 192px);
+            height: var(--report-components-sections-electricity-charts-monthly-heatmap-height, 192px);
         }
 
         .electricity-delta-chart {
@@ -1603,7 +1603,7 @@
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart {
-            height: var(--report-components-chart-heights-shared-electricity-monthly-delta, 178px);
+            height: var(--report-components-sections-electricity-charts-monthly-delta-height, 178px);
         }
 
         .electricity-heatmap-legend {

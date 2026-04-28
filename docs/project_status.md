@@ -28,6 +28,8 @@ Stable baseline:
 - PDF print flow now also uses a controlled Chrome DevTools Protocol path with `scale=1.0` and `preferCSSPageSize=true`, keeping the old Chromium CLI print as fallback only
 - style/theme core is now active through backend-generated inline CSS variables and inline ECharts theme registration
 - daily family rollout is complete, and periodic family has completed the tokenized base port plus the first scoped detail cleanup
+- legend placement now supports shorthand config objects such as `{ "top": "left" }` and `{ "bottom": "center" }`
+- chart grid / legend / monthly electricity chart-height tokens have started moving from flat token buckets into section-owned trees under `config/report_style.json`
 - the 2026-04-28 periodic shrink bug was traced to a Utility Sensor Monitoring table overflow in PDF, and the weekly document width is now back in sync with daily at document level
 
 ---
@@ -183,11 +185,12 @@ Current anomaly rules:
 - refresh project docs to match V4 preview behavior and the stabilized PDF flow
 - create milestone tags only on explicit approval after docs + render verification are stable
 
-### 4.2 Daily UI refinement
-- daily template remains the main priority
-- continue improving information density, readability, and PDF page flow
-- keep HTML and PDF utility card density aligned when summary card layout changes
-- periodic family has targeted polish in progress for Electricity and Utility chart readability / print stability
+### 4.2 Style schema consolidation
+- continue moving report presentation controls toward a clearer JSON tree
+- keep common report-wide tokens near the top of `report_style.json`
+- move section-specific tuning toward `report -> section -> object type -> object`
+- keep shared 1-source geometry where HTML preview, PDF source, and final PDF should match
+- allow renderer-specific overrides only where print behavior really differs
 
 ### 4.3 Sensor Monitoring UI
 - Step 2:
