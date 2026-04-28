@@ -276,9 +276,9 @@
         },
         "shared": {
           "electricity": {
-            "monthlyTrend": "125px",
+            "monthlyTrend": "130px",
             "monthlyArea": "130px",
-            "monthlyHeatmap": "125px",
+            "monthlyHeatmap": "130px",
             "monthlyDelta": "130px"
           }
         }
@@ -480,38 +480,38 @@
             "bottom": "center"
           },
           "areaShare": {
-            "top": "3%"
+            "top": "center"
           }
         },
         "utility": {
           "comparison": {
-            "top": 6
+            "top": "left"
           },
           "typeTrend": {
-            "top": 6
+            "top": "left"
           },
           "mix": {
-            "bottom": 0
+            "bottom": "center"
           },
           "energyTrend": {
-            "top": 4
+            "top": "left"
           },
           "periodSensorTrend": {
-            "top": 0
+            "top": "left"
           },
           "sensorCluster": {
-            "top": 6
+            "top": "left"
           }
         },
         "kpi": {
           "dailyGroupedBar": {
-            "top": 6
+            "top": "left"
           },
           "compareBar": {
-            "top": 6
+            "top": "left"
           },
           "contribution": {
-            "top": "5%"
+            "top": "center"
           }
         }
       },

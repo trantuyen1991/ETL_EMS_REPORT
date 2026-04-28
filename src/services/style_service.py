@@ -360,22 +360,22 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {
         },
         "chartLegendPosition": {
             "electricity": {
-                "dailyTrend": {"top": 6},
-                "areaComparison": {"top": 6},
-                "areaShare": {"top": "3%"}
+                "dailyTrend": {"top": "left"},
+                "areaComparison": {"top": "left"},
+                "areaShare": {"top": "center"}
             },
             "utility": {
-                "comparison": {"top": 6},
-                "typeTrend": {"top": 6},
-                "mix": {"bottom": 0},
-                "energyTrend": {"top": 4},
-                "periodSensorTrend": {"top": 0},
-                "sensorCluster": {"top": 6}
+                "comparison": {"top": "left"},
+                "typeTrend": {"top": "left"},
+                "mix": {"bottom": "center"},
+                "energyTrend": {"top": "left"},
+                "periodSensorTrend": {"top": "left"},
+                "sensorCluster": {"top": "left"}
             },
             "kpi": {
-                "dailyGroupedBar": {"top": 6},
-                "compareBar": {"top": 6},
-                "contribution": {"top": "5%"}
+                "dailyGroupedBar": {"top": "left"},
+                "compareBar": {"top": "left"},
+                "contribution": {"top": "center"}
             }
         },
         "summaryCard": {

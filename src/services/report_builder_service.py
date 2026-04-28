@@ -143,7 +143,7 @@ class ReportBuilderService:
         defaults: Dict[str, Any],
         *path: str,
     ) -> Dict[str, Any]:
-        """Resolve chart legend top/bottom tokens from style config with safe defaults."""
+        """Resolve chart legend position tokens from style config with safe defaults."""
         result = dict(defaults)
         current: Any = ((self._style_config or {}).get("components", {}) or {}).get("chartLegendPosition", {}) or {}
 
@@ -153,12 +153,31 @@ class ReportBuilderService:
                 break
             current = current.get(key, {})
 
-        if isinstance(current, dict):
-            if "top" in current and current.get("top") is not None:
-                result["top"] = current.get("top")
+        if not isinstance(current, dict):
+            return result
+
+        horizontal_keywords = {"left", "center", "right"}
+
+        top_value = current.get("top")
+        if top_value is not None:
+            if isinstance(top_value, str) and top_value.strip().lower() in horizontal_keywords:
+                result["top"] = result.get("top", 0)
+                result["left"] = top_value.strip().lower()
+                result.pop("right", None)
                 result.pop("bottom", None)
-            if "bottom" in current and current.get("bottom") is not None:
-                result["bottom"] = current.get("bottom")
+            else:
+                result["top"] = top_value
+                result.pop("bottom", None)
+
+        bottom_value = current.get("bottom")
+        if bottom_value is not None:
+            if isinstance(bottom_value, str) and bottom_value.strip().lower() in horizontal_keywords:
+                result["bottom"] = result.get("bottom", 0)
+                result["left"] = bottom_value.strip().lower()
+                result.pop("right", None)
+                result.pop("top", None)
+            else:
+                result["bottom"] = bottom_value
                 result.pop("top", None)
 
         return result
