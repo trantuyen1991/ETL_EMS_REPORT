@@ -115,6 +115,79 @@
             gap: var(--report-components-chart-layout-grid-gap, 12px);
         }
 
+        .report-family-periodic {
+            --bg-card: var(--report-components-card-background, var(--report-color-card-background));
+            --bg-header: var(--report-components-table-header-background, var(--report-color-table-header-background));
+            --bg-header-strong: var(--report-components-table-header-background, var(--report-color-header-background-strong));
+            --border-soft: var(--report-components-card-border-color, var(--report-color-border-soft));
+            --border-row: var(--report-components-table-border-color, var(--report-color-border-row));
+            --shadow-card: var(--report-components-card-shadow, var(--report-shadow-card));
+            --radius-md: var(--report-components-card-border-radius, var(--report-radius-medium));
+            --radius-lg: var(--report-components-card-border-radius, var(--report-radius-large));
+        }
+
+        .report-family-periodic .utility-overview-card,
+        .report-family-periodic .utility-sensor-overview-card,
+        .report-family-periodic .utility-sensor-group-card,
+        .report-family-periodic .utility-sensor-trend-cluster,
+        .report-family-periodic .kpi-plant-card,
+        .report-family-periodic .kpi-daily-card {
+            border-radius: var(--report-components-card-border-radius, 16px);
+            box-shadow: var(--report-components-card-shadow, var(--shadow-card));
+        }
+
+        .report-family-periodic .electricity-chart-card,
+        .report-family-periodic .utility-chart-card,
+        .report-family-periodic .kpi-chart-card,
+        .report-family-periodic .utility-energy-chart-card {
+            border-color: var(--report-components-chart-card-border-color, var(--report-components-card-border-color, var(--border-soft)));
+            border-radius: var(--report-components-chart-card-border-radius, var(--report-components-card-border-radius, 12px));
+            background: var(--report-components-chart-card-background, var(--bg-card));
+            box-shadow: var(--report-components-chart-card-shadow, var(--report-components-chart-card-shadow, var(--shadow-card)));
+        }
+
+        .report-family-periodic .electricity-chart-card-title {
+            color: var(--report-components-chart-card-title-color, var(--text-main));
+        }
+
+        .report-family-periodic .electricity-chart-card-subtitle,
+        .report-family-periodic .utility-overview-note,
+        .report-family-periodic .utility-overview-card-compare-note {
+            color: var(--report-components-chart-card-subtitle-color, var(--text-muted));
+        }
+
+        .report-family-periodic .kpi-daily-dashboard-note,
+        .report-family-periodic .kpi-coverage-note {
+            font-size: var(--report-components-chart-note-font-size, 12px);
+            font-weight: var(--report-components-chart-note-font-weight, 500);
+            color: var(--report-components-chart-note-text-color, var(--text-muted));
+        }
+
+        .report-family-periodic .electricity-chart-grid,
+        .report-family-periodic .utility-energy-chart-grid,
+        .report-family-periodic .kpi-daily-dashboard-grid,
+        .report-family-periodic .utility-periodic-chart-grid {
+            gap: var(--report-components-chart-layout-grid-gap, 12px);
+        }
+
+        .report-family-periodic .utility-date-chip {
+            background: var(--report-components-card-background, rgba(255, 255, 255, 0.9));
+            border-color: var(--report-components-card-border-color, #d9e6fb);
+            color: var(--report-components-section-header-accent-color, #1d4ed8);
+        }
+
+        .report-family-periodic .utility-date-chip-icon {
+            color: var(--report-components-section-header-accent-color, #2563eb);
+        }
+
+        .report-family-periodic .utility-date-chip-current {
+            color: var(--report-components-section-header-accent-color, #2563eb);
+        }
+
+        .report-family-periodic .utility-date-chip-previous {
+            color: var(--report-components-chart-meta-text-color, #475569);
+        }
+
         h1,
         h2,
         h3,
