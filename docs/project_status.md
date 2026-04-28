@@ -20,12 +20,13 @@ The project is currently in **Report V4 preview stage**.
 Focus:
 - stabilize backend data pipeline
 - finalize the two-family template migration (`daily` / `periodic`)
-- refine daily UI first, then continue periodic polish
 - stabilize PDF chart rendering and print flow
-- extend sensor monitoring from backend-ready data into daily-first UI
-- begin centralizing report presentation tokens into a JSON-driven inline style/theme layer
+- complete the JSON-driven inline style/theme rollout and document the stopping point
+- keep sensor monitoring follow-up behind the now-stable presentation checkpoint
 Stable baseline:
 - PDF export stabilized after the 2026-04-27 chart-init timing fix and multi-anchor regression batches
+- style/theme core is now active through backend-generated inline CSS variables and inline ECharts theme registration
+- daily family rollout is complete, and periodic family has completed the tokenized base port plus the first scoped detail cleanup
 
 ---
 
@@ -387,11 +388,10 @@ Expected behavior:
 
 Immediate next priorities:
 
-1. Introduce `config/report_style.json` as the first centralized style-token source
-2. Add a backend style helper that can emit inline CSS variables and inline ECharts theme data
-3. Apply the new style-token flow to the daily family first, starting from report title and section headings
-4. Extend the same pattern gradually into cards, tables, semantic badges/trends, and chart shells
-5. Port the proven pattern to the periodic family after the daily rollout is stable
-6. Keep business/data logic unchanged while the presentation layer is being refactored
-7. Continue sensor monitoring / CSV follow-up only after the presentation refactor checkpoint is stable
-8. Continue PDF regression hardening for future layout changes
+1. Keep the current style/theme rollout stable and avoid broad shared-CSS churn unless a concrete periodic regression appears
+2. Treat remaining periodic hard-coded values as optional follow-up only when they materially improve maintainability or visual consistency
+3. Update documentation whenever style tokens expand or periodic styling scope changes
+4. Re-mine project memory after meaningful docs/code checkpoints
+5. Keep business/data logic unchanged while presentation work continues
+6. Continue sensor monitoring / CSV follow-up only after the presentation checkpoint remains stable
+7. Continue PDF regression hardening for future layout changes

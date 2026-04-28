@@ -141,13 +141,19 @@ Periodic KPI rollout currently includes:
 - period summary matrix filled with actual production-day counts instead of anchor-day snapshot values
 - period KPI detail rotated into a stacked vertical layout for PDF page-width control
 
-Upcoming presentation refactor direction:
+Presentation refactor direction and current implementation state:
 - introduce `config/report_style.json` as the central style token source
 - generate inline CSS variables / CSS blocks from backend context
 - generate inline ECharts theme registration from the same config
 - refactor daily family first, then extend the same pattern to the periodic family
 - keep HTML output single-file for custom style/theme concerns
 - keep PDF source on local vendor libraries while still rendering custom style/theme inline
+- current implemented status:
+  - `config/report_style.json` is active and wired through backend render context
+  - inline CSS variables and inline ECharts theme registration are emitted from `ReportStyleService`
+  - daily family rollout is completed through headers, cards, tables, badges, chart shells, chart notes, chart spacing, legends, and metadata
+  - periodic family has completed the tokenized base port plus first scoped cleanup for electricity periodic detail, KPI periodic detail accents, and utility sensor range states
+  - final periodic audit found some remaining hard-coded values, but they are now mostly section-specific visual recipes rather than shared family blockers
 ---
 
 ### 4. Utility Section

@@ -534,6 +534,13 @@ The style/theme refactor should be executed gradually:
 5. expand from title / section heading into cards, tables, semantic styles, and chart shells
 6. port the stable pattern into the periodic family
 
+Current implementation status:
+- `config/report_style.json` is active as the central style-token source
+- backend render context now emits inline CSS variables plus inline ECharts theme registration
+- daily family rollout is complete through headers, cards, tables, badges, chart shells, notes, spacing, legends, and metadata
+- periodic family currently includes a safe scoped base port plus first cleanup for electricity periodic detail, KPI periodic detail accents, and utility sensor range states
+- final audit indicates the remaining hard-coded values are mostly section-specific visual recipes, not blockers for the shared style/theme architecture
+
 ### 15.4 Scope Guard
 This refactor is presentation-only.
 
