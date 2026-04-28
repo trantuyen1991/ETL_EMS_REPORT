@@ -117,14 +117,29 @@ class ReportBuilderService:
         return report_context
 
     def _get_section_chart_node(self, *path: str) -> Dict[str, Any]:
-        """Resolve one chart node under components.sections.<section>.charts.*."""
+        """Resolve one chart node under components.report.section.<section>.chart.* with legacy alias support."""
         if not path:
             return {}
 
         section_key, *branch_path = path
-        current: Any = (((self._style_config or {}).get("components", {}) or {}).get("sections", {}) or {})
-        current = current.get(section_key, {}) if isinstance(current, dict) else {}
-        current = current.get("charts", {}) if isinstance(current, dict) else {}
+        section_aliases = {
+            "electricity": "electric",
+        }
+        chart_aliases = {
+            "periodAreaDelta": ["delta"],
+            "periodHeatmap": ["heatmap"],
+            "periodHeatmapDense": ["heatmap", "dense"],
+            "periodHeatmapMonthly": ["heatmap", "monthly"],
+        }
+
+        resolved_section = section_aliases.get(section_key, section_key)
+        if branch_path and branch_path[0] in chart_aliases:
+            branch_path = [*chart_aliases[branch_path[0]], *branch_path[1:]]
+
+        current: Any = (((self._style_config or {}).get("components", {}) or {}).get("report", {}) or {})
+        current = current.get("section", {}) if isinstance(current, dict) else {}
+        current = current.get(resolved_section, {}) if isinstance(current, dict) else {}
+        current = current.get("chart", {}) if isinstance(current, dict) else {}
 
         for key in branch_path:
             if not isinstance(current, dict):

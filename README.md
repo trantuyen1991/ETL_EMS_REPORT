@@ -62,7 +62,9 @@ Current architecture direction:
 - keep the current two-family report system (`daily` / `periodic`)
 - move report presentation tokens toward a centralized JSON style config
 - render custom style/theme inline into HTML / PDF source instead of shipping extra theme assets
-- organize `config/report_style.json` so common report-wide tokens stay near the top, while section-specific tokens branch by report part -> section -> object type -> object
+- organize `config/report_style.json` so common report-wide tokens stay near the top, while section-specific tokens branch by `report -> section -> object type -> object`
+- current schema root for report-owned presentation is now centered on `components.report.*`
+- section-shared table/card foundations are now being mirrored under `components.report.section.common.*`
 - prefer section-owned chart/card/table objects over flat token buckets when the goal is to tune one concrete report object
 
 ---
@@ -156,7 +158,9 @@ Presentation refactor direction and current implementation state:
   - daily family rollout is completed through headers, cards, tables, badges, chart shells, chart notes, chart spacing, legends, and metadata
   - periodic family has completed the tokenized base port plus first scoped cleanup for electricity periodic detail, KPI periodic detail accents, and utility sensor range states
   - legend placement now supports shorthand object form such as `{ "top": "left" }` and `{ "bottom": "center" }`
-  - chart grid / legend / monthly chart-height tokens have started moving from flat buckets into section-owned trees such as `components.sections.electricity.charts.*`
+  - chart grid / legend / chart-height tokens are now being reorganized under the report tree, for example `components.report.section.electric.chart.*`
+  - Electricity `dailyTrend` and `areaComparison` now own their own `height.view / pdfBase / pdfCompact` branches instead of relying on a shared chart-height bucket
+  - summary-card and table tokens have started the same migration path through `components.report.section.common.*` and section-owned card objects such as `components.report.section.utility.card.*`
   - final periodic audit found some remaining hard-coded values, but they are now mostly section-specific visual recipes rather than shared family blockers
 
 Layout refresh decision before the next batch:

@@ -1558,25 +1558,38 @@
             color: var(--report-components-chart-card-subtitle-color, var(--text-muted));
         }
 
-        .electricity-chart {
+        .electricity-chart-card-trend .electricity-chart,
+        .electricity-chart-card-area .electricity-chart {
             width: 100%;
-            height: var(--report-components-chart-heights-view-electricity-base, 340px);
+            height: var(--report-components-report-section-electric-chart-daily-trend-height-view-default, 340px);
         }
 
-        .periodic-electricity-chart-grid .electricity-chart {
-            height: var(--report-components-chart-heights-view-electricity-periodic-base, 356px);
+        .electricity-chart-card-area .electricity-chart {
+            height: var(--report-components-report-section-electric-chart-area-comparison-height-view-default, 340px);
         }
 
-        .periodic-electricity-chart-grid-weekly .electricity-chart {
-            height: var(--report-components-chart-heights-view-electricity-periodic-weekly-primary, 392px);
+        .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart {
+            height: var(--report-components-report-section-electric-chart-daily-trend-height-view-periodic, 356px);
+        }
+
+        .periodic-electricity-chart-grid .electricity-chart-card-area .electricity-chart {
+            height: var(--report-components-report-section-electric-chart-area-comparison-height-view-periodic, 356px);
+        }
+
+        .periodic-electricity-chart-grid-weekly .electricity-chart-card-trend .electricity-chart {
+            height: var(--report-components-report-section-electric-chart-daily-trend-height-view-weekly, 392px);
+        }
+
+        .periodic-electricity-chart-grid-weekly .electricity-chart-card-area .electricity-chart {
+            height: var(--report-components-report-section-electric-chart-area-comparison-height-view-weekly, 392px);
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart {
-            height: var(--report-components-sections-electricity-charts-monthly-trend-height, 262px);
+            height: var(--report-components-report-section-electric-chart-daily-trend-height-view-monthly, 262px);
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-area .electricity-chart {
-            height: var(--report-components-sections-electricity-charts-monthly-area-comparison-height, 174px);
+            height: var(--report-components-report-section-electric-chart-area-comparison-height-view-monthly, 174px);
         }
 
         .electricity-heatmap-chart {

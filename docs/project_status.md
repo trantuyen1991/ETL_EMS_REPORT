@@ -29,7 +29,9 @@ Stable baseline:
 - style/theme core is now active through backend-generated inline CSS variables and inline ECharts theme registration
 - daily family rollout is complete, and periodic family has completed the tokenized base port plus the first scoped detail cleanup
 - legend placement now supports shorthand config objects such as `{ "top": "left" }` and `{ "bottom": "center" }`
-- chart grid / legend / monthly electricity chart-height tokens have started moving from flat token buckets into section-owned trees under `config/report_style.json`
+- chart grid / legend / chart-height tokens are now moving under `components.report.section.<section>.<object-type>.<object>` in `config/report_style.json`
+- Electricity trend and area-comparison charts now carry their own `height` variants under the object node, reducing reliance on shared electricity chart-height buckets
+- summary-card and table tokens have now started the same move, with shared foundations mirrored under `components.report.section.common.*`
 - the 2026-04-28 periodic shrink bug was traced to a Utility Sensor Monitoring table overflow in PDF, and the weekly document width is now back in sync with daily at document level
 
 ---
@@ -188,8 +190,9 @@ Current anomaly rules:
 ### 4.2 Style schema consolidation
 - continue moving report presentation controls toward a clearer JSON tree
 - keep common report-wide tokens near the top of `report_style.json`
-- move section-specific tuning toward `report -> section -> object type -> object`
+- move section-specific tuning toward `components.report -> section -> object type -> object`
 - keep shared 1-source geometry where HTML preview, PDF source, and final PDF should match
+- keep compatibility aliases while CSS is still consuming older flat variable names
 - allow renderer-specific overrides only where print behavior really differs
 
 ### 4.3 Sensor Monitoring UI

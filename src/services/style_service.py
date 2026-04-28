@@ -568,6 +568,7 @@ class ReportStyleService:
             return defaults
 
         merged = self._merge_defaults(defaults, raw_style)
+        self._normalize_component_schema(merged)
         self._validate_minimum_shape(merged)
         return merged
 
@@ -692,6 +693,224 @@ class ReportStyleService:
             "theme": theme,
         }
 
+    def _normalize_component_schema(self, style_config: dict[str, Any]) -> None:
+        """Backfill the newer report tree from older flat component branches when needed."""
+        components = style_config.get("components")
+        if not isinstance(components, dict):
+            return
+
+        legacy_sections = components.get("sections") if isinstance(components.get("sections"), dict) else {}
+        legacy_chart_heights = components.get("chartHeights") if isinstance(components.get("chartHeights"), dict) else {}
+        summary_card = components.get("summaryCard") if isinstance(components.get("summaryCard"), dict) else {}
+
+        compare_common = {
+            "blockMarginTop": summary_card.get("compareBlockMarginTop"),
+            "padding": summary_card.get("comparePadding"),
+            "itemMinHeight": summary_card.get("compareItemMinHeight"),
+            "labelFontSize": summary_card.get("compareLabelFontSize"),
+            "labelFontWeight": summary_card.get("compareLabelFontWeight"),
+            "labelColor": summary_card.get("compareLabelColor"),
+            "labelLetterSpacing": summary_card.get("compareLabelLetterSpacing"),
+            "valueFontSize": summary_card.get("compareValueFontSize"),
+        }
+        compare_common = {key: value for key, value in compare_common.items() if value is not None}
+
+        def _clone_dict(value: Any) -> dict[str, Any]:
+            return deepcopy(value) if isinstance(value, dict) else {}
+
+        legacy_report = {
+            "container": _clone_dict(components.get("reportContainer")),
+            "titleHeader": {
+                "title": _clone_dict(components.get("reportTitle")),
+                "subtitle": _clone_dict(components.get("reportSubtitle")),
+                "metadata": _clone_dict(components.get("reportMetadata")),
+                "banner": {
+                    "background": _clone_dict((components.get("reportHeader") or {}).get("background")),
+                    "overlay": _clone_dict((components.get("reportHeader") or {}).get("overlay")),
+                    "logoSlot": _clone_dict((components.get("reportHeader") or {}).get("logoSlot")),
+                    "logoCrop": _clone_dict((components.get("reportHeader") or {}).get("logoCrop")),
+                    "pdf": _clone_dict((components.get("reportHeader") or {}).get("pdf")),
+                },
+            },
+            "footer": _clone_dict(components.get("footer")),
+            "section": {
+                "common": {
+                    "table": {
+                        "base": _clone_dict(components.get("table")),
+                    },
+                    "card": {
+                        "gridGap": summary_card.get("gridGap"),
+                        "borderRadius": summary_card.get("borderRadius"),
+                        "compare": deepcopy(compare_common),
+                    },
+                },
+                "electric": {
+                    "table": {
+                        "common": _clone_dict(components.get("table")),
+                    },
+                    "card": {
+                        "total": {
+                            "layout": _clone_dict(summary_card.get("total")),
+                            "compare": deepcopy(compare_common),
+                            "pdf": _clone_dict((summary_card.get("pdf") or {}).get("total")),
+                        },
+                        "diode": {
+                            "layout": _clone_dict(summary_card.get("total")),
+                            "compare": deepcopy(compare_common),
+                            "pdf": _clone_dict((summary_card.get("pdf") or {}).get("total")),
+                        },
+                        "ico": {
+                            "layout": _clone_dict(summary_card.get("total")),
+                            "compare": deepcopy(compare_common),
+                            "pdf": _clone_dict((summary_card.get("pdf") or {}).get("total")),
+                        },
+                        "sakari": {
+                            "layout": _clone_dict(summary_card.get("total")),
+                            "compare": deepcopy(compare_common),
+                            "pdf": _clone_dict((summary_card.get("pdf") or {}).get("total")),
+                        },
+                    },
+                    "chart": {
+                        "common": {
+                            "height": {
+                                "view": {
+                                    "default": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("base"),
+                                    "periodic": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("periodicBase"),
+                                    "weekly": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("periodicWeeklyPrimary"),
+                                },
+                                "pdfBase": {
+                                    "default": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("base"),
+                                    "periodic": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("periodicBase"),
+                                    "weekly": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("periodicWeeklyPrimary"),
+                                },
+                                "pdfCompact": {
+                                    "default": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("base"),
+                                    "periodic": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("periodicBase"),
+                                    "weekly": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("periodicWeeklyPrimary"),
+                                },
+                            }
+                        },
+                        "dailyTrend": self._merge_defaults(
+                            _clone_dict(((legacy_sections.get("electricity") or {}).get("charts") or {}).get("dailyTrend")),
+                            {
+                                "height": {
+                                    "view": {
+                                        "default": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("base"),
+                                        "periodic": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("periodicBase"),
+                                        "weekly": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("periodicWeeklyPrimary"),
+                                    },
+                                    "pdfBase": {
+                                        "default": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("base"),
+                                        "periodic": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("periodicBase"),
+                                        "weekly": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("periodicWeeklyPrimary"),
+                                    },
+                                    "pdfCompact": {
+                                        "default": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("base"),
+                                        "periodic": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("periodicBase"),
+                                        "weekly": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("periodicWeeklyPrimary"),
+                                    },
+                                }
+                            },
+                        ),
+                        "areaComparison": self._merge_defaults(
+                            _clone_dict(((legacy_sections.get("electricity") or {}).get("charts") or {}).get("areaComparison")),
+                            {
+                                "height": {
+                                    "view": {
+                                        "default": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("base"),
+                                        "periodic": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("periodicBase"),
+                                        "weekly": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("periodicWeeklyPrimary"),
+                                    },
+                                    "pdfBase": {
+                                        "default": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("base"),
+                                        "periodic": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("periodicBase"),
+                                        "weekly": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("periodicWeeklyPrimary"),
+                                    },
+                                    "pdfCompact": {
+                                        "default": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("base"),
+                                        "periodic": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("periodicBase"),
+                                        "weekly": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("periodicWeeklyPrimary"),
+                                    },
+                                }
+                            },
+                        ),
+                        "areaShare": _clone_dict(((legacy_sections.get("electricity") or {}).get("charts") or {}).get("areaShare")),
+                        "heatmap": {
+                            "height": {
+                                "view": {
+                                    "default": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("heatmapBase"),
+                                    "weekly": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("periodicWeeklySecondary"),
+                                },
+                                "pdfBase": {
+                                    "default": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("heatmapBase"),
+                                    "weekly": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("periodicWeeklySecondary"),
+                                },
+                                "pdfCompact": {
+                                    "default": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("heatmapBase"),
+                                    "weekly": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("periodicWeeklySecondary"),
+                                },
+                            },
+                            "grid": {
+                                "default": _clone_dict((((legacy_sections.get("electricity") or {}).get("charts") or {}).get("periodHeatmap") or {}).get("default", {})).get("grid", {}),
+                                "dense": _clone_dict((((legacy_sections.get("electricity") or {}).get("charts") or {}).get("periodHeatmap") or {}).get("dense", {})).get("grid", {}),
+                                "monthly": _clone_dict((((legacy_sections.get("electricity") or {}).get("charts") or {}).get("periodHeatmap") or {}).get("monthly", {})).get("grid", {}),
+                            },
+                        },
+                        "delta": {
+                            "grid": _clone_dict((((legacy_sections.get("electricity") or {}).get("charts") or {}).get("periodAreaDelta") or {}).get("grid")),
+                            "height": {
+                                "view": {
+                                    "periodic": ((legacy_chart_heights.get("view") or {}).get("electricity") or {}).get("periodicDelta"),
+                                },
+                                "pdfBase": {
+                                    "periodic": ((legacy_chart_heights.get("pdfBase") or {}).get("electricity") or {}).get("periodicDelta"),
+                                },
+                                "pdfCompact": {
+                                    "periodic": ((legacy_chart_heights.get("pdfCompact") or {}).get("electricity") or {}).get("periodicDelta"),
+                                },
+                            },
+                        },
+                    },
+                },
+                "utility": {
+                    "table": {
+                        "common": _clone_dict(components.get("table")),
+                    },
+                    "chart": {
+                        "comparison": _clone_dict(((legacy_sections.get("utility") or {}).get("charts") or {}).get("comparison")),
+                        "periodTrend": {
+                            "height": {
+                                "view": ((legacy_chart_heights.get("view") or {}).get("utility") or {}).get("periodTrend"),
+                                "pdfBase": ((legacy_chart_heights.get("pdfBase") or {}).get("utility") or {}).get("periodTrend"),
+                                "pdfCompact": ((legacy_chart_heights.get("pdfCompact") or {}).get("utility") or {}).get("periodTrend"),
+                            },
+                        },
+                        "typeTrend": _clone_dict(((legacy_sections.get("utility") or {}).get("charts") or {}).get("typeTrend")),
+                        "mix": _clone_dict(((legacy_sections.get("utility") or {}).get("charts") or {}).get("mix")),
+                        "energyTrend": _clone_dict(((legacy_sections.get("utility") or {}).get("charts") or {}).get("energyTrend")),
+                        "periodSensorTrend": _clone_dict(((legacy_sections.get("utility") or {}).get("charts") or {}).get("periodSensorTrend")),
+                        "sensorCluster": _clone_dict(((legacy_sections.get("utility") or {}).get("charts") or {}).get("sensorCluster")),
+                        "deviation": _clone_dict(((legacy_sections.get("utility") or {}).get("charts") or {}).get("deviation")),
+                    }
+                },
+                "kpi": {
+                    "table": {
+                        "common": _clone_dict(components.get("table")),
+                    },
+                    "chart": {
+                        "dailyGroupedBar": _clone_dict(((legacy_sections.get("kpi") or {}).get("charts") or {}).get("dailyGroupedBar")),
+                        "compareBar": _clone_dict(((legacy_sections.get("kpi") or {}).get("charts") or {}).get("compareBar")),
+                        "waterfall": _clone_dict(((legacy_sections.get("kpi") or {}).get("charts") or {}).get("waterfall")),
+                        "variance": _clone_dict(((legacy_sections.get("kpi") or {}).get("charts") or {}).get("variance")),
+                        "contribution": _clone_dict(((legacy_sections.get("kpi") or {}).get("charts") or {}).get("contribution")),
+                    }
+                },
+            },
+        }
+
+        existing_report = components.get("report") if isinstance(components.get("report"), dict) else {}
+        components["report"] = self._merge_defaults(legacy_report, existing_report)
+
     def _validate_minimum_shape(self, style_config: dict[str, Any]) -> None:
         """Validate a minimal shape and normalize obviously invalid branches."""
         required_dict_sections = [
@@ -786,6 +1005,141 @@ class ReportStyleService:
             "--space-xl": "var(--report-spacing-xl)",
             "--shadow-soft": "var(--report-shadow-soft)",
             "--shadow-card": "var(--report-shadow-card)",
+            "--report-components-report-title-font-size": "var(--report-components-report-title-header-title-font-size)",
+            "--report-components-report-title-font-weight": "var(--report-components-report-title-header-title-font-weight)",
+            "--report-components-report-title-letter-spacing": "var(--report-components-report-title-header-title-letter-spacing)",
+            "--report-components-report-title-color": "var(--report-components-report-title-header-title-color)",
+            "--report-components-report-subtitle-font-size": "var(--report-components-report-title-header-subtitle-font-size)",
+            "--report-components-report-subtitle-font-weight": "var(--report-components-report-title-header-subtitle-font-weight)",
+            "--report-components-report-subtitle-color": "var(--report-components-report-title-header-subtitle-color)",
+            "--report-components-report-metadata-font-size": "var(--report-components-report-title-header-metadata-font-size)",
+            "--report-components-report-metadata-font-weight": "var(--report-components-report-title-header-metadata-font-weight)",
+            "--report-components-report-metadata-color": "var(--report-components-report-title-header-metadata-color)",
+            "--report-components-report-header-background-width": "var(--report-components-report-title-header-banner-background-width)",
+            "--report-components-report-header-background-height": "var(--report-components-report-title-header-banner-background-height)",
+            "--report-components-report-header-background-object-fit": "var(--report-components-report-title-header-banner-background-object-fit)",
+            "--report-components-report-header-background-object-position": "var(--report-components-report-title-header-banner-background-object-position)",
+            "--report-components-report-header-overlay-min-height": "var(--report-components-report-title-header-banner-overlay-min-height)",
+            "--report-components-report-header-overlay-grid-template-columns": "var(--report-components-report-title-header-banner-overlay-grid-template-columns)",
+            "--report-components-report-header-overlay-padding": "var(--report-components-report-title-header-banner-overlay-padding)",
+            "--report-components-report-header-logo-slot-align-items": "var(--report-components-report-title-header-banner-logo-slot-align-items)",
+            "--report-components-report-header-logo-slot-justify-content": "var(--report-components-report-title-header-banner-logo-slot-justify-content)",
+            "--report-components-report-header-logo-slot-padding-left": "var(--report-components-report-title-header-banner-logo-slot-padding-left)",
+            "--report-components-report-header-logo-crop-width": "var(--report-components-report-title-header-banner-logo-crop-width)",
+            "--report-components-report-header-logo-crop-height": "var(--report-components-report-title-header-banner-logo-crop-height)",
+            "--report-components-report-header-pdf-overlay-min-height": "var(--report-components-report-title-header-banner-pdf-overlay-min-height)",
+            "--report-components-report-header-pdf-overlay-grid-template-columns": "var(--report-components-report-title-header-banner-pdf-overlay-grid-template-columns)",
+            "--report-components-report-header-pdf-overlay-padding": "var(--report-components-report-title-header-banner-pdf-overlay-padding)",
+            "--report-components-report-header-pdf-logo-slot-padding-left": "var(--report-components-report-title-header-banner-pdf-logo-slot-padding-left)",
+            "--report-components-report-header-pdf-logo-crop-width": "var(--report-components-report-title-header-banner-pdf-logo-crop-width)",
+            "--report-components-report-header-pdf-logo-crop-height": "var(--report-components-report-title-header-banner-pdf-logo-crop-height)",
+            "--report-components-footer-text-color": "var(--report-components-report-footer-text-color)",
+            "--report-components-footer-border-color": "var(--report-components-report-footer-border-color)",
+            "--report-components-sections-electricity-charts-monthly-trend-height": "var(--report-components-report-section-electric-chart-daily-trend-height-view-monthly)",
+            "--report-components-sections-electricity-charts-monthly-area-comparison-height": "var(--report-components-report-section-electric-chart-area-comparison-height-view-monthly)",
+            "--report-components-sections-electricity-charts-monthly-heatmap-height": "var(--report-components-report-section-electric-chart-heatmap-height-view-monthly)",
+            "--report-components-sections-electricity-charts-monthly-delta-height": "var(--report-components-report-section-electric-chart-delta-height-view-monthly)",
+            "--report-components-chart-heights-view-electricity-base": "var(--report-components-report-section-electric-chart-daily-trend-height-view-default)",
+            "--report-components-chart-heights-view-electricity-periodic-base": "var(--report-components-report-section-electric-chart-daily-trend-height-view-periodic)",
+            "--report-components-chart-heights-view-electricity-periodic-weekly-primary": "var(--report-components-report-section-electric-chart-daily-trend-height-view-weekly)",
+            "--report-components-chart-heights-view-electricity-heatmap-base": "var(--report-components-report-section-electric-chart-heatmap-height-view-default)",
+            "--report-components-chart-heights-view-electricity-periodic-weekly-secondary": "var(--report-components-report-section-electric-chart-heatmap-height-view-weekly)",
+            "--report-components-chart-heights-view-electricity-periodic-delta": "var(--report-components-report-section-electric-chart-delta-height-view-periodic)",
+            "--report-components-chart-heights-pdf-base-electricity-base": "var(--report-components-report-section-electric-chart-daily-trend-height-pdf-base-default)",
+            "--report-components-chart-heights-pdf-base-electricity-periodic-base": "var(--report-components-report-section-electric-chart-daily-trend-height-pdf-base-periodic)",
+            "--report-components-chart-heights-pdf-base-electricity-periodic-weekly-primary": "var(--report-components-report-section-electric-chart-daily-trend-height-pdf-base-weekly)",
+            "--report-components-chart-heights-pdf-base-electricity-heatmap-base": "var(--report-components-report-section-electric-chart-heatmap-height-pdf-base-default)",
+            "--report-components-chart-heights-pdf-base-electricity-periodic-weekly-secondary": "var(--report-components-report-section-electric-chart-heatmap-height-pdf-base-weekly)",
+            "--report-components-chart-heights-pdf-base-electricity-periodic-delta": "var(--report-components-report-section-electric-chart-delta-height-pdf-base-periodic)",
+            "--report-components-chart-heights-pdf-compact-electricity-base": "var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-default)",
+            "--report-components-chart-heights-pdf-compact-electricity-periodic-base": "var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-periodic)",
+            "--report-components-chart-heights-pdf-compact-electricity-periodic-weekly-primary": "var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-weekly)",
+            "--report-components-chart-heights-pdf-compact-electricity-heatmap-base": "var(--report-components-report-section-electric-chart-heatmap-height-pdf-compact-default)",
+            "--report-components-chart-heights-pdf-compact-electricity-periodic-weekly-secondary": "var(--report-components-report-section-electric-chart-heatmap-height-pdf-compact-weekly)",
+            "--report-components-chart-heights-pdf-compact-electricity-periodic-delta": "var(--report-components-report-section-electric-chart-delta-height-pdf-compact-periodic)",
+            "--report-components-chart-heights-view-utility-comparison": "var(--report-components-report-section-utility-chart-comparison-height-view)",
+            "--report-components-chart-heights-pdf-base-utility-comparison": "var(--report-components-report-section-utility-chart-comparison-height-pdf-base)",
+            "--report-components-chart-heights-pdf-compact-utility-comparison": "var(--report-components-report-section-utility-chart-comparison-height-pdf-compact)",
+            "--report-components-chart-heights-view-utility-period-trend": "var(--report-components-report-section-utility-chart-period-trend-height-view)",
+            "--report-components-chart-heights-pdf-base-utility-period-trend": "var(--report-components-report-section-utility-chart-period-trend-height-pdf-base)",
+            "--report-components-chart-heights-pdf-compact-utility-period-trend": "var(--report-components-report-section-utility-chart-period-trend-height-pdf-compact)",
+            "--report-components-chart-heights-view-utility-split-secondary": "var(--report-components-report-section-utility-chart-type-trend-height-view)",
+            "--report-components-chart-heights-pdf-base-utility-split-secondary": "var(--report-components-report-section-utility-chart-type-trend-height-pdf-base)",
+            "--report-components-chart-heights-pdf-compact-utility-split-secondary": "var(--report-components-report-section-utility-chart-type-trend-height-pdf-compact)",
+            "--report-components-chart-heights-view-utility-energy": "var(--report-components-report-section-utility-chart-energy-trend-height-view)",
+            "--report-components-chart-heights-pdf-base-utility-energy": "var(--report-components-report-section-utility-chart-energy-trend-height-pdf-base)",
+            "--report-components-chart-heights-pdf-compact-utility-energy": "var(--report-components-report-section-utility-chart-energy-trend-height-pdf-compact)",
+            "--report-components-chart-heights-view-utility-sensor-trend": "var(--report-components-report-section-utility-chart-period-sensor-trend-height-view)",
+            "--report-components-chart-heights-pdf-base-utility-sensor-trend": "var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-base)",
+            "--report-components-chart-heights-pdf-compact-utility-sensor-trend": "var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-compact-default)",
+            "--report-components-chart-heights-pdf-compact-utility-sensor-trend-single": "var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-compact-single)",
+            "--report-components-chart-heights-view-kpi-dashboard": "var(--report-components-report-section-kpi-chart-dashboard-height-view)",
+            "--report-components-chart-heights-pdf-base-kpi-dashboard": "var(--report-components-report-section-kpi-chart-dashboard-height-pdf-base)",
+            "--report-components-chart-heights-pdf-compact-kpi-dashboard": "var(--report-components-report-section-kpi-chart-dashboard-height-pdf-compact)",
+            "--report-components-table-header-background": "var(--report-components-report-section-common-table-base-header-background)",
+            "--report-components-table-stripe-background": "var(--report-components-report-section-common-table-base-stripe-background)",
+            "--report-components-table-border-color": "var(--report-components-report-section-common-table-base-border-color)",
+            "--report-components-table-text-color": "var(--report-components-report-section-common-table-base-text-color)",
+            "--report-components-table-header-text-color": "var(--report-components-report-section-common-table-base-header-text-color)",
+            "--report-components-table-cell-padding": "var(--report-components-report-section-common-table-base-cell-padding)",
+            "--report-components-table-dense-cell-padding": "var(--report-components-report-section-common-table-base-dense-cell-padding)",
+            "--report-components-summary-card-grid-gap": "var(--report-components-report-section-common-card-grid-gap)",
+            "--report-components-summary-card-border-radius": "var(--report-components-report-section-common-card-border-radius)",
+            "--report-components-summary-card-compare-block-margin-top": "var(--report-components-report-section-common-card-compare-block-margin-top)",
+            "--report-components-summary-card-compare-padding": "var(--report-components-report-section-common-card-compare-padding)",
+            "--report-components-summary-card-compare-item-min-height": "var(--report-components-report-section-common-card-compare-item-min-height)",
+            "--report-components-summary-card-compare-label-font-size": "var(--report-components-report-section-common-card-compare-label-font-size)",
+            "--report-components-summary-card-compare-label-font-weight": "var(--report-components-report-section-common-card-compare-label-font-weight)",
+            "--report-components-summary-card-compare-label-color": "var(--report-components-report-section-common-card-compare-label-color)",
+            "--report-components-summary-card-compare-label-letter-spacing": "var(--report-components-report-section-common-card-compare-label-letter-spacing)",
+            "--report-components-summary-card-compare-value-font-size": "var(--report-components-report-section-common-card-compare-value-font-size)",
+            "--report-components-summary-card-total-min-height": "var(--report-components-report-section-electric-card-total-layout-min-height)",
+            "--report-components-summary-card-total-padding": "var(--report-components-report-section-electric-card-total-layout-padding)",
+            "--report-components-summary-card-total-title-row-gap": "var(--report-components-report-section-electric-card-total-layout-title-row-gap)",
+            "--report-components-summary-card-total-primary-value-font-size": "var(--report-components-report-section-electric-card-total-layout-primary-value-font-size)",
+            "--report-components-summary-card-total-footer-gap": "var(--report-components-report-section-electric-card-total-layout-footer-gap)",
+            "--report-components-summary-card-total-footer-margin-top": "var(--report-components-report-section-electric-card-total-layout-footer-margin-top)",
+            "--report-components-summary-card-pdf-total-height": "var(--report-components-report-section-electric-card-total-pdf-height)",
+            "--report-components-summary-card-pdf-total-min-height": "var(--report-components-report-section-electric-card-total-pdf-min-height)",
+            "--report-components-summary-card-pdf-total-padding": "var(--report-components-report-section-electric-card-total-pdf-padding)",
+            "--report-components-summary-card-pdf-total-border-radius": "var(--report-components-report-section-electric-card-total-pdf-border-radius)",
+            "--report-components-summary-card-pdf-total-top-gap": "var(--report-components-report-section-electric-card-total-pdf-top-gap)",
+            "--report-components-summary-card-pdf-total-top-margin-bottom": "var(--report-components-report-section-electric-card-total-pdf-top-margin-bottom)",
+            "--report-components-summary-card-pdf-total-lead-gap": "var(--report-components-report-section-electric-card-total-pdf-lead-gap)",
+            "--report-components-summary-card-pdf-total-title-row-gap": "var(--report-components-report-section-electric-card-total-pdf-title-row-gap)",
+            "--report-components-summary-card-pdf-total-title-font-size": "var(--report-components-report-section-electric-card-total-pdf-title-font-size)",
+            "--report-components-summary-card-pdf-total-icon-size": "var(--report-components-report-section-electric-card-total-pdf-icon-size)",
+            "--report-components-summary-card-pdf-total-icon-glyph-size": "var(--report-components-report-section-electric-card-total-pdf-icon-glyph-size)",
+            "--report-components-summary-card-pdf-total-primary-gap": "var(--report-components-report-section-electric-card-total-pdf-primary-gap)",
+            "--report-components-summary-card-pdf-total-primary-value-font-size": "var(--report-components-report-section-electric-card-total-pdf-primary-value-font-size)",
+            "--report-components-summary-card-pdf-total-supporting-font-size": "var(--report-components-report-section-electric-card-total-pdf-supporting-font-size)",
+            "--report-components-summary-card-pdf-total-meta-gap": "var(--report-components-report-section-electric-card-total-pdf-meta-gap)",
+            "--report-components-summary-card-pdf-total-meta-margin-top": "var(--report-components-report-section-electric-card-total-pdf-meta-margin-top)",
+            "--report-components-summary-card-pdf-total-meta-margin-bottom": "var(--report-components-report-section-electric-card-total-pdf-meta-margin-bottom)",
+            "--report-components-summary-card-pdf-total-meter-value-font-size": "var(--report-components-report-section-electric-card-total-pdf-meter-value-font-size)",
+            "--report-components-summary-card-pdf-total-compare-padding": "var(--report-components-report-section-electric-card-total-pdf-compare-padding)",
+            "--report-components-summary-card-pdf-total-compare-item-padding": "var(--report-components-report-section-electric-card-total-pdf-compare-item-padding)",
+            "--report-components-summary-card-pdf-total-compare-label-font-size": "var(--report-components-report-section-electric-card-total-pdf-compare-label-font-size)",
+            "--report-components-summary-card-pdf-total-compare-value-font-size": "var(--report-components-report-section-electric-card-total-pdf-compare-value-font-size)",
+            "--report-components-summary-card-pdf-total-footer-gap": "var(--report-components-report-section-electric-card-total-pdf-footer-gap)",
+            "--report-components-summary-card-pdf-total-footer-margin-top": "var(--report-components-report-section-electric-card-total-pdf-footer-margin-top)",
+            "--report-components-summary-card-pdf-total-delta-gap": "var(--report-components-report-section-electric-card-total-pdf-delta-gap)",
+            "--report-components-summary-card-pdf-total-footer-value-font-size": "var(--report-components-report-section-electric-card-total-pdf-footer-value-font-size)",
+            "--report-components-summary-card-pdf-total-footer-row-gap": "var(--report-components-report-section-electric-card-total-pdf-footer-row-gap)",
+            "--report-components-summary-card-pdf-total-footer-padding-top": "var(--report-components-report-section-electric-card-total-pdf-footer-padding-top)",
+            "--report-components-summary-card-pdf-total-meta-row-gap": "var(--report-components-report-section-electric-card-total-pdf-meta-row-gap)",
+            "--report-components-summary-card-pdf-total-meta-value-gap": "var(--report-components-report-section-electric-card-total-pdf-meta-value-gap)",
+            "--report-components-summary-card-pdf-total-trend-row-gap": "var(--report-components-report-section-electric-card-total-pdf-trend-row-gap)",
+            "--report-components-summary-card-pdf-total-trend-note-font-size": "var(--report-components-report-section-electric-card-total-pdf-trend-note-font-size)",
+            "--report-components-summary-card-utility-min-height": "var(--report-components-report-section-utility-card-total-utility-layout-min-height)",
+            "--report-components-summary-card-utility-padding": "var(--report-components-report-section-utility-card-total-utility-layout-padding)",
+            "--report-components-summary-card-utility-top-gap": "var(--report-components-report-section-utility-card-total-utility-layout-top-gap)",
+            "--report-components-summary-card-utility-primary-value-font-size": "var(--report-components-report-section-utility-card-total-utility-layout-primary-value-font-size)",
+            "--report-components-summary-card-utility-delta-padding-top": "var(--report-components-report-section-utility-card-total-utility-layout-delta-padding-top)",
+            "--report-components-summary-card-kpi-min-height": "var(--report-components-report-section-kpi-card-plant-layout-min-height)",
+            "--report-components-summary-card-kpi-padding": "var(--report-components-report-section-kpi-card-plant-layout-padding)",
+            "--report-components-summary-card-kpi-top-gap": "var(--report-components-report-section-kpi-card-plant-layout-top-gap)",
+            "--report-components-summary-card-kpi-footer-margin-top": "var(--report-components-report-section-kpi-card-plant-layout-footer-margin-top)",
         }
 
         return [f"{alias_name}: {source};" for alias_name, source in alias_map.items()]

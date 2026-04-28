@@ -56,6 +56,16 @@ Preferred direction:
 - then object type, such as `card`, `chart`, `table`
 - then concrete object, such as `dailyTrend`, `total`, `sensorMonitoring`
 - each concrete object should own its full local styling where practical, for example `weekly`, `monthly`, `legend`, `grid`, `width`, `height`
+- practical direction: prefer `report.section.electric.chart.dailyTrend.height.*` over a shared electricity-only `chart.common.height.*` bucket when the values belong to one concrete chart card
+
+Current schema direction in implementation:
+- `reportStyle.components.report.titleHeader.*`
+- `reportStyle.components.report.section.common.*`
+- `reportStyle.components.report.section.electric.*`
+- `reportStyle.components.report.section.utility.*`
+- `reportStyle.components.report.section.kpi.*`
+- common shared tokens still remain above the `report` branch when they apply across the whole report family
+- compatibility aliases are allowed during migration so templates/CSS can keep rendering while the tree becomes the primary source
 
 ---
 

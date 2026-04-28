@@ -131,26 +131,39 @@
         page-break-inside: auto !important;
     }
 
-    .electricity-chart {
+    .electricity-chart-card-trend .electricity-chart,
+    .electricity-chart-card-area .electricity-chart {
         width: 100% !important;
-        height: var(--report-components-chart-heights-pdf-compact-electricity-base, 216px) !important;
+        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-default, 216px) !important;
         overflow: hidden !important;
     }
 
-    .periodic-electricity-chart-grid .electricity-chart {
-        height: var(--report-components-chart-heights-pdf-compact-electricity-periodic-base, 224px) !important;
+    .electricity-chart-card-area .electricity-chart {
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-default, 216px) !important;
     }
 
-    .periodic-electricity-chart-grid-weekly .electricity-chart {
-        height: var(--report-components-chart-heights-pdf-compact-electricity-periodic-weekly-primary, 244px) !important;
+    .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart {
+        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-periodic, 224px) !important;
+    }
+
+    .periodic-electricity-chart-grid .electricity-chart-card-area .electricity-chart {
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-periodic, 224px) !important;
+    }
+
+    .periodic-electricity-chart-grid-weekly .electricity-chart-card-trend .electricity-chart {
+        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-weekly, 244px) !important;
+    }
+
+    .periodic-electricity-chart-grid-weekly .electricity-chart-card-area .electricity-chart {
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-weekly, 244px) !important;
     }
 
     .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart {
-        height: var(--report-components-sections-electricity-charts-monthly-trend-height, 262px) !important;
+        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-monthly, 262px) !important;
     }
 
     .periodic-electricity-chart-grid-monthly .electricity-chart-card-area .electricity-chart {
-        height: var(--report-components-sections-electricity-charts-monthly-area-comparison-height, 174px) !important;
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-monthly, 174px) !important;
     }
 
     .electricity-heatmap-chart {
