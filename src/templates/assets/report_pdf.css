@@ -168,31 +168,34 @@
 
     .electricity-heatmap-chart {
         width: 100% !important;
-        height: var(--report-components-chart-heights-pdf-compact-electricity-heatmap-base, 156px) !important;
+        height: var(--report-components-report-section-electric-chart-heatmap-height-pdf-compact-default, 156px) !important;
         overflow: hidden !important;
     }
 
-    .periodic-electricity-chart-grid-weekly .electricity-heatmap-chart,
-    .periodic-electricity-chart-grid-weekly .electricity-delta-chart {
-        height: var(--report-components-chart-heights-pdf-compact-electricity-periodic-weekly-secondary, 184px) !important;
+    .periodic-electricity-chart-grid-weekly .electricity-heatmap-chart {
+        height: var(--report-components-report-section-electric-chart-heatmap-height-pdf-compact-weekly, 184px) !important;
     }
 
     .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart {
-        height: var(--report-components-sections-electricity-charts-monthly-heatmap-height, 192px) !important;
+        height: var(--report-components-report-section-electric-chart-heatmap-height-pdf-compact-monthly, 192px) !important;
     }
 
     .electricity-delta-chart {
         width: 100% !important;
-        height: var(--report-components-chart-heights-pdf-compact-electricity-heatmap-base, 156px) !important;
+        height: var(--report-components-report-section-electric-chart-delta-height-pdf-compact-default, 156px) !important;
         overflow: hidden !important;
     }
 
+    .periodic-electricity-chart-grid-weekly .electricity-delta-chart {
+        height: var(--report-components-report-section-electric-chart-delta-height-pdf-compact-weekly, 184px) !important;
+    }
+
     .periodic-electricity-chart-grid .electricity-delta-chart {
-        height: var(--report-components-chart-heights-pdf-compact-electricity-periodic-delta, 178px) !important;
+        height: var(--report-components-report-section-electric-chart-delta-height-pdf-compact-periodic, 178px) !important;
     }
 
     .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart {
-        height: var(--report-components-sections-electricity-charts-monthly-delta-height, 178px) !important;
+        height: var(--report-components-report-section-electric-chart-delta-height-pdf-compact-monthly, 178px) !important;
     }
 
     .electricity-heatmap-legend {

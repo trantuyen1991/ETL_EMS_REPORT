@@ -161,6 +161,7 @@ Presentation refactor direction and current implementation state:
   - chart grid / legend / chart-height tokens are now being reorganized under the report tree, for example `components.report.section.electric.chart.*`
   - Electricity `dailyTrend` and `areaComparison` now own their own `height.view / pdfBase / pdfCompact` branches instead of relying on a shared chart-height bucket
   - summary-card and table tokens have started the same migration path through `components.report.section.common.*` and section-owned card objects such as `components.report.section.utility.card.*`
+  - current CSS for electricity heatmap/delta plus shared table/card styling now reads the report-tree variables directly, so those areas no longer depend on the older summary-card / table / electricity-height bridge aliases
   - final periodic audit found some remaining hard-coded values, but they are now mostly section-specific visual recipes rather than shared family blockers
 
 Layout refresh decision before the next batch:

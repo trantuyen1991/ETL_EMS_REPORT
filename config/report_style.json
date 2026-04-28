@@ -653,15 +653,21 @@
                 "height": {
                   "view": {
                     "periodic": "252px",
-                    "monthly": "130px"
+                    "monthly": "130px",
+                    "default": "228px",
+                    "weekly": "252px"
                   },
                   "pdfBase": {
                     "periodic": "252px",
-                    "monthly": "130px"
+                    "monthly": "130px",
+                    "default": "228px",
+                    "weekly": "258px"
                   },
                   "pdfCompact": {
                     "periodic": "178px",
-                    "monthly": "130px"
+                    "monthly": "130px",
+                    "default": "156px",
+                    "weekly": "184px"
                   }
                 }
               }

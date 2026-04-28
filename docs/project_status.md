@@ -32,6 +32,7 @@ Stable baseline:
 - chart grid / legend / chart-height tokens are now moving under `components.report.section.<section>.<object-type>.<object>` in `config/report_style.json`
 - Electricity trend and area-comparison charts now carry their own `height` variants under the object node, reducing reliance on shared electricity chart-height buckets
 - summary-card and table tokens have now started the same move, with shared foundations mirrored under `components.report.section.common.*`
+- electricity heatmap/delta chart heights and the shared table/card CSS layer now consume report-tree variables directly, reducing the old compatibility bridge surface in `ReportStyleService`
 - the 2026-04-28 periodic shrink bug was traced to a Utility Sensor Monitoring table overflow in PDF, and the weekly document width is now back in sync with daily at document level
 
 ---

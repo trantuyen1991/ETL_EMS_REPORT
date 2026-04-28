@@ -66,6 +66,7 @@ Current schema direction in implementation:
 - `reportStyle.components.report.section.kpi.*`
 - common shared tokens still remain above the `report` branch when they apply across the whole report family
 - compatibility aliases are allowed during migration so templates/CSS can keep rendering while the tree becomes the primary source
+- once a template/CSS area has been repointed to direct `components.report.*` variables, the matching bridge aliases should be removed instead of kept indefinitely
 
 ---
 
