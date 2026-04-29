@@ -262,6 +262,34 @@ class ReportBuilderService:
 
         return result
 
+    def _resolve_chart_value_label(
+        self,
+        defaults: Dict[str, Any],
+        *path: str,
+    ) -> Dict[str, Any]:
+        """Resolve bar/value-label tuning tokens from section-tree style config with safe defaults."""
+        result = dict(defaults)
+        node = self._get_section_chart_node(*path)
+        current = node.get("valueLabel", {}) if isinstance(node, dict) else {}
+
+        if not isinstance(current, dict):
+            return result
+
+        for key in (
+            "positivePosition",
+            "negativePosition",
+            "distance",
+            "fontSize",
+            "fontWeight",
+            "color",
+            "axisPaddingLeft",
+            "axisPaddingRight",
+        ):
+            if current.get(key) is not None:
+                result[key] = current.get(key)
+
+        return result
+
     def _build_company_logo_data_uri(self) -> str:
         """Embed the company logo so both HTML preview and PDF render consistently."""
         for filename in ("logo_company.svg", "logo_company.png"):
@@ -2090,6 +2118,7 @@ class ReportBuilderService:
                 "display_name": display_name,
                 "short_label": short_label,
                 "chart_label": self._build_v3_utility_chart_label(short_label),
+                "unit": meta.get("unit") or "",
                 "current": float(comparison.get(key, {}).get("current", 0.0) or 0.0),
                 "previous": float(comparison.get(key, {}).get("previous", 0.0) or 0.0),
             })
@@ -2112,7 +2141,7 @@ class ReportBuilderService:
                 "option": self._build_v3_utility_comparison_option(utility_items),
             },
             "deviation_vs_yesterday": {
-                "title": "Deviation vs Yesterday (%)" if is_daily_report else "Consumption delta (%)",
+                "title": "Deviation vs Yesterday" if is_daily_report else "Consumption delta (%)",
                 "subtitle": "Positive value means higher consumption" if is_daily_report else "Current period versus previous period",
                 "option": self._build_v3_utility_deviation_option(utility_items),
             },
@@ -2167,7 +2196,7 @@ class ReportBuilderService:
 
         prefix_alias_map = {
             "domestic": "Dom",
-            "sakari": "SAK",
+            "sakari": "SAKARI",
             "diode": "DIODE",
             "ico": "ICO",
         }
@@ -2609,15 +2638,16 @@ class ReportBuilderService:
 
             deviation_items.append({
                 "display_name": item.get("display_name") or "-",
+                "unit": item.get("unit") or "",
+                "current": current_value,
+                "previous": previous_value,
                 "value": round(deviation_pct, 2),
             })
 
         deviation_items.sort(key=lambda item: item["value"], reverse=True)
 
         labels = [
-            self._build_v3_utility_chart_label(
-                self._build_v3_utility_short_label(item["display_name"])
-            )
+            self._build_v3_utility_short_label(item["display_name"])
             for item in deviation_items
         ]
         values = [item["value"] for item in deviation_items]
@@ -2626,10 +2656,25 @@ class ReportBuilderService:
             for value in values
         ]
 
+        label_config = self._resolve_chart_value_label(
+            {
+                "positivePosition": "right",
+                "negativePosition": "left",
+                "distance": 4,
+                "fontSize": 10,
+                "fontWeight": 700,
+                "color": "#334155",
+                "axisPaddingLeft": 2,
+                "axisPaddingRight": 2,
+            },
+            "utility",
+            "deviation",
+        )
+
         min_value = min(values, default=0.0)
         max_value = max(values, default=0.0)
-        axis_min = min(-10.0, float(min_value))
-        axis_max = max(10.0, float(max_value))
+        axis_min = min(-10.0, float(min_value)) - float(label_config.get("axisPaddingLeft", 2) or 0.0)
+        axis_max = max(10.0, float(max_value)) + float(label_config.get("axisPaddingRight", 2) or 0.0)
 
         return {
             "tooltip": {
@@ -2648,8 +2693,8 @@ class ReportBuilderService:
             ),
             "xAxis": {
                 "type": "value",
-                "min": round(axis_min - 1.0, 2),
-                "max": round(axis_max + 1.0, 2),
+                "min": round(axis_min, 2),
+                "max": round(axis_max, 2),
                 "axisLabel": {
                     "color": "#64748b",
                     "formatter": "{value}%",
@@ -2683,10 +2728,19 @@ class ReportBuilderService:
                             },
                             "label": {
                                 "show": True,
-                                "position": "right" if value >= 0 else "left",
-                                "color": "#334155",
-                                "fontWeight": 700,
-                                "formatter": f"{value:+.2f}%",
+                                "position": (
+                                    label_config.get("positivePosition", "right")
+                                    if value >= 0 else label_config.get("negativePosition", "left")
+                                ),
+                                "distance": label_config.get("distance", 4),
+                                "color": label_config.get("color", "#334155"),
+                                "fontSize": label_config.get("fontSize", 10),
+                                "lineHeight": max(int(label_config.get("fontSize", 10)) + 2, 12),
+                                "fontWeight": label_config.get("fontWeight", 700),
+                                "formatter": (
+                                    f"{value:.2f}%"
+                                    f"({self._fmt(abs(float(deviation_items[index].get('current', 0.0) or 0.0) - float(deviation_items[index].get('previous', 0.0) or 0.0)))} {str(deviation_items[index].get('unit') or '').strip()})"
+                                ).strip(),
                             },
                         }
                         for index, value in enumerate(values)

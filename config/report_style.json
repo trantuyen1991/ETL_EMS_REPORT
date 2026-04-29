@@ -705,18 +705,18 @@
             "chart": {
               "comparison": {
                 "legend": {
-                  "top": "left"
+                  "bottom": "center"
                 },
                 "grid": {
                   "left": 28,
                   "right": 10,
-                  "top": 42,
-                  "bottom": 32,
+                  "top": 10,
+                  "bottom": 20,
                   "containLabel": true
                 },
                 "height": {
                   "view": "272px",
-                  "pdf": "168px"
+                  "pdf": "140px"
                 }
               },
               "periodTrend": {
@@ -783,22 +783,36 @@
               },
               "sensorCluster": {
                 "legend": {
-                  "top": "left"
+                  "bottom": "center"
                 },
                 "grid": {
-                  "left": 38,
+                  "left": 20,
                   "right": 14,
-                  "top": 38,
-                  "bottom": 28,
+                  "top": 20,
+                  "bottom": 20,
                   "containLabel": true
                 }
               },
               "deviation": {
                 "grid": {
-                  "left": 50,
-                  "right": 30,
-                  "top": 18,
+                  "left": 92,
+                  "right": 24,
+                  "top": 10,
                   "bottom": 28
+                },
+                "height": {
+                  "view": "326px",
+                  "pdf": "150px"
+                },
+                "valueLabel": {
+                  "positivePosition": "right",
+                  "negativePosition": "left",
+                  "distance": 4,
+                  "fontSize": 10,
+                  "fontWeight": 700,
+                  "color": "#334155",
+                  "axisPaddingLeft": 30,
+                  "axisPaddingRight": 30
                 }
               }
             },
@@ -898,12 +912,12 @@
               },
               "dailyGroupedBar": {
                 "legend": {
-                  "top": "left"
+                  "bottom": "center"
                 },
                 "grid": {
                   "left": 32,
                   "right": 12,
-                  "top": 36,
+                  "top": 15,
                   "bottom": 22,
                   "containLabel": true
                 }
@@ -915,8 +929,8 @@
                 "grid": {
                   "left": 32,
                   "right": 12,
-                  "top": 48,
-                  "bottom": 24,
+                  "top": 20,
+                  "bottom": 25,
                   "containLabel": true
                 }
               },
@@ -925,7 +939,7 @@
                   "left": 32,
                   "right": 12,
                   "top": 20,
-                  "bottom": 34,
+                  "bottom": 25,
                   "containLabel": true
                 }
               },

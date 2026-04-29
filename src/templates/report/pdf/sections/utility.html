@@ -273,13 +273,13 @@
                                 {% for row in sections.utility.energy.detail_rows %}
                                 <tr>
                                     <td class="col-utility">{{ row.display_name }}</td>
-                                    <td>{{ row.current_display }}</td>
-                                    <td>{{ row.previous_display }}</td>
-                                    <td class="{{ row.delta_pct_class }}">{{ row.delta_display }}</td>
-                                    <td class="{{ row.delta_pct_class }}">{{ row.delta_pct_display }}</td>
-                                    <td>{{ row.energy_current_display }}</td>
-                                    <td>{{ row.energy_previous_display }}</td>
-                                    <td class="{{ row.energy_delta_pct_class }}">{{ row.energy_delta_pct_display }}</td>
+                                    <td class="col-current utility-current-text">{{ row.current_display }}</td>
+                                    <td class="col-previous utility-previous-text">{{ row.previous_display }}</td>
+                                    <td class="col-delta {{ row.delta_pct_class }}"><span class="utility-delta-chip {{ row.delta_pct_class }}">{{ row.delta_display }}</span></td>
+                                    <td class="col-delta-pct {{ row.delta_pct_class }}"><span class="utility-delta-chip {{ row.delta_pct_class }}">{{ row.delta_pct_display }}</span></td>
+                                    <td class="col-current utility-current-text">{{ row.energy_current_display }}</td>
+                                    <td class="col-previous utility-previous-text">{{ row.energy_previous_display }}</td>
+                                    <td class="col-delta-pct {{ row.energy_delta_pct_class }}"><span class="utility-delta-chip {{ row.energy_delta_pct_class }}">{{ row.energy_delta_pct_display }}</span></td>
                                 </tr>
                                 {% endfor %}
                                 {% else %}
@@ -287,24 +287,23 @@
                                 <tr>
                                     <td class="col-utility">{{ row.display_name }}</td>
                                     <td class="col-unit">{{ row.unit }}</td>
-                                    <td class="col-current utility-bar-column">
+                                    <td class="col-current utility-bar-column utility-current-column">
                                         <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.current_fill_pct }}%;">
                                             <span class="utility-value-bar-fill"></span>
-                                            <span class="utility-value-bar-label">{{ row.current_display }}</span>
+                                            <span class="utility-value-bar-label utility-value-bar-label-current">{{ row.current_display }}</span>
                                         </div>
                                     </td>
-                                    <td class="col-previous utility-bar-column">
+                                    <td class="col-previous utility-bar-column utility-previous-column">
                                         <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.previous_fill_pct }}%;">
                                             <span class="utility-value-bar-fill"></span>
-                                            <span class="utility-value-bar-label">{{ row.previous_display }}</span>
+                                            <span class="utility-value-bar-label utility-value-bar-label-previous">{{ row.previous_display }}</span>
                                         </div>
                                     </td>
                                     <td class="col-delta {{ row.delta_class }}">
-                                        {{ row.delta_display }}
+                                        <span class="utility-delta-chip {{ row.delta_class }}">{{ row.delta_display }}</span>
                                     </td>
                                     <td class="col-delta-pct {{ row.delta_pct_class }}">
-                                        {{ report.delta_arrow(row.delta_pct_class) }}
-                                        {{ row.delta_pct_display }}
+                                        <span class="utility-delta-chip {{ row.delta_pct_class }}">{{ report.delta_arrow(row.delta_pct_class) }} {{ row.delta_pct_display }}</span>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -552,24 +551,23 @@
                                 <tr>
                                     <td class="col-utility">{{ row.display_name }}</td>
                                     <td class="col-unit">{{ row.unit }}</td>
-                                    <td class="col-current utility-bar-column">
+                                    <td class="col-current utility-bar-column utility-current-column">
                                         <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.current_fill_pct }}%;">
                                             <span class="utility-value-bar-fill"></span>
-                                            <span class="utility-value-bar-label">{{ row.current_display }}</span>
+                                            <span class="utility-value-bar-label utility-value-bar-label-current">{{ row.current_display }}</span>
                                         </div>
                                     </td>
-                                    <td class="col-previous utility-bar-column">
+                                    <td class="col-previous utility-bar-column utility-previous-column">
                                         <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.previous_fill_pct }}%;">
                                             <span class="utility-value-bar-fill"></span>
-                                            <span class="utility-value-bar-label">{{ row.previous_display }}</span>
+                                            <span class="utility-value-bar-label utility-value-bar-label-previous">{{ row.previous_display }}</span>
                                         </div>
                                     </td>
                                     <td class="col-delta {{ row.delta_class }}">
-                                        {{ row.delta_display }}
+                                        <span class="utility-delta-chip {{ row.delta_class }}">{{ row.delta_display }}</span>
                                     </td>
                                     <td class="col-delta-pct {{ row.delta_pct_class }}">
-                                        {{ report.delta_arrow(row.delta_pct_class) }}
-                                        {{ row.delta_pct_display }}
+                                        <span class="utility-delta-chip {{ row.delta_pct_class }}">{{ report.delta_arrow(row.delta_pct_class) }} {{ row.delta_pct_display }}</span>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -615,16 +613,24 @@
             {% set sensor_monitoring_subtitle = sensor_monitoring_view.subtitle if sensor_monitoring_view.subtitle is defined and sensor_monitoring_view.subtitle else sensor_monitoring.subtitle %}
             {% if sensor_monitoring.enabled %}
             <div class="utility-sensor-block">
-                <div class="utility-sensor-header{% if not flags.is_daily_report %} is-period-heading{% endif %}">
+                <div class="utility-sensor-header{% if flags.is_daily_report %} is-rich-heading{% else %} is-period-heading{% endif %}">
                     {% if flags.is_daily_report %}
-                    <div>
-                        <h3 class="electricity-subsection-title">
-                            Sensor Monitoring
-                        </h3>
-                        {% if sensor_monitoring_subtitle %}
-                        <p class="utility-sensor-subtitle">{{ sensor_monitoring_subtitle }}</p>
-                        {% endif %}
-                        <div class="utility-sensor-statline">
+                    <div class="utility-sensor-heading-shell">
+                        <div class="utility-sensor-heading-main">
+                            <span class="utility-sensor-heading-icon" aria-hidden="true">
+                                {% include "assets/icon/utilityheader.svg" %}
+                            </span>
+                            <div class="utility-sensor-heading-copy">
+                                <div class="utility-sensor-heading-eyebrow">Daily Utility Insight</div>
+                                <h3 class="electricity-subsection-title utility-sensor-heading-title">
+                                    Sensor Monitoring
+                                </h3>
+                                {% if sensor_monitoring_subtitle %}
+                                <p class="utility-sensor-subtitle">{{ sensor_monitoring_subtitle }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="utility-sensor-statline utility-sensor-statline-period">
                             <span class="utility-sensor-statpill">{{ sensor_monitoring.focus_date_display }}</span>
                             <span class="utility-sensor-statpill">{{ sensor_monitoring_view.active_sensor_count }}/{{ sensor_monitoring_view.sensor_count }} sensors active</span>
                             <span class="utility-sensor-statpill {% if sensor_monitoring_view.anomaly_rows %}has-alert{% endif %}">

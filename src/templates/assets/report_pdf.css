@@ -679,14 +679,17 @@
         height: var(--report-components-report-section-utility-chart-comparison-height-pdf, 168px) !important;
     }
 
-    .utility-period-type-trend-chart,
-    .utility-comparison-chart-daily {
+    .utility-period-type-trend-chart {
         height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;
+    }
+
+    .utility-comparison-chart-daily {
+        height: var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px) !important;
     }
 
     .utility-comparison-chart-wide,
     .utility-comparison-chart-narrow {
-        height: var(--report-components-report-section-utility-chart-type-trend-height-pdf, 186px) !important;
+        height: var(--report-components-report-section-utility-chart-comparison-height-pdf, 168px) !important;
     }
 
     .utility-energy-chart-grid {
@@ -979,6 +982,12 @@
 
     .utility-value-bar-label {
         font-size: 8px !important;
+    }
+
+    .utility-delta-chip {
+        padding: 3px 6px !important;
+        font-size: 7.6px !important;
+        gap: 3px !important;
     }
 
     .electricity-daily-summary-area-table {
