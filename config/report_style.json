@@ -1512,18 +1512,6 @@
                   "pdf": "196px"
                 }
               },
-              "dailyGroupedBar": {
-                "legend": {
-                  "bottom": "center"
-                },
-                "grid": {
-                  "left": 32,
-                  "right": 12,
-                  "top": 15,
-                  "bottom": 22,
-                  "containLabel": true
-                }
-              },
               "compareBar": {
                 "legend": {
                   "top": "left"
@@ -1552,11 +1540,6 @@
                   "top": 12,
                   "bottom": 18,
                   "containLabel": false
-                }
-              },
-              "contribution": {
-                "legend": {
-                  "top": "center"
                 }
               },
               "theme": {

@@ -166,6 +166,24 @@ class ReportBuilderService:
             current = current.get(key)
         return default if current is None else current
 
+    def _get_chart_palette(self) -> list[str]:
+        """Return the semantic ECharts palette with stable fallbacks."""
+        palette = self._get_style_color_value([], "chart", "palette")
+        if isinstance(palette, list):
+            values = [str(item).strip() for item in palette if str(item).strip()]
+            if values:
+                return values
+        return [
+            "#005496",
+            "#5f7fa6",
+            "#5b9bd5",
+            "#6f9a6d",
+            "#d09a45",
+            "#c65a4b",
+            "#5ca7a4",
+            "#7a6da8",
+        ]
+
     def _get_electric_chart_series_palette(self) -> Dict[str, str]:
         """Return current/previous series colors for Electricity pilot charts."""
         series_cfg = self._get_style_color_node("chart", "series")
@@ -1428,6 +1446,9 @@ class ReportBuilderService:
         current_area_values = [row["current_value"] for row in area_rows]
         previous_area_values = [row["previous_value"] for row in area_rows]
         series_palette = self._get_electric_chart_series_palette()
+        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
 
         if period_type == "daily":
             current_total_value = sum(current_area_values)
@@ -1537,17 +1558,17 @@ class ReportBuilderService:
                         "boundaryGap": False,
                         "data": daily_labels,
                         "axisLabel": {
-                            "color": "#64748b",
+                            "color": muted_text_color,
                             "interval": 0,
                             "rotate": 28,
                             "fontSize": 9,
                         },
-                        "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                        "axisLine": {"lineStyle": {"color": axis_line_color}},
                     },
                     "yAxis": {
                         "type": "value",
-                        "axisLabel": {"color": "#64748b"},
-                        "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                        "axisLabel": {"color": muted_text_color},
+                        "splitLine": {"lineStyle": {"color": split_line_color}},
                     },
                     "series": [
                         {
@@ -1643,20 +1664,20 @@ class ReportBuilderService:
                         "type": "category",
                         "data": area_labels,
                         "axisLabel": {
-                            "color": "#64748b",
+                            "color": muted_text_color,
                             "interval": 0,
                             "rotate": 18,
                             "fontSize": 9,
                             "margin": 12,
                             "hideOverlap": False,
                         },
-                        "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                        "axisLine": {"lineStyle": {"color": axis_line_color}},
                         "axisTick": {"alignWithLabel": True},
                     },
                     "yAxis": {
                         "type": "value",
-                        "axisLabel": {"color": "#64748b"},
-                        "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                        "axisLabel": {"color": muted_text_color},
+                        "splitLine": {"lineStyle": {"color": split_line_color}},
                     },
                     "series": [
                         {
@@ -1723,6 +1744,10 @@ class ReportBuilderService:
 
         total_area_cfg = self._get_style_color_node("area", "total")
         total_delta_color = str(total_area_cfg.get("barColor") or self._get_style_color_value("#005496", "brand", "primary"))
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
+        border_color = str(self._get_style_color_value("#b9c8d6", "chart", "border"))
 
         delta_source_rows = [
             {
@@ -1760,7 +1785,7 @@ class ReportBuilderService:
                     "formatter": label_text,
                     "fontSize": 8,
                     "fontWeight": 700,
-                    "color": "#334155",
+                    "color": primary_text_color,
                 },
             })
 
@@ -1791,12 +1816,12 @@ class ReportBuilderService:
                     "min": -axis_limit,
                     "max": axis_limit,
                     "axisLabel": {
-                        "color": "#64748b",
+                        "color": muted_text_color,
                         "fontSize": 8,
                     },
                     "splitLine": {
                         "lineStyle": {
-                            "color": "#e2e8f0",
+                            "color": split_line_color,
                             "type": "dashed",
                         }
                     },
@@ -1808,7 +1833,7 @@ class ReportBuilderService:
                     "axisTick": {"show": False},
                     "axisLine": {"show": False},
                     "axisLabel": {
-                        "color": "#334155",
+                        "color": primary_text_color,
                         "fontWeight": 700,
                         "fontSize": 9,
                     },
@@ -1824,7 +1849,7 @@ class ReportBuilderService:
                             "silent": True,
                             "symbol": ["none", "none"],
                             "lineStyle": {
-                                "color": "#94a3b8",
+                                "color": border_color,
                                 "width": 1,
                             },
                             "data": [{"xAxis": 0}],
@@ -1896,6 +1921,10 @@ class ReportBuilderService:
         area_visual_map = self._get_v3_area_visual_map()
         total_area_cfg = self._get_style_color_node("area", "total")
         total_bar_color = str(total_area_cfg.get("barColor") or self._get_style_color_value("#005496", "brand", "primary"))
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
+        chart_text_color = str(self._get_style_color_value("#0f172a", "chart", "text"))
         row_palettes = {
             "plant": {"bar_color": total_bar_color},
             "diode": area_visual_map.get("diode", {}),
@@ -1974,9 +2003,9 @@ class ReportBuilderService:
                         "interval": 0,
                         "rotate": label_rotate,
                         "fontSize": label_font_size,
-                        "color": "#475569",
+                        "color": muted_text_color,
                     },
-                    "axisLine": {"lineStyle": {"color": "#dbe4ee"}},
+                    "axisLine": {"lineStyle": {"color": axis_line_color}},
                     "axisTick": {"show": False},
                 },
                 "yAxis": {
@@ -1987,7 +2016,7 @@ class ReportBuilderService:
                     "axisLabel": {
                         "show": period_type != "monthly",
                         "fontWeight": 700,
-                        "color": "#334155",
+                        "color": primary_text_color,
                     },
                 },
                 "series": [
@@ -1999,7 +2028,7 @@ class ReportBuilderService:
                             "show": period_type != "monthly",
                             "fontSize": 8,
                             "fontWeight": 700,
-                            "color": "#0f172a",
+                            "color": chart_text_color,
                         },
                         "emphasis": {
                             "itemStyle": {
@@ -3728,16 +3757,11 @@ class ReportBuilderService:
             else:
                 labels.append(str(row.get("date_display") or "-"))
 
-        palette = [
-            "#2563eb",
-            "#0f766e",
-            "#7c3aed",
-            "#f59e0b",
-            "#dc2626",
-            "#0891b2",
-            "#65a30d",
-            "#9333ea",
-        ]
+        palette = self._get_chart_palette()
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
 
         metrics_by_unit: dict[str, list[dict[str, Any]]] = {}
         for metric in metric_columns:
@@ -3814,7 +3838,7 @@ class ReportBuilderService:
                             "textStyle": {
                                 "fontSize": 11,
                                 "fontWeight": 600,
-                                "color": "#334155",
+                                "color": primary_text_color,
                             },
                         },
                         "utility",
@@ -3836,12 +3860,12 @@ class ReportBuilderService:
                         "boundaryGap": False,
                         "data": labels,
                         "axisLabel": {
-                            "color": "#64748b",
+                            "color": muted_text_color,
                             "fontSize": 10,
                         },
                         "axisLine": {
                             "lineStyle": {
-                                "color": "#cbd5e1",
+                                "color": axis_line_color,
                             },
                         },
                     },
@@ -3853,15 +3877,15 @@ class ReportBuilderService:
                         "nameTextStyle": {
                             "fontSize": 10,
                             "fontWeight": 700,
-                            "color": "#475569",
+                            "color": primary_text_color,
                         },
                         "axisLabel": {
-                            "color": "#64748b",
+                            "color": muted_text_color,
                             "fontSize": 10,
                         },
                         "splitLine": {
                             "lineStyle": {
-                                "color": "rgba(148, 163, 184, 0.22)",
+                                "color": split_line_color,
                             },
                         },
                     },
@@ -4038,7 +4062,7 @@ class ReportBuilderService:
         series_items = chart.get("series") or []
         all_timestamps: list[str] = []
 
-        for series in series_items:
+        for series_index, series in enumerate(series_items):
             for point in series.get("points") or []:
                 ts_value = str(point.get("ts") or "").strip()
                 if ts_value and ts_value not in all_timestamps:
@@ -4048,6 +4072,11 @@ class ReportBuilderService:
             all_timestamps = ["-"]
 
         formatted_labels = [self._build_v3_intraday_axis_label(ts_value) for ts_value in all_timestamps]
+        palette = self._get_chart_palette()
+        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
 
         axis_list = y_axes or [{
             "name": chart.get("unit") or "",
@@ -4068,7 +4097,7 @@ class ReportBuilderService:
                 for point in series.get("points") or []
             }
             sensor_key = str(series.get("sensor_key") or "")
-            series_color = series.get("color") or "#2563eb"
+            series_color = series.get("color") or palette[series_index % len(palette)]
             series_data = [
                 (
                     round(float(point_lookup[ts_value]["value"]), 4)
@@ -4182,8 +4211,8 @@ class ReportBuilderService:
                     "fontSize": 9,
                     "margin": 4 if is_right_axis else 8,
                 },
-                "axisLine": {"show": len(axis_list) > 1, "lineStyle": {"color": "#cbd5e1"}},
-                "splitLine": {"show": axis_index == 0, "lineStyle": {"color": "#e2e8f0"}},
+                "axisLine": {"show": len(axis_list) > 1, "lineStyle": {"color": axis_line_color}},
+                "splitLine": {"show": axis_index == 0, "lineStyle": {"color": split_line_color}},
             })
 
         return {
@@ -4197,7 +4226,7 @@ class ReportBuilderService:
                     "left": 8,
                     "itemWidth": 12,
                     "itemHeight": 8,
-                    "textStyle": {"color": "#475569", "fontSize": 10},
+                    "textStyle": {"color": primary_text_color, "fontSize": 10},
                 },
                 "utility",
                 "sensorCluster",
@@ -4277,7 +4306,6 @@ class ReportBuilderService:
                     "rows": [],
                 },
                 "charts": {
-                    "daily_grouped_bar": {},
                     "daily_dashboard": {
                         "cards": [],
                         "charts": {},
@@ -4692,19 +4720,12 @@ class ReportBuilderService:
         """Build KPI charts for the report."""
         if not kpi_object:
             return {
-                "daily_grouped_bar": {},
                 "daily_dashboard": {
                     "cards": [],
                     "charts": {},
                     "note": "Energy KPI = Energy (kWh) / Production (Ton)",
                 },
             }
-
-        daily_rows = kpi_object.get("current", {}).get("daily_rows", [])
-        labels = [
-            row.get("dt").strftime("%d") if row.get("dt") else "-"
-            for row in daily_rows
-        ]
 
         normalized_period_type = str(period_type or "").strip().lower()
         if normalized_period_type == "monthly":
@@ -4718,75 +4739,6 @@ class ReportBuilderService:
             previous_label = "Yesterday"
 
         return {
-            "daily_grouped_bar": {
-                "title": "Daily KPI grouped bar chart",
-                "subtitle": "Grouped by day for ICO, DIODE, SAKARI, and Total",
-                "option": {
-                    "color": ["#84cc16", "#2563eb", "#f59e0b", "#7c3aed"],
-                    "tooltip": {
-                        "trigger": "axis",
-                        "axisPointer": {"type": "shadow"},
-                    },
-                    "legend": self._resolve_chart_legend(
-                        {
-                            "top": 6,
-                            "left": 8,
-                            "itemWidth": 12,
-                            "itemHeight": 8,
-                        },
-                        "kpi",
-                        "dailyGroupedBar",
-                    ),
-                    "grid": self._resolve_chart_grid(
-                        {
-                            "left": 32,
-                            "right": 12,
-                            "top": 36,
-                            "bottom": 22,
-                            "containLabel": True,
-                        },
-                        "kpi",
-                        "dailyGroupedBar",
-                    ),
-                    "xAxis": {
-                        "type": "category",
-                        "data": labels,
-                        "axisLabel": {"color": "#64748b", "fontSize": 10},
-                        "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
-                    },
-                    "yAxis": {
-                        "type": "value",
-                        "axisLabel": {"color": "#64748b"},
-                        "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
-                    },
-                    "series": [
-                        {
-                            "name": "ICO",
-                            "type": "bar",
-                            "barMaxWidth": 18,
-                            "data": [self._safe_float(row.get("ico_kpi")) for row in daily_rows],
-                        },
-                        {
-                            "name": "DIODE",
-                            "type": "bar",
-                            "barMaxWidth": 18,
-                            "data": [self._safe_float(row.get("diode_kpi")) for row in daily_rows],
-                        },
-                        {
-                            "name": "SAKARI",
-                            "type": "bar",
-                            "barMaxWidth": 18,
-                            "data": [self._safe_float(row.get("sakari_kpi")) for row in daily_rows],
-                        },
-                        {
-                            "name": "Total",
-                            "type": "bar",
-                            "barMaxWidth": 18,
-                            "data": [self._safe_float(row.get("kpi")) for row in daily_rows],
-                        },
-                    ],
-                },
-            },
             "daily_dashboard": self._build_v3_kpi_daily_dashboard(
                 kpi_object,
                 current_label=current_label,
@@ -4907,27 +4859,6 @@ class ReportBuilderService:
                 - (curr_total_energy / prev_total_prod)
             )
 
-        contribution_area_order = [
-            ("diode", "DIODE"),
-            ("ico", "ICO"),
-            ("sakari", "SAKARI"),
-        ]
-        contribution_items: list[dict[str, Any]] = []
-        total_contribution_energy = 0.0
-
-        for area_key, area_label in contribution_area_order:
-            area_energy = self._safe_float(
-                current_summary.get("areas", {}).get(area_key, {}).get("energy")
-            ) or 0.0
-            total_contribution_energy += area_energy
-            contribution_items.append({
-                "name": area_label,
-                "value": round(area_energy, 4),
-                "itemStyle": {
-                    "color": area_visual_map[area_key]["bar_color"],
-                },
-            })
-
         is_daily_comparison = current_label == "Today" and previous_label == "Yesterday"
         compare_title = "Energy KPI: Today vs yesterday" if is_daily_comparison else "Energy KPI comparison"
         compare_subtitle = "KPI comparison by Total and workshop" if is_daily_comparison else f"{current_label} vs {previous_label.lower()} by Total and workshop"
@@ -4965,14 +4896,6 @@ class ReportBuilderService:
                     "title": variance_title,
                     "subtitle": "Positive KPI change means higher energy intensity",
                     "option": self._build_v3_kpi_variance_option(variance_items),
-                },
-                "contribution": {
-                    "title": "Energy distribution by line",
-                    "subtitle": "Current-day energy contribution",
-                    "option": self._build_v3_kpi_contribution_option(
-                        contribution_items=contribution_items,
-                        total_energy=total_contribution_energy,
-                    ),
                 },
             },
         }
@@ -5281,26 +5204,6 @@ class ReportBuilderService:
             ],
         }
 
-    def _build_v3_kpi_contribution_option(
-        self,
-        *,
-        contribution_items: list[dict[str, Any]],
-        total_energy: float,
-    ) -> Dict[str, Any]:
-        """Build a donut chart for area energy contribution."""
-        return self._build_v3_contribution_donut_option(
-            items=contribution_items,
-            total_value=total_energy,
-            pie_radius=("45%", "69%"),
-            pie_center=("50%", "60%"),
-            graphic_left="40%",
-            graphic_top="48%",
-            legend_orient="horizontal",
-            legend_left="center",
-            legend_right=0,
-            legend_top="5%",
-            legend_path=("kpi", "contribution"),
-        )
 
     def _build_v3_contribution_donut_option(
         self,
