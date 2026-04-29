@@ -116,13 +116,19 @@ The CSS split is intentional, because the project renders two different HTML art
    - responsive spacing
    - interactive chart behavior
 
-2. PDF source HTML (`pdfBase`)
+2. PDF source HTML baseline
    - print-safe baseline for the document Chromium will capture
    - same overall product identity as the view, but without relying on screen-only assumptions
 
-3. compact PDF override (`pdfCompact`)
+3. compact PDF override
    - last-mile compression for A4 pagination
    - tighter card heights, smaller gaps, and denser chart/table layout where print requires it
+
+For layout tokens in `config/report_style.json`, the preferred public schema is now just:
+- `view`
+- `pdf`
+
+That means `report_pdf_base.css` and `report_pdf.css` remain internal implementation layers, but they should normally read from the same `pdf` layout branch instead of forcing separate public `pdfBase` and `pdfCompact` token modes.
 
 ---
 

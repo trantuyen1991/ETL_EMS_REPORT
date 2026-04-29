@@ -53,10 +53,11 @@ The report currently uses three stylesheet layers for three closely related but 
    - primary target is the final compact A4 print/export pass
    - applies the tighter overrides needed for pagination, reduced whitespace, smaller text, and compact chart heights
 
-This means `view`, `pdfBase`, and `pdfCompact` are not arbitrary token buckets. They correspond to three render contexts:
+For implementation, the system still keeps separate PDF CSS files for the source HTML baseline and the final print-tuned override.
+
+For public layout tokens, however, the preferred schema is now just:
 - `view` = interactive HTML output
-- `pdfBase` = PDF source HTML baseline
-- `pdfCompact` = final print-tuned compact PDF layer
+- `pdf` = PDF-oriented layout token shared by the PDF source and final compact print layers
 
 ### 2.3 Shared Context Rule
 All template families must consume the same backend report context as much as possible.

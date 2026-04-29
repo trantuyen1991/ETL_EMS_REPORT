@@ -378,14 +378,10 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                                  'periodic': '356px',
                                                                                                  'weekly': '392px',
                                                                                                  'monthly': '130px'},
-                                                                                        'pdfBase': {'default': '384px',
-                                                                                                    'periodic': '364px',
-                                                                                                    'weekly': '404px',
-                                                                                                    'monthly': '130px'},
-                                                                                        'pdfCompact': {'default': '216px',
-                                                                                                       'periodic': '224px',
-                                                                                                       'weekly': '244px',
-                                                                                                       'monthly': '130px'}}},
+                                                                                        'pdf': {'default': '216px',
+                                                                                                'periodic': '224px',
+                                                                                                'weekly': '244px',
+                                                                                                'monthly': '130px'}}},
                                                               'areaComparison': {'legend': {'bottom': 'center'},
                                                                                  'grid': {'left': 25,
                                                                                           'right': 12,
@@ -396,14 +392,10 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                                      'periodic': '356px',
                                                                                                      'weekly': '392px',
                                                                                                      'monthly': '130px'},
-                                                                                            'pdfBase': {'default': '384px',
-                                                                                                        'periodic': '364px',
-                                                                                                        'weekly': '404px',
-                                                                                                        'monthly': '130px'},
-                                                                                            'pdfCompact': {'default': '252px',
-                                                                                                           'periodic': '224px',
-                                                                                                           'weekly': '244px',
-                                                                                                           'monthly': '130px'}}},
+                                                                                            'pdf': {'default': '252px',
+                                                                                                    'periodic': '224px',
+                                                                                                    'weekly': '244px',
+                                                                                                    'monthly': '130px'}}},
                                                               'areaShare': {'legend': {'bottom': 'center',
                                                                                        'orient': 'horizontal',
                                                                                        'left': 'center',
@@ -428,17 +420,13 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                               'titleY': 15,
                                                                                               'unitY': 24},
                                                                             'height': {'view': {'default': '340px'},
-                                                                                       'pdfBase': {'default': '384px'},
-                                                                                       'pdfCompact': {'default': '252px'}}},
+                                                                                       'pdf': {'default': '252px'}}},
                                                               'heatmap': {'height': {'view': {'default': '228px',
                                                                                               'weekly': '252px',
                                                                                               'monthly': '130px'},
-                                                                                     'pdfBase': {'default': '228px',
-                                                                                                 'weekly': '258px',
-                                                                                                 'monthly': '130px'},
-                                                                                     'pdfCompact': {'default': '156px',
-                                                                                                    'weekly': '184px',
-                                                                                                    'monthly': '130px'}},
+                                                                                     'pdf': {'default': '156px',
+                                                                                             'weekly': '184px',
+                                                                                             'monthly': '130px'}},
                                                                           'grid': {'default': {'left': 58,
                                                                                                'right': 18,
                                                                                                'top': 10,
@@ -463,14 +451,10 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                             'monthly': '130px',
                                                                                             'default': '228px',
                                                                                             'weekly': '252px'},
-                                                                                   'pdfBase': {'periodic': '252px',
-                                                                                               'monthly': '130px',
-                                                                                               'default': '228px',
-                                                                                               'weekly': '258px'},
-                                                                                   'pdfCompact': {'periodic': '178px',
-                                                                                                  'monthly': '130px',
-                                                                                                  'default': '156px',
-                                                                                                  'weekly': '184px'}}}},
+                                                                                   'pdf': {'periodic': '178px',
+                                                                                           'monthly': '130px',
+                                                                                           'default': '156px',
+                                                                                           'weekly': '184px'}}}},
                                                     'table': {'common': {'headerBackground': '#f8fafc',
                                                                          'stripeBackground': '#fafafa',
                                                                          'borderColor': '#e5e7eb',
@@ -546,11 +530,9 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                      'bottom': 32,
                                                                                      'containLabel': True},
                                                                             'height': {'view': '272px',
-                                                                                       'pdfBase': '214px',
-                                                                                       'pdfCompact': '168px'}},
+                                                                                       'pdf': '168px'}},
                                                              'periodTrend': {'height': {'view': '326px',
-                                                                                        'pdfBase': '274px',
-                                                                                        'pdfCompact': '228px'}},
+                                                                                        'pdf': '228px'}},
                                                              'typeTrend': {'legend': {'top': 'left'},
                                                                            'grid': {'left': 32,
                                                                                     'right': 10,
@@ -558,8 +540,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                     'bottom': 46,
                                                                                     'containLabel': True},
                                                                            'height': {'view': '292px',
-                                                                                      'pdfBase': '230px',
-                                                                                      'pdfCompact': '186px'}},
+                                                                                      'pdf': '186px'}},
                                                              'mix': {'legend': {'bottom': 'center'}},
                                                              'energyTrend': {'legend': {'top': 'left'},
                                                                              'grid': {'left': 18,
@@ -568,8 +549,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                       'bottom': 52,
                                                                                       'containLabel': True},
                                                                              'height': {'view': '308px',
-                                                                                        'pdfBase': '272px',
-                                                                                        'pdfCompact': '220px'}},
+                                                                                        'pdf': '220px'}},
                                                              'periodSensorTrend': {'legend': {'top': 'left'},
                                                                                    'grid': {'left': 20,
                                                                                             'right': 16,
@@ -577,9 +557,8 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                             'bottom': 30,
                                                                                             'containLabel': True},
                                                                                    'height': {'view': '220px',
-                                                                                              'pdfBase': '220px',
-                                                                                              'pdfCompact': {'default': '156px',
-                                                                                                             'single': '142px'}}},
+                                                                                              'pdf': {'default': '156px',
+                                                                                                      'single': '142px'}}},
                                                              'sensorCluster': {'legend': {'top': 'left'},
                                                                                'grid': {'left': 38,
                                                                                         'right': 14,
@@ -652,8 +631,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                'labelLetterSpacing': '0.05em',
                                                                                'valueFontSize': '15px'}}},
                                                'chart': {'dashboard': {'height': {'view': '288px',
-                                                                                  'pdfBase': '288px',
-                                                                                  'pdfCompact': '196px'}},
+                                                                                  'pdf': '196px'}},
                                                          'dailyGroupedBar': {'legend': {'top': 'left'},
                                                                              'grid': {'left': 32,
                                                                                       'right': 12,
@@ -931,6 +909,25 @@ class ReportStyleService:
         legacy_report_header = components.get("reportHeader") if isinstance(components.get("reportHeader"), dict) else {}
         legacy_footer = _clone_dict(components.get("footer"))
 
+        def _collapse_pdf_height_modes(current: Any) -> None:
+            if not isinstance(current, dict):
+                return
+
+            height = current.get("height")
+            if isinstance(height, dict):
+                if height.get("pdf") is None:
+                    pdf_value = height.get("pdfCompact")
+                    if pdf_value is None:
+                        pdf_value = height.get("pdfBase")
+                    if pdf_value is not None:
+                        height["pdf"] = deepcopy(pdf_value)
+                height.pop("pdfBase", None)
+                height.pop("pdfCompact", None)
+
+            for value in current.values():
+                if isinstance(value, dict):
+                    _collapse_pdf_height_modes(value)
+
         has_legacy_inputs = any(
             [
                 legacy_sections,
@@ -946,6 +943,7 @@ class ReportStyleService:
             ]
         )
         if not has_legacy_inputs:
+            _collapse_pdf_height_modes(existing_report)
             return
 
         def _legacy_chart(section_name: str, chart_name: str) -> dict[str, Any]:
@@ -953,6 +951,12 @@ class ReportStyleService:
 
         def _legacy_chart_height(mode_name: str, section_name: str, key_name: str) -> Any:
             return ((legacy_chart_heights.get(mode_name) or {}).get(section_name) or {}).get(key_name)
+
+        def _legacy_pdf_chart_height(section_name: str, key_name: str) -> Any:
+            compact_value = _legacy_chart_height("pdfCompact", section_name, key_name)
+            if compact_value is not None:
+                return compact_value
+            return _legacy_chart_height("pdfBase", section_name, key_name)
 
         compare_common = {
             "blockMarginTop": summary_card.get("compareBlockMarginTop"),
@@ -972,15 +976,10 @@ class ReportStyleService:
                 "periodic": _legacy_chart_height("view", "electricity", "periodicBase"),
                 "weekly": _legacy_chart_height("view", "electricity", "periodicWeeklyPrimary"),
             },
-            "pdfBase": {
-                "default": _legacy_chart_height("pdfBase", "electricity", "base"),
-                "periodic": _legacy_chart_height("pdfBase", "electricity", "periodicBase"),
-                "weekly": _legacy_chart_height("pdfBase", "electricity", "periodicWeeklyPrimary"),
-            },
-            "pdfCompact": {
-                "default": _legacy_chart_height("pdfCompact", "electricity", "base"),
-                "periodic": _legacy_chart_height("pdfCompact", "electricity", "periodicBase"),
-                "weekly": _legacy_chart_height("pdfCompact", "electricity", "periodicWeeklyPrimary"),
+            "pdf": {
+                "default": _legacy_pdf_chart_height("electricity", "base"),
+                "periodic": _legacy_pdf_chart_height("electricity", "periodicBase"),
+                "weekly": _legacy_pdf_chart_height("electricity", "periodicWeeklyPrimary"),
             },
         }
 
@@ -989,13 +988,9 @@ class ReportStyleService:
                 "default": _legacy_chart_height("view", "electricity", "heatmapBase"),
                 "weekly": _legacy_chart_height("view", "electricity", "periodicWeeklySecondary"),
             },
-            "pdfBase": {
-                "default": _legacy_chart_height("pdfBase", "electricity", "heatmapBase"),
-                "weekly": _legacy_chart_height("pdfBase", "electricity", "periodicWeeklySecondary"),
-            },
-            "pdfCompact": {
-                "default": _legacy_chart_height("pdfCompact", "electricity", "heatmapBase"),
-                "weekly": _legacy_chart_height("pdfCompact", "electricity", "periodicWeeklySecondary"),
+            "pdf": {
+                "default": _legacy_pdf_chart_height("electricity", "heatmapBase"),
+                "weekly": _legacy_pdf_chart_height("electricity", "periodicWeeklySecondary"),
             },
         }
 
@@ -1003,18 +998,14 @@ class ReportStyleService:
             "view": {
                 "periodic": _legacy_chart_height("view", "electricity", "periodicDelta"),
             },
-            "pdfBase": {
-                "periodic": _legacy_chart_height("pdfBase", "electricity", "periodicDelta"),
-            },
-            "pdfCompact": {
-                "periodic": _legacy_chart_height("pdfCompact", "electricity", "periodicDelta"),
+            "pdf": {
+                "periodic": _legacy_pdf_chart_height("electricity", "periodicDelta"),
             },
         }
 
         utility_period_trend_heights = {
             "view": _legacy_chart_height("view", "utility", "periodTrend"),
-            "pdfBase": _legacy_chart_height("pdfBase", "utility", "periodTrend"),
-            "pdfCompact": _legacy_chart_height("pdfCompact", "utility", "periodTrend"),
+            "pdf": _legacy_pdf_chart_height("utility", "periodTrend"),
         }
 
         legacy_report = {
@@ -1126,6 +1117,7 @@ class ReportStyleService:
         }
 
         components["report"] = self._merge_defaults(legacy_report, existing_report)
+        _collapse_pdf_height_modes(components["report"])
 
     def _validate_minimum_shape(self, style_config: dict[str, Any]) -> None:
         """Validate a minimal shape and normalize obviously invalid branches."""

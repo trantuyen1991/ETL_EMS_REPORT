@@ -135,72 +135,72 @@
     .electricity-chart-card-share .electricity-chart,
     .electricity-chart-card-area .electricity-chart {
         width: 100% !important;
-        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-default, 216px) !important;
+        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-default, 216px) !important;
         overflow: hidden !important;
     }
 
     .electricity-chart-card-share .electricity-chart {
-        height: var(--report-components-report-section-electric-chart-area-share-height-pdf-compact-default, 252px) !important;
+        height: var(--report-components-report-section-electric-chart-area-share-height-pdf-default, 252px) !important;
     }
 
     .electricity-chart-card-area .electricity-chart {
-        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-default, 252px) !important;
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-default, 252px) !important;
     }
 
     .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart {
-        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-periodic, 224px) !important;
+        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-periodic, 224px) !important;
     }
 
     .periodic-electricity-chart-grid .electricity-chart-card-area .electricity-chart {
-        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-periodic, 224px) !important;
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-periodic, 224px) !important;
     }
 
     .periodic-electricity-chart-grid-weekly .electricity-chart-card-trend .electricity-chart {
-        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-weekly, 244px) !important;
+        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-weekly, 244px) !important;
     }
 
     .periodic-electricity-chart-grid-weekly .electricity-chart-card-area .electricity-chart {
-        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-weekly, 244px) !important;
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-weekly, 244px) !important;
     }
 
     .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart {
-        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-monthly, 262px) !important;
+        height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-monthly, 262px) !important;
     }
 
     .periodic-electricity-chart-grid-monthly .electricity-chart-card-area .electricity-chart {
-        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-monthly, 174px) !important;
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-monthly, 174px) !important;
     }
 
     .electricity-heatmap-chart {
         width: 100% !important;
-        height: var(--report-components-report-section-electric-chart-heatmap-height-pdf-compact-default, 156px) !important;
+        height: var(--report-components-report-section-electric-chart-heatmap-height-pdf-default, 156px) !important;
         overflow: hidden !important;
     }
 
     .periodic-electricity-chart-grid-weekly .electricity-heatmap-chart {
-        height: var(--report-components-report-section-electric-chart-heatmap-height-pdf-compact-weekly, 184px) !important;
+        height: var(--report-components-report-section-electric-chart-heatmap-height-pdf-weekly, 184px) !important;
     }
 
     .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart {
-        height: var(--report-components-report-section-electric-chart-heatmap-height-pdf-compact-monthly, 192px) !important;
+        height: var(--report-components-report-section-electric-chart-heatmap-height-pdf-monthly, 192px) !important;
     }
 
     .electricity-delta-chart {
         width: 100% !important;
-        height: var(--report-components-report-section-electric-chart-delta-height-pdf-compact-default, 156px) !important;
+        height: var(--report-components-report-section-electric-chart-delta-height-pdf-default, 156px) !important;
         overflow: hidden !important;
     }
 
     .periodic-electricity-chart-grid-weekly .electricity-delta-chart {
-        height: var(--report-components-report-section-electric-chart-delta-height-pdf-compact-weekly, 184px) !important;
+        height: var(--report-components-report-section-electric-chart-delta-height-pdf-weekly, 184px) !important;
     }
 
     .periodic-electricity-chart-grid .electricity-delta-chart {
-        height: var(--report-components-report-section-electric-chart-delta-height-pdf-compact-periodic, 178px) !important;
+        height: var(--report-components-report-section-electric-chart-delta-height-pdf-periodic, 178px) !important;
     }
 
     .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart {
-        height: var(--report-components-report-section-electric-chart-delta-height-pdf-compact-monthly, 178px) !important;
+        height: var(--report-components-report-section-electric-chart-delta-height-pdf-monthly, 178px) !important;
     }
 
     .electricity-heatmap-legend {
@@ -676,17 +676,17 @@
     }
 
     .utility-comparison-chart {
-        height: var(--report-components-report-section-utility-chart-comparison-height-pdf-compact, 168px) !important;
+        height: var(--report-components-report-section-utility-chart-comparison-height-pdf, 168px) !important;
     }
 
     .utility-period-type-trend-chart,
     .utility-comparison-chart-daily {
-        height: var(--report-components-report-section-utility-chart-period-trend-height-pdf-compact, 228px) !important;
+        height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;
     }
 
     .utility-comparison-chart-wide,
     .utility-comparison-chart-narrow {
-        height: var(--report-components-report-section-utility-chart-type-trend-height-pdf-compact, 186px) !important;
+        height: var(--report-components-report-section-utility-chart-type-trend-height-pdf, 186px) !important;
     }
 
     .utility-energy-chart-grid {
@@ -704,7 +704,7 @@
 
     .utility-energy-trend-chart,
     .utility-energy-distribution-chart {
-        height: var(--report-components-report-section-utility-chart-energy-trend-height-pdf-compact, 220px) !important;
+        height: var(--report-components-report-section-utility-chart-energy-trend-height-pdf, 220px) !important;
     }
 
     .utility-energy-distribution-layout {
@@ -856,7 +856,7 @@
     }
 
     .kpi-daily-dashboard-chart {
-        height: var(--report-components-report-section-kpi-chart-dashboard-height-pdf-compact, 196px) !important;
+        height: var(--report-components-report-section-kpi-chart-dashboard-height-pdf, 196px) !important;
     }
 
     .kpi-daily-dashboard-note {
@@ -1451,7 +1451,7 @@
     }
 
     .utility-sensor-trend-chart {
-        height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-compact-default, 156px) !important;
+        height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-default, 156px) !important;
     }
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-card {
@@ -1459,7 +1459,7 @@
     }
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-chart {
-        height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-compact-single, 142px) !important;
+        height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-single, 142px) !important;
     }
 
     .electricity-daily-vertical-head,

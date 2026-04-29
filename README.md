@@ -159,7 +159,7 @@ Presentation refactor direction and current implementation state:
   - periodic family has completed the tokenized base port plus first scoped cleanup for electricity periodic detail, KPI periodic detail accents, and utility sensor range states
   - legend placement now supports shorthand object form such as `{ "top": "left" }` and `{ "bottom": "center" }`
   - chart grid / legend / chart-height tokens are now being reorganized under the report tree, for example `components.report.section.electric.chart.*`
-  - Electricity `dailyTrend` and `areaComparison` now own their own `height.view / pdfBase / pdfCompact` branches instead of relying on a shared chart-height bucket
+  - Electricity `dailyTrend` and `areaComparison` now own their own `height.view / pdf` branches instead of relying on a shared chart-height bucket
   - Electricity `areaShare` now exposes object-local donut config under `report.section.electric.chart.areaShare.*`, including `legend`, `pie`, `centerGraphic`, and `height`; daily PDF no longer relies on one catch-all `.pdf-daily-chart-grid .electricity-chart` height override for these cards
   - summary-card and table tokens have moved into the report tree through `components.report.section.common.*` and section-owned card objects such as `components.report.section.utility.card.*`
   - the live `config/report_style.json` no longer keeps duplicated top-level `components.summaryCard` or `components.table` branches; those remain only in compatibility/default handling while legacy config support is being phased out
