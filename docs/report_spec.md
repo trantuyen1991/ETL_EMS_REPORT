@@ -92,7 +92,7 @@ Current schema direction in implementation:
 - common shared tokens still remain above the `report` branch when they apply across the whole report family
 - compatibility aliases are allowed during migration so templates/CSS can keep rendering while the tree becomes the primary source
 - once a template/CSS area has been repointed to direct `components.report.*` variables, the matching bridge aliases should be removed instead of kept indefinitely
-- once the active config has a stable report-tree branch for an area, duplicated top-level legacy branches such as `components.summaryCard` and `components.table` should be removed from `config/report_style.json` rather than kept as a second editable source
+- the active config now treats `components.report.*` as the only canonical report-owned schema; duplicated top-level legacy branches such as `components.summaryCard`, `components.table`, `components.reportContainer`, `components.reportTitle`, `components.reportSubtitle`, `components.reportMetadata`, `components.reportHeader`, and `components.footer` are no longer part of live config loading
 
 ---
 

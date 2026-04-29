@@ -894,18 +894,7 @@ class ReportStyleService:
         if not isinstance(components, dict):
             return
 
-        def _clone_dict(value: Any) -> dict[str, Any]:
-            return deepcopy(value) if isinstance(value, dict) else {}
-
         existing_report = components.get("report") if isinstance(components.get("report"), dict) else {}
-        summary_card = components.get("summaryCard") if isinstance(components.get("summaryCard"), dict) else {}
-        legacy_table = components.get("table") if isinstance(components.get("table"), dict) else {}
-        legacy_report_container = _clone_dict(components.get("reportContainer"))
-        legacy_report_title = _clone_dict(components.get("reportTitle"))
-        legacy_report_subtitle = _clone_dict(components.get("reportSubtitle"))
-        legacy_report_metadata = _clone_dict(components.get("reportMetadata"))
-        legacy_report_header = components.get("reportHeader") if isinstance(components.get("reportHeader"), dict) else {}
-        legacy_footer = _clone_dict(components.get("footer"))
 
         def _first_non_none(*values: Any) -> Any:
             for value in values:
@@ -933,105 +922,7 @@ class ReportStyleService:
                 if isinstance(value, dict):
                     _collapse_pdf_height_modes(value)
 
-        has_legacy_inputs = any(
-            [
-                summary_card,
-                legacy_table,
-                legacy_report_container,
-                legacy_report_title,
-                legacy_report_subtitle,
-                legacy_report_metadata,
-                legacy_report_header,
-                legacy_footer,
-            ]
-        )
-        if not has_legacy_inputs:
-            _collapse_pdf_height_modes(existing_report)
-            return
-
-        compare_common = {
-            "blockMarginTop": summary_card.get("compareBlockMarginTop"),
-            "padding": summary_card.get("comparePadding"),
-            "itemMinHeight": summary_card.get("compareItemMinHeight"),
-            "labelFontSize": summary_card.get("compareLabelFontSize"),
-            "labelFontWeight": summary_card.get("compareLabelFontWeight"),
-            "labelColor": summary_card.get("compareLabelColor"),
-            "labelLetterSpacing": summary_card.get("compareLabelLetterSpacing"),
-            "valueFontSize": summary_card.get("compareValueFontSize"),
-        }
-        compare_common = {key: value for key, value in compare_common.items() if value is not None}
-
-        legacy_report = {
-            "container": legacy_report_container,
-            "titleHeader": {
-                "title": legacy_report_title,
-                "subtitle": legacy_report_subtitle,
-                "metadata": legacy_report_metadata,
-                "banner": {
-                    "background": _clone_dict(legacy_report_header.get("background")),
-                    "overlay": _clone_dict(legacy_report_header.get("overlay")),
-                    "logoSlot": _clone_dict(legacy_report_header.get("logoSlot")),
-                    "logoCrop": _clone_dict(legacy_report_header.get("logoCrop")),
-                    "pdf": _clone_dict(legacy_report_header.get("pdf")),
-                },
-            },
-            "footer": legacy_footer,
-            "section": {
-                "common": {
-                    "table": {
-                        "base": _clone_dict(legacy_table),
-                    },
-                    "card": {
-                        "gridGap": summary_card.get("gridGap"),
-                        "borderRadius": summary_card.get("borderRadius"),
-                        "compare": deepcopy(compare_common),
-                    },
-                },
-                "electric": {
-                    "table": {
-                        "common": _clone_dict(legacy_table),
-                    },
-                    "card": {
-                        "total": {
-                            "layout": _clone_dict(summary_card.get("total")),
-                            "compare": deepcopy(compare_common),
-                            "pdf": _clone_dict((summary_card.get("pdf") or {}).get("total")),
-                        },
-                        "diode": {
-                            "layout": _clone_dict(summary_card.get("total")),
-                            "compare": deepcopy(compare_common),
-                            "pdf": _clone_dict((summary_card.get("pdf") or {}).get("total")),
-                        },
-                        "ico": {
-                            "layout": _clone_dict(summary_card.get("total")),
-                            "compare": deepcopy(compare_common),
-                            "pdf": _clone_dict((summary_card.get("pdf") or {}).get("total")),
-                        },
-                        "sakari": {
-                            "layout": _clone_dict(summary_card.get("total")),
-                            "compare": deepcopy(compare_common),
-                            "pdf": _clone_dict((summary_card.get("pdf") or {}).get("total")),
-                        },
-                    },
-                    "chart": {},
-                },
-                "utility": {
-                    "table": {
-                        "common": _clone_dict(legacy_table),
-                    },
-                    "chart": {}
-                },
-                "kpi": {
-                    "table": {
-                        "common": _clone_dict(legacy_table),
-                    },
-                    "chart": {}
-                },
-            },
-        }
-
-        components["report"] = self._merge_defaults(legacy_report, existing_report)
-        _collapse_pdf_height_modes(components["report"])
+        _collapse_pdf_height_modes(existing_report)
 
     def _validate_minimum_shape(self, style_config: dict[str, Any]) -> None:
         """Validate a minimal shape and normalize obviously invalid branches."""

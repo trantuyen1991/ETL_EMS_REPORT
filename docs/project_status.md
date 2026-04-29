@@ -34,7 +34,7 @@ Stable baseline:
 - Electricity `areaShare` now exposes object-local donut config under its chart node, including `legend`, `pie`, `centerGraphic`, and `height`, and the daily PDF path no longer depends on one catch-all chart-height override for the two daily electricity cards
 - layout-oriented chart height tokens now prefer a public `view` / `pdf` split in config, while `report_pdf_base.css` and `report_pdf.css` remain internal PDF layers that can share the same `pdf` branch
 - summary-card and table tokens have now moved into shared report-tree foundations under `components.report.section.common.*`
-- the active `config/report_style.json` has dropped duplicated top-level `components.summaryCard` and `components.table` branches; remaining support for those shapes is now only a compatibility concern inside `ReportStyleService`
+- the active `config/report_style.json` has dropped duplicated top-level legacy branches such as `components.summaryCard`, `components.table`, `components.reportContainer`, `components.reportTitle`, `components.reportSubtitle`, `components.reportMetadata`, `components.reportHeader`, and `components.footer`; `ReportStyleService` now expects the canonical `components.report.*` tree and only keeps the narrow `pdfBase` / `pdfCompact` to `pdf` height collapse inside the report tree
 - electricity heatmap/delta chart heights and the shared table/card CSS layer now consume report-tree variables directly, reducing the old compatibility bridge surface in `ReportStyleService`
 - the 2026-04-28 periodic shrink bug was traced to a Utility Sensor Monitoring table overflow in PDF, and the weekly document width is now back in sync with daily at document level
 
