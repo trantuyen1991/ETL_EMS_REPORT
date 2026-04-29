@@ -80,6 +80,7 @@ Preferred direction:
 - then concrete object, such as `dailyTrend`, `total`, `sensorMonitoring`
 - each concrete object should own its full local styling where practical, for example `weekly`, `monthly`, `legend`, `grid`, `width`, `height`
 - practical direction: prefer `report.section.electric.chart.dailyTrend.height.*` over a shared electricity-only `chart.common.height.*` bucket when the values belong to one concrete chart card
+- donut charts can also own local branches when useful, for example `report.section.electric.chart.areaShare.legend`, `.pie`, and `.centerGraphic`
 
 Current schema direction in implementation:
 - `reportStyle.components.report.titleHeader.*`

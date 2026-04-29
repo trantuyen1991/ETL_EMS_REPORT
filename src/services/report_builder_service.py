@@ -170,13 +170,26 @@ class ReportBuilderService:
         defaults: Dict[str, Any],
         *path: str,
     ) -> Dict[str, Any]:
-        """Resolve chart legend position tokens from section-tree style config with safe defaults."""
+        """Resolve chart legend tokens from section-tree style config with safe defaults."""
         result = dict(defaults)
         node = self._get_section_chart_node(*path)
         current = node.get("legend", {}) if isinstance(node, dict) else {}
 
         if not isinstance(current, dict):
             return result
+
+        for key in ("orient", "left", "right", "itemWidth", "itemHeight", "icon", "itemGap", "show"):
+            if current.get(key) is not None:
+                result[key] = current.get(key)
+
+        if isinstance(result.get("textStyle"), dict) and isinstance(current.get("textStyle"), dict):
+            merged_text_style = dict(result.get("textStyle") or {})
+            for key, value in current.get("textStyle", {}).items():
+                if value is not None:
+                    merged_text_style[key] = value
+            result["textStyle"] = merged_text_style
+        elif isinstance(current.get("textStyle"), dict):
+            result["textStyle"] = dict(current.get("textStyle") or {})
 
         horizontal_keywords = {"left", "center", "right"}
 
@@ -201,6 +214,51 @@ class ReportBuilderService:
             else:
                 result["bottom"] = bottom_value
                 result.pop("top", None)
+
+        return result
+
+    def _resolve_chart_pie(
+        self,
+        defaults: Dict[str, Any],
+        *path: str,
+    ) -> Dict[str, Any]:
+        """Resolve pie-specific chart tokens from section-tree style config with safe defaults."""
+        result = dict(defaults)
+        node = self._get_section_chart_node(*path)
+        current = node.get("pie", {}) if isinstance(node, dict) else {}
+
+        if not isinstance(current, dict):
+            return result
+
+        radius = current.get("radius")
+        if isinstance(radius, (list, tuple)) and len(radius) == 2:
+            result["radius"] = (str(radius[0]), str(radius[1]))
+
+        center = current.get("center")
+        if isinstance(center, (list, tuple)) and len(center) == 2:
+            result["center"] = (str(center[0]), str(center[1]))
+
+        if current.get("sliceBorderRadius") is not None:
+            result["sliceBorderRadius"] = current.get("sliceBorderRadius")
+
+        return result
+
+    def _resolve_chart_center_graphic(
+        self,
+        defaults: Dict[str, Any],
+        *path: str,
+    ) -> Dict[str, Any]:
+        """Resolve donut-center graphic tokens from section-tree style config with safe defaults."""
+        result = dict(defaults)
+        node = self._get_section_chart_node(*path)
+        current = node.get("centerGraphic", {}) if isinstance(node, dict) else {}
+
+        if not isinstance(current, dict):
+            return result
+
+        for key in ("left", "top", "valueFontSize", "titleFontSize", "unitFontSize", "titleY", "unitY"):
+            if current.get(key) is not None:
+                result[key] = current.get(key)
 
         return result
 
@@ -1164,6 +1222,28 @@ class ReportBuilderService:
 
         if period_type == "daily":
             current_total_value = sum(current_area_values)
+            area_share_pie = self._resolve_chart_pie(
+                {
+                    "radius": ("39%", "60%"),
+                    "center": ("50%", "58%"),
+                    "sliceBorderRadius": 6,
+                },
+                "electricity",
+                "areaShare",
+            )
+            area_share_center = self._resolve_chart_center_graphic(
+                {
+                    "left": "43%",
+                    "top": "50%",
+                    "valueFontSize": 10,
+                    "titleFontSize": 8,
+                    "unitFontSize": 7,
+                    "titleY": 15,
+                    "unitY": 24,
+                },
+                "electricity",
+                "areaShare",
+            )
             share_chart = {
                 "title": "Area share",
                 "subtitle": "Current day contribution by workshop",
@@ -1180,20 +1260,20 @@ class ReportBuilderService:
                     ],
                     total_value=current_total_value,
                     legend_path=("electricity", "areaShare"),
-                    slice_border_radius=6,
-                    pie_radius=("39%", "60%"),
-                    pie_center=("50%", "58%"),
-                    graphic_left="43%",
-                    graphic_top="50%",
+                    slice_border_radius=area_share_pie["sliceBorderRadius"],
+                    pie_radius=area_share_pie["radius"],
+                    pie_center=area_share_pie["center"],
+                    graphic_left=area_share_center["left"],
+                    graphic_top=area_share_center["top"],
                     legend_orient="horizontal",
                     legend_left="center",
                     legend_right=0,
                     legend_top="3%",
-                    center_value_font_size=10,
-                    center_title_font_size=8,
-                    center_unit_font_size=7,
-                    center_title_y=15,
-                    center_unit_y=24,
+                    center_value_font_size=area_share_center["valueFontSize"],
+                    center_title_font_size=area_share_center["titleFontSize"],
+                    center_unit_font_size=area_share_center["unitFontSize"],
+                    center_title_y=area_share_center["titleY"],
+                    center_unit_y=area_share_center["unitY"],
                 ),
             }
             periodic_heatmap_chart = {}

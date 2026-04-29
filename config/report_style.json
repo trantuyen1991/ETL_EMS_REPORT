@@ -510,7 +510,7 @@
                     "monthly": "130px"
                   },
                   "pdfCompact": {
-                    "default": "216px",
+                    "default": "200px",
                     "periodic": "224px",
                     "weekly": "244px",
                     "monthly": "130px"
@@ -519,7 +519,39 @@
               },
               "areaShare": {
                 "legend": {
-                  "top": "center"
+                  "bottom": "center",
+                  "orient": "horizontal",
+                  "left": "center",
+                  "top": "3%",
+                  "itemWidth": 14,
+                  "itemHeight": 14,
+                  "icon": "roundRect",
+                  "itemGap": 12,
+                  "textStyle": {
+                    "color": "#475569",
+                    "fontSize": 10,
+                    "fontWeight": 500
+                  }
+                },
+                "pie": {
+                  "radius": [
+                    "39%",
+                    "60%"
+                  ],
+                  "center": [
+                    "50%",
+                    "58%"
+                  ],
+                  "sliceBorderRadius": 6
+                },
+                "centerGraphic": {
+                  "left": "43%",
+                  "top": "50%",
+                  "valueFontSize": 10,
+                  "titleFontSize": 8,
+                  "unitFontSize": 7,
+                  "titleY": 15,
+                  "unitY": 24
                 }
               },
               "heatmap": {
