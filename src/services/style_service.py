@@ -992,35 +992,7 @@ class ReportStyleService:
 
     def _build_compatibility_aliases(self) -> list[str]:
         """Emit bridge variables so rollout can be gradual in existing CSS assets."""
-        alias_map = {
-            "--bg-page": "var(--report-color-page-background)",
-            "--bg-card": "var(--report-color-card-background)",
-            "--bg-header": "var(--report-color-header-background)",
-            "--bg-header-strong": "var(--report-color-header-background-strong)",
-            "--border": "var(--report-color-border-default)",
-            "--border-soft": "var(--report-color-border-soft)",
-            "--border-row": "var(--report-color-border-row)",
-            "--text-main": "var(--report-color-text-primary)",
-            "--text-dark": "var(--report-color-text-heading)",
-            "--text-muted": "var(--report-color-text-muted)",
-            "--text-subtle": "var(--report-color-text-subtle)",
-            "--brand": "var(--report-color-brand-primary)",
-            "--accent": "var(--report-color-brand-accent)",
-            "--trend-up": "var(--report-color-trend-up)",
-            "--trend-down": "var(--report-color-trend-down)",
-            "--trend-neutral": "var(--report-color-trend-neutral)",
-            "--radius-md": "var(--report-radius-medium)",
-            "--radius-lg": "var(--report-radius-large)",
-            "--space-xs": "var(--report-spacing-xs)",
-            "--space-sm": "var(--report-spacing-sm)",
-            "--space-md": "var(--report-spacing-md)",
-            "--space-lg": "var(--report-spacing-lg)",
-            "--space-xl": "var(--report-spacing-xl)",
-            "--shadow-soft": "var(--report-shadow-soft)",
-            "--shadow-card": "var(--report-shadow-card)",
-        }
-
-        return [f"{alias_name}: {source};" for alias_name, source in alias_map.items()]
+        return []
 
     def _to_kebab_case(self, value: str) -> str:
         """Convert camelCase or mixedCase text to kebab-case for CSS variable names."""

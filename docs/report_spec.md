@@ -94,6 +94,7 @@ Current schema direction in implementation:
 - once a template/CSS area has been repointed to direct `components.report.*` variables, the matching bridge aliases should be removed instead of kept indefinitely
 - the active config now treats `components.report.*` as the only canonical report-owned schema; duplicated top-level legacy branches such as `components.summaryCard`, `components.table`, `components.reportContainer`, `components.reportTitle`, `components.reportSubtitle`, `components.reportMetadata`, `components.reportHeader`, and `components.footer` are no longer part of live config loading
 - header/title/subtitle/metadata banner styling is now consumed directly from `components.report.titleHeader.*` CSS variables instead of passing through a separate alias naming layer
+- active CSS assets also now consume canonical report tokens directly for colors, text, borders, shadows, radii, and spacing instead of relying on a generic alias bridge layer
 
 ---
 

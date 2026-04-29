@@ -235,14 +235,14 @@
 
     .pdf-daily-chart-grid .electricity-chart-card-title {
         font-size: 12px !important;
-        color: var(--report-components-chart-card-title-color, var(--text-main)) !important;
+        color: var(--report-components-chart-card-title-color, var(--report-color-text-primary)) !important;
     }
 
     .pdf-daily-chart-grid .electricity-chart-card-subtitle {
         margin: 2px 0 4px !important;
         font-size: 9.1px !important;
         line-height: 1.25 !important;
-        color: var(--report-components-chart-card-subtitle-color, var(--text-muted)) !important;
+        color: var(--report-components-chart-card-subtitle-color, var(--report-color-text-muted)) !important;
     }
 
 
@@ -638,15 +638,15 @@
     }
 
     .utility-overview-card-compare-value.trend-up {
-        color: var(--trend-up) !important;
+        color: var(--report-color-trend-up) !important;
     }
 
     .utility-overview-card-compare-value.trend-down {
-        color: var(--trend-down) !important;
+        color: var(--report-color-trend-down) !important;
     }
 
     .utility-overview-card-compare-value.trend-neutral {
-        color: var(--trend-neutral) !important;
+        color: var(--report-color-trend-neutral) !important;
     }
 
     .utility-chart-split-grid-daily {
@@ -862,7 +862,7 @@
     .kpi-daily-dashboard-note {
         margin-top: 6px !important;
         font-size: 8px !important;
-        color: var(--report-components-chart-note-text-color, var(--text-muted)) !important;
+        color: var(--report-components-chart-note-text-color, var(--report-color-text-muted)) !important;
     }
 
     .utility-chart-block,
@@ -1204,14 +1204,14 @@
     .electricity-chart-card-title {
         margin-bottom: 2px !important;
         font-size: 12px !important;
-        color: var(--report-components-chart-card-title-color, var(--text-main)) !important;
+        color: var(--report-components-chart-card-title-color, var(--report-color-text-primary)) !important;
     }
 
     .electricity-chart-card-subtitle {
         margin: 2px 0 5px !important;
         font-size: 9.1px !important;
         line-height: 1.25 !important;
-        color: var(--report-components-chart-card-subtitle-color, var(--text-muted)) !important;
+        color: var(--report-components-chart-card-subtitle-color, var(--report-color-text-muted)) !important;
     }
 
     .pdf-page-break-after {

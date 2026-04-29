@@ -36,6 +36,7 @@ Stable baseline:
 - summary-card and table tokens have now moved into shared report-tree foundations under `components.report.section.common.*`
 - the active `config/report_style.json` has dropped duplicated top-level legacy branches such as `components.summaryCard`, `components.table`, `components.reportContainer`, `components.reportTitle`, `components.reportSubtitle`, `components.reportMetadata`, `components.reportHeader`, and `components.footer`; `ReportStyleService` now expects the canonical `components.report.*` tree and only keeps the narrow `pdfBase` / `pdfCompact` to `pdf` height collapse inside the report tree
 - the report header/title/subtitle/metadata CSS consumers have also been repointed to direct `components.report.titleHeader.*` variables, allowing another alias-cleanup pass in `style_service.py`
+- the active CSS assets now consume canonical report tokens directly for colors, text, borders, shadows, radii, and spacing, so the old generic alias bridge variables are no longer emitted by `ReportStyleService`
 - electricity heatmap/delta chart heights and the shared table/card CSS layer now consume report-tree variables directly, reducing the old compatibility bridge surface in `ReportStyleService`
 - the 2026-04-28 periodic shrink bug was traced to a Utility Sensor Monitoring table overflow in PDF, and the weekly document width is now back in sync with daily at document level
 
