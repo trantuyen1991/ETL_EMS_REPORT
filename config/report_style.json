@@ -498,8 +498,8 @@
                     "monthly": "130px"
                   },
                   "pdf": {
-                    "default": "252px",
-                    "periodic": "224px",
+                    "default": "240px",
+                    "periodic": "240px",
                     "weekly": "244px",
                     "monthly": "130px"
                   }
@@ -546,7 +546,7 @@
                     "default": "340px"
                   },
                   "pdf": {
-                    "default": "252px"
+                    "default": "240px"
                   }
                 }
               },
@@ -795,8 +795,8 @@
               },
               "deviation": {
                 "grid": {
-                  "left": 118,
-                  "right": 24,
+                  "left": 50,
+                  "right": 30,
                   "top": 18,
                   "bottom": 28
                 }
