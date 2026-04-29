@@ -822,14 +822,20 @@
     .kpi-daily-card-primary {
         gap: 4px !important;
         margin-top: 2px !important;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
     }
 
     .kpi-daily-card-primary-value {
         font-size: 13px !important;
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
     }
 
     .kpi-daily-card-primary-unit {
         font-size: 6.8px !important;
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
     }
 
     .kpi-daily-card-compare {

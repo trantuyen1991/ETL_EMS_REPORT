@@ -1188,7 +1188,7 @@
                 },
                 "grid": {
                   "left": 20,
-                  "right": 8,
+                  "right": 4,
                   "top": 25,
                   "bottom": 20,
                   "containLabel": true

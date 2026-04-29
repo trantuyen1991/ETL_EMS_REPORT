@@ -2968,10 +2968,12 @@ class ReportBuilderService:
                                 "fontSize": label_config.get("fontSize", 10),
                                 "lineHeight": max(int(label_config.get("fontSize", 10)) + 2, 12),
                                 "fontWeight": label_config.get("fontWeight", 700),
-                                "formatter": (
-                                    f"{value:.2f}%\n"
-                                    f"({self._fmt(abs(float(deviation_items[index].get('current', 0.0) or 0.0) - float(deviation_items[index].get('previous', 0.0) or 0.0)))} {str(deviation_items[index].get('unit') or '').strip()})"
-                                ).strip(),
+                                "formatter": self._format_delta_compact_label(
+                                    value,
+                                    float(deviation_items[index].get("current", 0.0) or 0.0)
+                                    - float(deviation_items[index].get("previous", 0.0) or 0.0),
+                                    str(deviation_items[index].get("unit") or ""),
+                                ),
                             },
                         }
                         for index, value in enumerate(values)
@@ -4203,16 +4205,16 @@ class ReportBuilderService:
                 "offset": 0,
                 "alignTicks": True if len(axis_list) > 1 else False,
                 "nameLocation": "end",
-                "nameGap": 10 if is_right_axis else 12,
+                "nameGap": 6 if is_right_axis else 12,
                 "nameTextStyle": {
                     "color": muted_text_color,
                     "fontSize": 9,
-                    "padding": [12, 0, 0, 0] if is_right_axis else [16, 0, 0, 0],
+                    "padding": [8, 0, 0, 0] if is_right_axis else [16, 0, 0, 0],
                 },
                 "axisLabel": {
                     "color": muted_text_color,
                     "fontSize": 9,
-                    "margin": 4 if is_right_axis else 8,
+                    "margin": 2 if is_right_axis else 8,
                 },
                 "axisLine": {"show": len(axis_list) > 1, "lineStyle": {"color": axis_line_color}},
                 "splitLine": {"show": axis_index == 0, "lineStyle": {"color": split_line_color}},
@@ -5103,8 +5105,8 @@ class ReportBuilderService:
     ) -> Dict[str, Any]:
         """Build a horizontal variance chart for KPI change vs yesterday."""
         label_font_size = 10
-        axis_padding_left = 10.0
-        axis_padding_right = 8.0
+        axis_padding_left = 22.0
+        axis_padding_right = 22.0
         trend_up_color = str(self._get_style_color_value("#0b7a43", "trend", "up"))
         trend_down_color = str(self._get_style_color_value("#c04b39", "trend", "down"))
         trend_neutral_color = str(self._get_style_color_value("#6c7f91", "trend", "neutral"))
@@ -5161,7 +5163,12 @@ class ReportBuilderService:
                     "fontSize": label_font_size,
                     "lineHeight": label_font_size + 2,
                     "fontWeight": 700,
-                    "formatter": f"{numeric_value:+.2f}%\n({delta_display}{unit_suffix})",
+                    "formatter": self._format_delta_compact_label(
+                        numeric_value,
+                        current_value - previous_value,
+                        unit,
+                        signed_pct=True,
+                    ),
                 },
             })
 
@@ -5696,6 +5703,20 @@ class ReportBuilderService:
         if val is None:
             return "-"
         return f"{float(val):,.2f}"
+
+    def _format_delta_compact_label(
+        self,
+        pct_value: float,
+        delta_value: float,
+        unit: str = "",
+        *,
+        signed_pct: bool = False,
+    ) -> str:
+        """Return a single-line delta label like `-10.00% (18.41 m³)`."""
+        pct_display = f"{float(pct_value):+.2f}%" if signed_pct else f"{float(pct_value):.2f}%"
+        delta_display = self._fmt(abs(float(delta_value or 0.0)))
+        unit_text = str(unit or "").strip()
+        return f"{pct_display} ({delta_display}{f' {unit_text}' if unit_text else ''})"
 
     def _hex_to_rgba(self, value: str, opacity: float) -> str:
         """Convert a hex color to rgba text, falling back to a blue tint."""
