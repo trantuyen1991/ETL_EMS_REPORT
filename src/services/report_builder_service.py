@@ -176,6 +176,37 @@ class ReportBuilderService:
             "previous_tint": str(series_cfg.get("previousTint") or "rgba(95, 127, 166, 0.08)"),
         }
 
+    def _get_kpi_chart_series_palette(self) -> Dict[str, str]:
+        """Return current/previous series colors for KPI charts."""
+        series_cfg = self._get_section_chart_node("kpi", "theme", "series")
+        semantic_series_cfg = self._get_style_color_node("chart", "series")
+        return {
+            "current": str(
+                series_cfg.get("current")
+                or semantic_series_cfg.get("current")
+                or self._get_style_color_value("#005496", "brand", "primary")
+            ),
+            "previous": str(
+                series_cfg.get("previous")
+                or semantic_series_cfg.get("previous")
+                or self._get_style_color_value("#5f7fa6", "brand", "accent")
+            ),
+            "current_tint": str(
+                series_cfg.get("currentTint")
+                or semantic_series_cfg.get("currentTint")
+                or "rgba(0, 84, 150, 0.12)"
+            ),
+            "previous_tint": str(
+                series_cfg.get("previousTint")
+                or semantic_series_cfg.get("previousTint")
+                or "rgba(95, 127, 166, 0.08)"
+            ),
+            "neutral": str(
+                series_cfg.get("neutral")
+                or self._get_style_color_value("#6c7f91", "trend", "neutral")
+            ),
+        }
+
     def _resolve_chart_grid(
         self,
         defaults: Dict[str, Any],
@@ -4679,9 +4710,10 @@ class ReportBuilderService:
         current_summary = kpi_object.get("current", {}).get("summary", {})
         previous_summary = kpi_object.get("previous", {}).get("summary", {})
         area_visual_map = self._get_v3_area_visual_map()
+        series_palette = self._get_kpi_chart_series_palette()
 
         card_specs = [
-            ("total", "TOTAL", "#2563eb", "rgba(37, 99, 235, 0.12)"),
+            ("total", "TOTAL", series_palette["current"], series_palette["current_tint"]),
             ("diode", "DIODE", area_visual_map["diode"]["bar_color"], area_visual_map["diode"]["bar_tint"]),
             ("ico", "ICO", area_visual_map["ico"]["bar_color"], area_visual_map["ico"]["bar_tint"]),
             ("sakari", "SAKARI", area_visual_map["sakari"]["bar_color"], area_visual_map["sakari"]["bar_tint"]),
@@ -4865,8 +4897,12 @@ class ReportBuilderService:
         current_series_name: str = "Today",
     ) -> Dict[str, Any]:
         """Build the daily KPI compare bar option."""
+        series_palette = self._get_kpi_chart_series_palette()
+        axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b9c8d6", "border", "strong"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
         return {
-            "color": ["#7c3aed", "#2563eb"],
+            "color": [series_palette["previous"], series_palette["current"]],
             "tooltip": {
                 "trigger": "axis",
                 "axisPointer": {"type": "shadow"},
@@ -4895,13 +4931,13 @@ class ReportBuilderService:
             "xAxis": {
                 "type": "category",
                 "data": labels,
-                "axisLabel": {"color": "#64748b", "fontSize": 10},
-                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                "axisLabel": {"color": axis_label_color, "fontSize": 10},
+                "axisLine": {"lineStyle": {"color": axis_line_color}},
             },
             "yAxis": {
                 "type": "value",
-                "axisLabel": {"color": "#64748b"},
-                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                "axisLabel": {"color": axis_label_color},
+                "splitLine": {"lineStyle": {"color": split_line_color}},
             },
             "series": [
                 {
@@ -4909,7 +4945,7 @@ class ReportBuilderService:
                     "type": "bar",
                     "barMaxWidth": 22,
                     "data": [
-                        self._build_chart_bar_point(value, color="#7c3aed")
+                        self._build_chart_bar_point(value, color=series_palette["previous"])
                         for value in yesterday_values
                     ],
                 },
@@ -4918,7 +4954,7 @@ class ReportBuilderService:
                     "type": "bar",
                     "barMaxWidth": 22,
                     "data": [
-                        self._build_chart_bar_point(value, color="#2563eb")
+                        self._build_chart_bar_point(value, color=series_palette["current"])
                         for value in today_values
                     ],
                 },
@@ -4939,6 +4975,13 @@ class ReportBuilderService:
         energy_base = previous_kpi if energy_impact >= 0 else previous_kpi + energy_impact
         after_energy = previous_kpi + energy_impact
         production_base = after_energy if production_impact >= 0 else after_energy + production_impact
+        series_palette = self._get_kpi_chart_series_palette()
+        trend_up_color = str(self._get_style_color_value("#0b7a43", "trend", "up"))
+        trend_down_color = str(self._get_style_color_value("#c04b39", "trend", "down"))
+        axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b9c8d6", "border", "strong"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
+        value_label_color = str(self._get_style_color_value("#223548", "text", "primary"))
 
         return {
             "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
@@ -4961,13 +5004,13 @@ class ReportBuilderService:
                     "Production\nimpact",
                     f"{current_label}\\nKPI",
                 ],
-                "axisLabel": {"color": "#64748b", "fontSize": 10, "interval": 0, "lineHeight": 11},
-                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                "axisLabel": {"color": axis_label_color, "fontSize": 10, "interval": 0, "lineHeight": 11},
+                "axisLine": {"lineStyle": {"color": axis_line_color}},
             },
             "yAxis": {
                 "type": "value",
-                "axisLabel": {"color": "#64748b"},
-                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                "axisLabel": {"color": axis_label_color},
+                "splitLine": {"lineStyle": {"color": split_line_color}},
             },
             "series": [
                 {
@@ -4985,41 +5028,41 @@ class ReportBuilderService:
                     "data": [
                         {
                             "value": round(previous_kpi, 4),
-                            "itemStyle": {"color": "#7c3aed", "borderRadius": [6, 6, 0, 0]},
-                            "label": {"show": True, "position": "top", "formatter": self._fmt(previous_kpi), "color": "#1e293b", "fontSize": 10},
+                            "itemStyle": {"color": series_palette["previous"], "borderRadius": [6, 6, 0, 0]},
+                            "label": {"show": True, "position": "top", "formatter": self._fmt(previous_kpi), "color": value_label_color, "fontSize": 10},
                         },
                         {
                             "value": round(abs(energy_impact), 4),
                             "itemStyle": {
-                                "color": "#dc2626" if energy_impact >= 0 else "#16a34a",
+                                "color": trend_down_color if energy_impact >= 0 else trend_up_color,
                                 "borderRadius": [6, 6, 0, 0],
                             },
                             "label": {
                                 "show": True,
                                 "position": "top",
                                 "formatter": self._fmt(energy_impact),
-                                "color": "#1e293b",
+                                "color": value_label_color,
                                 "fontSize": 10,
                             },
                         },
                         {
                             "value": round(abs(production_impact), 4),
                             "itemStyle": {
-                                "color": "#dc2626" if production_impact >= 0 else "#16a34a",
+                                "color": trend_down_color if production_impact >= 0 else trend_up_color,
                                 "borderRadius": [6, 6, 0, 0],
                             },
                             "label": {
                                 "show": True,
                                 "position": "top",
                                 "formatter": self._fmt(production_impact),
-                                "color": "#1e293b",
+                                "color": value_label_color,
                                 "fontSize": 10,
                             },
                         },
                         {
                             "value": round(current_kpi, 4),
-                            "itemStyle": {"color": "#2563eb", "borderRadius": [6, 6, 0, 0]},
-                            "label": {"show": True, "position": "top", "formatter": self._fmt(current_kpi), "color": "#1e293b", "fontSize": 10},
+                            "itemStyle": {"color": series_palette["current"], "borderRadius": [6, 6, 0, 0]},
+                            "label": {"show": True, "position": "top", "formatter": self._fmt(current_kpi), "color": value_label_color, "fontSize": 10},
                         },
                     ],
                 },
@@ -5034,6 +5077,13 @@ class ReportBuilderService:
         label_font_size = 10
         axis_padding_left = 10.0
         axis_padding_right = 8.0
+        trend_up_color = str(self._get_style_color_value("#0b7a43", "trend", "up"))
+        trend_down_color = str(self._get_style_color_value("#c04b39", "trend", "down"))
+        trend_neutral_color = str(self._get_style_color_value("#6c7f91", "trend", "neutral"))
+        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
+        border_row_color = str(self._get_style_color_value("#e6edf3", "border", "row"))
         values: list[float] = []
         chart_data = []
 
@@ -5049,14 +5099,14 @@ class ReportBuilderService:
                     "value": 0,
                     "name": name,
                     "itemStyle": {
-                        "color": "#cbd5e1",
+                        "color": border_row_color,
                         "borderRadius": [0, 4, 4, 0],
                     },
                     "label": {
                         "show": True,
                         "position": "right",
                         "formatter": "-",
-                        "color": "#64748b",
+                        "color": muted_text_color,
                         "fontSize": label_font_size,
                     },
                 })
@@ -5072,14 +5122,14 @@ class ReportBuilderService:
                 "value": numeric_value,
                 "name": name,
                 "itemStyle": {
-                    "color": "#e33434" if numeric_value > 0 else "#18a05e" if numeric_value < 0 else "#94a3b8",
+                    "color": trend_down_color if numeric_value > 0 else trend_up_color if numeric_value < 0 else trend_neutral_color,
                     "borderRadius": [0, 4, 4, 0] if numeric_value >= 0 else [4, 0, 0, 4],
                 },
                 "label": {
                     "show": True,
                     "position": "right" if numeric_value >= 0 else "left",
                     "distance": 4,
-                    "color": "#334155",
+                    "color": primary_text_color,
                     "fontSize": label_font_size,
                     "lineHeight": label_font_size + 2,
                     "fontWeight": 700,
@@ -5105,14 +5155,14 @@ class ReportBuilderService:
                 "type": "value",
                 "min": round(axis_min, 2),
                 "max": round(axis_max, 2),
-                "axisLabel": {"color": "#64748b", "formatter": "{value}%"},
-                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                "axisLabel": {"color": muted_text_color, "formatter": "{value}%"},
+                "splitLine": {"lineStyle": {"color": split_line_color}},
             },
             "yAxis": {
                 "type": "category",
                 "data": [item.get("name") or "-" for item in items],
                 "axisLabel": {
-                    "color": "#475569",
+                    "color": primary_text_color,
                     "fontWeight": 600,
                     "fontSize": 10,
                     "lineHeight": 11,
@@ -5196,13 +5246,13 @@ class ReportBuilderService:
                 ),
                 "rich": {
                     "percent": {
-                        "color": "#475569",
+                        "color": str(self._get_style_color_value("#5f7387", "text", "muted")),
                         "fontSize": 10,
                         "fontWeight": 500,
                         "lineHeight": 13,
                     },
                     "value": {
-                        "color": "#0f172a",
+                        "color": str(self._get_style_color_value("#0f2d45", "text", "heading")),
                         "fontSize": 9,
                         "fontWeight": 800,
                         "lineHeight": 14,
@@ -5214,7 +5264,7 @@ class ReportBuilderService:
                 "length": 14,
                 "length2": 12,
                 "lineStyle": {
-                    "color": "#64748b",
+                    "color": str(self._get_style_color_value("#5f7387", "text", "muted")),
                     "width": 1.4,
                 },
             }
@@ -5234,7 +5284,7 @@ class ReportBuilderService:
                     "itemWidth": 14,
                     "itemHeight": 14,
                     "icon": "roundRect",
-                    "textStyle": {"color": "#475569", "fontSize": 10, "fontWeight": 500},
+                    "textStyle": {"color": str(self._get_style_color_value("#5f7387", "text", "muted")), "fontSize": 10, "fontWeight": 500},
                     "itemGap": 12,
                 },
                 *legend_path,
@@ -5249,11 +5299,11 @@ class ReportBuilderService:
                     "avoidLabelOverlap": True,
                     "minShowLabelAngle": 1,
                     "itemStyle": {
-                        "borderColor": "#ffffff",
+                        "borderColor": str(self._get_style_color_value("#ffffff", "text", "inverse")),
                         "borderWidth": 4,
                         "borderRadius": slice_border_radius,
                     },
-                    "label": {"show": True, "color": "#0f172a"},
+                    "label": {"show": True, "color": str(self._get_style_color_value("#0f2d45", "text", "heading"))},
                     "labelLine": {"show": True},
                     "data": chart_items,
                 }
@@ -5272,7 +5322,7 @@ class ReportBuilderService:
                             "style": {
                                 "text": self._fmt_chart_total(total_value),
                                 "textAlign": "center",
-                                "fill": "#334155",
+                                "fill": str(self._get_style_color_value("#223548", "text", "primary")),
                                 "fontSize": center_value_font_size,
                                 "fontWeight": 800,
                             },
@@ -5284,7 +5334,7 @@ class ReportBuilderService:
                             "style": {
                                 "text": center_title,
                                 "textAlign": "center",
-                                "fill": "#475569",
+                                "fill": str(self._get_style_color_value("#5f7387", "text", "muted")),
                                 "fontSize": center_title_font_size,
                                 "fontWeight": 700,
                             },
@@ -5296,7 +5346,7 @@ class ReportBuilderService:
                             "style": {
                                 "text": center_unit,
                                 "textAlign": "center",
-                                "fill": "#64748b",
+                                "fill": str(self._get_style_color_value("#6f8293", "text", "subtle")),
                                 "fontSize": center_unit_font_size,
                                 "fontWeight": 700,
                             },
