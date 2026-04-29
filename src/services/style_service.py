@@ -909,18 +909,25 @@ class ReportStyleService:
         legacy_report_header = components.get("reportHeader") if isinstance(components.get("reportHeader"), dict) else {}
         legacy_footer = _clone_dict(components.get("footer"))
 
+        def _first_non_none(*values: Any) -> Any:
+            for value in values:
+                if value is not None:
+                    return value
+            return None
+
         def _collapse_pdf_height_modes(current: Any) -> None:
             if not isinstance(current, dict):
                 return
 
             height = current.get("height")
             if isinstance(height, dict):
-                if height.get("pdf") is None:
-                    pdf_value = height.get("pdfCompact")
-                    if pdf_value is None:
-                        pdf_value = height.get("pdfBase")
-                    if pdf_value is not None:
-                        height["pdf"] = deepcopy(pdf_value)
+                pdf_value = _first_non_none(
+                    height.get("pdf"),
+                    height.get("pdfCompact"),
+                    height.get("pdfBase"),
+                )
+                if pdf_value is not None:
+                    height["pdf"] = deepcopy(pdf_value)
                 height.pop("pdfBase", None)
                 height.pop("pdfCompact", None)
 
@@ -953,10 +960,10 @@ class ReportStyleService:
             return ((legacy_chart_heights.get(mode_name) or {}).get(section_name) or {}).get(key_name)
 
         def _legacy_pdf_chart_height(section_name: str, key_name: str) -> Any:
-            compact_value = _legacy_chart_height("pdfCompact", section_name, key_name)
-            if compact_value is not None:
-                return compact_value
-            return _legacy_chart_height("pdfBase", section_name, key_name)
+            return _first_non_none(
+                _legacy_chart_height("pdfCompact", section_name, key_name),
+                _legacy_chart_height("pdfBase", section_name, key_name),
+            )
 
         compare_common = {
             "blockMarginTop": summary_card.get("compareBlockMarginTop"),
