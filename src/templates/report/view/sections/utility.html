@@ -270,10 +270,10 @@
                                 <td class="col-current utility-current-text">{{ row.current_display }}</td>
                                 <td class="col-previous utility-previous-text">{{ row.previous_display }}</td>
                                 <td class="col-delta {{ row.delta_pct_class }}"><span class="utility-delta-chip {{ row.delta_pct_class }}">{{ row.delta_display }}</span></td>
-                                <td class="col-delta-pct {{ row.delta_pct_class }}"><span class="utility-delta-chip {{ row.delta_pct_class }}">{{ row.delta_pct_display }}</span></td>
+                                <td class="col-delta-pct {{ row.delta_pct_class }}"><span class="utility-delta-chip {{ row.delta_pct_class }}">{{ report.delta_arrow(row.delta_pct_class) }} {{ row.delta_pct_display }}</span></td>
                                 <td class="col-current utility-current-text">{{ row.energy_current_display }}</td>
                                 <td class="col-previous utility-previous-text">{{ row.energy_previous_display }}</td>
-                                <td class="col-delta-pct {{ row.energy_delta_pct_class }}"><span class="utility-delta-chip {{ row.energy_delta_pct_class }}">{{ row.energy_delta_pct_display }}</span></td>
+                                <td class="col-delta-pct {{ row.energy_delta_pct_class }}"><span class="utility-delta-chip {{ row.energy_delta_pct_class }}">{{ report.delta_arrow(row.energy_delta_pct_class) }} {{ row.energy_delta_pct_display }}</span></td>
                             </tr>
                             {% endfor %}
                             {% else %}

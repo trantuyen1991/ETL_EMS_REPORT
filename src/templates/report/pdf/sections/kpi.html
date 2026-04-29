@@ -74,17 +74,23 @@
                                     <div class="kpi-daily-card-copy">
                                         <h3 class="kpi-daily-card-title">{{ card.label }}</h3>
                                         <div class="kpi-daily-card-unit">{{ meta.kpi_unit }} (Average)</div>
+                                        <div class="kpi-daily-card-primary">
+                                            <span class="kpi-daily-card-primary-value">{{ card.value_display }}</span>
+                                            {% if meta.kpi_unit %}
+                                            <span class="kpi-daily-card-primary-unit">{{ meta.kpi_unit }}</span>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                                 <span class="kpi-daily-card-badge {{ card.badge_class }}">{{ card.badge_label }}</span>
                             </div>
                             <div class="kpi-daily-card-compare">
                                 <div class="kpi-daily-card-compare-item">
-                                    <span class="kpi-daily-card-compare-label">{{ labels.current_period | upper }} (AVG)</span>
+                                    <span class="kpi-daily-card-compare-label">{{ labels.current_period | upper }}</span>
                                     <span class="kpi-daily-card-compare-value current">{{ card.value_display }}</span>
                                 </div>
                                 <div class="kpi-daily-card-compare-item">
-                                    <span class="kpi-daily-card-compare-label">{{ labels.previous_period | upper | replace("PREVIOUS", "LAST") }} (AVG)</span>
+                                    <span class="kpi-daily-card-compare-label">{{ labels.previous_period | upper | replace("PREVIOUS", "LAST") }}</span>
                                     <span class="kpi-daily-card-compare-value previous">{{ card.previous_display }}</span>
                                 </div>
                             </div>
@@ -151,8 +157,10 @@
                                     <td class="col-value col-today {% if column.key == 'total' %}col-total{% endif %} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-start">{{ cell.today_display }}</td>
                                     <td class="col-value col-yesterday kpi-group-cell kpi-group-{{ column.tone }} {% if column.is_total %}is-total{% endif %}">{{ cell.yesterday_display }}</td>
                                     <td class="col-delta-pct {{ cell.delta.class }} kpi-group-cell kpi-group-{{ column.tone }} kpi-group-divider-{{ column.tone }} {% if column.is_total %}is-total{% endif %} kpi-group-end">
-                                        {{ report.delta_arrow(cell.delta.class, cell.delta.arrow) }}
-                                        {{ cell.delta.display }}
+                                        <span class="report-delta-inline {{ cell.delta.class }}">
+                                            {{ report.delta_arrow(cell.delta.class, cell.delta.arrow) }}
+                                            {{ cell.delta.display }}
+                                        </span>
                                     </td>
                                     {% endfor %}
                                 </tr>

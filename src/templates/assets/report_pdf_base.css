@@ -2848,29 +2848,28 @@
             font-weight: 700;
         }
 
-        .utility-delta-chip {
+        .utility-delta-chip,
+        .report-delta-inline {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            border-radius: 999px;
+            justify-content: center;
             font-weight: 800;
-            line-height: 1;
-            background: rgba(148, 163, 184, 0.12);
+            line-height: 1.1;
+            white-space: nowrap;
         }
 
-        .utility-delta-chip.trend-up {
-            background: rgba(15, 123, 53, 0.12);
+        .utility-delta-chip.trend-up,
+        .report-delta-inline.trend-up {
             color: var(--report-color-trend-up) !important;
         }
 
-        .utility-delta-chip.trend-down {
-            background: rgba(180, 35, 24, 0.12);
+        .utility-delta-chip.trend-down,
+        .report-delta-inline.trend-down {
             color: var(--report-color-trend-down) !important;
         }
 
-        .utility-delta-chip.trend-neutral {
-            background: rgba(102, 102, 102, 0.12);
+        .utility-delta-chip.trend-neutral,
+        .report-delta-inline.trend-neutral {
             color: var(--report-color-trend-neutral) !important;
         }
 
@@ -3552,6 +3551,10 @@
             height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf, 220px);
         }
 
+        .utility-sensor-trend-cluster .utility-sensor-trend-chart {
+            height: var(--report-components-report-section-utility-chart-sensor-cluster-height-pdf, 190px);
+        }
+
         /* ==========================================================================
         KPI total
         ========================================================================== */
@@ -3563,6 +3566,14 @@
         .kpi-summary-block,
         .kpi-chart-block {
             margin-bottom: 14px;
+        }
+
+        .kpi-summary-table-wrap {
+            border: 1px solid var(--report-components-report-section-common-table-base-border-color, var(--report-color-border-row));
+            border-radius: 14px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.9) 0%, rgba(255, 255, 255, 0.98) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
 
         .kpi-summary-table {
@@ -3579,6 +3590,16 @@
         .kpi-summary-table tbody td {
             text-align: center;
             vertical-align: middle;
+            border-right: 1px solid var(--report-components-report-section-common-table-base-border-color, var(--report-color-border-row));
+        }
+
+        .kpi-summary-table thead th:last-child,
+        .kpi-summary-table tbody td:last-child {
+            border-right: none;
+        }
+
+        .kpi-summary-table tbody tr:nth-child(even) td {
+            background: var(--report-components-report-section-common-table-base-stripe-background, #fcfcfc);
         }
 
         .kpi-summary-table .col-metric {
@@ -3592,47 +3613,31 @@
         }
 
         .kpi-summary-table .kpi-group-total {
-            --kpi-group-accent: #2d74ff;
-            --kpi-group-divider: #9ec3ff;
-            --kpi-group-header-bg: linear-gradient(180deg, rgba(45, 116, 255, 0.18) 0%, #f7fbff 100%);
-            --kpi-group-subheader-bg: #eef6ff;
-            --kpi-group-cell-bg: rgba(238, 245, 255, 0.55);
+            --kpi-group-divider: var(--report-components-report-section-common-table-base-border-color, var(--report-color-border-row));
             --kpi-group-title-color: #1748b5;
             --kpi-group-primary: #2160df;
-            --kpi-group-secondary: #385eb4;
+            --kpi-group-secondary: #7c3aed;
         }
 
         .kpi-summary-table .kpi-group-diode {
-            --kpi-group-accent: #2d74ff;
-            --kpi-group-divider: #c3d9ff;
-            --kpi-group-header-bg: linear-gradient(180deg, rgba(45, 116, 255, 0.15) 0%, #fbfdff 100%);
-            --kpi-group-subheader-bg: #f1f7ff;
-            --kpi-group-cell-bg: rgba(241, 247, 255, 0.62);
+            --kpi-group-divider: var(--report-components-report-section-common-table-base-border-color, var(--report-color-border-row));
             --kpi-group-title-color: #1748b5;
             --kpi-group-primary: #2160df;
-            --kpi-group-secondary: #385eb4;
+            --kpi-group-secondary: #7c3aed;
         }
 
         .kpi-summary-table .kpi-group-ico {
-            --kpi-group-accent: #22a34a;
-            --kpi-group-divider: #bfe8cb;
-            --kpi-group-header-bg: linear-gradient(180deg, rgba(34, 163, 74, 0.16) 0%, #fbfefb 100%);
-            --kpi-group-subheader-bg: #eefaf2;
-            --kpi-group-cell-bg: rgba(238, 250, 242, 0.60);
+            --kpi-group-divider: var(--report-components-report-section-common-table-base-border-color, var(--report-color-border-row));
             --kpi-group-title-color: #14803b;
             --kpi-group-primary: #14803b;
-            --kpi-group-secondary: #2f9e55;
+            --kpi-group-secondary: #7c3aed;
         }
 
         .kpi-summary-table .kpi-group-sakari {
-            --kpi-group-accent: #f59e0b;
-            --kpi-group-divider: #fbd2a2;
-            --kpi-group-header-bg: linear-gradient(180deg, rgba(245, 158, 11, 0.16) 0%, #fffaf2 100%);
-            --kpi-group-subheader-bg: #fff5e8;
-            --kpi-group-cell-bg: rgba(255, 245, 232, 0.65);
+            --kpi-group-divider: var(--report-components-report-section-common-table-base-border-color, var(--report-color-border-row));
             --kpi-group-title-color: #d97706;
             --kpi-group-primary: #d97706;
-            --kpi-group-secondary: var(--report-color-brand-accent, #a855f7);
+            --kpi-group-secondary: #7c3aed;
         }
 
         .kpi-summary-table .kpi-group-header {
@@ -3650,27 +3655,27 @@
         }
 
         .kpi-summary-table .kpi-group-header[class*="kpi-group-"] {
-            background: var(--kpi-group-header-bg);
-            box-shadow: inset 0 6px 0 var(--kpi-group-accent);
+            background: var(--report-components-report-section-common-table-base-header-background, var(--report-color-table-header-background));
+            box-shadow: none;
             color: var(--kpi-group-title-color);
         }
 
         .kpi-summary-table .kpi-group-subheader[class*="kpi-group-"] {
-            background: var(--kpi-group-subheader-bg);
+            background: var(--report-components-report-section-common-table-base-header-background, var(--report-color-table-header-background));
         }
 
         .kpi-summary-table .kpi-group-divider-total.kpi-group-start,
         .kpi-summary-table .kpi-group-divider-diode.kpi-group-start,
         .kpi-summary-table .kpi-group-divider-ico.kpi-group-start,
         .kpi-summary-table .kpi-group-divider-sakari.kpi-group-start {
-            border-left: var(--report-components-report-section-kpi-table-summary-matrix-group-divider-width-pdf, 3px) solid var(--kpi-group-divider) !important;
+            border-left: 1px solid var(--kpi-group-divider) !important;
         }
 
         .kpi-summary-table .kpi-group-divider-total.kpi-group-end,
         .kpi-summary-table .kpi-group-divider-diode.kpi-group-end,
         .kpi-summary-table .kpi-group-divider-ico.kpi-group-end,
         .kpi-summary-table .kpi-group-divider-sakari.kpi-group-end {
-            border-right: var(--report-components-report-section-kpi-table-summary-matrix-group-divider-width-pdf, 3px) solid var(--kpi-group-divider) !important;
+            border-right: 1px solid var(--kpi-group-divider) !important;
         }
 
         .kpi-summary-table .col-value,
@@ -3680,11 +3685,11 @@
         }
 
         .kpi-summary-table .kpi-group-cell {
-            background: var(--report-components-card-background, #ffffff);
+            background: transparent;
         }
 
         .kpi-summary-table .kpi-group-cell[class*="kpi-group-"] {
-            background: var(--kpi-group-cell-bg, var(--report-components-card-background, #ffffff));
+            background: transparent;
         }
 
         .kpi-summary-table .col-total {
@@ -3914,6 +3919,9 @@
         }
 
         .kpi-daily-card-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
             min-width: 0;
         }
 
@@ -3975,6 +3983,28 @@
         .kpi-daily-card-note {
             font-size: 11px;
             color: var(--section-card-copy);
+        }
+
+        .kpi-daily-card-primary {
+            display: inline-flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-width: 0;
+            margin-top: 2px;
+        }
+
+        .kpi-daily-card-primary-value {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--section-card-current);
+        }
+
+        .kpi-daily-card-primary-unit {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--section-card-note);
         }
 
         .kpi-daily-card-compare {

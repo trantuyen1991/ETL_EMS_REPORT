@@ -3974,17 +3974,25 @@ class ReportBuilderService:
 
         option_y_axes = []
         for axis_index, axis in enumerate(axis_list):
+            is_right_axis = axis_index > 0
             option_y_axes.append({
                 "type": "value",
                 "name": axis.get("name") or "",
                 "position": "left" if axis_index == 0 else "right",
+                "offset": 0,
                 "alignTicks": True if len(axis_list) > 1 else False,
+                "nameLocation": "end",
+                "nameGap": 10 if is_right_axis else 12,
                 "nameTextStyle": {
                     "color": "#64748b",
                     "fontSize": 9,
-                    "padding": [20, 0, 0, 10],
+                    "padding": [12, 0, 0, 0] if is_right_axis else [16, 0, 0, 0],
                 },
-                "axisLabel": {"color": "#64748b", "fontSize": 9},
+                "axisLabel": {
+                    "color": "#64748b",
+                    "fontSize": 9,
+                    "margin": 4 if is_right_axis else 8,
+                },
                 "axisLine": {"show": len(axis_list) > 1, "lineStyle": {"color": "#cbd5e1"}},
                 "splitLine": {"show": axis_index == 0, "lineStyle": {"color": "#e2e8f0"}},
             })
@@ -4674,6 +4682,9 @@ class ReportBuilderService:
 
             variance_items.append({
                 "name": label if label != "TOTAL" else "Total",
+                "unit": "kWh/Ton",
+                "current": self._safe_float(current_kpi),
+                "previous": self._safe_float(previous_kpi),
                 "value": variance_value,
             })
 
@@ -4731,7 +4742,7 @@ class ReportBuilderService:
         compare_title = "Energy KPI: Today vs yesterday" if is_daily_comparison else "Energy KPI comparison"
         compare_subtitle = "KPI comparison by Total and workshop" if is_daily_comparison else f"{current_label} vs {previous_label.lower()} by Total and workshop"
         waterfall_subtitle = "Decomposition of the Total KPI movement" if is_daily_comparison else f"Decomposition of KPI movement from {previous_label.lower()} to {current_label.lower()}"
-        variance_title = "Deviation vs yesterday (%)" if is_daily_comparison else f"Deviation vs {previous_label.lower()} (%)"
+        variance_title = "Deviation vs yesterday" if is_daily_comparison else f"Deviation vs {previous_label.lower()}"
 
         return {
             "cards": cards,
@@ -4964,60 +4975,99 @@ class ReportBuilderService:
         items: list[dict[str, Any]],
     ) -> Dict[str, Any]:
         """Build a horizontal variance chart for KPI change vs yesterday."""
+        label_font_size = 10
+        axis_padding_left = 10.0
+        axis_padding_right = 8.0
+        values: list[float] = []
         chart_data = []
+
         for item in items:
             value = item.get("value")
+            name = item.get("name") or "-"
+            current_value = float(item.get("current") or 0.0)
+            previous_value = float(item.get("previous") or 0.0)
+            unit = str(item.get("unit") or "").strip()
+
             if value is None:
                 chart_data.append({
                     "value": 0,
-                    "name": item.get("name") or "-",
-                    "itemStyle": {"color": "#cbd5e1"},
-                    "label": {"show": True, "position": "right", "formatter": "-", "color": "#64748b", "fontSize": 10},
+                    "name": name,
+                    "itemStyle": {
+                        "color": "#cbd5e1",
+                        "borderRadius": [0, 4, 4, 0],
+                    },
+                    "label": {
+                        "show": True,
+                        "position": "right",
+                        "formatter": "-",
+                        "color": "#64748b",
+                        "fontSize": label_font_size,
+                    },
                 })
                 continue
 
+            numeric_value = round(float(value), 2)
+            values.append(numeric_value)
+            delta_value = abs(current_value - previous_value)
+            delta_display = self._fmt(delta_value)
+            unit_suffix = f" {unit}" if unit else ""
+
             chart_data.append({
-                "value": round(float(value), 2),
-                "name": item.get("name") or "-",
-                "itemStyle": {"color": "#dc2626" if float(value) >= 0 else "#16a34a"},
+                "value": numeric_value,
+                "name": name,
+                "itemStyle": {
+                    "color": "#e33434" if numeric_value > 0 else "#18a05e" if numeric_value < 0 else "#94a3b8",
+                    "borderRadius": [0, 4, 4, 0] if numeric_value >= 0 else [4, 0, 0, 4],
+                },
                 "label": {
                     "show": True,
-                    "position": "right" if float(value) >= 0 else "left",
-                    "formatter": f"{float(value):+.2f}%",
-                    "color": "#1e293b",
-                    "fontSize": 10,
+                    "position": "right" if numeric_value >= 0 else "left",
+                    "distance": 4,
+                    "color": "#334155",
+                    "fontSize": label_font_size,
+                    "lineHeight": label_font_size + 2,
+                    "fontWeight": 700,
+                    "formatter": f"{numeric_value:+.2f}%\n({delta_display}{unit_suffix})",
                 },
             })
 
+        min_value = min(values, default=0.0)
+        max_value = max(values, default=0.0)
+        axis_min = min(-10.0, float(min_value)) - axis_padding_left
+        axis_max = max(10.0, float(max_value)) + axis_padding_right
+
         return {
             "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
-            "grid": self._resolve_chart_grid(
-                {
-                    "left": 70,
-                    "right": 16,
-                    "top": 12,
-                    "bottom": 18,
-                    "containLabel": False,
-                },
-                "kpi",
-                "variance",
-            ),
+            "grid": {
+                "left": 92,
+                "right": 24,
+                "top": 18,
+                "bottom": 28,
+                "containLabel": False,
+            },
             "xAxis": {
                 "type": "value",
+                "min": round(axis_min, 2),
+                "max": round(axis_max, 2),
                 "axisLabel": {"color": "#64748b", "formatter": "{value}%"},
                 "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
             },
             "yAxis": {
                 "type": "category",
                 "data": [item.get("name") or "-" for item in items],
-                "axisLabel": {"color": "#475569", "fontWeight": 600},
+                "axisLabel": {
+                    "color": "#475569",
+                    "fontWeight": 600,
+                    "fontSize": 10,
+                    "lineHeight": 11,
+                },
                 "axisTick": {"show": False},
                 "axisLine": {"show": False},
             },
             "series": [
                 {
                     "type": "bar",
-                    "barMaxWidth": 22,
+                    "barWidth": 12,
                     "data": chart_data,
                 }
             ],
