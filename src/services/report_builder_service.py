@@ -3907,6 +3907,9 @@ class ReportBuilderService:
             return []
 
         rendered_clusters: list[dict[str, Any]] = []
+        palette = self._get_chart_palette()
+        default_accent = palette[0]
+        default_accent_tint = self._hex_to_rgba(default_accent, 0.08)
         for cluster in trend_clusters:
             rendered_charts = self._build_v3_sensor_trend_cluster_charts(cluster)
             if not rendered_charts:
@@ -3916,8 +3919,8 @@ class ReportBuilderService:
                 "enabled": True,
                 "cluster_key": cluster.get("cluster_key") or "",
                 "cluster_label": cluster.get("cluster_label") or "",
-                "accent_color": cluster.get("accent_color") or "#2563eb",
-                "accent_tint": cluster.get("accent_tint") or "rgba(37, 99, 235, 0.08)",
+                "accent_color": cluster.get("accent_color") or default_accent,
+                "accent_tint": cluster.get("accent_tint") or default_accent_tint,
                 "sensor_count": int(cluster.get("sensor_count") or 0),
                 "active_sensor_count": int(cluster.get("active_sensor_count") or 0),
                 "alert_count": int(cluster.get("alert_count") or 0),
@@ -4202,12 +4205,12 @@ class ReportBuilderService:
                 "nameLocation": "end",
                 "nameGap": 10 if is_right_axis else 12,
                 "nameTextStyle": {
-                    "color": "#64748b",
+                    "color": muted_text_color,
                     "fontSize": 9,
                     "padding": [12, 0, 0, 0] if is_right_axis else [16, 0, 0, 0],
                 },
                 "axisLabel": {
-                    "color": "#64748b",
+                    "color": muted_text_color,
                     "fontSize": 9,
                     "margin": 4 if is_right_axis else 8,
                 },
@@ -4247,11 +4250,11 @@ class ReportBuilderService:
                 "data": formatted_labels,
                 "boundaryGap": False,
                 "axisLabel": {
-                    "color": "#64748b",
+                    "color": muted_text_color,
                     "fontSize": 9,
                     "interval": "auto",
                 },
-                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                "axisLine": {"lineStyle": {"color": axis_line_color}},
             },
             "yAxis": option_y_axes,
             "series": option_series,

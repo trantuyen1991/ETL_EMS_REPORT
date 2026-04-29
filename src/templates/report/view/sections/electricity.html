@@ -443,25 +443,11 @@
                 </div>
                 {% else %}
                 {% for table in sections.electricity.daily_detail_tables %}
-                    {% if table.area_key == 'diode' %}
-                        {% set detail_accent_color = '#2563eb' %}
-                        {% set detail_accent_tint = 'rgba(37, 99, 235, 0.12)' %}
-                        {% set detail_head_bg = '#e8f1ff' %}
-                        {% set detail_soft_bg = '#f8fbff' %}
-                        {% set detail_strong_bg = '#deecff' %}
-                    {% elif table.area_key == 'ico' %}
-                        {% set detail_accent_color = '#84cc16' %}
-                        {% set detail_accent_tint = 'rgba(132, 204, 22, 0.16)' %}
-                        {% set detail_head_bg = '#f3fae8' %}
-                        {% set detail_soft_bg = '#fbfdf5' %}
-                        {% set detail_strong_bg = '#e7f6c8' %}
-                    {% else %}
-                        {% set detail_accent_color = '#f59e0b' %}
-                        {% set detail_accent_tint = 'rgba(245, 158, 11, 0.16)' %}
-                        {% set detail_head_bg = '#fff5df' %}
-                        {% set detail_soft_bg = '#fffaf0' %}
-                        {% set detail_strong_bg = '#ffe7b0' %}
-                    {% endif %}
+                    {% set detail_accent_color = table.accent_color %}
+                    {% set detail_accent_tint = table.accent_tint %}
+                    {% set detail_head_bg = table.accent_header_bg %}
+                    {% set detail_soft_bg = table.accent_soft_bg %}
+                    {% set detail_strong_bg = table.accent_strong_bg %}
 
                     {% set meter_columns = table.columns[1:] %}
                     {% set chunk_size = 14 %}
