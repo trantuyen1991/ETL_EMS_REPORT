@@ -36,7 +36,7 @@
       "borderSoft": "#d9e4ee",
       "borderRow": "#e6edf3",
       "brandPrimary": "#005496",
-      "brandAccent": "#5f7fa6",
+      "brandAccent": "#703cd9",
       "trendUp": "#0b7a43",
       "trendDown": "#c04b39",
       "trendNeutral": "#6c7f91",
@@ -81,7 +81,7 @@
         "primary": "#005496",
         "primaryStrong": "#003b6a",
         "primarySoft": "#e4eff8",
-        "accent": "#5f7fa6",
+        "accent": "#703cd9",
         "accentSoft": "#edf3f8"
       },
       "trend": {
@@ -128,9 +128,9 @@
         "toolboxBorder": "#7f97ab",
         "series": {
           "current": "#005496",
-          "previous": "#5f7fa6",
+          "previous": "#703cd9",
           "currentTint": "rgba(0, 84, 150, 0.12)",
-          "previousTint": "rgba(95, 127, 166, 0.08)"
+          "previousTint": "rgba(112, 60, 217, 0.10)"
         }
       },
       "area": {
@@ -831,9 +831,9 @@
               "theme": {
                 "series": {
                   "current": "#005496",
-                  "previous": "#5f7fa6",
+                  "previous": "#703cd9",
                   "currentTint": "rgba(0, 84, 150, 0.12)",
-                  "previousTint": "rgba(95, 127, 166, 0.08)"
+                  "previousTint": "rgba(112, 60, 217, 0.10)"
                 },
                 "delta": {
                   "total": "#005496"
@@ -951,7 +951,7 @@
                   "currentColor": "#005496",
                   "previousColor": "#703cd9",
                   "noteColor": "#6f8293",
-                  "iconBackground": "#5d4f8d",
+                  "iconBackground": "#005496",
                   "iconColor": "#ffffff",
                   "primaryColor": "#005496",
                   "primaryUnitColor": "#0f2d45",
@@ -969,7 +969,7 @@
                   "currentColor": "#005496",
                   "previousColor": "#703cd9",
                   "noteColor": "#6f8293",
-                  "iconBackground": "#5d4f8d",
+                  "iconBackground": "#005496",
                   "iconColor": "#ffffff",
                   "primaryColor": "#005496",
                   "primaryUnitColor": "#0f2d45",
@@ -987,7 +987,7 @@
                   "currentColor": "#6f9a6d",
                   "previousColor": "#703cd9",
                   "noteColor": "#6f8293",
-                  "iconBackground": "#5d4f8d",
+                  "iconBackground": "#6f9a6d",
                   "iconColor": "#ffffff",
                   "primaryColor": "#6f9a6d",
                   "primaryUnitColor": "#39553a",
@@ -1005,7 +1005,7 @@
                   "currentColor": "#5ca7a4",
                   "previousColor": "#703cd9",
                   "noteColor": "#6f8293",
-                  "iconBackground": "#5d4f8d",
+                  "iconBackground": "#5ca7a4",
                   "iconColor": "#ffffff",
                   "primaryColor": "#2f7d7a",
                   "primaryUnitColor": "#1f5f5d",
@@ -1023,7 +1023,7 @@
                   "currentColor": "#7a6da8",
                   "previousColor": "#703cd9",
                   "noteColor": "#6f8293",
-                  "iconBackground": "#5d4f8d",
+                  "iconBackground": "#7a6da8",
                   "iconColor": "#ffffff",
                   "primaryColor": "#7a6da8",
                   "primaryUnitColor": "#4d4177",
@@ -1041,7 +1041,7 @@
                   "currentColor": "#005496",
                   "previousColor": "#703cd9",
                   "noteColor": "rgba(255, 255, 255, 0.88)",
-                  "iconBackground": "#5d4f8d",
+                  "iconBackground": "#005496",
                   "iconColor": "#ffffff",
                   "primaryColor": "#ffffff",
                   "primaryUnitColor": "rgba(255, 255, 255, 0.94)",
@@ -1059,7 +1059,7 @@
                   "currentColor": "#6f9a6d",
                   "previousColor": "#703cd9",
                   "noteColor": "#6f8293",
-                  "iconBackground": "#5d4f8d",
+                  "iconBackground": "#6f9a6d",
                   "iconColor": "#ffffff",
                   "primaryColor": "#6f9a6d",
                   "primaryUnitColor": "#39553a",
@@ -1077,7 +1077,7 @@
                   "currentColor": "#5ca7a4",
                   "previousColor": "#703cd9",
                   "noteColor": "#6f8293",
-                  "iconBackground": "#5d4f8d",
+                  "iconBackground": "#5ca7a4",
                   "iconColor": "#ffffff",
                   "primaryColor": "#2f7d7a",
                   "primaryUnitColor": "#1f5f5d",
@@ -1095,7 +1095,7 @@
                   "currentColor": "#7a6da8",
                   "previousColor": "#703cd9",
                   "noteColor": "#6f8293",
-                  "iconBackground": "#5d4f8d",
+                  "iconBackground": "#7a6da8",
                   "iconColor": "#ffffff",
                   "primaryColor": "#7a6da8",
                   "primaryUnitColor": "#4d4177",
@@ -1225,9 +1225,9 @@
               "theme": {
                 "series": {
                   "current": "#005496",
-                  "previous": "#5f7fa6",
+                  "previous": "#703cd9",
                   "currentTint": "rgba(0, 84, 150, 0.12)",
-                  "previousTint": "rgba(95, 127, 166, 0.08)",
+                  "previousTint": "rgba(112, 60, 217, 0.10)",
                   "neutral": "#6c7f91"
                 },
                 "category": {
@@ -1547,9 +1547,9 @@
               "theme": {
                 "series": {
                   "current": "#005496",
-                  "previous": "#5f7fa6",
+                  "previous": "#703cd9",
                   "currentTint": "rgba(0, 84, 150, 0.12)",
-                  "previousTint": "rgba(95, 127, 166, 0.08)",
+                  "previousTint": "rgba(112, 60, 217, 0.10)",
                   "neutral": "#6c7f91"
                 }
               }
@@ -1697,7 +1697,7 @@
       "themeName": "report_default",
       "palette": [
         "#005496",
-        "#5f7fa6",
+        "#703cd9",
         "#5b9bd5",
         "#6f9a6d",
         "#d09a45",

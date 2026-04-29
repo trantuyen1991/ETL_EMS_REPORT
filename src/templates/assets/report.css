@@ -1093,7 +1093,7 @@
             --section-card-title: var(--report-components-report-section-electric-card-theme-base-title-color, #003b6a);
             --section-card-copy: var(--report-components-report-section-electric-card-theme-base-copy-color, var(--report-color-text-subtle, #61758f));
             --section-card-current: var(--report-components-report-section-electric-card-theme-base-current-color, #005496);
-            --section-card-previous: var(--report-components-report-section-electric-card-theme-base-previous-color, var(--report-color-brand-accent, #5f7fa6));
+            --section-card-previous: var(--report-components-report-section-electric-card-theme-base-previous-color, var(--report-color-text-previous-value, #703cd9));
             --section-card-note: var(--report-components-report-section-electric-card-theme-base-note-color, var(--report-color-text-subtle, #5f7086));
             --section-card-icon-bg: var(--report-components-report-section-electric-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%));
             --section-card-icon-color: var(--report-components-report-section-electric-card-theme-base-icon-color, #ffffff);
@@ -2296,9 +2296,9 @@
             --utility-card-title: var(--report-components-report-section-utility-card-theme-base-title-color, #003b6a);
             --utility-card-copy: var(--report-components-report-section-utility-card-theme-base-copy-color, #6f8293);
             --utility-card-current: var(--report-components-report-section-utility-card-theme-base-current-color, #005496);
-            --utility-card-previous: var(--report-components-report-section-utility-card-theme-base-previous-color, #5f7fa6);
+            --utility-card-previous: var(--report-components-report-section-utility-card-theme-base-previous-color, var(--report-color-text-previous-value, #703cd9));
             --utility-card-note: var(--report-components-report-section-utility-card-theme-base-note-color, #6f8293);
-            --utility-card-icon-bg: var(--report-components-report-section-utility-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%));
+            --utility-card-icon-bg: var(--report-components-report-section-utility-card-theme-base-icon-background, var(--utility-card-accent, #005496));
             --utility-card-icon-color: var(--report-components-report-section-utility-card-theme-base-icon-color, #ffffff);
             --utility-card-primary: var(--report-components-report-section-utility-card-theme-base-primary-color, #005496);
             --utility-card-primary-unit: var(--report-components-report-section-utility-card-theme-base-primary-unit-color, #0f2d45);
@@ -3862,7 +3862,7 @@
             --section-card-title: var(--report-components-report-section-kpi-card-theme-base-title-color, var(--report-components-report-section-electric-card-theme-base-title-color, #003b6a));
             --section-card-copy: var(--report-components-report-section-kpi-card-theme-base-copy-color, var(--report-components-report-section-electric-card-theme-base-copy-color, var(--report-color-text-subtle, #61758f)));
             --section-card-current: var(--report-components-report-section-kpi-card-theme-base-current-color, var(--report-components-report-section-electric-card-theme-base-current-color, #005496));
-            --section-card-previous: var(--report-components-report-section-kpi-card-theme-base-previous-color, var(--report-components-report-section-electric-card-theme-base-previous-color, var(--report-color-brand-accent, #5f7fa6)));
+            --section-card-previous: var(--report-components-report-section-kpi-card-theme-base-previous-color, var(--report-components-report-section-electric-card-theme-base-previous-color, var(--report-color-text-previous-value, #703cd9)));
             --section-card-note: var(--report-components-report-section-kpi-card-theme-base-note-color, var(--report-components-report-section-electric-card-theme-base-note-color, var(--report-color-text-subtle, #5f7086)));
             --section-card-icon-bg: var(--report-components-report-section-kpi-card-theme-base-icon-background, var(--report-components-report-section-electric-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%)));
             --section-card-icon-color: var(--report-components-report-section-kpi-card-theme-base-icon-color, var(--report-components-report-section-electric-card-theme-base-icon-color, #ffffff));
