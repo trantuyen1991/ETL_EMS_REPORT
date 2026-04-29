@@ -148,6 +148,34 @@ class ReportBuilderService:
 
         return current if isinstance(current, dict) else {}
 
+    def _get_style_color_node(self, *path: str) -> Dict[str, Any]:
+        """Resolve one semantic color node under reportStyle.color.*."""
+        current: Any = (self._style_config or {}).get("color", {})
+        for key in path:
+            if not isinstance(current, dict):
+                return {}
+            current = current.get(key, {})
+        return current if isinstance(current, dict) else {}
+
+    def _get_style_color_value(self, default: Any, *path: str) -> Any:
+        """Resolve one semantic color scalar with a safe fallback."""
+        current: Any = (self._style_config or {}).get("color", {})
+        for key in path:
+            if not isinstance(current, dict):
+                return default
+            current = current.get(key)
+        return default if current is None else current
+
+    def _get_electric_chart_series_palette(self) -> Dict[str, str]:
+        """Return current/previous series colors for Electricity pilot charts."""
+        series_cfg = self._get_style_color_node("chart", "series")
+        return {
+            "current": str(series_cfg.get("current") or self._get_style_color_value("#005496", "brand", "primary")),
+            "previous": str(series_cfg.get("previous") or self._get_style_color_value("#5f7fa6", "brand", "accent")),
+            "current_tint": str(series_cfg.get("currentTint") or "rgba(0, 84, 150, 0.12)"),
+            "previous_tint": str(series_cfg.get("previousTint") or "rgba(95, 127, 166, 0.08)"),
+        }
+
     def _resolve_chart_grid(
         self,
         defaults: Dict[str, Any],
@@ -594,31 +622,53 @@ class ReportBuilderService:
 
     def _get_v3_area_visual_map(self) -> Dict[str, Dict[str, str]]:
         """Return stable V3 colors and display names for workshop areas."""
+        area_cfg = self._get_style_color_node("area")
+
+        def _resolve_area(area_key: str, *, display: str, defaults: Dict[str, str]) -> Dict[str, str]:
+            current = area_cfg.get(area_key, {}) if isinstance(area_cfg, dict) else {}
+            return {
+                "display": display,
+                "bar_color": str(current.get("barColor") or defaults["bar_color"]),
+                "bar_tint": str(current.get("barTint") or defaults["bar_tint"]),
+                "header_bg": str(current.get("headerBg") or defaults["header_bg"]),
+                "soft_bg": str(current.get("softBg") or defaults["soft_bg"]),
+                "strong_bg": str(current.get("strongBg") or defaults["strong_bg"]),
+            }
+
         return {
-            "diode": {
-                "display": "DIODE",
-                "bar_color": "#2563eb",
-                "bar_tint": "rgba(37, 99, 235, 0.12)",
-                "header_bg": "#eef5ff",
-                "soft_bg": "#f8fbff",
-                "strong_bg": "#deecff",
-            },
-            "ico": {
-                "display": "ICO",
-                "bar_color": "#84cc16",
-                "bar_tint": "rgba(132, 204, 22, 0.16)",
-                "header_bg": "#f3fae8",
-                "soft_bg": "#fbfdf5",
-                "strong_bg": "#edf7d8",
-            },
-            "sakari": {
-                "display": "SAKARI",
-                "bar_color": "#f59e0b",
-                "bar_tint": "rgba(245, 158, 11, 0.16)",
-                "header_bg": "#fff6e8",
-                "soft_bg": "#fffbf5",
-                "strong_bg": "#feedd1",
-            },
+            "diode": _resolve_area(
+                "diode",
+                display="DIODE",
+                defaults={
+                    "bar_color": "#005496",
+                    "bar_tint": "rgba(0, 84, 150, 0.14)",
+                    "header_bg": "#edf5fb",
+                    "soft_bg": "#f8fbfe",
+                    "strong_bg": "#d7e7f4",
+                },
+            ),
+            "ico": _resolve_area(
+                "ico",
+                display="ICO",
+                defaults={
+                    "bar_color": "#6f9a6d",
+                    "bar_tint": "rgba(111, 154, 109, 0.16)",
+                    "header_bg": "#f1f7f0",
+                    "soft_bg": "#fbfdfb",
+                    "strong_bg": "#e2eedf",
+                },
+            ),
+            "sakari": _resolve_area(
+                "sakari",
+                display="SAKARI",
+                defaults={
+                    "bar_color": "#d09a45",
+                    "bar_tint": "rgba(208, 154, 69, 0.16)",
+                    "header_bg": "#fcf6ec",
+                    "soft_bg": "#fffdf9",
+                    "strong_bg": "#f5e6cd",
+                },
+            ),
         }
 
     def _build_v3_top10_rows(
@@ -1247,6 +1297,7 @@ class ReportBuilderService:
         area_labels = [row["area_name"] for row in area_rows]
         current_area_values = [row["current_value"] for row in area_rows]
         previous_area_values = [row["previous_value"] for row in area_rows]
+        series_palette = self._get_electric_chart_series_palette()
 
         if period_type == "daily":
             current_total_value = sum(current_area_values)
@@ -1310,13 +1361,13 @@ class ReportBuilderService:
             is_monthly_period = period_type == "monthly"
             current_line_data = self._build_chart_line_points(
                 current_daily_values,
-                color="#2563eb",
+                color=series_palette["current"],
                 label_formatter=self._fmt_chart_compact if is_monthly_period else None,
                 show_only_min_max=is_monthly_period,
             )
             previous_line_data = self._build_chart_line_points(
                 previous_daily_values,
-                color="#7c3aed",
+                color=series_palette["previous"],
                 label_formatter=self._fmt_chart_compact if is_monthly_period else None,
                 show_only_min_max=is_monthly_period,
             )
@@ -1325,7 +1376,7 @@ class ReportBuilderService:
                 "title": "Daily trend",
                 "subtitle": "Current vs previous period",
                 "option": {
-                    "color": ["#2563eb", "#7c3aed"],
+                    "color": [series_palette["current"], series_palette["previous"]],
                     "tooltip": {
                         "trigger": "axis",
                         "axisPointer": {"type": "line"},
@@ -1376,15 +1427,15 @@ class ReportBuilderService:
                             "symbol": "circle",
                             "symbolSize": 8,
                             "showSymbol": True,
-                            "lineStyle": {"width": 3, "color": "#2563eb"},
-                            "itemStyle": {"color": "#2563eb"},
-                            "areaStyle": {"color": "rgba(37, 99, 235, 0.12)"},
+                            "lineStyle": {"width": 3, "color": series_palette["current"]},
+                            "itemStyle": {"color": series_palette["current"]},
+                            "areaStyle": {"color": series_palette["current_tint"]},
                             "label": {
                                 "show": not is_monthly_period,
                                 "position": "top",
                                 "formatter": "{c}",
                                 "fontSize": 8,
-                                "color": "#1d4ed8",
+                                "color": series_palette["current"],
                                 "backgroundColor": "rgba(255,255,255,0.92)",
                                 "padding": [2, 4],
                                 "borderRadius": 4,
@@ -1398,15 +1449,15 @@ class ReportBuilderService:
                             "symbol": "circle",
                             "symbolSize": 7,
                             "showSymbol": True,
-                            "lineStyle": {"width": 2, "type": "dashed", "color": "#7c3aed"},
-                            "itemStyle": {"color": "#7c3aed"},
-                            "areaStyle": {"color": "rgba(124, 58, 237, 0.08)"},
+                            "lineStyle": {"width": 2, "type": "dashed", "color": series_palette["previous"]},
+                            "itemStyle": {"color": series_palette["previous"]},
+                            "areaStyle": {"color": series_palette["previous_tint"]},
                             "label": {
                                 "show": not is_monthly_period,
                                 "position": "bottom",
                                 "formatter": "{c}",
                                 "fontSize": 8,
-                                "color": "#6d28d9",
+                                "color": series_palette["previous"],
                                 "backgroundColor": "rgba(255,255,255,0.9)",
                                 "padding": [2, 4],
                                 "borderRadius": 4,
@@ -1432,7 +1483,7 @@ class ReportBuilderService:
                 "title": "Area comparison",
                 "subtitle": "Current vs previous total by workshop",
                 "option": {
-                    "color": ["#2563eb", "#7c3aed"],
+                    "color": [series_palette["current"], series_palette["previous"]],
                     "tooltip": {
                         "trigger": "axis",
                         "axisPointer": {"type": "shadow"},
@@ -1488,7 +1539,7 @@ class ReportBuilderService:
                             "data": [
                                 self._build_chart_bar_point(
                                     value,
-                                    color="#2563eb",
+                                    color=series_palette["current"],
                                     font_size=8,
                                     label_rotate=16,
                                     label_distance=4,
@@ -1507,7 +1558,7 @@ class ReportBuilderService:
                             "data": [
                                 self._build_chart_bar_point(
                                     value,
-                                    color="#7c3aed",
+                                    color=series_palette["previous"],
                                     font_size=8,
                                     label_rotate=16,
                                     label_distance=4,
@@ -1540,12 +1591,15 @@ class ReportBuilderService:
             energy_object.get("previous", {}).get("summary", {}).get("plant", {}).get("total_energy", 0.0) or 0.0
         )
 
+        total_area_cfg = self._get_style_color_node("area", "total")
+        total_delta_color = str(total_area_cfg.get("barColor") or self._get_style_color_value("#005496", "brand", "primary"))
+
         delta_source_rows = [
             {
                 "area_name": "TOTAL",
                 "current_value": total_current_value,
                 "previous_value": total_previous_value,
-                "color": "#14b8a6",
+                "color": total_delta_color,
             },
             *area_rows,
         ]
@@ -1556,7 +1610,7 @@ class ReportBuilderService:
             previous_value = float(row.get("previous_value") or 0.0)
             delta_value = round(current_value - previous_value, 4)
             delta_pct = (delta_value / previous_value) if previous_value not in (0, 0.0) else None
-            base_color = row.get("color") or "#2563eb"
+            base_color = row.get("color") or total_delta_color
             label_text = self._fmt_chart_compact(delta_value)
             if delta_pct is not None:
                 label_text = f"{label_text} ({self._fmt_pct(delta_pct)})"
@@ -1710,8 +1764,10 @@ class ReportBuilderService:
         label_font_size = 9 if len(x_labels) <= 8 else 8
 
         area_visual_map = self._get_v3_area_visual_map()
+        total_area_cfg = self._get_style_color_node("area", "total")
+        total_bar_color = str(total_area_cfg.get("barColor") or self._get_style_color_value("#005496", "brand", "primary"))
         row_palettes = {
-            "plant": {"bar_color": "#14b8a6"},
+            "plant": {"bar_color": total_bar_color},
             "diode": area_visual_map.get("diode", {}),
             "ico": area_visual_map.get("ico", {}),
             "sakari": area_visual_map.get("sakari", {}),
@@ -1719,7 +1775,7 @@ class ReportBuilderService:
         area_legend = [
             {
                 "label": label,
-                "color": row_palettes.get(area_key, {}).get("bar_color", "#2563eb"),
+                "color": row_palettes.get(area_key, {}).get("bar_color", total_bar_color),
             }
             for area_key, label in row_defs
         ]
@@ -1727,7 +1783,7 @@ class ReportBuilderService:
         heatmap_data = []
         for row_index, row_values in enumerate(row_value_map):
             row_key = row_defs[row_index][0]
-            base_color = row_palettes.get(row_key, {}).get("bar_color", "#2563eb")
+            base_color = row_palettes.get(row_key, {}).get("bar_color", total_bar_color)
             numeric_row_values = [value for value in row_values if value is not None]
             row_min = min(numeric_row_values) if numeric_row_values else 0.0
             row_max = max(numeric_row_values) if numeric_row_values else 0.0

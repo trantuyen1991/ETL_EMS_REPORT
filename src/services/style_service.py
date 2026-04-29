@@ -22,7 +22,8 @@ logger = get_logger(__name__)
 
 DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
           'version': '1.0.0',
-          'description': 'Central presentation tokens for the current report system.'},
+          'description': 'Central presentation tokens for the current report system. Applies to both daily '
+                         'and periodic families through inline CSS / inline chart theme generation.'},
  'font': {'family': 'Arial, Helvetica, sans-serif',
           'sizeBase': '12px',
           'sizeSmall': '11px',
@@ -36,33 +37,101 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
           'weightBold': '700',
           'lineHeightBase': '1.5',
           'lineHeightDense': '1.35'},
- 'color': {'pageBackground': '#f4f6f8',
+ 'color': {'pageBackground': '#edf3f8',
            'cardBackground': '#ffffff',
-           'headerBackground': '#f8fafc',
-           'headerBackgroundStrong': '#f3f4f6',
-           'tableStripeBackground': '#fafafa',
-           'tableHeaderBackground': '#f8fafc',
-           'textPrimary': '#1f2937',
-           'textHeading': '#111827',
-           'textMuted': '#6b7280',
-           'textSubtle': '#64748b',
+           'headerBackground': '#f6f9fc',
+           'headerBackgroundStrong': '#eef4f9',
+           'tableStripeBackground': '#f8fbfd',
+           'tableHeaderBackground': '#f3f7fb',
+           'textPrimary': '#223548',
+           'textHeading': '#0f2d45',
+           'textMuted': '#5f7387',
+           'textSubtle': '#6f8293',
            'textInverse': '#ffffff',
-           'borderDefault': '#d1d5db',
-           'borderSoft': '#d9e1ea',
-           'borderRow': '#e5e7eb',
-           'brandPrimary': '#2563eb',
-           'brandAccent': '#7c3aed',
-           'trendUp': '#0f7b35',
-           'trendDown': '#b42318',
-           'trendNeutral': '#666666',
-           'statusSuccess': '#0f7b35',
-           'statusSuccessBackground': '#dcfce7',
-           'statusWarning': '#b45309',
-           'statusWarningBackground': '#fef3c7',
-           'statusDanger': '#b42318',
-           'statusDangerBackground': '#fee2e2',
-           'statusNeutral': '#6b7280',
-           'statusNeutralBackground': '#f3f4f6'},
+           'borderDefault': '#cdd9e5',
+           'borderSoft': '#d9e4ee',
+           'borderRow': '#e6edf3',
+           'brandPrimary': '#005496',
+           'brandAccent': '#5f7fa6',
+           'trendUp': '#0b7a43',
+           'trendDown': '#c04b39',
+           'trendNeutral': '#6c7f91',
+           'statusSuccess': '#0b7a43',
+           'statusSuccessBackground': '#def4e7',
+           'statusWarning': '#b7791f',
+           'statusWarningBackground': '#f9eed7',
+           'statusDanger': '#c04b39',
+           'statusDangerBackground': '#fae2df',
+           'statusNeutral': '#6c7f91',
+           'statusNeutralBackground': '#eef3f7',
+           'surface': {'page': '#edf3f8',
+                       'canvas': '#f6f9fc',
+                       'card': '#ffffff',
+                       'cardMuted': '#f7fafd',
+                       'header': '#f6f9fc',
+                       'headerStrong': '#eef4f9',
+                       'tableStripe': '#f8fbfd',
+                       'tableHeader': '#f3f7fb',
+                       'brandSoft': '#e4eff8',
+                       'brandTint': '#f2f7fb',
+                       'chartShell': '#fbfdff'},
+           'text': {'primary': '#223548',
+                    'heading': '#0f2d45',
+                    'muted': '#5f7387',
+                    'subtle': '#6f8293',
+                    'inverse': '#ffffff',
+                    'brand': '#005496'},
+           'border': {'default': '#cdd9e5',
+                      'soft': '#d9e4ee',
+                      'row': '#e6edf3',
+                      'strong': '#b8cada',
+                      'brand': '#8bb0cb'},
+           'brand': {'primary': '#005496',
+                     'primaryStrong': '#003b6a',
+                     'primarySoft': '#e4eff8',
+                     'accent': '#5f7fa6',
+                     'accentSoft': '#edf3f8'},
+           'trend': {'up': '#0b7a43', 'down': '#c04b39', 'neutral': '#6c7f91'},
+           'status': {'success': {'text': '#0b7a43', 'background': '#def4e7'},
+                      'warning': {'text': '#b7791f', 'background': '#f9eed7'},
+                      'danger': {'text': '#c04b39', 'background': '#fae2df'},
+                      'neutral': {'text': '#6c7f91', 'background': '#eef3f7'}},
+           'chart': {'palette': ['#005496',
+                                 '#5f7fa6',
+                                 '#5b9bd5',
+                                 '#6f9a6d',
+                                 '#d09a45',
+                                 '#c65a4b',
+                                 '#5ca7a4',
+                                 '#7a6da8'],
+                     'background': 'rgba(255,255,255,0)',
+                     'title': '#0f2d45',
+                     'subtitle': '#5f7387',
+                     'legendText': '#556b7d',
+                     'axisLine': '#b9c8d6',
+                     'axisLabel': '#5f7387',
+                     'splitLine': '#dfe7ef',
+                     'toolboxBorder': '#7f97ab',
+                     'series': {'current': '#005496',
+                                'previous': '#5f7fa6',
+                                'currentTint': 'rgba(0, 84, 150, 0.12)',
+                                'previousTint': 'rgba(95, 127, 166, 0.08)'}},
+           'area': {'total': {'barColor': '#005496', 'barTint': 'rgba(0, 84, 150, 0.12)'},
+                    'diode': {'barColor': '#005496',
+                              'barTint': 'rgba(0, 84, 150, 0.14)',
+                              'headerBg': '#edf5fb',
+                              'softBg': '#f8fbfe',
+                              'strongBg': '#d7e7f4'},
+                    'ico': {'barColor': '#6f9a6d',
+                            'barTint': 'rgba(111, 154, 109, 0.16)',
+                            'headerBg': '#f1f7f0',
+                            'softBg': '#fbfdfb',
+                            'strongBg': '#e2eedf'},
+                    'sakari': {'barColor': '#d09a45',
+                               'barTint': 'rgba(208, 154, 69, 0.16)',
+                               'headerBg': '#fcf6ec',
+                               'softBg': '#fffdf9',
+                               'strongBg': '#f5e6cd'}}},
  'layout': {'pageMaxWidth': '1480px',
             'pagePadding': '0',
             'cardPadding': '16px',
@@ -73,61 +142,56 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
             'chartHeightDefault': '320px',
             'chartHeightCompact': '260px'},
  'radius': {'medium': '8px', 'large': '10px', 'pill': '999px'},
- 'shadow': {'soft': '0 10px 24px rgba(15, 23, 42, 0.05)',
-            'card': '0 4px 12px rgba(15, 23, 42, 0.04)'},
+ 'shadow': {'soft': '0 10px 24px rgba(15, 23, 42, 0.05)', 'card': '0 4px 12px rgba(15, 23, 42, 0.04)'},
  'spacing': {'xs': '4px', 'sm': '8px', 'md': '12px', 'lg': '16px', 'xl': '24px'},
- 'components': {'page': {'background': '#f4f6f8', 'textColor': '#1f2937'},
+ 'components': {'page': {'background': '#edf3f8', 'textColor': '#223548'},
                 'card': {'background': '#ffffff',
-                         'borderColor': '#d1d5db',
+                         'borderColor': '#cdd9e5',
                          'borderRadius': '10px',
                          'padding': '16px',
-                         'shadow': '0 4px 12px rgba(15, 23, 42, 0.04)'},
-                'statusBadge': {'success': {'textColor': '#0f7b35',
-                                            'background': '#dcfce7',
-                                            'borderColor': '#86efac'},
-                                'warning': {'textColor': '#b45309',
-                                            'background': '#fef3c7',
-                                            'borderColor': '#fcd34d'},
-                                'danger': {'textColor': '#b42318',
-                                           'background': '#fee2e2',
-                                           'borderColor': '#fca5a5'},
-                                'neutral': {'textColor': '#6b7280',
-                                            'background': '#f3f4f6',
-                                            'borderColor': '#d1d5db'},
-                                'info': {'textColor': '#0369a1',
-                                         'background': '#e0f2fe',
-                                         'borderColor': '#bae6fd'}},
-                'badge': {'textColor': '#475569',
-                          'background': '#e2e8f0',
-                          'borderColor': '#cbd5e1',
+                         'shadow': '0 6px 18px rgba(15, 46, 69, 0.05)'},
+                'statusBadge': {'success': {'textColor': '#0b7a43',
+                                            'background': '#def4e7',
+                                            'borderColor': '#9fd6b0'},
+                                'warning': {'textColor': '#b7791f',
+                                            'background': '#f9eed7',
+                                            'borderColor': '#e6c98f'},
+                                'danger': {'textColor': '#c04b39',
+                                           'background': '#fae2df',
+                                           'borderColor': '#e6b1aa'},
+                                'neutral': {'textColor': '#6c7f91',
+                                            'background': '#eef3f7',
+                                            'borderColor': '#cdd9e5'},
+                                'info': {'textColor': '#005496',
+                                         'background': '#e8f1f8',
+                                         'borderColor': '#bfd4e5'}},
+                'badge': {'textColor': '#5f7387',
+                          'background': '#e7eef5',
+                          'borderColor': '#cfdce8',
                           'fontSize': '10px',
                           'fontWeight': '800'},
-                'trend': {'up': {'color': '#0f7b35'},
-                          'down': {'color': '#b42318'},
-                          'neutral': {'color': '#666666'}},
-                'coverageNotice': {'background': '#f8fafc',
-                                   'borderColor': '#d9e1ea',
-                                   'textColor': '#64748b'},
-                'chartCard': {'background': '#ffffff',
-                              'borderColor': '#d9e1ea',
+                'trend': {'up': {'color': '#0b7a43'},
+                          'down': {'color': '#c04b39'},
+                          'neutral': {'color': '#6c7f91'}},
+                'coverageNotice': {'background': '#f7fafc', 'borderColor': '#d9e4ee', 'textColor': '#6f8293'},
+                'chartCard': {'background': '#fbfdff',
+                              'borderColor': '#d9e4ee',
                               'borderRadius': '10px',
                               'padding': '16px',
                               'height': '320px',
-                              'titleColor': '#111827',
-                              'subtitleColor': '#64748b'},
+                              'titleColor': '#0f2d45',
+                              'subtitleColor': '#5f7387'},
                 'chartNote': {'fontSize': '12px', 'fontWeight': '500', 'textColor': '#64748b'},
                 'chartLegend': {'fontSize': '11px',
                                 'fontWeight': '700',
                                 'textColor': '#64748b',
                                 'itemGap': '8px'},
-                'chartMeta': {'valueColor': '#0f172a',
-                              'textColor': '#334155',
-                              'subtleColor': '#64748b',
+                'chartMeta': {'valueColor': '#0f2d45',
+                              'textColor': '#223548',
+                              'subtleColor': '#6f8293',
                               'labelFontSize': '11px',
                               'smallFontSize': '9px'},
-                'chartLayout': {'gridGap': '12px',
-                                'subtitleMarginBottom': '10px',
-                                'noteMarginTop': '10px'},
+                'chartLayout': {'gridGap': '12px', 'subtitleMarginBottom': '10px', 'noteMarginTop': '10px'},
                 'report': {'container': {'maxWidth': '1480px'},
                            'titleHeader': {'title': {'fontSize': '24px',
                                                      'fontWeight': '700',
@@ -142,18 +206,15 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                            'banner': {'background': {'width': '110%',
                                                                      'height': '125%',
                                                                      'objectFit': 'cover',
-                                                                     'objectPosition': 'center '
-                                                                                       'center'},
+                                                                     'objectPosition': 'center center'},
                                                       'overlay': {'minHeight': '132px',
-                                                                  'gridTemplateColumns': '250px '
-                                                                                         'minmax(0, '
+                                                                  'gridTemplateColumns': '250px minmax(0, '
                                                                                          '1fr)',
                                                                   'padding': '0 300px 0 0'},
                                                       'logoSlot': {'alignItems': 'center',
                                                                    'justifyContent': 'flex-start',
                                                                    'paddingLeft': '34px'},
-                                                      'logoCrop': {'width': '220px',
-                                                                   'height': '36px'},
+                                                      'logoCrop': {'width': '220px', 'height': '36px'},
                                                       'pdf': {'overlay': {'minHeight': '122px',
                                                                           'gridTemplateColumns': '250px '
                                                                                                  'minmax(0, '
@@ -161,19 +222,31 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                           'padding': '0 182px 0 0'},
                                                               'logoSlot': {'paddingLeft': '22px'},
                                                               'logoCrop': {'width': '160px',
-                                                                           'height': '24px'}}}},
+                                                                           'height': '24px'}}},
+                                           'shell': {'background': '#ffffff',
+                                                     'borderColor': '#cfe0ec',
+                                                     'shadow': '0 12px 28px rgba(0, 84, 150, 0.12)',
+                                                     'overlayGradient': 'linear-gradient(90deg, '
+                                                                        'rgba(255,255,255,0.04) 0%, '
+                                                                        'rgba(255,255,255,0.02) 36%, '
+                                                                        'rgba(0,43,77,0.16) 100%)',
+                                                     'dividerColor': 'rgba(0, 84, 150, 0.16)',
+                                                     'dateChipBackground': 'rgba(255, 255, 255, 0.96)',
+                                                     'dateChipBorderColor': '#cfe0ec',
+                                                     'dateChipTextColor': '#0f2d45',
+                                                     'dateChipMutedColor': '#5f7387',
+                                                     'dateChipIconColor': '#005496',
+                                                     'dateChipShadow': 'inset 0 0 0 1px rgba(0, 84, 150, '
+                                                                       '0.08)'}},
                            'footer': {'textColor': '#6b7280', 'borderColor': '#d1d5db'},
                            'section': {'electric': {'card': {'total': {'layout': {'minHeight': '150px',
-                                                                                  'padding': '11px '
-                                                                                             '14px '
-                                                                                             '10px',
+                                                                                  'padding': '11px 14px 10px',
                                                                                   'titleRowGap': '9px',
                                                                                   'primaryValueFontSize': '20px',
                                                                                   'footerGap': '6px',
                                                                                   'footerMarginTop': '8px'},
                                                                        'compare': {'blockMarginTop': '2px',
-                                                                                   'padding': '7px '
-                                                                                              '8px',
+                                                                                   'padding': '7px 8px',
                                                                                    'itemMinHeight': '30px',
                                                                                    'labelFontSize': '10px',
                                                                                    'labelFontWeight': '800',
@@ -198,8 +271,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                'metaMarginBottom': '4px',
                                                                                'metaGap': '6px',
                                                                                'meterValueFontSize': '8.5px',
-                                                                               'comparePadding': '5px '
-                                                                                                 '6px',
+                                                                               'comparePadding': '5px 6px',
                                                                                'compareItemPadding': '2px '
                                                                                                      '5px',
                                                                                'compareLabelFontSize': '6.2px',
@@ -215,16 +287,13 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                'trendRowGap': '3px',
                                                                                'trendNoteFontSize': '6.4px'}},
                                                              'diode': {'layout': {'minHeight': '150px',
-                                                                                  'padding': '11px '
-                                                                                             '14px '
-                                                                                             '10px',
+                                                                                  'padding': '11px 14px 10px',
                                                                                   'titleRowGap': '9px',
                                                                                   'primaryValueFontSize': '20px',
                                                                                   'footerGap': '6px',
                                                                                   'footerMarginTop': '8px'},
                                                                        'compare': {'blockMarginTop': '2px',
-                                                                                   'padding': '7px '
-                                                                                              '8px',
+                                                                                   'padding': '7px 8px',
                                                                                    'itemMinHeight': '30px',
                                                                                    'labelFontSize': '10px',
                                                                                    'labelFontWeight': '800',
@@ -249,8 +318,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                'metaMarginBottom': '4px',
                                                                                'metaGap': '6px',
                                                                                'meterValueFontSize': '8.5px',
-                                                                               'comparePadding': '5px '
-                                                                                                 '6px',
+                                                                               'comparePadding': '5px 6px',
                                                                                'compareItemPadding': '2px '
                                                                                                      '5px',
                                                                                'compareLabelFontSize': '6.2px',
@@ -266,16 +334,13 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                'trendRowGap': '3px',
                                                                                'trendNoteFontSize': '6.4px'}},
                                                              'ico': {'layout': {'minHeight': '150px',
-                                                                                'padding': '11px '
-                                                                                           '14px '
-                                                                                           '10px',
+                                                                                'padding': '11px 14px 10px',
                                                                                 'titleRowGap': '9px',
                                                                                 'primaryValueFontSize': '20px',
                                                                                 'footerGap': '6px',
                                                                                 'footerMarginTop': '8px'},
                                                                      'compare': {'blockMarginTop': '2px',
-                                                                                 'padding': '7px '
-                                                                                            '8px',
+                                                                                 'padding': '7px 8px',
                                                                                  'itemMinHeight': '30px',
                                                                                  'labelFontSize': '10px',
                                                                                  'labelFontWeight': '800',
@@ -300,10 +365,8 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                              'metaMarginBottom': '4px',
                                                                              'metaGap': '6px',
                                                                              'meterValueFontSize': '8.5px',
-                                                                             'comparePadding': '5px '
-                                                                                               '6px',
-                                                                             'compareItemPadding': '2px '
-                                                                                                   '5px',
+                                                                             'comparePadding': '5px 6px',
+                                                                             'compareItemPadding': '2px 5px',
                                                                              'compareLabelFontSize': '6.2px',
                                                                              'compareValueFontSize': '10px',
                                                                              'footerGap': '10px',
@@ -317,16 +380,14 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                              'trendRowGap': '3px',
                                                                              'trendNoteFontSize': '6.4px'}},
                                                              'sakari': {'layout': {'minHeight': '150px',
-                                                                                   'padding': '11px '
-                                                                                              '14px '
+                                                                                   'padding': '11px 14px '
                                                                                               '10px',
                                                                                    'titleRowGap': '9px',
                                                                                    'primaryValueFontSize': '20px',
                                                                                    'footerGap': '6px',
                                                                                    'footerMarginTop': '8px'},
                                                                         'compare': {'blockMarginTop': '2px',
-                                                                                    'padding': '7px '
-                                                                                               '8px',
+                                                                                    'padding': '7px 8px',
                                                                                     'itemMinHeight': '30px',
                                                                                     'labelFontSize': '10px',
                                                                                     'labelFontWeight': '800',
@@ -335,8 +396,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                     'valueFontSize': '15px'},
                                                                         'pdf': {'height': '130px',
                                                                                 'minHeight': '130px',
-                                                                                'padding': '8px '
-                                                                                           '9px',
+                                                                                'padding': '8px 9px',
                                                                                 'borderRadius': '10px',
                                                                                 'topGap': '6px',
                                                                                 'topMarginBottom': '6px',
@@ -352,8 +412,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                 'metaMarginBottom': '4px',
                                                                                 'metaGap': '6px',
                                                                                 'meterValueFontSize': '8.5px',
-                                                                                'comparePadding': '5px '
-                                                                                                  '6px',
+                                                                                'comparePadding': '5px 6px',
                                                                                 'compareItemPadding': '2px '
                                                                                                       '5px',
                                                                                 'compareLabelFontSize': '6.2px',
@@ -367,7 +426,193 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                 'metaRowGap': '6px',
                                                                                 'metaValueGap': '4px',
                                                                                 'trendRowGap': '3px',
-                                                                                'trendNoteFontSize': '6.4px'}}},
+                                                                                'trendNoteFontSize': '6.4px'}},
+                                                             'theme': {'base': {'accent': '#005496',
+                                                                                'borderColor': '#bfd4e5',
+                                                                                'surface': 'linear-gradient(135deg, '
+                                                                                           'rgba(0, 84, 150, '
+                                                                                           '0.10) 0%, '
+                                                                                           'rgba(248, 251, '
+                                                                                           '254, 0.94) 55%, '
+                                                                                           'rgba(255, 255, '
+                                                                                           '255, 0.99) 100%)',
+                                                                                'shadow': '0 12px 22px '
+                                                                                          'rgba(0, 84, 150, '
+                                                                                          '0.08)',
+                                                                                'titleColor': '#003b6a',
+                                                                                'copyColor': '#6f8293',
+                                                                                'currentColor': '#005496',
+                                                                                'previousColor': '#5f7fa6',
+                                                                                'noteColor': '#6f8293',
+                                                                                'iconBackground': 'linear-gradient(180deg, '
+                                                                                                  '#0d67a8 '
+                                                                                                  '0%, '
+                                                                                                  '#005496 '
+                                                                                                  '100%)',
+                                                                                'iconColor': '#ffffff',
+                                                                                'primaryColor': '#005496',
+                                                                                'primaryUnitColor': '#0f2d45',
+                                                                                'compareBackground': 'rgba(255, '
+                                                                                                     '255, '
+                                                                                                     '255, '
+                                                                                                     '0.94)',
+                                                                                'compareBorderColor': 'rgba(191, '
+                                                                                                      '212, '
+                                                                                                      '229, '
+                                                                                                      '0.95)',
+                                                                                'compareDividerColor': 'rgba(214, '
+                                                                                                       '226, '
+                                                                                                       '236, '
+                                                                                                       '0.95)'},
+                                                                       'total': {'accent': '#005496',
+                                                                                 'borderColor': '#2e72a4',
+                                                                                 'surface': 'linear-gradient(135deg, '
+                                                                                            '#005496 0%, '
+                                                                                            '#0a6aae 100%)',
+                                                                                 'shadow': '0 16px 28px '
+                                                                                           'rgba(0, 84, 150, '
+                                                                                           '0.22)',
+                                                                                 'titleColor': '#ffffff',
+                                                                                 'copyColor': 'rgba(255, '
+                                                                                              '255, 255, '
+                                                                                              '0.84)',
+                                                                                 'currentColor': '#ffffff',
+                                                                                 'previousColor': '#dbeafe',
+                                                                                 'noteColor': 'rgba(255, '
+                                                                                              '255, 255, '
+                                                                                              '0.88)',
+                                                                                 'iconBackground': '#ffffff',
+                                                                                 'iconColor': '#005496',
+                                                                                 'primaryColor': '#ffffff',
+                                                                                 'primaryUnitColor': 'rgba(255, '
+                                                                                                     '255, '
+                                                                                                     '255, '
+                                                                                                     '0.94)',
+                                                                                 'compareBackground': 'rgba(255, '
+                                                                                                      '255, '
+                                                                                                      '255, '
+                                                                                                      '0.98)',
+                                                                                 'compareBorderColor': 'rgba(213, '
+                                                                                                       '228, '
+                                                                                                       '242, '
+                                                                                                       '0.96)',
+                                                                                 'compareDividerColor': 'rgba(221, '
+                                                                                                        '232, '
+                                                                                                        '242, '
+                                                                                                        '0.92)'},
+                                                                       'diode': {'accent': '#005496',
+                                                                                 'borderColor': '#c3d8e8',
+                                                                                 'surface': 'linear-gradient(135deg, '
+                                                                                            'rgba(0, 84, '
+                                                                                            '150, 0.11) 0%, '
+                                                                                            'rgba(247, 251, '
+                                                                                            '255, 0.94) 56%, '
+                                                                                            'rgba(255, 255, '
+                                                                                            '255, 0.99) '
+                                                                                            '100%)',
+                                                                                 'shadow': '0 12px 22px '
+                                                                                           'rgba(0, 84, 150, '
+                                                                                           '0.08)',
+                                                                                 'titleColor': '#003b6a',
+                                                                                 'copyColor': '#6f8293',
+                                                                                 'currentColor': '#005496',
+                                                                                 'previousColor': '#5f7fa6',
+                                                                                 'noteColor': '#6f8293',
+                                                                                 'iconBackground': 'linear-gradient(180deg, '
+                                                                                                   '#0d67a8 '
+                                                                                                   '0%, '
+                                                                                                   '#005496 '
+                                                                                                   '100%)',
+                                                                                 'iconColor': '#ffffff',
+                                                                                 'primaryColor': '#005496',
+                                                                                 'primaryUnitColor': '#0f2d45',
+                                                                                 'compareBackground': 'rgba(255, '
+                                                                                                      '255, '
+                                                                                                      '255, '
+                                                                                                      '0.94)',
+                                                                                 'compareBorderColor': 'rgba(191, '
+                                                                                                       '212, '
+                                                                                                       '229, '
+                                                                                                       '0.95)',
+                                                                                 'compareDividerColor': 'rgba(214, '
+                                                                                                        '226, '
+                                                                                                        '236, '
+                                                                                                        '0.95)'},
+                                                                       'ico': {'accent': '#6f9a6d',
+                                                                               'borderColor': '#cadfc8',
+                                                                               'surface': 'linear-gradient(135deg, '
+                                                                                          'rgba(111, 154, '
+                                                                                          '109, 0.12) 0%, '
+                                                                                          'rgba(249, 252, '
+                                                                                          '249, 0.94) 56%, '
+                                                                                          'rgba(255, 255, '
+                                                                                          '255, 0.99) 100%)',
+                                                                               'shadow': '0 12px 22px '
+                                                                                         'rgba(0, 84, 150, '
+                                                                                         '0.08)',
+                                                                               'titleColor': '#4f7750',
+                                                                               'copyColor': '#6f8293',
+                                                                               'currentColor': '#005496',
+                                                                               'previousColor': '#5f7fa6',
+                                                                               'noteColor': '#6f8293',
+                                                                               'iconBackground': 'linear-gradient(180deg, '
+                                                                                                 '#82a97f '
+                                                                                                 '0%, '
+                                                                                                 '#6f9a6d '
+                                                                                                 '100%)',
+                                                                               'iconColor': '#ffffff',
+                                                                               'primaryColor': '#005496',
+                                                                               'primaryUnitColor': '#0f2d45',
+                                                                               'compareBackground': 'rgba(255, '
+                                                                                                    '255, '
+                                                                                                    '255, '
+                                                                                                    '0.94)',
+                                                                               'compareBorderColor': 'rgba(191, '
+                                                                                                     '212, '
+                                                                                                     '229, '
+                                                                                                     '0.95)',
+                                                                               'compareDividerColor': 'rgba(214, '
+                                                                                                      '226, '
+                                                                                                      '236, '
+                                                                                                      '0.95)'},
+                                                                       'sakari': {'accent': '#d09a45',
+                                                                                  'borderColor': '#e4d3b3',
+                                                                                  'surface': 'linear-gradient(135deg, '
+                                                                                             'rgba(208, 154, '
+                                                                                             '69, 0.13) 0%, '
+                                                                                             'rgba(254, 251, '
+                                                                                             '246, 0.95) '
+                                                                                             '56%, rgba(255, '
+                                                                                             '255, 255, '
+                                                                                             '0.99) 100%)',
+                                                                                  'shadow': '0 12px 22px '
+                                                                                            'rgba(0, 84, '
+                                                                                            '150, 0.08)',
+                                                                                  'titleColor': '#9c6a22',
+                                                                                  'copyColor': '#6f8293',
+                                                                                  'currentColor': '#005496',
+                                                                                  'previousColor': '#5f7fa6',
+                                                                                  'noteColor': '#6f8293',
+                                                                                  'iconBackground': 'linear-gradient(180deg, '
+                                                                                                    '#d7a857 '
+                                                                                                    '0%, '
+                                                                                                    '#d09a45 '
+                                                                                                    '100%)',
+                                                                                  'iconColor': '#ffffff',
+                                                                                  'primaryColor': '#005496',
+                                                                                  'primaryUnitColor': '#0f2d45',
+                                                                                  'compareBackground': 'rgba(255, '
+                                                                                                       '255, '
+                                                                                                       '255, '
+                                                                                                       '0.94)',
+                                                                                  'compareBorderColor': 'rgba(191, '
+                                                                                                        '212, '
+                                                                                                        '229, '
+                                                                                                        '0.95)',
+                                                                                  'compareDividerColor': 'rgba(214, '
+                                                                                                         '226, '
+                                                                                                         '236, '
+                                                                                                         '0.95)'}}},
                                                     'chart': {'dailyTrend': {'legend': {'bottom': 'center'},
                                                                              'grid': {'left': 20,
                                                                                       'right': 12,
@@ -392,8 +637,8 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                                      'periodic': '356px',
                                                                                                      'weekly': '392px',
                                                                                                      'monthly': '130px'},
-                                                                                            'pdf': {'default': '252px',
-                                                                                                    'periodic': '224px',
+                                                                                            'pdf': {'default': '240px',
+                                                                                                    'periodic': '240px',
                                                                                                     'weekly': '244px',
                                                                                                     'monthly': '130px'}}},
                                                               'areaShare': {'legend': {'bottom': 'center',
@@ -407,10 +652,8 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                        'textStyle': {'color': '#475569',
                                                                                                      'fontSize': 10,
                                                                                                      'fontWeight': 500}},
-                                                                            'pie': {'radius': ['39%',
-                                                                                               '60%'],
-                                                                                    'center': ['50%',
-                                                                                               '50%'],
+                                                                            'pie': {'radius': ['39%', '60%'],
+                                                                                    'center': ['50%', '50%'],
                                                                                     'sliceBorderRadius': 6},
                                                                             'centerGraphic': {'left': '43%',
                                                                                               'top': '45%',
@@ -420,7 +663,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                               'titleY': 15,
                                                                                               'unitY': 24},
                                                                             'height': {'view': {'default': '340px'},
-                                                                                       'pdf': {'default': '252px'}}},
+                                                                                       'pdf': {'default': '240px'}}},
                                                               'heatmap': {'height': {'view': {'default': '228px',
                                                                                               'weekly': '252px',
                                                                                               'monthly': '130px'},
@@ -454,15 +697,32 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                    'pdf': {'periodic': '178px',
                                                                                            'monthly': '130px',
                                                                                            'default': '156px',
-                                                                                           'weekly': '184px'}}}},
+                                                                                           'weekly': '184px'}}},
+                                                              'theme': {'series': {'current': '#005496',
+                                                                                   'previous': '#5f7fa6',
+                                                                                   'currentTint': 'rgba(0, '
+                                                                                                  '84, 150, '
+                                                                                                  '0.12)',
+                                                                                   'previousTint': 'rgba(95, '
+                                                                                                   '127, '
+                                                                                                   '166, '
+                                                                                                   '0.08)'},
+                                                                        'delta': {'total': '#005496'}}},
                                                     'table': {'common': {'headerBackground': '#f8fafc',
                                                                          'stripeBackground': '#fafafa',
                                                                          'borderColor': '#e5e7eb',
                                                                          'textColor': '#1f2937',
                                                                          'headerTextColor': '#111827',
                                                                          'cellPadding': '8px 10px',
-                                                                         'denseCellPadding': '4px '
-                                                                                             '6px'}}},
+                                                                         'denseCellPadding': '4px 6px'}},
+                                                    'header': {'padding': '7px 11px 6px',
+                                                               'shellGap': '12px',
+                                                               'mainGap': '10px',
+                                                               'iconSize': '45px',
+                                                               'iconGlyphSize': '25px',
+                                                               'titleLetterSpacing': '0.01em',
+                                                               'subtitleMarginTop': '1px',
+                                                               'dateChipMinWidth': '228px'}},
                                        'utility': {'card': {'totalUtility': {'layout': {'minHeight': '154px',
                                                                                         'padding': '12px '
                                                                                                    '13px',
@@ -470,8 +730,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                         'primaryValueFontSize': '20px',
                                                                                         'deltaPaddingTop': '8px'},
                                                                              'compare': {'blockMarginTop': '2px',
-                                                                                         'padding': '7px '
-                                                                                                    '8px',
+                                                                                         'padding': '7px 8px',
                                                                                          'itemMinHeight': '30px',
                                                                                          'labelFontSize': '10px',
                                                                                          'labelFontWeight': '800',
@@ -479,14 +738,12 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                          'labelLetterSpacing': '0.05em',
                                                                                          'valueFontSize': '15px'}},
                                                             'airEnergy': {'layout': {'minHeight': '154px',
-                                                                                     'padding': '12px '
-                                                                                                '13px',
+                                                                                     'padding': '12px 13px',
                                                                                      'topGap': '10px',
                                                                                      'primaryValueFontSize': '20px',
                                                                                      'deltaPaddingTop': '8px'},
                                                                           'compare': {'blockMarginTop': '2px',
-                                                                                      'padding': '7px '
-                                                                                                 '8px',
+                                                                                      'padding': '7px 8px',
                                                                                       'itemMinHeight': '30px',
                                                                                       'labelFontSize': '10px',
                                                                                       'labelFontWeight': '800',
@@ -515,22 +772,21 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                         'primaryValueFontSize': '20px',
                                                                                         'deltaPaddingTop': '8px'},
                                                                              'compare': {'blockMarginTop': '2px',
-                                                                                         'padding': '7px '
-                                                                                                    '8px',
+                                                                                         'padding': '7px 8px',
                                                                                          'itemMinHeight': '30px',
                                                                                          'labelFontSize': '10px',
                                                                                          'labelFontWeight': '800',
                                                                                          'labelColor': '#64748b',
                                                                                          'labelLetterSpacing': '0.05em',
                                                                                          'valueFontSize': '15px'}}},
-                                                   'chart': {'comparison': {'legend': {'top': 'left'},
+                                                   'chart': {'comparison': {'legend': {'bottom': 'center'},
                                                                             'grid': {'left': 28,
                                                                                      'right': 10,
-                                                                                     'top': 42,
-                                                                                     'bottom': 32,
+                                                                                     'top': 10,
+                                                                                     'bottom': 20,
                                                                                      'containLabel': True},
                                                                             'height': {'view': '272px',
-                                                                                       'pdf': '168px'}},
+                                                                                       'pdf': '140px'}},
                                                              'periodTrend': {'height': {'view': '326px',
                                                                                         'pdf': '228px'}},
                                                              'typeTrend': {'legend': {'top': 'left'},
@@ -559,29 +815,49 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                    'height': {'view': '220px',
                                                                                               'pdf': {'default': '156px',
                                                                                                       'single': '142px'}}},
-                                                             'sensorCluster': {'legend': {'top': 'left'},
-                                                                               'grid': {'left': 38,
+                                                             'sensorCluster': {'legend': {'bottom': 'center'},
+                                                                               'grid': {'left': 20,
                                                                                         'right': 8,
-                                                                                        'top': 38,
-                                                                                        'bottom': 28,
+                                                                                        'top': 25,
+                                                                                        'bottom': 20,
                                                                                         'containLabel': True},
                                                                                'height': {'view': '280px',
-                                                                                          'pdf': '190px'}},
-                                                             'deviation': {'grid': {'left': 118,
+                                                                                          'pdf': '140px'}},
+                                                             'deviation': {'grid': {'left': 92,
                                                                                     'right': 24,
-                                                                                    'top': 18,
-                                                                                    'bottom': 28}}},
+                                                                                    'top': 10,
+                                                                                    'bottom': 28},
+                                                                           'height': {'view': '326px',
+                                                                                      'pdf': '150px'},
+                                                                           'valueLabel': {'positivePosition': 'right',
+                                                                                          'negativePosition': 'left',
+                                                                                          'distance': 4,
+                                                                                          'fontSize': 10,
+                                                                                          'fontWeight': 700,
+                                                                                          'color': '#334155',
+                                                                                          'axisPaddingLeft': 30,
+                                                                                          'axisPaddingRight': 30}}},
                                                    'table': {'common': {'headerBackground': '#f8fafc',
                                                                         'stripeBackground': '#fafafa',
                                                                         'borderColor': '#e5e7eb',
                                                                         'textColor': '#1f2937',
                                                                         'headerTextColor': '#111827',
                                                                         'cellPadding': '8px 10px',
-                                                                        'denseCellPadding': '4px '
-                                                                                            '6px'}}},
-                                       'kpi': {'card': {'plant': {'layout': {'minHeight': '172px',
-                                                                             'padding': '12px 14px '
-                                                                                        '12px',
+                                                                        'denseCellPadding': '4px 6px'}}},
+                                       'kpi': {'card': {'total': {'layout': {'minHeight': '172px',
+                                                                             'padding': '12px 14px 12px',
+                                                                             'topGap': '10px',
+                                                                             'footerMarginTop': '12px'},
+                                                                  'compare': {'blockMarginTop': '2px',
+                                                                              'padding': '7px 8px',
+                                                                              'itemMinHeight': '30px',
+                                                                              'labelFontSize': '10px',
+                                                                              'labelFontWeight': '800',
+                                                                              'labelColor': '#64748b',
+                                                                              'labelLetterSpacing': '0.05em',
+                                                                              'valueFontSize': '15px'}},
+                                                        'plant': {'layout': {'minHeight': '172px',
+                                                                             'padding': '12px 14px 12px',
                                                                              'topGap': '10px',
                                                                              'footerMarginTop': '12px'},
                                                                   'compare': {'blockMarginTop': '2px',
@@ -593,8 +869,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                               'labelLetterSpacing': '0.05em',
                                                                               'valueFontSize': '15px'}},
                                                         'diode': {'layout': {'minHeight': '172px',
-                                                                             'padding': '12px 14px '
-                                                                                        '12px',
+                                                                             'padding': '12px 14px 12px',
                                                                              'topGap': '10px',
                                                                              'footerMarginTop': '12px'},
                                                                   'compare': {'blockMarginTop': '2px',
@@ -606,8 +881,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                               'labelLetterSpacing': '0.05em',
                                                                               'valueFontSize': '15px'}},
                                                         'ico': {'layout': {'minHeight': '172px',
-                                                                           'padding': '12px 14px '
-                                                                                      '12px',
+                                                                           'padding': '12px 14px 12px',
                                                                            'topGap': '10px',
                                                                            'footerMarginTop': '12px'},
                                                                 'compare': {'blockMarginTop': '2px',
@@ -619,9 +893,7 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                             'labelLetterSpacing': '0.05em',
                                                                             'valueFontSize': '15px'}},
                                                         'sakari': {'layout': {'minHeight': '172px',
-                                                                              'padding': '12px '
-                                                                                         '14px '
-                                                                                         '12px',
+                                                                              'padding': '12px 14px 12px',
                                                                               'topGap': '10px',
                                                                               'footerMarginTop': '12px'},
                                                                    'compare': {'blockMarginTop': '2px',
@@ -634,22 +906,22 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                                'valueFontSize': '15px'}}},
                                                'chart': {'dashboard': {'height': {'view': '288px',
                                                                                   'pdf': '196px'}},
-                                                         'dailyGroupedBar': {'legend': {'top': 'left'},
+                                                         'dailyGroupedBar': {'legend': {'bottom': 'center'},
                                                                              'grid': {'left': 32,
                                                                                       'right': 12,
-                                                                                      'top': 36,
+                                                                                      'top': 15,
                                                                                       'bottom': 22,
                                                                                       'containLabel': True}},
                                                          'compareBar': {'legend': {'top': 'left'},
                                                                         'grid': {'left': 32,
                                                                                  'right': 12,
-                                                                                 'top': 48,
-                                                                                 'bottom': 24,
+                                                                                 'top': 20,
+                                                                                 'bottom': 25,
                                                                                  'containLabel': True}},
                                                          'waterfall': {'grid': {'left': 32,
                                                                                 'right': 12,
                                                                                 'top': 20,
-                                                                                'bottom': 34,
+                                                                                'bottom': 25,
                                                                                 'containLabel': True}},
                                                          'variance': {'grid': {'left': 70,
                                                                                'right': 16,
@@ -663,16 +935,49 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                     'textColor': '#1f2937',
                                                                     'headerTextColor': '#111827',
                                                                     'cellPadding': '8px 10px',
-                                                                    'denseCellPadding': '4px '
-                                                                                        '6px'}}},
+                                                                    'denseCellPadding': '4px 6px'},
+                                                         'summaryMatrix': {'width': {'view': '1440px',
+                                                                                     'pdf': '100%'},
+                                                                           'metricColumnWidth': {'view': '160px',
+                                                                                                 'pdf': '110px'},
+                                                                           'groupHeaderPaddingY': {'view': '12px',
+                                                                                                   'pdf': '12px'},
+                                                                           'groupSubheaderPaddingY': {'view': '10px',
+                                                                                                      'pdf': '10px'},
+                                                                           'groupDividerWidth': {'view': '3px',
+                                                                                                 'pdf': '3px'}},
+                                                         'dailyDetail': {'cellPadding': {'view': '7px 8px',
+                                                                                         'pdf': '4px 4px'},
+                                                                         'cellFontSize': {'view': '11px',
+                                                                                          'pdf': '7.5px'},
+                                                                         'dateColumnWidth': {'view': '108px',
+                                                                                             'pdf': '78px'},
+                                                                         'sourceColumnWidth': {'view': '56px',
+                                                                                               'pdf': '42px'},
+                                                                         'areaColumnWidth': {'view': '74px',
+                                                                                             'pdf': '52px'},
+                                                                         'metricFontSize': {'view': '10.75px',
+                                                                                            'pdf': '7.25px'},
+                                                                         'areaBackground': '#f8fbff',
+                                                                         'submetricBorderColor': '#eef4fa',
+                                                                         'groupEndBorderColor': '#dbeafe',
+                                                                         'groupEndBorderWidth': {'view': '2px',
+                                                                                                 'pdf': '1.5px'}}},
+                                               'header': {'padding': '8px 12px 7px',
+                                                          'shellGap': '14px',
+                                                          'mainGap': '12px',
+                                                          'iconSize': '50px',
+                                                          'iconGlyphSize': '28px',
+                                                          'titleLetterSpacing': '0.01em',
+                                                          'subtitleMarginTop': '2px',
+                                                          'dateChipMinWidth': '228px'}},
                                        'common': {'table': {'base': {'headerBackground': '#f8fafc',
                                                                      'stripeBackground': '#fafafa',
                                                                      'borderColor': '#e5e7eb',
                                                                      'textColor': '#1f2937',
                                                                      'headerTextColor': '#111827',
                                                                      'cellPadding': '8px 10px',
-                                                                     'denseCellPadding': '4px '
-                                                                                         '6px'}},
+                                                                     'denseCellPadding': '4px 6px'}},
                                                   'card': {'gridGap': '16px',
                                                            'borderRadius': '16px',
                                                            'compare': {'blockMarginTop': '2px',
@@ -682,34 +987,54 @@ DEFAULT_REPORT_STYLE: dict[str, Any] = {'meta': {'name': 'default',
                                                                        'labelFontWeight': '800',
                                                                        'labelColor': '#64748b',
                                                                        'labelLetterSpacing': '0.05em',
-                                                                       'valueFontSize': '15px'}}}}},
+                                                                       'valueFontSize': '15px'}},
+                                                  'header': {'padding': '7px 11px 6px',
+                                                             'shellGap': '12px',
+                                                             'mainGap': '10px',
+                                                             'iconSize': '45px',
+                                                             'iconGlyphSize': '25px',
+                                                             'titleLetterSpacing': '0.01em',
+                                                             'subtitleMarginTop': '1px',
+                                                             'dateChipMinWidth': '228px',
+                                                             'background': '#f6f9fc',
+                                                             'borderColor': '#cdd9e5',
+                                                             'accentColor': '#005496',
+                                                             'titleColor': '#0f2d45',
+                                                             'subtitleColor': '#5f7387',
+                                                             'dateChipBackground': 'rgba(255, 255, 255, '
+                                                                                   '0.94)',
+                                                             'dateChipBorderColor': '#cfe0ec',
+                                                             'dateChipTextColor': '#0f2d45',
+                                                             'dateChipMutedColor': '#5f7387',
+                                                             'dateChipIconColor': '#005496',
+                                                             'dateChipShadow': 'inset 0 0 0 1px rgba(0, 84, '
+                                                                               '150, 0.08)'}}}},
                 'sectionHeader': {'titleFontSize': '18px',
                                   'titleFontWeight': '700',
-                                  'titleColor': '#111827',
+                                  'titleColor': '#0f2d45',
                                   'subtitleFontSize': '12px',
-                                  'subtitleColor': '#64748b',
-                                  'background': '#f8fafc',
-                                  'borderColor': '#d1d5db',
-                                  'accentColor': '#2563eb'}},
+                                  'subtitleColor': '#5f7387',
+                                  'background': '#f6f9fc',
+                                  'borderColor': '#cdd9e5',
+                                  'accentColor': '#005496'}},
  'echartsTheme': {'themeName': 'report_default',
-                  'palette': ['#2563eb',
-                              '#7c3aed',
-                              '#0ea5e9',
-                              '#22c55e',
-                              '#f59e0b',
-                              '#ef4444',
-                              '#14b8a6',
-                              '#8b5cf6'],
+                  'palette': ['#005496',
+                              '#5f7fa6',
+                              '#5b9bd5',
+                              '#6f9a6d',
+                              '#d09a45',
+                              '#c65a4b',
+                              '#5ca7a4',
+                              '#7a6da8'],
                   'backgroundColor': 'rgba(255,255,255,0)',
-                  'titleColor': '#111827',
-                  'subtitleColor': '#64748b',
-                  'legendTextColor': '#6b7280',
-                  'axisLineColor': '#cbd5e1',
-                  'axisLabelColor': '#64748b',
-                  'splitLineColor': '#e5e7eb',
-                  'toolboxIconBorderColor': '#94a3b8',
-                  'grid': {'left': '10%', 'right': '10%', 'top': 60, 'bottom': 60}}}
-
+                  'titleColor': '#0f2d45',
+                  'subtitleColor': '#5f7387',
+                  'legendTextColor': '#556b7d',
+                  'axisLineColor': '#b9c8d6',
+                  'axisLabelColor': '#5f7387',
+                  'splitLineColor': '#dfe7ef',
+                  'toolboxIconBorderColor': '#7f97ab',
+                  'grid': {'left': '10%', 'right': '10%', 'top': 20, 'bottom': 15}}}
 
 class ReportStyleService:
     """Load centralized style tokens and build inline render context."""
@@ -789,7 +1114,7 @@ class ReportStyleService:
                     self._flatten_css_variables(section_value, [self._to_kebab_case(section_name)])
                 )
 
-        alias_lines = self._build_compatibility_aliases()
+        alias_lines = self._build_compatibility_aliases(style_config)
 
         blocks = [":root {"]
         blocks.extend(f"    {line}" for line in var_lines)
@@ -802,63 +1127,68 @@ class ReportStyleService:
         """Build a Jinja-safe ECharts theme object from style tokens."""
         font_cfg = style_config.get("font", {})
         chart_cfg = style_config.get("echartsTheme", {})
+        derived_theme = self._derive_echarts_theme_defaults(style_config)
 
-        theme_name = str(chart_cfg.get("themeName") or "report_default")
-        palette = chart_cfg.get("palette") or DEFAULT_REPORT_STYLE["echartsTheme"]["palette"]
+        theme_name = str(chart_cfg.get("themeName") or derived_theme.get("themeName") or "report_default")
+        palette = chart_cfg.get("palette") or derived_theme.get("palette") or DEFAULT_REPORT_STYLE["echartsTheme"]["palette"]
         if not isinstance(palette, list) or not palette:
             palette = DEFAULT_REPORT_STYLE["echartsTheme"]["palette"]
             self._warn("Invalid chart palette detected. Falling back to default palette.")
 
+        axis_line_color = chart_cfg.get("axisLineColor") or derived_theme.get("axisLineColor")
+        axis_label_color = chart_cfg.get("axisLabelColor") or derived_theme.get("axisLabelColor")
+        split_line_color = chart_cfg.get("splitLineColor") or derived_theme.get("splitLineColor")
+
         theme = {
             "color": palette,
-            "backgroundColor": chart_cfg.get("backgroundColor"),
+            "backgroundColor": chart_cfg.get("backgroundColor") or derived_theme.get("backgroundColor"),
             "textStyle": {
                 "fontFamily": font_cfg.get("family"),
             },
             "title": {
                 "textStyle": {
-                    "color": chart_cfg.get("titleColor"),
+                    "color": chart_cfg.get("titleColor") or derived_theme.get("titleColor"),
                     "fontWeight": font_cfg.get("weightBold"),
                 },
                 "subtextStyle": {
-                    "color": chart_cfg.get("subtitleColor"),
+                    "color": chart_cfg.get("subtitleColor") or derived_theme.get("subtitleColor"),
                 },
             },
             "legend": {
                 "textStyle": {
-                    "color": chart_cfg.get("legendTextColor"),
+                    "color": chart_cfg.get("legendTextColor") or derived_theme.get("legendTextColor"),
                 },
             },
             "toolbox": {
                 "iconStyle": {
-                    "borderColor": chart_cfg.get("toolboxIconBorderColor"),
+                    "borderColor": chart_cfg.get("toolboxIconBorderColor") or derived_theme.get("toolboxIconBorderColor"),
                 },
             },
             "categoryAxis": {
                 "axisLine": {
-                    "lineStyle": {"color": chart_cfg.get("axisLineColor")},
+                    "lineStyle": {"color": axis_line_color},
                 },
                 "axisTick": {
-                    "lineStyle": {"color": chart_cfg.get("axisLineColor")},
+                    "lineStyle": {"color": axis_line_color},
                 },
                 "axisLabel": {
-                    "color": chart_cfg.get("axisLabelColor"),
+                    "color": axis_label_color,
                 },
                 "splitLine": {
-                    "lineStyle": {"color": [chart_cfg.get("splitLineColor")]},
+                    "lineStyle": {"color": [split_line_color]},
                 },
             },
             "valueAxis": {
                 "axisLine": {
-                    "lineStyle": {"color": chart_cfg.get("axisLineColor")},
+                    "lineStyle": {"color": axis_line_color},
                 },
                 "axisTick": {
-                    "lineStyle": {"color": chart_cfg.get("axisLineColor")},
+                    "lineStyle": {"color": axis_line_color},
                 },
                 "axisLabel": {
-                    "color": chart_cfg.get("axisLabelColor")},
+                    "color": axis_label_color},
                 "splitLine": {
-                    "lineStyle": {"color": [chart_cfg.get("splitLineColor")]},
+                    "lineStyle": {"color": [split_line_color]},
                 },
             },
             "line": {
@@ -874,15 +1204,15 @@ class ReportStyleService:
             },
             "pie": {
                 "label": {
-                    "color": chart_cfg.get("axisLabelColor"),
+                    "color": axis_label_color,
                 },
                 "labelLine": {
                     "lineStyle": {
-                        "color": chart_cfg.get("axisLineColor"),
+                        "color": axis_line_color,
                     },
                 },
             },
-            "grid": chart_cfg.get("grid") or deepcopy(DEFAULT_REPORT_STYLE["echartsTheme"]["grid"]),
+            "grid": chart_cfg.get("grid") or derived_theme.get("grid") or deepcopy(DEFAULT_REPORT_STYLE["echartsTheme"]["grid"]),
         }
 
         return {
@@ -925,6 +1255,7 @@ class ReportStyleService:
                     _collapse_pdf_height_modes(value)
 
         _collapse_pdf_height_modes(existing_report)
+        self._sync_legacy_color_tokens(style_config)
 
     def _validate_minimum_shape(self, style_config: dict[str, Any]) -> None:
         """Validate a minimal shape and normalize obviously invalid branches."""
@@ -992,9 +1323,99 @@ class ReportStyleService:
 
         return lines
 
-    def _build_compatibility_aliases(self) -> list[str]:
+    def _derive_echarts_theme_defaults(self, style_config: dict[str, Any]) -> dict[str, Any]:
+        """Derive a chart theme from semantic palette branches when available."""
+        color_cfg = style_config.get("color", {}) if isinstance(style_config.get("color"), dict) else {}
+        chart_cfg = color_cfg.get("chart", {}) if isinstance(color_cfg.get("chart"), dict) else {}
+
+        defaults = deepcopy(DEFAULT_REPORT_STYLE["echartsTheme"])
+        if isinstance(chart_cfg.get("palette"), list) and chart_cfg.get("palette"):
+            defaults["palette"] = deepcopy(chart_cfg.get("palette"))
+
+        key_map = {
+            "background": "backgroundColor",
+            "title": "titleColor",
+            "subtitle": "subtitleColor",
+            "legendText": "legendTextColor",
+            "axisLine": "axisLineColor",
+            "axisLabel": "axisLabelColor",
+            "splitLine": "splitLineColor",
+            "toolboxBorder": "toolboxIconBorderColor",
+        }
+        for source_key, target_key in key_map.items():
+            if chart_cfg.get(source_key) is not None:
+                defaults[target_key] = chart_cfg.get(source_key)
+
+        return defaults
+
+    def _sync_legacy_color_tokens(self, style_config: dict[str, Any]) -> None:
+        """Keep flat legacy color keys aligned with semantic palette branches."""
+        color_cfg = style_config.get("color")
+        if not isinstance(color_cfg, dict):
+            return
+
+        surface_cfg = color_cfg.get("surface") if isinstance(color_cfg.get("surface"), dict) else {}
+        text_cfg = color_cfg.get("text") if isinstance(color_cfg.get("text"), dict) else {}
+        border_cfg = color_cfg.get("border") if isinstance(color_cfg.get("border"), dict) else {}
+        brand_cfg = color_cfg.get("brand") if isinstance(color_cfg.get("brand"), dict) else {}
+        trend_cfg = color_cfg.get("trend") if isinstance(color_cfg.get("trend"), dict) else {}
+        status_cfg = color_cfg.get("status") if isinstance(color_cfg.get("status"), dict) else {}
+
+        sync_map = {
+            "pageBackground": surface_cfg.get("page"),
+            "cardBackground": surface_cfg.get("card"),
+            "headerBackground": surface_cfg.get("header"),
+            "headerBackgroundStrong": surface_cfg.get("headerStrong"),
+            "tableStripeBackground": surface_cfg.get("tableStripe"),
+            "tableHeaderBackground": surface_cfg.get("tableHeader"),
+            "textPrimary": text_cfg.get("primary"),
+            "textHeading": text_cfg.get("heading"),
+            "textMuted": text_cfg.get("muted"),
+            "textSubtle": text_cfg.get("subtle"),
+            "textInverse": text_cfg.get("inverse"),
+            "borderDefault": border_cfg.get("default"),
+            "borderSoft": border_cfg.get("soft"),
+            "borderRow": border_cfg.get("row"),
+            "brandPrimary": brand_cfg.get("primary"),
+            "brandAccent": brand_cfg.get("accent"),
+            "trendUp": trend_cfg.get("up"),
+            "trendDown": trend_cfg.get("down"),
+            "trendNeutral": trend_cfg.get("neutral"),
+        }
+        for key, value in sync_map.items():
+            if value is not None:
+                color_cfg[key] = value
+
+        for status_name, legacy_text_key, legacy_bg_key in (
+            ("success", "statusSuccess", "statusSuccessBackground"),
+            ("warning", "statusWarning", "statusWarningBackground"),
+            ("danger", "statusDanger", "statusDangerBackground"),
+            ("neutral", "statusNeutral", "statusNeutralBackground"),
+        ):
+            status_node = status_cfg.get(status_name) if isinstance(status_cfg.get(status_name), dict) else {}
+            text_value = status_node.get("text")
+            background_value = status_node.get("background")
+            if text_value is not None:
+                color_cfg[legacy_text_key] = text_value
+            if background_value is not None:
+                color_cfg[legacy_bg_key] = background_value
+
+    def _build_compatibility_aliases(self, style_config: dict[str, Any]) -> list[str]:
         """Emit bridge variables so rollout can be gradual in existing CSS assets."""
-        return []
+        aliases: list[str] = []
+
+        report_cfg = (style_config.get("components", {}) or {}).get("report", {})
+        section_cfg = report_cfg.get("section", {}) if isinstance(report_cfg, dict) else {}
+        common_cfg = section_cfg.get("common", {}) if isinstance(section_cfg, dict) else {}
+        if isinstance(common_cfg.get("header"), dict):
+            aliases.extend([
+                "--report-components-section-header-title-color: var(--report-components-report-section-common-header-title-color);",
+                "--report-components-section-header-subtitle-color: var(--report-components-report-section-common-header-subtitle-color);",
+                "--report-components-section-header-border-color: var(--report-components-report-section-common-header-border-color);",
+                "--report-components-section-header-accent-color: var(--report-components-report-section-common-header-accent-color);",
+            ])
+
+        return aliases
 
     def _to_kebab_case(self, value: str) -> str:
         """Convert camelCase or mixedCase text to kebab-case for CSS variable names."""

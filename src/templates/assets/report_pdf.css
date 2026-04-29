@@ -323,25 +323,25 @@
     }
 
     .electricity-section-shell .section-header {
-        padding: 6px 9px 5px !important;
+        padding: var(--report-components-report-section-electric-header-padding, 6px 9px 5px) !important;
     }
 
     .electricity-header-shell {
-        gap: 8px !important;
+        gap: var(--report-components-report-section-electric-header-shell-gap, 8px) !important;
     }
 
     .electricity-section-shell .utility-header-main {
-        gap: 8px !important;
+        gap: var(--report-components-report-section-electric-header-main-gap, 8px) !important;
     }
 
     .electricity-section-shell .utility-header-icon {
-        width: 34px !important;
-        height: 34px !important;
+        width: var(--report-components-report-section-electric-header-icon-size, 34px) !important;
+        height: var(--report-components-report-section-electric-header-icon-size, 34px) !important;
     }
 
     .electricity-section-shell .utility-header-icon svg {
-        width: 19px !important;
-        height: 19px !important;
+        width: var(--report-components-report-section-electric-header-icon-glyph-size, 19px) !important;
+        height: var(--report-components-report-section-electric-header-icon-glyph-size, 19px) !important;
     }
 
     .electricity-section-shell .section-header h2 {
@@ -349,7 +349,7 @@
     }
 
     .electricity-section-shell .section-subtitle {
-        margin-top: 1px !important;
+        margin-top: var(--report-components-report-section-electric-header-subtitle-margin-top, 1px) !important;
         font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
     }
 
@@ -367,21 +367,21 @@
     }
 
     .kpi-section-shell .section-header {
-        padding: 7px 10px 6px !important;
+        padding: var(--report-components-report-section-kpi-header-padding, var(--report-components-report-section-common-header-padding, 7px 10px 6px)) !important;
     }
 
     .kpi-section-shell .utility-header-main {
-        gap: 9px !important;
+        gap: var(--report-components-report-section-kpi-header-main-gap, 9px) !important;
     }
 
     .kpi-section-shell .utility-header-icon {
-        width: 34px !important;
-        height: 34px !important;
+        width: var(--report-components-report-section-kpi-header-icon-size, 34px) !important;
+        height: var(--report-components-report-section-kpi-header-icon-size, 34px) !important;
     }
 
     .kpi-section-shell .utility-header-icon svg {
-        width: 19px !important;
-        height: 19px !important;
+        width: var(--report-components-report-section-kpi-header-icon-glyph-size, 19px) !important;
+        height: var(--report-components-report-section-kpi-header-icon-glyph-size, 19px) !important;
     }
 
     .kpi-section-shell .section-header h2 {
@@ -389,31 +389,31 @@
     }
 
     .kpi-section-shell .section-subtitle {
-        margin-top: 2px !important;
+        margin-top: var(--report-components-report-section-kpi-header-subtitle-margin-top, 2px) !important;
         font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
     }
 
     .kpi-header-date-chip {
-        min-width: 142px !important;
+        min-width: var(--report-components-report-section-kpi-header-date-chip-min-width, 142px) !important;
         padding: 6px 8px !important;
     }
 
     .electricity-section-shell .section-header {
-        padding: 7px 10px 6px !important;
+        padding: var(--report-components-report-section-electric-header-padding, 7px 10px 6px) !important;
     }
 
     .electricity-section-shell .utility-header-main {
-        gap: 9px !important;
+        gap: var(--report-components-report-section-electric-header-main-gap, 9px) !important;
     }
 
     .electricity-section-shell .utility-header-icon {
-        width: 34px !important;
-        height: 34px !important;
+        width: var(--report-components-report-section-electric-header-icon-size, 34px) !important;
+        height: var(--report-components-report-section-electric-header-icon-size, 34px) !important;
     }
 
     .electricity-section-shell .utility-header-icon svg {
-        width: 19px !important;
-        height: 19px !important;
+        width: var(--report-components-report-section-electric-header-icon-glyph-size, 19px) !important;
+        height: var(--report-components-report-section-electric-header-icon-glyph-size, 19px) !important;
     }
 
     .electricity-section-shell .section-header h2 {
@@ -421,36 +421,36 @@
     }
 
     .electricity-section-shell .section-subtitle {
-        margin-top: 2px !important;
+        margin-top: var(--report-components-report-section-electric-header-subtitle-margin-top, 2px) !important;
         font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
     }
 
     .electricity-header-date-chip {
-        min-width: 152px !important;
+        min-width: var(--report-components-report-section-electric-header-date-chip-min-width, 152px) !important;
         padding: 6px 8px !important;
     }
 
     .utility-periodic-section .section-header {
-        padding: 7px 10px 6px !important;
+        padding: var(--report-components-report-section-common-header-padding, 7px 10px 6px) !important;
     }
 
     .utility-periodic-section .utility-header-shell {
-        gap: 8px !important;
+        gap: var(--report-components-report-section-common-header-shell-gap, 8px) !important;
     }
 
     .utility-periodic-section .utility-header-main {
-        gap: 9px !important;
+        gap: var(--report-components-report-section-common-header-main-gap, 9px) !important;
     }
 
     .utility-periodic-section .utility-header-icon {
-        width: 34px !important;
-        height: 34px !important;
+        width: var(--report-components-report-section-common-header-icon-size, 34px) !important;
+        height: var(--report-components-report-section-common-header-icon-size, 34px) !important;
     }
 
     .utility-periodic-section .utility-header-icon svg,
     .utility-periodic-section .utility-header-icon img {
-        width: 19px !important;
-        height: 19px !important;
+        width: var(--report-components-report-section-common-header-icon-glyph-size, 19px) !important;
+        height: var(--report-components-report-section-common-header-icon-glyph-size, 19px) !important;
     }
 
     .utility-periodic-section .section-header h2 {
@@ -458,12 +458,12 @@
     }
 
     .utility-periodic-section .section-subtitle {
-        margin-top: 2px !important;
+        margin-top: var(--report-components-report-section-common-header-subtitle-margin-top, 2px) !important;
         font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
     }
 
     .utility-periodic-section .utility-date-chip {
-        min-width: 152px !important;
+        min-width: var(--report-components-report-section-common-header-date-chip-min-width, 152px) !important;
         padding: 6px 8px !important;
     }
 

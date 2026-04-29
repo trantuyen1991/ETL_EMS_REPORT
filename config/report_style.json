@@ -21,33 +21,144 @@
       "lineHeightDense": "1.35"
     },
     "color": {
-      "pageBackground": "#f4f6f8",
+      "pageBackground": "#edf3f8",
       "cardBackground": "#ffffff",
-      "headerBackground": "#f8fafc",
-      "headerBackgroundStrong": "#f3f4f6",
-      "tableStripeBackground": "#fafafa",
-      "tableHeaderBackground": "#f8fafc",
-      "textPrimary": "#1f2937",
-      "textHeading": "#111827",
-      "textMuted": "#6b7280",
-      "textSubtle": "#64748b",
+      "headerBackground": "#f6f9fc",
+      "headerBackgroundStrong": "#eef4f9",
+      "tableStripeBackground": "#f8fbfd",
+      "tableHeaderBackground": "#f3f7fb",
+      "textPrimary": "#223548",
+      "textHeading": "#0f2d45",
+      "textMuted": "#5f7387",
+      "textSubtle": "#6f8293",
       "textInverse": "#ffffff",
-      "borderDefault": "#d1d5db",
-      "borderSoft": "#d9e1ea",
-      "borderRow": "#e5e7eb",
-      "brandPrimary": "#2563eb",
-      "brandAccent": "#7c3aed",
-      "trendUp": "#0f7b35",
-      "trendDown": "#b42318",
-      "trendNeutral": "#666666",
-      "statusSuccess": "#0f7b35",
-      "statusSuccessBackground": "#dcfce7",
-      "statusWarning": "#b45309",
-      "statusWarningBackground": "#fef3c7",
-      "statusDanger": "#b42318",
-      "statusDangerBackground": "#fee2e2",
-      "statusNeutral": "#6b7280",
-      "statusNeutralBackground": "#f3f4f6"
+      "borderDefault": "#cdd9e5",
+      "borderSoft": "#d9e4ee",
+      "borderRow": "#e6edf3",
+      "brandPrimary": "#005496",
+      "brandAccent": "#5f7fa6",
+      "trendUp": "#0b7a43",
+      "trendDown": "#c04b39",
+      "trendNeutral": "#6c7f91",
+      "statusSuccess": "#0b7a43",
+      "statusSuccessBackground": "#def4e7",
+      "statusWarning": "#b7791f",
+      "statusWarningBackground": "#f9eed7",
+      "statusDanger": "#c04b39",
+      "statusDangerBackground": "#fae2df",
+      "statusNeutral": "#6c7f91",
+      "statusNeutralBackground": "#eef3f7",
+      "surface": {
+        "page": "#edf3f8",
+        "canvas": "#f6f9fc",
+        "card": "#ffffff",
+        "cardMuted": "#f7fafd",
+        "header": "#f6f9fc",
+        "headerStrong": "#eef4f9",
+        "tableStripe": "#f8fbfd",
+        "tableHeader": "#f3f7fb",
+        "brandSoft": "#e4eff8",
+        "brandTint": "#f2f7fb",
+        "chartShell": "#fbfdff"
+      },
+      "text": {
+        "primary": "#223548",
+        "heading": "#0f2d45",
+        "muted": "#5f7387",
+        "subtle": "#6f8293",
+        "inverse": "#ffffff",
+        "brand": "#005496"
+      },
+      "border": {
+        "default": "#cdd9e5",
+        "soft": "#d9e4ee",
+        "row": "#e6edf3",
+        "strong": "#b8cada",
+        "brand": "#8bb0cb"
+      },
+      "brand": {
+        "primary": "#005496",
+        "primaryStrong": "#003b6a",
+        "primarySoft": "#e4eff8",
+        "accent": "#5f7fa6",
+        "accentSoft": "#edf3f8"
+      },
+      "trend": {
+        "up": "#0b7a43",
+        "down": "#c04b39",
+        "neutral": "#6c7f91"
+      },
+      "status": {
+        "success": {
+          "text": "#0b7a43",
+          "background": "#def4e7"
+        },
+        "warning": {
+          "text": "#b7791f",
+          "background": "#f9eed7"
+        },
+        "danger": {
+          "text": "#c04b39",
+          "background": "#fae2df"
+        },
+        "neutral": {
+          "text": "#6c7f91",
+          "background": "#eef3f7"
+        }
+      },
+      "chart": {
+        "palette": [
+          "#005496",
+          "#5f7fa6",
+          "#5b9bd5",
+          "#6f9a6d",
+          "#d09a45",
+          "#c65a4b",
+          "#5ca7a4",
+          "#7a6da8"
+        ],
+        "background": "rgba(255,255,255,0)",
+        "title": "#0f2d45",
+        "subtitle": "#5f7387",
+        "legendText": "#556b7d",
+        "axisLine": "#b9c8d6",
+        "axisLabel": "#5f7387",
+        "splitLine": "#dfe7ef",
+        "toolboxBorder": "#7f97ab",
+        "series": {
+          "current": "#005496",
+          "previous": "#5f7fa6",
+          "currentTint": "rgba(0, 84, 150, 0.12)",
+          "previousTint": "rgba(95, 127, 166, 0.08)"
+        }
+      },
+      "area": {
+        "total": {
+          "barColor": "#005496",
+          "barTint": "rgba(0, 84, 150, 0.12)"
+        },
+        "diode": {
+          "barColor": "#005496",
+          "barTint": "rgba(0, 84, 150, 0.14)",
+          "headerBg": "#edf5fb",
+          "softBg": "#f8fbfe",
+          "strongBg": "#d7e7f4"
+        },
+        "ico": {
+          "barColor": "#6f9a6d",
+          "barTint": "rgba(111, 154, 109, 0.16)",
+          "headerBg": "#f1f7f0",
+          "softBg": "#fbfdfb",
+          "strongBg": "#e2eedf"
+        },
+        "sakari": {
+          "barColor": "#d09a45",
+          "barTint": "rgba(208, 154, 69, 0.16)",
+          "headerBg": "#fcf6ec",
+          "softBg": "#fffdf9",
+          "strongBg": "#f5e6cd"
+        }
+      }
     },
     "layout": {
       "pageMaxWidth": "1480px",
@@ -78,74 +189,74 @@
     },
     "components": {
       "page": {
-        "background": "#f4f6f8",
-        "textColor": "#1f2937"
+        "background": "#edf3f8",
+        "textColor": "#223548"
       },
       "card": {
         "background": "#ffffff",
-        "borderColor": "#d1d5db",
+        "borderColor": "#cdd9e5",
         "borderRadius": "10px",
         "padding": "16px",
-        "shadow": "0 4px 12px rgba(15, 23, 42, 0.04)"
+        "shadow": "0 6px 18px rgba(15, 46, 69, 0.05)"
       },
       "statusBadge": {
         "success": {
-          "textColor": "#0f7b35",
-          "background": "#dcfce7",
-          "borderColor": "#86efac"
+          "textColor": "#0b7a43",
+          "background": "#def4e7",
+          "borderColor": "#9fd6b0"
         },
         "warning": {
-          "textColor": "#b45309",
-          "background": "#fef3c7",
-          "borderColor": "#fcd34d"
+          "textColor": "#b7791f",
+          "background": "#f9eed7",
+          "borderColor": "#e6c98f"
         },
         "danger": {
-          "textColor": "#b42318",
-          "background": "#fee2e2",
-          "borderColor": "#fca5a5"
+          "textColor": "#c04b39",
+          "background": "#fae2df",
+          "borderColor": "#e6b1aa"
         },
         "neutral": {
-          "textColor": "#6b7280",
-          "background": "#f3f4f6",
-          "borderColor": "#d1d5db"
+          "textColor": "#6c7f91",
+          "background": "#eef3f7",
+          "borderColor": "#cdd9e5"
         },
         "info": {
-          "textColor": "#0369a1",
-          "background": "#e0f2fe",
-          "borderColor": "#bae6fd"
+          "textColor": "#005496",
+          "background": "#e8f1f8",
+          "borderColor": "#bfd4e5"
         }
       },
       "badge": {
-        "textColor": "#475569",
-        "background": "#e2e8f0",
-        "borderColor": "#cbd5e1",
+        "textColor": "#5f7387",
+        "background": "#e7eef5",
+        "borderColor": "#cfdce8",
         "fontSize": "10px",
         "fontWeight": "800"
       },
       "trend": {
         "up": {
-          "color": "#0f7b35"
+          "color": "#0b7a43"
         },
         "down": {
-          "color": "#b42318"
+          "color": "#c04b39"
         },
         "neutral": {
-          "color": "#666666"
+          "color": "#6c7f91"
         }
       },
       "coverageNotice": {
-        "background": "#f8fafc",
-        "borderColor": "#d9e1ea",
-        "textColor": "#64748b"
+        "background": "#f7fafc",
+        "borderColor": "#d9e4ee",
+        "textColor": "#6f8293"
       },
       "chartCard": {
-        "background": "#ffffff",
-        "borderColor": "#d9e1ea",
+        "background": "#fbfdff",
+        "borderColor": "#d9e4ee",
         "borderRadius": "10px",
         "padding": "16px",
         "height": "320px",
-        "titleColor": "#111827",
-        "subtitleColor": "#64748b"
+        "titleColor": "#0f2d45",
+        "subtitleColor": "#5f7387"
       },
       "chartNote": {
         "fontSize": "12px",
@@ -159,9 +270,9 @@
         "itemGap": "8px"
       },
       "chartMeta": {
-        "valueColor": "#0f172a",
-        "textColor": "#334155",
-        "subtleColor": "#64748b",
+        "valueColor": "#0f2d45",
+        "textColor": "#223548",
+        "subtleColor": "#6f8293",
         "labelFontSize": "11px",
         "smallFontSize": "9px"
       },
@@ -226,6 +337,19 @@
                 "height": "24px"
               }
             }
+          },
+          "shell": {
+            "background": "#ffffff",
+            "borderColor": "#cfe0ec",
+            "shadow": "0 12px 28px rgba(0, 84, 150, 0.12)",
+            "overlayGradient": "linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 36%, rgba(0,43,77,0.16) 100%)",
+            "dividerColor": "rgba(0, 84, 150, 0.16)",
+            "dateChipBackground": "rgba(255, 255, 255, 0.96)",
+            "dateChipBorderColor": "#cfe0ec",
+            "dateChipTextColor": "#0f2d45",
+            "dateChipMutedColor": "#5f7387",
+            "dateChipIconColor": "#005496",
+            "dateChipShadow": "inset 0 0 0 1px rgba(0, 84, 150, 0.08)"
           }
         },
         "footer": {
@@ -450,6 +574,98 @@
                   "trendRowGap": "3px",
                   "trendNoteFontSize": "6.4px"
                 }
+              },
+              "theme": {
+                "base": {
+                  "accent": "#005496",
+                  "borderColor": "#bfd4e5",
+                  "surface": "linear-gradient(135deg, rgba(0, 84, 150, 0.10) 0%, rgba(248, 251, 254, 0.94) 55%, rgba(255, 255, 255, 0.99) 100%)",
+                  "shadow": "0 12px 22px rgba(0, 84, 150, 0.08)",
+                  "titleColor": "#003b6a",
+                  "copyColor": "#6f8293",
+                  "currentColor": "#005496",
+                  "previousColor": "#5f7fa6",
+                  "noteColor": "#6f8293",
+                  "iconBackground": "linear-gradient(180deg, #0d67a8 0%, #005496 100%)",
+                  "iconColor": "#ffffff",
+                  "primaryColor": "#005496",
+                  "primaryUnitColor": "#0f2d45",
+                  "compareBackground": "rgba(255, 255, 255, 0.94)",
+                  "compareBorderColor": "rgba(191, 212, 229, 0.95)",
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                },
+                "total": {
+                  "accent": "#005496",
+                  "borderColor": "#2e72a4",
+                  "surface": "linear-gradient(135deg, #005496 0%, #0a6aae 100%)",
+                  "shadow": "0 16px 28px rgba(0, 84, 150, 0.22)",
+                  "titleColor": "#ffffff",
+                  "copyColor": "rgba(255, 255, 255, 0.84)",
+                  "currentColor": "#ffffff",
+                  "previousColor": "#dbeafe",
+                  "noteColor": "rgba(255, 255, 255, 0.88)",
+                  "iconBackground": "#ffffff",
+                  "iconColor": "#005496",
+                  "primaryColor": "#ffffff",
+                  "primaryUnitColor": "rgba(255, 255, 255, 0.94)",
+                  "compareBackground": "rgba(255, 255, 255, 0.98)",
+                  "compareBorderColor": "rgba(213, 228, 242, 0.96)",
+                  "compareDividerColor": "rgba(221, 232, 242, 0.92)"
+                },
+                "diode": {
+                  "accent": "#005496",
+                  "borderColor": "#c3d8e8",
+                  "surface": "linear-gradient(135deg, rgba(0, 84, 150, 0.11) 0%, rgba(247, 251, 255, 0.94) 56%, rgba(255, 255, 255, 0.99) 100%)",
+                  "shadow": "0 12px 22px rgba(0, 84, 150, 0.08)",
+                  "titleColor": "#003b6a",
+                  "copyColor": "#6f8293",
+                  "currentColor": "#005496",
+                  "previousColor": "#5f7fa6",
+                  "noteColor": "#6f8293",
+                  "iconBackground": "linear-gradient(180deg, #0d67a8 0%, #005496 100%)",
+                  "iconColor": "#ffffff",
+                  "primaryColor": "#005496",
+                  "primaryUnitColor": "#0f2d45",
+                  "compareBackground": "rgba(255, 255, 255, 0.94)",
+                  "compareBorderColor": "rgba(191, 212, 229, 0.95)",
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                },
+                "ico": {
+                  "accent": "#6f9a6d",
+                  "borderColor": "#cadfc8",
+                  "surface": "linear-gradient(135deg, rgba(111, 154, 109, 0.12) 0%, rgba(249, 252, 249, 0.94) 56%, rgba(255, 255, 255, 0.99) 100%)",
+                  "shadow": "0 12px 22px rgba(0, 84, 150, 0.08)",
+                  "titleColor": "#4f7750",
+                  "copyColor": "#6f8293",
+                  "currentColor": "#005496",
+                  "previousColor": "#5f7fa6",
+                  "noteColor": "#6f8293",
+                  "iconBackground": "linear-gradient(180deg, #82a97f 0%, #6f9a6d 100%)",
+                  "iconColor": "#ffffff",
+                  "primaryColor": "#005496",
+                  "primaryUnitColor": "#0f2d45",
+                  "compareBackground": "rgba(255, 255, 255, 0.94)",
+                  "compareBorderColor": "rgba(191, 212, 229, 0.95)",
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                },
+                "sakari": {
+                  "accent": "#d09a45",
+                  "borderColor": "#e4d3b3",
+                  "surface": "linear-gradient(135deg, rgba(208, 154, 69, 0.13) 0%, rgba(254, 251, 246, 0.95) 56%, rgba(255, 255, 255, 0.99) 100%)",
+                  "shadow": "0 12px 22px rgba(0, 84, 150, 0.08)",
+                  "titleColor": "#9c6a22",
+                  "copyColor": "#6f8293",
+                  "currentColor": "#005496",
+                  "previousColor": "#5f7fa6",
+                  "noteColor": "#6f8293",
+                  "iconBackground": "linear-gradient(180deg, #d7a857 0%, #d09a45 100%)",
+                  "iconColor": "#ffffff",
+                  "primaryColor": "#005496",
+                  "primaryUnitColor": "#0f2d45",
+                  "compareBackground": "rgba(255, 255, 255, 0.94)",
+                  "compareBorderColor": "rgba(191, 212, 229, 0.95)",
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                }
               }
             },
             "chart": {
@@ -609,6 +825,17 @@
                     "weekly": "184px"
                   }
                 }
+              },
+              "theme": {
+                "series": {
+                  "current": "#005496",
+                  "previous": "#5f7fa6",
+                  "currentTint": "rgba(0, 84, 150, 0.12)",
+                  "previousTint": "rgba(95, 127, 166, 0.08)"
+                },
+                "delta": {
+                  "total": "#005496"
+                }
               }
             },
             "table": {
@@ -621,6 +848,16 @@
                 "cellPadding": "8px 10px",
                 "denseCellPadding": "4px 6px"
               }
+            },
+            "header": {
+              "padding": "7px 11px 6px",
+              "shellGap": "12px",
+              "mainGap": "10px",
+              "iconSize": "45px",
+              "iconGlyphSize": "25px",
+              "titleLetterSpacing": "0.01em",
+              "subtitleMarginTop": "1px",
+              "dateChipMinWidth": "228px"
             }
           },
           "utility": {
@@ -1082,6 +1319,27 @@
                 "labelLetterSpacing": "0.05em",
                 "valueFontSize": "15px"
               }
+            },
+            "header": {
+              "padding": "7px 11px 6px",
+              "shellGap": "12px",
+              "mainGap": "10px",
+              "iconSize": "45px",
+              "iconGlyphSize": "25px",
+              "titleLetterSpacing": "0.01em",
+              "subtitleMarginTop": "1px",
+              "dateChipMinWidth": "228px",
+              "background": "#f6f9fc",
+              "borderColor": "#cdd9e5",
+              "accentColor": "#005496",
+              "titleColor": "#0f2d45",
+              "subtitleColor": "#5f7387",
+              "dateChipBackground": "rgba(255, 255, 255, 0.94)",
+              "dateChipBorderColor": "#cfe0ec",
+              "dateChipTextColor": "#0f2d45",
+              "dateChipMutedColor": "#5f7387",
+              "dateChipIconColor": "#005496",
+              "dateChipShadow": "inset 0 0 0 1px rgba(0, 84, 150, 0.08)"
             }
           }
         }
@@ -1089,34 +1347,34 @@
       "sectionHeader": {
         "titleFontSize": "18px",
         "titleFontWeight": "700",
-        "titleColor": "#111827",
+        "titleColor": "#0f2d45",
         "subtitleFontSize": "12px",
-        "subtitleColor": "#64748b",
-        "background": "#f8fafc",
-        "borderColor": "#d1d5db",
-        "accentColor": "#2563eb"
+        "subtitleColor": "#5f7387",
+        "background": "#f6f9fc",
+        "borderColor": "#cdd9e5",
+        "accentColor": "#005496"
       }
     },
     "echartsTheme": {
       "themeName": "report_default",
       "palette": [
-        "#2563eb",
-        "#7c3aed",
-        "#0ea5e9",
-        "#22c55e",
-        "#f59e0b",
-        "#ef4444",
-        "#14b8a6",
-        "#8b5cf6"
+        "#005496",
+        "#5f7fa6",
+        "#5b9bd5",
+        "#6f9a6d",
+        "#d09a45",
+        "#c65a4b",
+        "#5ca7a4",
+        "#7a6da8"
       ],
       "backgroundColor": "rgba(255,255,255,0)",
-      "titleColor": "#111827",
-      "subtitleColor": "#64748b",
-      "legendTextColor": "#6b7280",
-      "axisLineColor": "#cbd5e1",
-      "axisLabelColor": "#64748b",
-      "splitLineColor": "#e5e7eb",
-      "toolboxIconBorderColor": "#94a3b8",
+      "titleColor": "#0f2d45",
+      "subtitleColor": "#5f7387",
+      "legendTextColor": "#556b7d",
+      "axisLineColor": "#b9c8d6",
+      "axisLabelColor": "#5f7387",
+      "splitLineColor": "#dfe7ef",
+      "toolboxIconBorderColor": "#7f97ab",
       "grid": {
         "left": "10%",
         "right": "10%",

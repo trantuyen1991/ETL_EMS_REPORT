@@ -246,9 +246,9 @@
             overflow: hidden;
             padding: 0;
             border-radius: 18px;
-            border: 1px solid #d7eafe;
-            box-shadow: 0 10px 24px rgba(0, 84, 150, 0.12);
-            background: #ffffff;
+            border: 1px solid var(--report-components-report-title-header-shell-border-color, var(--report-color-border-default));
+            box-shadow: var(--report-components-report-title-header-shell-shadow, var(--report-components-card-shadow, var(--report-shadow-soft)));
+            background: var(--report-components-report-title-header-shell-background, var(--report-color-card-background));
         }
 
         .report-header-banner {
@@ -272,6 +272,7 @@
             grid-template-columns: var(--report-components-report-title-header-banner-overlay-grid-template-columns, 420px minmax(0, 1fr));
             align-items: center;
             padding: var(--report-components-report-title-header-banner-overlay-padding, 0 300px 0 0);
+            background: var(--report-components-report-title-header-shell-overlay-gradient, transparent);
         }
 
         .report-banner-logo-slot {
@@ -329,7 +330,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: var(--report-color-brand-primary, var(--report-color-brand-primary));
+            color: var(--report-components-report-title-header-shell-date-chip-icon-color, var(--report-color-brand-primary));
             flex: 0 0 auto;
         }
 
@@ -359,7 +360,7 @@
 
         .report-header-divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0, 84, 150, 0.16), transparent);
+            background: linear-gradient(90deg, transparent, var(--report-components-report-title-header-shell-divider-color, rgba(0, 84, 150, 0.16)), transparent);
             margin: 6px 0 10px 0;
         }
 
@@ -430,7 +431,7 @@
         .section-header {
             margin-bottom: 16px;
             padding-bottom: 10px;
-            border-bottom: 1px solid var(--report-components-section-header-border-color, var(--report-color-border-row));
+            border-bottom: 1px solid var(--report-components-report-section-common-header-border-color, var(--report-components-section-header-border-color, var(--report-color-border-row)));
         }
 
         .section-header-title-row {
@@ -442,7 +443,7 @@
         .section-header-symbol {
             width: 4px;
             height: 22px;
-            background: var(--report-color-brand-primary);
+            background: var(--report-components-report-section-common-header-accent-color, var(--report-color-brand-primary));
             border-radius: 2px;
             flex: 0 0 auto;
         }
@@ -453,7 +454,7 @@
             font-weight: var(--report-components-section-header-title-font-weight, var(--report-font-weight-bold));
             line-height: 1.2;
             letter-spacing: 0.2px;
-            color: var(--report-components-section-header-title-color, var(--report-color-brand-primary));
+            color: var(--report-components-report-section-common-header-title-color, var(--report-components-section-header-title-color, var(--report-color-brand-primary)));
         }
 
         .section-meta-row {
@@ -464,14 +465,14 @@
             margin: 8px 0 0 14px;
             font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle));
             line-height: 1.45;
-            color: var(--report-components-section-header-subtitle-color, var(--report-color-text-subtle));
+            color: var(--report-components-report-section-common-header-subtitle-color, var(--report-components-section-header-subtitle-color, var(--report-color-text-subtle)));
             font-weight: var(--report-font-weight-medium);
         }
 
         .daily-highlight-header .section-header {
-            background: var(--report-components-section-header-background, var(--report-color-header-background));
-            border: 1px solid var(--report-components-section-header-border-color, var(--report-color-border-default));
-            border-left: 5px solid var(--report-components-section-header-accent-color, var(--report-color-brand-primary));
+            background: var(--report-components-report-section-common-header-background, var(--report-components-section-header-background, var(--report-color-header-background)));
+            border: 1px solid var(--report-components-report-section-common-header-border-color, var(--report-components-section-header-border-color, var(--report-color-border-default)));
+            border-left: 5px solid var(--report-components-report-section-common-header-accent-color, var(--report-components-section-header-accent-color, var(--report-color-brand-primary)));
             border-radius: 12px;
             padding: 10px 14px 8px;
             box-shadow: none;
@@ -502,13 +503,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
+            gap: var(--report-components-report-section-common-header-shell-gap, 16px);
         }
 
         .utility-header-main {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: var(--report-components-report-section-common-header-main-gap, 14px);
             min-width: 0;
         }
 
@@ -522,12 +523,12 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 58px;
-            height: 58px;
+            width: var(--report-components-report-section-common-header-icon-size, 58px);
+            height: var(--report-components-report-section-common-header-icon-size, 58px);
             border-radius: 999px;
-            color: #2d74ff;
-            background: #f8fbff;
-            border: 1px solid #dbeafe;
+            color: var(--report-components-report-section-common-header-accent-color, #005496);
+            background: var(--report-components-report-section-common-header-background, #f8fbff);
+            border: 1px solid var(--report-components-report-section-common-header-border-color, #dbeafe);
         }
 
         .utility-header-icon svg,
@@ -540,13 +541,13 @@
         }
 
         .utility-header-icon svg {
-            width: 34px;
-            height: 34px;
+            width: var(--report-components-report-section-common-header-icon-glyph-size, 34px);
+            height: var(--report-components-report-section-common-header-icon-glyph-size, 34px);
         }
 
         .utility-header-icon img {
-            width: 34px;
-            height: 34px;
+            width: var(--report-components-report-section-common-header-icon-glyph-size, 34px);
+            height: var(--report-components-report-section-common-header-icon-glyph-size, 34px);
             display: block;
             object-fit: contain;
         }
@@ -613,39 +614,39 @@
         }
 
         .electricity-section-shell .section-header {
-            padding: 7px 11px 6px;
+            padding: var(--report-components-report-section-electric-header-padding, var(--report-components-report-section-common-header-padding, 7px 11px 6px));
         }
 
         .electricity-header-shell {
-            gap: 12px;
+            gap: var(--report-components-report-section-electric-header-shell-gap, var(--report-components-report-section-common-header-shell-gap, 12px));
         }
 
         .electricity-section-shell .utility-header-main {
-            gap: 10px;
+            gap: var(--report-components-report-section-electric-header-main-gap, var(--report-components-report-section-common-header-main-gap, 10px));
         }
 
         .electricity-section-shell .utility-header-icon {
-            width: 45px;
-            height: 45px;
+            width: var(--report-components-report-section-electric-header-icon-size, var(--report-components-report-section-common-header-icon-size, 45px));
+            height: var(--report-components-report-section-electric-header-icon-size, var(--report-components-report-section-common-header-icon-size, 45px));
         }
 
         .electricity-section-shell .utility-header-icon svg {
-            width: 25px;
-            height: 25px;
+            width: var(--report-components-report-section-electric-header-icon-glyph-size, var(--report-components-report-section-common-header-icon-glyph-size, 25px));
+            height: var(--report-components-report-section-electric-header-icon-glyph-size, var(--report-components-report-section-common-header-icon-glyph-size, 25px));
         }
 
         .electricity-section-shell .section-header h2 {
             font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title));
-            letter-spacing: 0.01em;
+            letter-spacing: var(--report-components-report-section-electric-header-title-letter-spacing, var(--report-components-report-section-common-header-title-letter-spacing, 0.01em));
         }
 
         .electricity-section-shell .section-subtitle {
-            margin-top: 1px;
+            margin-top: var(--report-components-report-section-electric-header-subtitle-margin-top, var(--report-components-report-section-common-header-subtitle-margin-top, 1px));
             font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle));
         }
 
         .electricity-header-date-chip {
-            min-width: 228px;
+            min-width: var(--report-components-report-section-electric-header-date-chip-min-width, var(--report-components-report-section-common-header-date-chip-min-width, 228px));
             justify-content: flex-start;
         }
 
@@ -693,10 +694,10 @@
             gap: 10px;
             padding: 10px 14px;
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #d9e6fb;
-            box-shadow: inset 0 0 0 1px rgba(191, 219, 254, 0.35);
-            color: #1d4ed8;
+            background: var(--report-components-report-section-common-header-date-chip-background, rgba(255, 255, 255, 0.9));
+            border: 1px solid var(--report-components-report-title-header-shell-date-chip-border-color, var(--report-components-report-section-common-header-date-chip-border-color, #d9e6fb));
+            box-shadow: var(--report-components-report-title-header-shell-date-chip-shadow, var(--report-components-report-section-common-header-date-chip-shadow, inset 0 0 0 1px rgba(191, 219, 254, 0.35)));
+            color: var(--report-components-report-section-common-header-date-chip-text-color, #1d4ed8);
         }
 
         .utility-date-chip-icon {
@@ -705,7 +706,7 @@
             justify-content: center;
             width: 18px;
             height: 18px;
-            color: #2563eb;
+            color: var(--report-components-report-title-header-shell-date-chip-icon-color, var(--report-components-report-section-common-header-date-chip-icon-color, #2563eb));
             flex: 0 0 auto;
         }
 
@@ -719,14 +720,14 @@
         .utility-date-chip-current {
             font-size: 11px;
             font-weight: 800;
-            color: #2563eb;
+            color: var(--report-components-report-section-common-header-date-chip-text-color, #2563eb);
             white-space: nowrap;
         }
 
         .utility-date-chip-previous {
             font-size: 10.5px;
             font-weight: 700;
-            color: #475569;
+            color: var(--report-components-report-title-header-shell-date-chip-muted-color, var(--report-components-report-section-common-header-date-chip-muted-color, #475569));
             white-space: nowrap;
         }
 
@@ -1083,23 +1084,23 @@
         }
 
         .electricity-total-card {
-            --section-card-accent: #2d74ff;
-            --section-card-tint: rgba(45, 116, 255, 0.14);
-            --section-card-border: #b9d2ff;
-            --section-card-surface: linear-gradient(135deg, rgba(45, 116, 255, 0.14) 0%, rgba(245, 249, 255, 0.92) 52%, rgba(255, 255, 255, 0.98) 100%);
-            --section-card-shadow: 0 12px 22px rgba(37, 99, 235, 0.08);
-            --section-card-title: #173f9f;
-            --section-card-copy: var(--report-color-text-subtle, #61758f);
-            --section-card-current: #2160df;
-            --section-card-previous: var(--report-color-brand-accent, #9b4fd8);
-            --section-card-note: var(--report-color-text-subtle, #5f7086);
-            --section-card-icon-bg: linear-gradient(180deg, #2d74ff 0%, #1f62df 100%);
-            --section-card-icon-color: #ffffff;
-            --section-card-primary: var(--section-card-current);
-            --section-card-primary-unit: var(--report-components-chart-meta-value-color, #0f172a);
-            --section-card-compare-bg: rgba(255, 255, 255, 0.92);
-            --section-card-compare-border: rgba(185, 210, 255, 0.95);
-            --section-card-compare-divider: rgba(207, 220, 239, 0.95);
+            --section-card-accent: var(--report-components-report-section-electric-card-theme-base-accent, #005496);
+            --section-card-tint: var(--report-color-area-diode-bar-tint, rgba(0, 84, 150, 0.14));
+            --section-card-border: var(--report-components-report-section-electric-card-theme-base-border-color, #bfd4e5);
+            --section-card-surface: var(--report-components-report-section-electric-card-theme-base-surface, linear-gradient(135deg, rgba(0, 84, 150, 0.10) 0%, rgba(248, 251, 254, 0.94) 55%, rgba(255, 255, 255, 0.99) 100%));
+            --section-card-shadow: var(--report-components-report-section-electric-card-theme-base-shadow, 0 12px 22px rgba(0, 84, 150, 0.08));
+            --section-card-title: var(--report-components-report-section-electric-card-theme-base-title-color, #003b6a);
+            --section-card-copy: var(--report-components-report-section-electric-card-theme-base-copy-color, var(--report-color-text-subtle, #61758f));
+            --section-card-current: var(--report-components-report-section-electric-card-theme-base-current-color, #005496);
+            --section-card-previous: var(--report-components-report-section-electric-card-theme-base-previous-color, var(--report-color-brand-accent, #5f7fa6));
+            --section-card-note: var(--report-components-report-section-electric-card-theme-base-note-color, var(--report-color-text-subtle, #5f7086));
+            --section-card-icon-bg: var(--report-components-report-section-electric-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%));
+            --section-card-icon-color: var(--report-components-report-section-electric-card-theme-base-icon-color, #ffffff);
+            --section-card-primary: var(--report-components-report-section-electric-card-theme-base-primary-color, var(--section-card-current));
+            --section-card-primary-unit: var(--report-components-report-section-electric-card-theme-base-primary-unit-color, var(--report-components-chart-meta-value-color, #0f172a));
+            --section-card-compare-bg: var(--report-components-report-section-electric-card-theme-base-compare-background, rgba(255, 255, 255, 0.94));
+            --section-card-compare-border: var(--report-components-report-section-electric-card-theme-base-compare-border-color, rgba(191, 212, 229, 0.95));
+            --section-card-compare-divider: var(--report-components-report-section-electric-card-theme-base-compare-divider-color, rgba(214, 226, 236, 0.95));
             position: relative;
             overflow: hidden;
             min-height: var(--report-components-report-section-electric-card-total-layout-min-height, 176px);
@@ -1123,53 +1124,53 @@
 
         .electricity-total-card:first-child,
         .electricity-total-card.is-total {
-            --section-card-accent: #0d63f4;
-            --section-card-border: #5d98ff;
-            --section-card-surface: linear-gradient(135deg, rgba(20, 99, 244, 0.98) 0%, rgba(11, 84, 224, 0.98) 100%);
-            --section-card-shadow: 0 16px 26px rgba(13, 99, 244, 0.20);
-            --section-card-title: #ffffff;
-            --section-card-copy: rgba(255, 255, 255, 0.82);
-            --section-card-note: rgba(255, 255, 255, 0.86);
-            --section-card-icon-bg: #ffffff;
-            --section-card-icon-color: #0f63eb;
-            --section-card-primary: #ffffff;
-            --section-card-primary-unit: rgba(255, 255, 255, 0.94);
-            --section-card-compare-bg: rgba(255, 255, 255, 0.98);
-            --section-card-compare-border: rgba(200, 220, 255, 0.94);
-            --section-card-compare-divider: rgba(222, 230, 244, 0.92);
+            --section-card-accent: var(--report-components-report-section-electric-card-theme-total-accent, #005496);
+            --section-card-border: var(--report-components-report-section-electric-card-theme-total-border-color, #2e72a4);
+            --section-card-surface: var(--report-components-report-section-electric-card-theme-total-surface, linear-gradient(135deg, #005496 0%, #0a6aae 100%));
+            --section-card-shadow: var(--report-components-report-section-electric-card-theme-total-shadow, 0 16px 28px rgba(0, 84, 150, 0.22));
+            --section-card-title: var(--report-components-report-section-electric-card-theme-total-title-color, #ffffff);
+            --section-card-copy: var(--report-components-report-section-electric-card-theme-total-copy-color, rgba(255, 255, 255, 0.82));
+            --section-card-note: var(--report-components-report-section-electric-card-theme-total-note-color, rgba(255, 255, 255, 0.86));
+            --section-card-icon-bg: var(--report-components-report-section-electric-card-theme-total-icon-background, #ffffff);
+            --section-card-icon-color: var(--report-components-report-section-electric-card-theme-total-icon-color, #005496);
+            --section-card-primary: var(--report-components-report-section-electric-card-theme-total-primary-color, #ffffff);
+            --section-card-primary-unit: var(--report-components-report-section-electric-card-theme-total-primary-unit-color, rgba(255, 255, 255, 0.94));
+            --section-card-compare-bg: var(--report-components-report-section-electric-card-theme-total-compare-background, rgba(255, 255, 255, 0.98));
+            --section-card-compare-border: var(--report-components-report-section-electric-card-theme-total-compare-border-color, rgba(213, 228, 242, 0.96));
+            --section-card-compare-divider: var(--report-components-report-section-electric-card-theme-total-compare-divider-color, rgba(221, 232, 242, 0.92));
         }
 
         .electricity-total-card.area-diode {
-            --section-card-accent: #2d74ff;
-            --section-card-tint: rgba(45, 116, 255, 0.13);
-            --section-card-border: #c3d9ff;
-            --section-card-surface: linear-gradient(135deg, rgba(45, 116, 255, 0.13) 0%, rgba(247, 251, 255, 0.92) 56%, rgba(255, 255, 255, 0.98) 100%);
-            --section-card-title: #173f9f;
-            --section-card-icon-bg: linear-gradient(180deg, #2d74ff 0%, #1f62df 100%);
-            --section-card-icon-color: #ffffff;
-            --section-card-compare-border: rgba(195, 217, 255, 0.95);
+            --section-card-accent: var(--report-components-report-section-electric-card-theme-diode-accent, #005496);
+            --section-card-tint: var(--report-color-area-diode-bar-tint, rgba(0, 84, 150, 0.14));
+            --section-card-border: var(--report-components-report-section-electric-card-theme-diode-border-color, #c3d8e8);
+            --section-card-surface: var(--report-components-report-section-electric-card-theme-diode-surface, linear-gradient(135deg, rgba(0, 84, 150, 0.11) 0%, rgba(247, 251, 255, 0.94) 56%, rgba(255, 255, 255, 0.99) 100%));
+            --section-card-title: var(--report-components-report-section-electric-card-theme-diode-title-color, #003b6a);
+            --section-card-icon-bg: var(--report-components-report-section-electric-card-theme-diode-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%));
+            --section-card-icon-color: var(--report-components-report-section-electric-card-theme-diode-icon-color, #ffffff);
+            --section-card-compare-border: var(--report-components-report-section-electric-card-theme-diode-compare-border-color, rgba(195, 216, 232, 0.95));
         }
 
         .electricity-total-card.area-ico {
-            --section-card-accent: #22a34a;
-            --section-card-tint: rgba(34, 163, 74, 0.13);
-            --section-card-border: #bfe8cb;
-            --section-card-surface: linear-gradient(135deg, rgba(34, 163, 74, 0.13) 0%, rgba(247, 252, 248, 0.92) 56%, rgba(255, 255, 255, 0.98) 100%);
-            --section-card-title: #14803b;
-            --section-card-icon-bg: linear-gradient(180deg, #22a34a 0%, #15803b 100%);
-            --section-card-icon-color: #ffffff;
-            --section-card-compare-border: rgba(191, 232, 203, 0.95);
+            --section-card-accent: var(--report-components-report-section-electric-card-theme-ico-accent, #6f9a6d);
+            --section-card-tint: var(--report-color-area-ico-bar-tint, rgba(111, 154, 109, 0.16));
+            --section-card-border: var(--report-components-report-section-electric-card-theme-ico-border-color, #cadfc8);
+            --section-card-surface: var(--report-components-report-section-electric-card-theme-ico-surface, linear-gradient(135deg, rgba(111, 154, 109, 0.12) 0%, rgba(249, 252, 249, 0.94) 56%, rgba(255, 255, 255, 0.99) 100%));
+            --section-card-title: var(--report-components-report-section-electric-card-theme-ico-title-color, #4f7750);
+            --section-card-icon-bg: var(--report-components-report-section-electric-card-theme-ico-icon-background, linear-gradient(180deg, #82a97f 0%, #6f9a6d 100%));
+            --section-card-icon-color: var(--report-components-report-section-electric-card-theme-ico-icon-color, #ffffff);
+            --section-card-compare-border: var(--report-components-report-section-electric-card-theme-ico-compare-border-color, rgba(202, 223, 200, 0.95));
         }
 
         .electricity-total-card.area-sakari {
-            --section-card-accent: #f59e0b;
-            --section-card-tint: rgba(245, 158, 11, 0.13);
-            --section-card-border: #fbd2a2;
-            --section-card-surface: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(255, 250, 243, 0.94) 56%, rgba(255, 255, 255, 0.98) 100%);
-            --section-card-title: #d97706;
-            --section-card-icon-bg: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
-            --section-card-icon-color: #ffffff;
-            --section-card-compare-border: rgba(251, 210, 162, 0.95);
+            --section-card-accent: var(--report-components-report-section-electric-card-theme-sakari-accent, #d09a45);
+            --section-card-tint: var(--report-color-area-sakari-bar-tint, rgba(208, 154, 69, 0.16));
+            --section-card-border: var(--report-components-report-section-electric-card-theme-sakari-border-color, #e4d3b3);
+            --section-card-surface: var(--report-components-report-section-electric-card-theme-sakari-surface, linear-gradient(135deg, rgba(208, 154, 69, 0.13) 0%, rgba(254, 251, 246, 0.95) 56%, rgba(255, 255, 255, 0.99) 100%));
+            --section-card-title: var(--report-components-report-section-electric-card-theme-sakari-title-color, #9c6a22);
+            --section-card-icon-bg: var(--report-components-report-section-electric-card-theme-sakari-icon-background, linear-gradient(180deg, #d7a857 0%, #d09a45 100%));
+            --section-card-icon-color: var(--report-components-report-section-electric-card-theme-sakari-icon-color, #ffffff);
+            --section-card-compare-border: var(--report-components-report-section-electric-card-theme-sakari-compare-border-color, rgba(228, 211, 179, 0.95));
         }
 
         .electricity-total-card-top {
@@ -1474,13 +1475,13 @@
 
         .electricity-section-shell .electricity-chart-card,
         .utility-section-shell .electricity-chart-card {
-            border-color: #cfe0ff;
-            background: linear-gradient(180deg, rgba(59, 130, 246, 0.11) 0%, rgba(255, 255, 255, 0.98) 100%);
+            border-color: var(--report-components-report-section-common-header-border-color, var(--report-color-border-soft));
+            background: linear-gradient(180deg, var(--report-color-surface-brand-soft, rgba(228, 239, 248, 0.65)) 0%, var(--report-color-surface-chart-shell, rgba(255, 255, 255, 0.98)) 100%);
         }
 
         .kpi-section-shell .electricity-chart-card {
-            border-color: #cfe0ff;
-            background: linear-gradient(180deg, rgba(59, 130, 246, 0.09) 0%, rgba(255, 255, 255, 0.98) 100%);
+            border-color: var(--report-components-report-section-common-header-border-color, var(--report-color-border-soft));
+            background: linear-gradient(180deg, rgba(228, 239, 248, 0.52) 0%, var(--report-color-surface-chart-shell, rgba(255, 255, 255, 0.98)) 100%);
         }
 
         .electricity-chart-card-title {
