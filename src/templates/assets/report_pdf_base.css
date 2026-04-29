@@ -2277,14 +2277,128 @@
         }
 
         .utility-overview-card {
+            --utility-card-accent: var(--report-components-report-section-utility-card-theme-base-accent, #005496);
+            --utility-card-border: var(--report-components-report-section-utility-card-theme-base-border-color, #bfd4e5);
+            --utility-card-surface: var(--report-components-report-section-utility-card-theme-base-surface, linear-gradient(135deg, rgba(0, 84, 150, 0.10) 0%, rgba(248, 251, 254, 0.94) 55%, rgba(255, 255, 255, 0.99) 100%));
+            --utility-card-shadow: var(--report-components-report-section-utility-card-theme-base-shadow, 0 12px 22px rgba(0, 84, 150, 0.08));
+            --utility-card-title: var(--report-components-report-section-utility-card-theme-base-title-color, #003b6a);
+            --utility-card-copy: var(--report-components-report-section-utility-card-theme-base-copy-color, #6f8293);
+            --utility-card-current: var(--report-components-report-section-utility-card-theme-base-current-color, #005496);
+            --utility-card-previous: var(--report-components-report-section-utility-card-theme-base-previous-color, #5f7fa6);
+            --utility-card-note: var(--report-components-report-section-utility-card-theme-base-note-color, #6f8293);
+            --utility-card-icon-bg: var(--report-components-report-section-utility-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%));
+            --utility-card-icon-color: var(--report-components-report-section-utility-card-theme-base-icon-color, #ffffff);
+            --utility-card-primary: var(--report-components-report-section-utility-card-theme-base-primary-color, #005496);
+            --utility-card-primary-unit: var(--report-components-report-section-utility-card-theme-base-primary-unit-color, #0f2d45);
+            --utility-card-compare-bg: var(--report-components-report-section-utility-card-theme-base-compare-background, rgba(255, 255, 255, 0.94));
+            --utility-card-compare-border: var(--report-components-report-section-utility-card-theme-base-compare-border-color, rgba(191, 212, 229, 0.95));
+            --utility-card-compare-divider: var(--report-components-report-section-utility-card-theme-base-compare-divider-color, rgba(214, 226, 236, 0.95));
             position: relative;
             overflow: hidden;
             min-height: var(--report-components-report-section-utility-card-total-utility-layout-min-height, 154px);
             padding: var(--report-components-report-section-utility-card-total-utility-layout-padding, 12px 13px);
             border-radius: var(--report-components-report-section-common-card-border-radius, 14px);
-            border: 1px solid var(--report-components-card-border-color, #dbe4f3);
-            background: linear-gradient(180deg, var(--utility-card-tint, rgba(37, 99, 235, 0.08)) 0%, rgba(255, 255, 255, 0.98) 100%);
-            box-shadow: var(--report-components-card-shadow, var(--report-shadow-card));
+            border: 1px solid var(--utility-card-border);
+            background: var(--utility-card-surface);
+            box-shadow: var(--utility-card-shadow);
+        }
+
+        .utility-overview-card.utility-card-theme-water {
+            --utility-card-accent: var(--report-components-report-section-utility-card-theme-water-accent, var(--report-components-report-section-utility-card-theme-base-accent, #005496));
+            --utility-card-border: var(--report-components-report-section-utility-card-theme-water-border-color, var(--report-components-report-section-utility-card-theme-base-border-color, #bfd4e5));
+            --utility-card-surface: var(--report-components-report-section-utility-card-theme-water-surface, var(--report-components-report-section-utility-card-theme-base-surface, linear-gradient(135deg, rgba(0, 84, 150, 0.10) 0%, rgba(248, 251, 254, 0.94) 55%, rgba(255, 255, 255, 0.99) 100%)));
+            --utility-card-shadow: var(--report-components-report-section-utility-card-theme-water-shadow, var(--report-components-report-section-utility-card-theme-base-shadow, 0 12px 22px rgba(0, 84, 150, 0.08)));
+            --utility-card-title: var(--report-components-report-section-utility-card-theme-water-title-color, var(--report-components-report-section-utility-card-theme-base-title-color, #003b6a));
+            --utility-card-copy: var(--report-components-report-section-utility-card-theme-water-copy-color, var(--report-components-report-section-utility-card-theme-base-copy-color, #6f8293));
+            --utility-card-current: var(--report-components-report-section-utility-card-theme-water-current-color, var(--report-components-report-section-utility-card-theme-base-current-color, #005496));
+            --utility-card-previous: var(--report-components-report-section-utility-card-theme-water-previous-color, var(--report-components-report-section-utility-card-theme-base-previous-color, #5f7fa6));
+            --utility-card-note: var(--report-components-report-section-utility-card-theme-water-note-color, var(--report-components-report-section-utility-card-theme-base-note-color, #6f8293));
+            --utility-card-icon-bg: var(--report-components-report-section-utility-card-theme-water-icon-background, var(--report-components-report-section-utility-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%)));
+            --utility-card-icon-color: var(--report-components-report-section-utility-card-theme-water-icon-color, var(--report-components-report-section-utility-card-theme-base-icon-color, #ffffff));
+            --utility-card-primary: var(--report-components-report-section-utility-card-theme-water-primary-color, var(--report-components-report-section-utility-card-theme-base-primary-color, #005496));
+            --utility-card-primary-unit: var(--report-components-report-section-utility-card-theme-water-primary-unit-color, var(--report-components-report-section-utility-card-theme-base-primary-unit-color, #0f2d45));
+            --utility-card-compare-bg: var(--report-components-report-section-utility-card-theme-water-compare-background, var(--report-components-report-section-utility-card-theme-base-compare-background, rgba(255, 255, 255, 0.94)));
+            --utility-card-compare-border: var(--report-components-report-section-utility-card-theme-water-compare-border-color, var(--report-components-report-section-utility-card-theme-base-compare-border-color, rgba(191, 212, 229, 0.95)));
+            --utility-card-compare-divider: var(--report-components-report-section-utility-card-theme-water-compare-divider-color, var(--report-components-report-section-utility-card-theme-base-compare-divider-color, rgba(214, 226, 236, 0.95)));
+        }
+
+        .utility-overview-card.utility-card-theme-compressed-air,
+        .utility-overview-card.utility-card-theme-air-energy {
+            --utility-card-accent: var(--report-components-report-section-utility-card-theme-compressed-air-accent, var(--report-components-report-section-utility-card-theme-air-energy-accent, var(--report-components-report-section-utility-card-theme-base-accent, #005496)));
+            --utility-card-border: var(--report-components-report-section-utility-card-theme-compressed-air-border-color, var(--report-components-report-section-utility-card-theme-air-energy-border-color, var(--report-components-report-section-utility-card-theme-base-border-color, #bfd4e5)));
+            --utility-card-surface: var(--report-components-report-section-utility-card-theme-compressed-air-surface, var(--report-components-report-section-utility-card-theme-air-energy-surface, var(--report-components-report-section-utility-card-theme-base-surface, linear-gradient(135deg, rgba(0, 84, 150, 0.10) 0%, rgba(248, 251, 254, 0.94) 55%, rgba(255, 255, 255, 0.99) 100%)))));
+            --utility-card-shadow: var(--report-components-report-section-utility-card-theme-compressed-air-shadow, var(--report-components-report-section-utility-card-theme-air-energy-shadow, var(--report-components-report-section-utility-card-theme-base-shadow, 0 12px 22px rgba(0, 84, 150, 0.08)))));
+            --utility-card-title: var(--report-components-report-section-utility-card-theme-compressed-air-title-color, var(--report-components-report-section-utility-card-theme-air-energy-title-color, var(--report-components-report-section-utility-card-theme-base-title-color, #003b6a)));
+            --utility-card-copy: var(--report-components-report-section-utility-card-theme-compressed-air-copy-color, var(--report-components-report-section-utility-card-theme-air-energy-copy-color, var(--report-components-report-section-utility-card-theme-base-copy-color, #6f8293)));
+            --utility-card-current: var(--report-components-report-section-utility-card-theme-compressed-air-current-color, var(--report-components-report-section-utility-card-theme-air-energy-current-color, var(--report-components-report-section-utility-card-theme-base-current-color, #005496)));
+            --utility-card-previous: var(--report-components-report-section-utility-card-theme-compressed-air-previous-color, var(--report-components-report-section-utility-card-theme-air-energy-previous-color, var(--report-components-report-section-utility-card-theme-base-previous-color, #5f7fa6)));
+            --utility-card-note: var(--report-components-report-section-utility-card-theme-compressed-air-note-color, var(--report-components-report-section-utility-card-theme-air-energy-note-color, var(--report-components-report-section-utility-card-theme-base-note-color, #6f8293)));
+            --utility-card-icon-bg: var(--report-components-report-section-utility-card-theme-compressed-air-icon-background, var(--report-components-report-section-utility-card-theme-air-energy-icon-background, var(--report-components-report-section-utility-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%)))));
+            --utility-card-icon-color: var(--report-components-report-section-utility-card-theme-compressed-air-icon-color, var(--report-components-report-section-utility-card-theme-air-energy-icon-color, var(--report-components-report-section-utility-card-theme-base-icon-color, #ffffff)));
+            --utility-card-primary: var(--report-components-report-section-utility-card-theme-compressed-air-primary-color, var(--report-components-report-section-utility-card-theme-air-energy-primary-color, var(--report-components-report-section-utility-card-theme-base-primary-color, #005496)));
+            --utility-card-primary-unit: var(--report-components-report-section-utility-card-theme-compressed-air-primary-unit-color, var(--report-components-report-section-utility-card-theme-air-energy-primary-unit-color, var(--report-components-report-section-utility-card-theme-base-primary-unit-color, #0f2d45)));
+            --utility-card-compare-bg: var(--report-components-report-section-utility-card-theme-compressed-air-compare-background, var(--report-components-report-section-utility-card-theme-air-energy-compare-background, var(--report-components-report-section-utility-card-theme-base-compare-background, rgba(255, 255, 255, 0.94))));
+            --utility-card-compare-border: var(--report-components-report-section-utility-card-theme-compressed-air-compare-border-color, var(--report-components-report-section-utility-card-theme-air-energy-compare-border-color, var(--report-components-report-section-utility-card-theme-base-compare-border-color, rgba(191, 212, 229, 0.95))));
+            --utility-card-compare-divider: var(--report-components-report-section-utility-card-theme-compressed-air-compare-divider-color, var(--report-components-report-section-utility-card-theme-air-energy-compare-divider-color, var(--report-components-report-section-utility-card-theme-base-compare-divider-color, rgba(214, 226, 236, 0.95))));
+        }
+
+        .utility-overview-card.utility-card-theme-chilled-water,
+        .utility-overview-card.utility-card-theme-chilled-water-energy {
+            --utility-card-accent: var(--report-components-report-section-utility-card-theme-chilled-water-accent, var(--report-components-report-section-utility-card-theme-chilled-water-energy-accent, var(--report-components-report-section-utility-card-theme-base-accent, #005496)));
+            --utility-card-border: var(--report-components-report-section-utility-card-theme-chilled-water-border-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-border-color, var(--report-components-report-section-utility-card-theme-base-border-color, #bfd4e5)));
+            --utility-card-surface: var(--report-components-report-section-utility-card-theme-chilled-water-surface, var(--report-components-report-section-utility-card-theme-chilled-water-energy-surface, var(--report-components-report-section-utility-card-theme-base-surface, linear-gradient(135deg, rgba(0, 84, 150, 0.10) 0%, rgba(248, 251, 254, 0.94) 55%, rgba(255, 255, 255, 0.99) 100%)))));
+            --utility-card-shadow: var(--report-components-report-section-utility-card-theme-chilled-water-shadow, var(--report-components-report-section-utility-card-theme-chilled-water-energy-shadow, var(--report-components-report-section-utility-card-theme-base-shadow, 0 12px 22px rgba(0, 84, 150, 0.08)))));
+            --utility-card-title: var(--report-components-report-section-utility-card-theme-chilled-water-title-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-title-color, var(--report-components-report-section-utility-card-theme-base-title-color, #003b6a)));
+            --utility-card-copy: var(--report-components-report-section-utility-card-theme-chilled-water-copy-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-copy-color, var(--report-components-report-section-utility-card-theme-base-copy-color, #6f8293)));
+            --utility-card-current: var(--report-components-report-section-utility-card-theme-chilled-water-current-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-current-color, var(--report-components-report-section-utility-card-theme-base-current-color, #005496)));
+            --utility-card-previous: var(--report-components-report-section-utility-card-theme-chilled-water-previous-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-previous-color, var(--report-components-report-section-utility-card-theme-base-previous-color, #5f7fa6)));
+            --utility-card-note: var(--report-components-report-section-utility-card-theme-chilled-water-note-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-note-color, var(--report-components-report-section-utility-card-theme-base-note-color, #6f8293)));
+            --utility-card-icon-bg: var(--report-components-report-section-utility-card-theme-chilled-water-icon-background, var(--report-components-report-section-utility-card-theme-chilled-water-energy-icon-background, var(--report-components-report-section-utility-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%)))));
+            --utility-card-icon-color: var(--report-components-report-section-utility-card-theme-chilled-water-icon-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-icon-color, var(--report-components-report-section-utility-card-theme-base-icon-color, #ffffff)));
+            --utility-card-primary: var(--report-components-report-section-utility-card-theme-chilled-water-primary-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-primary-color, var(--report-components-report-section-utility-card-theme-base-primary-color, #005496)));
+            --utility-card-primary-unit: var(--report-components-report-section-utility-card-theme-chilled-water-primary-unit-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-primary-unit-color, var(--report-components-report-section-utility-card-theme-base-primary-unit-color, #0f2d45)));
+            --utility-card-compare-bg: var(--report-components-report-section-utility-card-theme-chilled-water-compare-background, var(--report-components-report-section-utility-card-theme-chilled-water-energy-compare-background, var(--report-components-report-section-utility-card-theme-base-compare-background, rgba(255, 255, 255, 0.94))));
+            --utility-card-compare-border: var(--report-components-report-section-utility-card-theme-chilled-water-compare-border-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-compare-border-color, var(--report-components-report-section-utility-card-theme-base-compare-border-color, rgba(191, 212, 229, 0.95))));
+            --utility-card-compare-divider: var(--report-components-report-section-utility-card-theme-chilled-water-compare-divider-color, var(--report-components-report-section-utility-card-theme-chilled-water-energy-compare-divider-color, var(--report-components-report-section-utility-card-theme-base-compare-divider-color, rgba(214, 226, 236, 0.95))));
+        }
+
+        .utility-overview-card.utility-card-theme-steam,
+        .utility-overview-card.utility-card-theme-boiler-energy {
+            --utility-card-accent: var(--report-components-report-section-utility-card-theme-steam-accent, var(--report-components-report-section-utility-card-theme-boiler-energy-accent, var(--report-components-report-section-utility-card-theme-base-accent, #005496)));
+            --utility-card-border: var(--report-components-report-section-utility-card-theme-steam-border-color, var(--report-components-report-section-utility-card-theme-boiler-energy-border-color, var(--report-components-report-section-utility-card-theme-base-border-color, #bfd4e5)));
+            --utility-card-surface: var(--report-components-report-section-utility-card-theme-steam-surface, var(--report-components-report-section-utility-card-theme-boiler-energy-surface, var(--report-components-report-section-utility-card-theme-base-surface, linear-gradient(135deg, rgba(0, 84, 150, 0.10) 0%, rgba(248, 251, 254, 0.94) 55%, rgba(255, 255, 255, 0.99) 100%)))));
+            --utility-card-shadow: var(--report-components-report-section-utility-card-theme-steam-shadow, var(--report-components-report-section-utility-card-theme-boiler-energy-shadow, var(--report-components-report-section-utility-card-theme-base-shadow, 0 12px 22px rgba(0, 84, 150, 0.08)))));
+            --utility-card-title: var(--report-components-report-section-utility-card-theme-steam-title-color, var(--report-components-report-section-utility-card-theme-boiler-energy-title-color, var(--report-components-report-section-utility-card-theme-base-title-color, #003b6a)));
+            --utility-card-copy: var(--report-components-report-section-utility-card-theme-steam-copy-color, var(--report-components-report-section-utility-card-theme-boiler-energy-copy-color, var(--report-components-report-section-utility-card-theme-base-copy-color, #6f8293)));
+            --utility-card-current: var(--report-components-report-section-utility-card-theme-steam-current-color, var(--report-components-report-section-utility-card-theme-boiler-energy-current-color, var(--report-components-report-section-utility-card-theme-base-current-color, #005496)));
+            --utility-card-previous: var(--report-components-report-section-utility-card-theme-steam-previous-color, var(--report-components-report-section-utility-card-theme-boiler-energy-previous-color, var(--report-components-report-section-utility-card-theme-base-previous-color, #5f7fa6)));
+            --utility-card-note: var(--report-components-report-section-utility-card-theme-steam-note-color, var(--report-components-report-section-utility-card-theme-boiler-energy-note-color, var(--report-components-report-section-utility-card-theme-base-note-color, #6f8293)));
+            --utility-card-icon-bg: var(--report-components-report-section-utility-card-theme-steam-icon-background, var(--report-components-report-section-utility-card-theme-boiler-energy-icon-background, var(--report-components-report-section-utility-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%)))));
+            --utility-card-icon-color: var(--report-components-report-section-utility-card-theme-steam-icon-color, var(--report-components-report-section-utility-card-theme-boiler-energy-icon-color, var(--report-components-report-section-utility-card-theme-base-icon-color, #ffffff)));
+            --utility-card-primary: var(--report-components-report-section-utility-card-theme-steam-primary-color, var(--report-components-report-section-utility-card-theme-boiler-energy-primary-color, var(--report-components-report-section-utility-card-theme-base-primary-color, #005496)));
+            --utility-card-primary-unit: var(--report-components-report-section-utility-card-theme-steam-primary-unit-color, var(--report-components-report-section-utility-card-theme-boiler-energy-primary-unit-color, var(--report-components-report-section-utility-card-theme-base-primary-unit-color, #0f2d45)));
+            --utility-card-compare-bg: var(--report-components-report-section-utility-card-theme-steam-compare-background, var(--report-components-report-section-utility-card-theme-boiler-energy-compare-background, var(--report-components-report-section-utility-card-theme-base-compare-background, rgba(255, 255, 255, 0.94))));
+            --utility-card-compare-border: var(--report-components-report-section-utility-card-theme-steam-compare-border-color, var(--report-components-report-section-utility-card-theme-boiler-energy-compare-border-color, var(--report-components-report-section-utility-card-theme-base-compare-border-color, rgba(191, 212, 229, 0.95))));
+            --utility-card-compare-divider: var(--report-components-report-section-utility-card-theme-steam-compare-divider-color, var(--report-components-report-section-utility-card-theme-boiler-energy-compare-divider-color, var(--report-components-report-section-utility-card-theme-base-compare-divider-color, rgba(214, 226, 236, 0.95))));
+        }
+
+        .utility-overview-card.utility-card-theme-total-energy {
+            --utility-card-accent: var(--report-components-report-section-utility-card-theme-total-energy-accent, var(--report-components-report-section-utility-card-theme-base-accent, #005496));
+            --utility-card-border: var(--report-components-report-section-utility-card-theme-total-energy-border-color, var(--report-components-report-section-utility-card-theme-base-border-color, #bfd4e5));
+            --utility-card-surface: var(--report-components-report-section-utility-card-theme-total-energy-surface, var(--report-components-report-section-utility-card-theme-base-surface, linear-gradient(135deg, rgba(0, 84, 150, 0.10) 0%, rgba(248, 251, 254, 0.94) 55%, rgba(255, 255, 255, 0.99) 100%)));
+            --utility-card-shadow: var(--report-components-report-section-utility-card-theme-total-energy-shadow, var(--report-components-report-section-utility-card-theme-base-shadow, 0 12px 22px rgba(0, 84, 150, 0.08)));
+            --utility-card-title: var(--report-components-report-section-utility-card-theme-total-energy-title-color, var(--report-components-report-section-utility-card-theme-base-title-color, #003b6a));
+            --utility-card-copy: var(--report-components-report-section-utility-card-theme-total-energy-copy-color, var(--report-components-report-section-utility-card-theme-base-copy-color, #6f8293));
+            --utility-card-current: var(--report-components-report-section-utility-card-theme-total-energy-current-color, var(--report-components-report-section-utility-card-theme-base-current-color, #005496));
+            --utility-card-previous: var(--report-components-report-section-utility-card-theme-total-energy-previous-color, var(--report-components-report-section-utility-card-theme-base-previous-color, #5f7fa6));
+            --utility-card-note: var(--report-components-report-section-utility-card-theme-total-energy-note-color, var(--report-components-report-section-utility-card-theme-base-note-color, #6f8293));
+            --utility-card-icon-bg: var(--report-components-report-section-utility-card-theme-total-energy-icon-background, var(--report-components-report-section-utility-card-theme-base-icon-background, linear-gradient(180deg, #0d67a8 0%, #005496 100%)));
+            --utility-card-icon-color: var(--report-components-report-section-utility-card-theme-total-energy-icon-color, var(--report-components-report-section-utility-card-theme-base-icon-color, #ffffff));
+            --utility-card-primary: var(--report-components-report-section-utility-card-theme-total-energy-primary-color, var(--report-components-report-section-utility-card-theme-base-primary-color, #005496));
+            --utility-card-primary-unit: var(--report-components-report-section-utility-card-theme-total-energy-primary-unit-color, var(--report-components-report-section-utility-card-theme-base-primary-unit-color, #0f2d45));
+            --utility-card-compare-bg: var(--report-components-report-section-utility-card-theme-total-energy-compare-background, var(--report-components-report-section-utility-card-theme-base-compare-background, rgba(255, 255, 255, 0.94)));
+            --utility-card-compare-border: var(--report-components-report-section-utility-card-theme-total-energy-compare-border-color, var(--report-components-report-section-utility-card-theme-base-compare-border-color, rgba(191, 212, 229, 0.95)));
+            --utility-card-compare-divider: var(--report-components-report-section-utility-card-theme-total-energy-compare-divider-color, var(--report-components-report-section-utility-card-theme-base-compare-divider-color, rgba(214, 226, 236, 0.95)));
         }
 
         .utility-overview-card::before {
@@ -2292,7 +2406,7 @@
             position: absolute;
             inset: 0 auto 0 0;
             width: 4px;
-            background: var(--utility-card-accent, #2563eb);
+            background: var(--utility-card-accent, #005496);
         }
 
         .utility-overview-card-top {
@@ -2319,9 +2433,9 @@
             width: 54px;
             height: 54px;
             border-radius: 999px;
-            color: var(--utility-card-accent, #2563eb);
-            background: rgba(255, 255, 255, 0.72);
-            border: 1px solid rgba(191, 219, 254, 0.8);
+            color: var(--utility-card-icon-color, #ffffff);
+            background: var(--utility-card-icon-bg, linear-gradient(180deg, #0d67a8 0%, #005496 100%));
+            border: 1px solid var(--utility-card-compare-border, rgba(191, 212, 229, 0.95));
             flex: 0 0 auto;
         }
 
@@ -2337,7 +2451,7 @@
             margin: 0;
             font-size: 14px;
             font-weight: 800;
-            color: var(--report-color-text-primary, #22365f);
+            color: var(--utility-card-title, #003b6a);
         }
 
         .utility-overview-card-value-row {
@@ -2354,14 +2468,14 @@
             font-size: var(--report-components-report-section-utility-card-total-utility-layout-primary-value-font-size, 20px);
             font-weight: 800;
             line-height: 1;
-            color: var(--utility-card-value, #2563eb);
+            color: var(--utility-card-primary, #005496);
             text-align: left;
         }
 
         .utility-overview-card-unit {
             font-size: 13px;
             font-weight: 700;
-            color: var(--report-components-chart-meta-text-color, #475569);
+            color: var(--utility-card-primary-unit, #0f2d45);
         }
 
         .utility-overview-card-compare {
@@ -2370,8 +2484,8 @@
             gap: 0;
             margin-top: var(--report-components-report-section-common-card-compare-block-margin-top, 2px);
             border-radius: calc(var(--report-components-report-section-common-card-border-radius, 16px) - 4px);
-            background: rgba(255, 255, 255, 0.82);
-            border: 1px solid var(--report-color-border-row, rgba(203, 213, 225, 0.95));
+            background: var(--utility-card-compare-bg, rgba(255, 255, 255, 0.94));
+            border: 1px solid var(--utility-card-compare-border, rgba(191, 212, 229, 0.95));
         }
 
         .utility-overview-card-compare-item {
@@ -2383,11 +2497,11 @@
         }
 
         .utility-overview-card-compare-item + .utility-overview-card-compare-item {
-            border-left: 1px solid var(--report-color-border-row, rgba(203, 213, 225, 0.92));
+            border-left: 1px solid var(--utility-card-compare-divider, rgba(214, 226, 236, 0.95));
         }
 
         .utility-overview-card-compare-label {
-            font-size: var(--kpi-card-compare-label-font-size, var(--report-components-report-section-common-card-compare-label-font-size, 10px));
+            font-size: var(--report-components-report-section-common-card-compare-label-font-size, 10px);
             font-weight: var(--report-components-report-section-common-card-compare-label-font-weight, 800);
             color: var(--report-components-report-section-common-card-compare-label-color, var(--report-color-text-heading, #334155));
             text-transform: uppercase;
@@ -2402,11 +2516,11 @@
         }
 
         .utility-overview-card-compare-value.current {
-            color: var(--utility-card-value, #2563eb);
+            color: var(--utility-card-current, #005496);
         }
 
         .utility-overview-card-compare-value.previous {
-            color: var(--report-color-brand-accent, #7c3aed);
+            color: var(--utility-card-previous, #5f7fa6);
         }
 
         .utility-overview-card-compare-value.trend-up {
@@ -2424,7 +2538,7 @@
         .utility-overview-card-compare-note {
             font-size: 10px;
             font-weight: 700;
-            color: var(--report-components-chart-meta-subtle-color, #64748b);
+            color: var(--utility-card-note, #6f8293);
         }
 
         .utility-overview-card-delta-row {
@@ -2828,24 +2942,24 @@
         }
 
         .utility-current-column .utility-value-bar-cell {
-            border: 1px solid rgba(37, 99, 235, 0.18);
-            background: linear-gradient(90deg, rgba(37, 99, 235, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid var(--report-components-report-section-utility-table-theme-current-column-border-color, rgba(0, 84, 150, 0.18));
+            background: var(--report-components-report-section-utility-table-theme-current-column-background, linear-gradient(90deg, rgba(0, 84, 150, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%));
         }
 
         .utility-previous-column .utility-value-bar-cell {
-            border: 1px solid rgba(124, 58, 237, 0.18);
-            background: linear-gradient(90deg, rgba(124, 58, 237, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid var(--report-components-report-section-utility-table-theme-previous-column-border-color, rgba(95, 127, 166, 0.20));
+            background: var(--report-components-report-section-utility-table-theme-previous-column-background, linear-gradient(90deg, rgba(95, 127, 166, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%));
         }
 
         .utility-value-bar-label-current,
         .utility-current-text {
-            color: var(--report-color-brand-primary) !important;
+            color: var(--report-components-report-section-utility-table-theme-current-text-color, var(--report-color-brand-primary)) !important;
             font-weight: 700;
         }
 
         .utility-value-bar-label-previous,
         .utility-previous-text {
-            color: var(--report-color-brand-accent) !important;
+            color: var(--report-components-report-section-utility-table-theme-previous-text-color, var(--report-color-brand-accent)) !important;
             font-weight: 700;
         }
 
@@ -2875,39 +2989,51 @@
         }
 
         .utility-total-table .utility-tone-diode {
-            --utility-bar-color: #2563eb;
-            --utility-bar-tint: rgba(37, 99, 235, 0.12);
-            --utility-text-color: #2563eb;
+            --utility-bar-color: var(--report-components-report-section-utility-table-theme-tone-diode-bar-color, #005496);
+            --utility-bar-tint: var(--report-components-report-section-utility-table-theme-tone-diode-bar-tint, rgba(0, 84, 150, 0.12));
+            --utility-text-color: var(--report-components-report-section-utility-table-theme-tone-diode-text-color, #005496);
         }
 
         .utility-total-table .utility-tone-ico {
-            --utility-bar-color: #84cc16;
-            --utility-bar-tint: rgba(132, 204, 22, 0.16);
-            --utility-text-color: #65a30d;
+            --utility-bar-color: var(--report-components-report-section-utility-table-theme-tone-ico-bar-color, #6f9a6d);
+            --utility-bar-tint: var(--report-components-report-section-utility-table-theme-tone-ico-bar-tint, rgba(111, 154, 109, 0.16));
+            --utility-text-color: var(--report-components-report-section-utility-table-theme-tone-ico-text-color, #4f7750);
         }
 
         .utility-total-table .utility-tone-sakari {
-            --utility-bar-color: #f59e0b;
-            --utility-bar-tint: rgba(245, 158, 11, 0.16);
-            --utility-text-color: #d97706;
+            --utility-bar-color: var(--report-components-report-section-utility-table-theme-tone-sakari-bar-color, #d09a45);
+            --utility-bar-tint: var(--report-components-report-section-utility-table-theme-tone-sakari-bar-tint, rgba(208, 154, 69, 0.16));
+            --utility-text-color: var(--report-components-report-section-utility-table-theme-tone-sakari-text-color, #9c6a22);
         }
 
         .utility-total-table .utility-tone-water {
-            --utility-bar-color: #0ea5e9;
-            --utility-bar-tint: rgba(14, 165, 233, 0.14);
-            --utility-text-color: #0284c7;
+            --utility-bar-color: var(--report-components-report-section-utility-table-theme-tone-water-bar-color, #005496);
+            --utility-bar-tint: var(--report-components-report-section-utility-table-theme-tone-water-bar-tint, rgba(0, 84, 150, 0.12));
+            --utility-text-color: var(--report-components-report-section-utility-table-theme-tone-water-text-color, #005496);
+        }
+
+        .utility-total-table .utility-tone-compressed-air {
+            --utility-bar-color: var(--report-components-report-section-utility-table-theme-tone-compressed-air-bar-color, #6f9a6d);
+            --utility-bar-tint: var(--report-components-report-section-utility-table-theme-tone-compressed-air-bar-tint, rgba(111, 154, 109, 0.14));
+            --utility-text-color: var(--report-components-report-section-utility-table-theme-tone-compressed-air-text-color, #4f7750);
+        }
+
+        .utility-total-table .utility-tone-chilled-water {
+            --utility-bar-color: var(--report-components-report-section-utility-table-theme-tone-chilled-water-bar-color, #5ca7a4);
+            --utility-bar-tint: var(--report-components-report-section-utility-table-theme-tone-chilled-water-bar-tint, rgba(92, 167, 164, 0.14));
+            --utility-text-color: var(--report-components-report-section-utility-table-theme-tone-chilled-water-text-color, #2f7d7a);
         }
 
         .utility-total-table .utility-tone-steam {
-            --utility-bar-color: #f97316;
-            --utility-bar-tint: rgba(249, 115, 22, 0.14);
-            --utility-text-color: #ea580c;
+            --utility-bar-color: var(--report-components-report-section-utility-table-theme-tone-steam-bar-color, #7a6da8);
+            --utility-bar-tint: var(--report-components-report-section-utility-table-theme-tone-steam-bar-tint, rgba(122, 109, 168, 0.14));
+            --utility-text-color: var(--report-components-report-section-utility-table-theme-tone-steam-text-color, #5d4f8d);
         }
 
         .utility-total-table .utility-tone-neutral {
-            --utility-bar-color: #94a3b8;
-            --utility-bar-tint: rgba(148, 163, 184, 0.12);
-            --utility-text-color: #64748b;
+            --utility-bar-color: var(--report-components-report-section-utility-table-theme-tone-neutral-bar-color, #94a3b8);
+            --utility-bar-tint: var(--report-components-report-section-utility-table-theme-tone-neutral-bar-tint, rgba(148, 163, 184, 0.12));
+            --utility-text-color: var(--report-components-report-section-utility-table-theme-tone-neutral-text-color, #64748b);
         }
 
         .utility-detail-table {

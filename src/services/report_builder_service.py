@@ -207,6 +207,105 @@ class ReportBuilderService:
             ),
         }
 
+    def _get_utility_chart_series_palette(self) -> Dict[str, str]:
+        """Return current/previous series colors for Utility comparison charts."""
+        series_cfg = self._get_section_chart_node("utility", "theme", "series")
+        semantic_series_cfg = self._get_style_color_node("chart", "series")
+        return {
+            "current": str(
+                series_cfg.get("current")
+                or semantic_series_cfg.get("current")
+                or self._get_style_color_value("#005496", "brand", "primary")
+            ),
+            "previous": str(
+                series_cfg.get("previous")
+                or semantic_series_cfg.get("previous")
+                or self._get_style_color_value("#5f7fa6", "brand", "accent")
+            ),
+            "current_tint": str(
+                series_cfg.get("currentTint")
+                or semantic_series_cfg.get("currentTint")
+                or "rgba(0, 84, 150, 0.12)"
+            ),
+            "previous_tint": str(
+                series_cfg.get("previousTint")
+                or semantic_series_cfg.get("previousTint")
+                or "rgba(95, 127, 166, 0.08)"
+            ),
+            "neutral": str(
+                series_cfg.get("neutral")
+                or self._get_style_color_value("#6c7f91", "trend", "neutral")
+            ),
+        }
+
+    def _get_utility_chart_category_palette(self) -> Dict[str, Dict[str, str]]:
+        """Return named Utility category colors for cards and charts."""
+        category_cfg = self._get_section_chart_node("utility", "theme", "category")
+        defaults = {
+            "water": {
+                "color": str(self._get_style_color_value("#005496", "brand", "primary")),
+                "tint": "rgba(0, 84, 150, 0.12)",
+            },
+            "compressed_air": {
+                "color": "#6f9a6d",
+                "tint": "rgba(111, 154, 109, 0.14)",
+            },
+            "chilled_water": {
+                "color": "#5ca7a4",
+                "tint": "rgba(92, 167, 164, 0.14)",
+            },
+            "steam": {
+                "color": "#7a6da8",
+                "tint": "rgba(122, 109, 168, 0.14)",
+            },
+            "total_energy": {
+                "color": str(self._get_style_color_value("#005496", "brand", "primary")),
+                "tint": "rgba(0, 84, 150, 0.12)",
+            },
+        }
+        key_map = {
+            "water": "water",
+            "compressed_air": "compressedAir",
+            "chilled_water": "chilledWater",
+            "steam": "steam",
+            "total_energy": "totalEnergy",
+        }
+
+        result: Dict[str, Dict[str, str]] = {}
+        for result_key, config_key in key_map.items():
+            node = category_cfg.get(config_key, {}) if isinstance(category_cfg, dict) else {}
+            base = defaults[result_key]
+            color = str(node.get("color") or base["color"])
+            tint = str(node.get("tint") or base["tint"] or self._hex_to_rgba(color, 0.12))
+            result[result_key] = {
+                "color": color,
+                "tint": tint,
+            }
+
+        return result
+
+    def _get_utility_chart_delta_palette(self) -> Dict[str, str]:
+        """Return Utility deviation colors for positive, negative, and neutral deltas."""
+        delta_cfg = self._get_section_chart_node("utility", "theme", "delta")
+        return {
+            "positive": str(
+                delta_cfg.get("positive")
+                or self._get_style_color_value("#c04b39", "trend", "down")
+            ),
+            "negative": str(
+                delta_cfg.get("negative")
+                or self._get_style_color_value("#0b7a43", "trend", "up")
+            ),
+            "neutral": str(
+                delta_cfg.get("neutral")
+                or self._get_style_color_value("#6c7f91", "trend", "neutral")
+            ),
+            "total": str(
+                delta_cfg.get("total")
+                or self._get_style_color_value("#005496", "brand", "primary")
+            ),
+        }
+
     def _resolve_chart_grid(
         self,
         defaults: Dict[str, Any],
@@ -2396,9 +2495,13 @@ class ReportBuilderService:
         chart_labels = [item.get("chart_label") or item.get("display_name") or "-" for item in items]
         current_values = [float(item.get("current") or 0.0) for item in items]
         previous_values = [float(item.get("previous") or 0.0) for item in items]
+        series_palette = self._get_utility_chart_series_palette()
+        axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b8cada", "border", "strong"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
 
         return {
-            "color": ["#2563eb", "#7c3aed"],
+            "color": [series_palette["current"], series_palette["previous"]],
             "tooltip": {
                 "trigger": "axis",
                 "axisPointer": {"type": "shadow"},
@@ -2428,17 +2531,17 @@ class ReportBuilderService:
                 "type": "category",
                 "data": chart_labels,
                 "axisLabel": {
-                    "color": "#64748b",
+                    "color": axis_label_color,
                     "fontSize": 9,
                     "lineHeight": 10,
                     "interval": 0,
                 },
-                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                "axisLine": {"lineStyle": {"color": axis_line_color}},
             },
             "yAxis": {
                 "type": "value",
-                "axisLabel": {"color": "#64748b"},
-                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                "axisLabel": {"color": axis_label_color},
+                "splitLine": {"lineStyle": {"color": split_line_color}},
             },
             "series": [
                 {
@@ -2448,7 +2551,7 @@ class ReportBuilderService:
                     "data": [
                         self._build_chart_bar_point(
                             value,
-                            color="#2563eb",
+                            color=series_palette["current"],
                             font_size=8,
                             label_rotate=16,
                             label_distance=4,
@@ -2464,7 +2567,7 @@ class ReportBuilderService:
                     "data": [
                         self._build_chart_bar_point(
                             value,
-                            color="#7c3aed",
+                            color=series_palette["previous"],
                             font_size=8,
                             label_rotate=16,
                             label_distance=4,
@@ -2491,11 +2594,15 @@ class ReportBuilderService:
         if not metadata or not timeseries:
             return {}
 
+        category_palette = self._get_utility_chart_category_palette()
+        axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b8cada", "border", "strong"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
         category_defs = [
-            ("water", "Water", "#2563eb"),
-            ("compressed_air", "Air", "#16a34a"),
-            ("chilled_water", "CHW", "#0ea5b7"),
-            ("steam", "Steam", "#7c3aed"),
+            ("water", "Water", category_palette["water"]["color"]),
+            ("compressed_air", "Air", category_palette["compressed_air"]["color"]),
+            ("chilled_water", "CHW", category_palette["chilled_water"]["color"]),
+            ("steam", "Steam", category_palette["steam"]["color"]),
         ]
 
         labels: list[str] = []
@@ -2557,22 +2664,22 @@ class ReportBuilderService:
                 "boundaryGap": False,
                 "data": labels,
                 "axisLabel": {
-                    "color": "#64748b",
+                    "color": axis_label_color,
                     "interval": 0,
                     "rotate": 28,
                     "fontSize": 9,
                     "margin": 12,
                 },
-                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                "axisLine": {"lineStyle": {"color": axis_line_color}},
                 "axisTick": {"alignWithLabel": True},
             },
             "yAxis": {
                 "type": "value",
                 "axisLabel": {
-                    "color": "#64748b",
+                    "color": axis_label_color,
                     "margin": 14,
                 },
-                "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+                "splitLine": {"lineStyle": {"color": split_line_color}},
             },
             "series": [
                 {
@@ -2584,7 +2691,7 @@ class ReportBuilderService:
                     "showSymbol": True,
                     "lineStyle": {"width": 2.5, "color": color},
                     "itemStyle": {"color": color},
-                    "areaStyle": {"color": self._hex_to_rgba(color, 0.10)},
+                    "areaStyle": {"color": category_palette[key]["tint"]},
                     "label": {
                         "show": True,
                         "position": "top",
@@ -2614,11 +2721,15 @@ class ReportBuilderService:
         items: list[dict[str, Any]],
     ) -> Dict[str, Any]:
         """Build a current-period utility mix doughnut chart."""
+        category_palette = self._get_utility_chart_category_palette()
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        heading_text_color = str(self._get_style_color_value("#0f2d45", "text", "heading"))
+        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         category_defs = [
-            ("water", "Water", "#2563eb"),
-            ("compressed_air", "Air", "#16a34a"),
-            ("chilled_water", "CHW", "#0ea5b7"),
-            ("steam", "Steam", "#7c3aed"),
+            ("water", "Water", category_palette["water"]["color"]),
+            ("compressed_air", "Air", category_palette["compressed_air"]["color"]),
+            ("chilled_water", "CHW", category_palette["chilled_water"]["color"]),
+            ("steam", "Steam", category_palette["steam"]["color"]),
         ]
         grouped_totals = {key: 0.0 for key, _label, _color in category_defs}
 
@@ -2658,7 +2769,7 @@ class ReportBuilderService:
                     "itemHeight": 8,
                     "textStyle": {
                         "fontSize": 9,
-                        "color": "#475569",
+                        "color": muted_text_color,
                     },
                 },
                 "utility",
@@ -2672,7 +2783,7 @@ class ReportBuilderService:
                     "textStyle": {
                         "fontSize": 18,
                         "fontWeight": 800,
-                        "color": "#0f172a",
+                        "color": heading_text_color,
                     },
                 },
                 {
@@ -2682,7 +2793,7 @@ class ReportBuilderService:
                     "textStyle": {
                         "fontSize": 9,
                         "fontWeight": 700,
-                        "color": "#64748b",
+                        "color": muted_text_color,
                     },
                 },
             ],
@@ -2694,9 +2805,9 @@ class ReportBuilderService:
                     "avoidLabelOverlap": True,
                     "label": {
                         "show": True,
-                        "formatter": "{b}\\n{d}%",
+                        "formatter": "{b}\n{d}%",
                         "fontSize": 8,
-                        "color": "#334155",
+                        "color": primary_text_color,
                     },
                     "labelLine": {
                         "length": 8,
@@ -2738,8 +2849,12 @@ class ReportBuilderService:
             for item in deviation_items
         ]
         values = [item["value"] for item in deviation_items]
+        delta_palette = self._get_utility_chart_delta_palette()
+        axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        y_axis_label_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
         colors = [
-            "#e33434" if value > 0 else "#18a05e" if value < 0 else "#94a3b8"
+            delta_palette["positive"] if value > 0 else delta_palette["negative"] if value < 0 else delta_palette["neutral"]
             for value in values
         ]
 
@@ -2750,7 +2865,7 @@ class ReportBuilderService:
                 "distance": 4,
                 "fontSize": 10,
                 "fontWeight": 700,
-                "color": "#334155",
+                "color": str(self._get_style_color_value("#223548", "text", "primary")),
                 "axisPaddingLeft": 2,
                 "axisPaddingRight": 2,
             },
@@ -2783,11 +2898,11 @@ class ReportBuilderService:
                 "min": round(axis_min, 2),
                 "max": round(axis_max, 2),
                 "axisLabel": {
-                    "color": "#64748b",
+                    "color": axis_label_color,
                     "formatter": "{value}%",
                 },
                 "splitLine": {
-                    "lineStyle": {"color": "#e2e8f0"},
+                    "lineStyle": {"color": split_line_color},
                 },
             },
             "yAxis": {
@@ -2796,7 +2911,7 @@ class ReportBuilderService:
                 "axisTick": {"show": False},
                 "axisLine": {"show": False},
                 "axisLabel": {
-                    "color": "#475569",
+                    "color": y_axis_label_color,
                     "fontSize": 10,
                     "lineHeight": 11,
                     "fontWeight": 600,
@@ -2820,12 +2935,12 @@ class ReportBuilderService:
                                     if value >= 0 else label_config.get("negativePosition", "left")
                                 ),
                                 "distance": label_config.get("distance", 4),
-                                "color": label_config.get("color", "#334155"),
+                                "color": label_config.get("color", "#223548"),
                                 "fontSize": label_config.get("fontSize", 10),
                                 "lineHeight": max(int(label_config.get("fontSize", 10)) + 2, 12),
                                 "fontWeight": label_config.get("fontWeight", 700),
                                 "formatter": (
-                                    f"{value:.2f}%"
+                                    f"{value:.2f}%\n"
                                     f"({self._fmt(abs(float(deviation_items[index].get('current', 0.0) or 0.0) - float(deviation_items[index].get('previous', 0.0) or 0.0)))} {str(deviation_items[index].get('unit') or '').strip()})"
                                 ).strip(),
                             },
@@ -2851,30 +2966,22 @@ class ReportBuilderService:
             "water": {
                 "title": "WATER (TOTAL)",
                 "icon_key": "water",
-                "accent_color": "#2563eb",
-                "accent_tint": "rgba(37, 99, 235, 0.08)",
-                "value_color": "#2563eb",
+                "theme_key": "water",
             },
             "compressed_air": {
                 "title": "AIR (TOTAL)",
                 "icon_key": "air",
-                "accent_color": "#16a34a",
-                "accent_tint": "rgba(22, 163, 74, 0.08)",
-                "value_color": "#16a34a",
+                "theme_key": "compressed-air",
             },
             "chilled_water": {
                 "title": "CHILLED WATER",
                 "icon_key": "chilled-water",
-                "accent_color": "#0ea5b7",
-                "accent_tint": "rgba(14, 165, 183, 0.10)",
-                "value_color": "#0f766e",
+                "theme_key": "chilled-water",
             },
             "steam": {
                 "title": "STEAM (TOTAL)",
                 "icon_key": "steam",
-                "accent_color": "#7c3aed",
-                "accent_tint": "rgba(124, 58, 237, 0.08)",
-                "value_color": "#7c3aed",
+                "theme_key": "steam",
             },
         }
         grouped_values = {
@@ -2920,9 +3027,7 @@ class ReportBuilderService:
                 "key": category_key,
                 "title": config["title"],
                 "icon_key": config["icon_key"],
-                "accent_color": config["accent_color"],
-                "accent_tint": config["accent_tint"],
-                "value_color": config["value_color"],
+                "theme_key": config["theme_key"],
                 "status_label": status_label,
                 "badge_class": badge_class,
                 "today_display": self._fmt(current_value),
@@ -3132,9 +3237,7 @@ class ReportBuilderService:
                 "key": "total",
                 "title": "TOTAL UTILITY ENERGY",
                 "icon_key": "energy",
-                "accent_color": "#2563eb",
-                "accent_tint": "rgba(37, 99, 235, 0.08)",
-                "value_color": "#2563eb",
+                "theme_key": "total-energy",
                 "current": total_current,
                 "previous": total_previous,
             },
@@ -3142,9 +3245,7 @@ class ReportBuilderService:
                 "key": "compressed_air",
                 "title": "AIR ENERGY",
                 "icon_key": "air",
-                "accent_color": "#16a34a",
-                "accent_tint": "rgba(22, 163, 74, 0.08)",
-                "value_color": "#16a34a",
+                "theme_key": "air-energy",
                 "current": category_totals.get("compressed_air", {}).get("current", 0.0) or 0.0,
                 "previous": category_totals.get("compressed_air", {}).get("previous", 0.0) or 0.0,
             },
@@ -3152,9 +3253,7 @@ class ReportBuilderService:
                 "key": "chilled_water",
                 "title": "CHILLED WATER ENERGY",
                 "icon_key": "chilled-water",
-                "accent_color": "#0ea5b7",
-                "accent_tint": "rgba(14, 165, 183, 0.08)",
-                "value_color": "#0f766e",
+                "theme_key": "chilled-water-energy",
                 "current": category_totals.get("chilled_water", {}).get("current", 0.0) or 0.0,
                 "previous": category_totals.get("chilled_water", {}).get("previous", 0.0) or 0.0,
             },
@@ -3162,9 +3261,7 @@ class ReportBuilderService:
                 "key": "steam",
                 "title": "BOILER ENERGY",
                 "icon_key": "steam",
-                "accent_color": "#7c3aed",
-                "accent_tint": "rgba(124, 58, 237, 0.08)",
-                "value_color": "#7c3aed",
+                "theme_key": "boiler-energy",
                 "current": category_totals.get("steam", {}).get("current", 0.0) or 0.0,
                 "previous": category_totals.get("steam", {}).get("previous", 0.0) or 0.0,
             },
@@ -3185,9 +3282,7 @@ class ReportBuilderService:
                 "key": card["key"],
                 "title": card["title"],
                 "icon_key": card["icon_key"],
-                "accent_color": card["accent_color"],
-                "accent_tint": card["accent_tint"],
-                "value_color": card["value_color"],
+                "theme_key": card["theme_key"],
                 "status_label": status["label"],
                 "badge_class": status["badge_class"],
                 "today_display": self._fmt(current_value),
@@ -3219,10 +3314,11 @@ class ReportBuilderService:
         if not metadata or not dates:
             return {}
 
+        category_palette = self._get_utility_chart_category_palette()
         category_defs = [
-            ("compressed_air", "Air Energy", "#16a34a"),
-            ("chilled_water", "Chilled Water Energy", "#0ea5b7"),
-            ("steam", "Boiler Energy", "#7c3aed"),
+            ("compressed_air", "Air Energy", category_palette["compressed_air"]["color"]),
+            ("chilled_water", "Chilled Water Energy", category_palette["chilled_water"]["color"]),
+            ("steam", "Boiler Energy", category_palette["steam"]["color"]),
         ]
         category_series: dict[str, list[float]] = {key: [] for key, _label, _color in category_defs}
         labels = [self._format_periodic_axis_date_label(value) for value in dates]
@@ -3373,10 +3469,16 @@ class ReportBuilderService:
         """Build periodic utility-energy trend line chart."""
         rotate_labels = 28
         bottom_space = 52
+        category_palette = self._get_utility_chart_category_palette()
+        axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b8cada", "border", "strong"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
+        label_surface = "rgba(255,255,255,0.96)"
+        legend_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
         series_defs = [
             {
                 "name": "Air Energy",
-                "color": "#16a34a",
+                "color": category_palette["compressed_air"]["color"],
                 "values": air_values,
                 "label_position": "top",
                 "line_width": 2.3,
@@ -3385,7 +3487,7 @@ class ReportBuilderService:
             },
             {
                 "name": "Chilled Water Energy",
-                "color": "#0ea5b7",
+                "color": category_palette["chilled_water"]["color"],
                 "values": chilled_values,
                 "label_position": "bottom",
                 "line_width": 2.3,
@@ -3394,7 +3496,7 @@ class ReportBuilderService:
             },
             {
                 "name": "Boiler Energy",
-                "color": "#7c3aed",
+                "color": category_palette["steam"]["color"],
                 "values": steam_values,
                 "label_position": "bottom",
                 "line_width": 2.3,
@@ -3403,7 +3505,7 @@ class ReportBuilderService:
             },
             {
                 "name": "Total Utility Energy",
-                "color": "#2563eb",
+                "color": category_palette["total_energy"]["color"],
                 "values": total_values,
                 "label_position": "top",
                 "line_width": 3.0,
@@ -3423,7 +3525,7 @@ class ReportBuilderService:
                     "left": 8,
                     "itemWidth": 12,
                     "itemHeight": 8,
-                    "textStyle": {"fontSize": 10, "fontWeight": 600, "color": "#334155"},
+                    "textStyle": {"fontSize": 10, "fontWeight": 600, "color": legend_text_color},
                 },
                 "utility",
                 "energyTrend",
@@ -3444,19 +3546,19 @@ class ReportBuilderService:
                 "boundaryGap": False,
                 "data": labels,
                 "axisLabel": {
-                    "color": "#64748b",
+                    "color": axis_label_color,
                     "interval": 0,
                     "rotate": rotate_labels,
                     "fontSize": 9,
                     "margin": 12,
                 },
-                "axisLine": {"lineStyle": {"color": "#cbd5e1"}},
+                "axisLine": {"lineStyle": {"color": axis_line_color}},
                 "axisTick": {"alignWithLabel": True},
             },
             "yAxis": {
                 "type": "value",
-                "axisLabel": {"color": "#64748b", "fontSize": 9},
-                "splitLine": {"lineStyle": {"color": "#e2e8f0", "type": "dashed"}},
+                "axisLabel": {"color": axis_label_color, "fontSize": 9},
+                "splitLine": {"lineStyle": {"color": split_line_color, "type": "dashed"}},
             },
             "series": [
                 {
@@ -3477,7 +3579,7 @@ class ReportBuilderService:
                         "fontSize": 8,
                         "fontWeight": 700,
                         "color": item["color"],
-                        "backgroundColor": "rgba(255,255,255,0.96)",
+                        "backgroundColor": label_surface,
                         "padding": [2, 4],
                         "borderRadius": 4,
                     },
@@ -3513,7 +3615,7 @@ class ReportBuilderService:
                     "avoidLabelOverlap": True,
                     "minShowLabelAngle": 4,
                     "itemStyle": {
-                        "borderColor": "#ffffff",
+                        "borderColor": str(self._get_style_color_value("#ffffff", "text", "inverse")),
                         "borderWidth": 3,
                         "borderRadius": 10,
                     },
@@ -3521,7 +3623,7 @@ class ReportBuilderService:
                         "show": True,
                         "position": "inside",
                         "formatter": "{d}%",
-                        "color": "#ffffff",
+                        "color": str(self._get_style_color_value("#ffffff", "text", "inverse")),
                         "fontWeight": 700,
                         "fontSize": 10,
                     },
@@ -5443,6 +5545,10 @@ class ReportBuilderService:
             return {"tone_class": "utility-tone-sakari"}
         if "steam" in text or category == "steam":
             return {"tone_class": "utility-tone-steam"}
+        if category == "compressed_air" or "air" in text:
+            return {"tone_class": "utility-tone-compressed-air"}
+        if category == "chilled_water" or "chilled" in text:
+            return {"tone_class": "utility-tone-chilled-water"}
         if "water" in text or category == "water":
             return {"tone_class": "utility-tone-water"}
 

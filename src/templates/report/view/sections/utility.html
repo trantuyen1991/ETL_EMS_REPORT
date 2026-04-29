@@ -63,7 +63,7 @@
 
                 <div class="utility-overview-card-grid">
                     {% for card in sections.utility.daily_dashboard.overview_cards %}
-                    <article class="utility-overview-card" style="--utility-card-accent: {{ card.accent_color }}; --utility-card-tint: {{ card.accent_tint }}; --utility-card-value: {{ card.value_color }};">
+                    <article class="utility-overview-card utility-card-theme-{{ card.theme_key }}">
                         <div class="utility-overview-card-top">
                             <div class="utility-overview-card-summary">
                                 <span class="utility-overview-card-icon">
@@ -159,7 +159,7 @@
 
                 <div class="utility-overview-card-grid utility-energy-card-grid">
                     {% for card in sections.utility.energy.overview_cards %}
-                    <article class="utility-overview-card utility-energy-card" style="--utility-card-accent: {{ card.accent_color }}; --utility-card-tint: {{ card.accent_tint }}; --utility-card-value: {{ card.value_color }};">
+                    <article class="utility-overview-card utility-energy-card utility-card-theme-{{ card.theme_key }}">
                         <div class="utility-overview-card-top">
                             <div class="utility-overview-card-summary">
                                 <span class="utility-overview-card-icon">
@@ -315,7 +315,7 @@
 
                 <div class="utility-overview-card-grid">
                     {% for card in sections.utility.daily_dashboard.overview_cards %}
-                    <article class="utility-overview-card" style="--utility-card-accent: {{ card.accent_color }}; --utility-card-tint: {{ card.accent_tint }}; --utility-card-value: {{ card.value_color }};">
+                    <article class="utility-overview-card utility-card-theme-{{ card.theme_key }}">
                         <div class="utility-overview-card-top">
                             <div class="utility-overview-card-summary">
                                 <span class="utility-overview-card-icon">
@@ -425,7 +425,7 @@
 
                 <div class="utility-overview-card-grid utility-energy-card-grid">
                     {% for card in sections.utility.energy.overview_cards %}
-                    <article class="utility-overview-card utility-energy-card" style="--utility-card-accent: {{ card.accent_color }}; --utility-card-tint: {{ card.accent_tint }}; --utility-card-value: {{ card.value_color }};">
+                    <article class="utility-overview-card utility-energy-card utility-card-theme-{{ card.theme_key }}">
                         <div class="utility-overview-card-top">
                             <div class="utility-overview-card-summary">
                                 <span class="utility-overview-card-icon">
