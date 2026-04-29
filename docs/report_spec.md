@@ -93,6 +93,7 @@ Current schema direction in implementation:
 - compatibility aliases are allowed during migration so templates/CSS can keep rendering while the tree becomes the primary source
 - once a template/CSS area has been repointed to direct `components.report.*` variables, the matching bridge aliases should be removed instead of kept indefinitely
 - the active config now treats `components.report.*` as the only canonical report-owned schema; duplicated top-level legacy branches such as `components.summaryCard`, `components.table`, `components.reportContainer`, `components.reportTitle`, `components.reportSubtitle`, `components.reportMetadata`, `components.reportHeader`, and `components.footer` are no longer part of live config loading
+- header/title/subtitle/metadata banner styling is now consumed directly from `components.report.titleHeader.*` CSS variables instead of passing through a separate alias naming layer
 
 ---
 

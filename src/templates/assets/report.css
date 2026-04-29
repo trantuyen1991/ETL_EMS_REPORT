@@ -319,32 +319,32 @@
         .report-header-background {
             position: absolute;
             inset: 0;
-            width: var(--report-components-report-header-background-width, 100%);
-            height: var(--report-components-report-header-background-height, 100%);
-            object-fit: var(--report-components-report-header-background-object-fit, cover);
-            object-position: var(--report-components-report-header-background-object-position, center center);
+            width: var(--report-components-report-title-header-banner-background-width, 100%);
+            height: var(--report-components-report-title-header-banner-background-height, 100%);
+            object-fit: var(--report-components-report-title-header-banner-background-object-fit, cover);
+            object-position: var(--report-components-report-title-header-banner-background-object-position, center center);
         }
 
         .report-header-overlay {
             position: relative;
             z-index: 1;
-            min-height: var(--report-components-report-header-overlay-min-height, 132px);
+            min-height: var(--report-components-report-title-header-banner-overlay-min-height, 132px);
             display: grid;
-            grid-template-columns: var(--report-components-report-header-overlay-grid-template-columns, 420px minmax(0, 1fr));
+            grid-template-columns: var(--report-components-report-title-header-banner-overlay-grid-template-columns, 420px minmax(0, 1fr));
             align-items: center;
-            padding: var(--report-components-report-header-overlay-padding, 0 300px 0 0);
+            padding: var(--report-components-report-title-header-banner-overlay-padding, 0 300px 0 0);
         }
 
         .report-banner-logo-slot {
             display: flex;
-            align-items: var(--report-components-report-header-logo-slot-align-items, center);
-            justify-content: var(--report-components-report-header-logo-slot-justify-content, flex-start);
-            padding-left: var(--report-components-report-header-logo-slot-padding-left, 34px);
+            align-items: var(--report-components-report-title-header-banner-logo-slot-align-items, center);
+            justify-content: var(--report-components-report-title-header-banner-logo-slot-justify-content, flex-start);
+            padding-left: var(--report-components-report-title-header-banner-logo-slot-padding-left, 34px);
         }
 
         .report-banner-logo-crop {
-            width: var(--report-components-report-header-logo-crop-width, 202px);
-            height: var(--report-components-report-header-logo-crop-height, 36px);
+            width: var(--report-components-report-title-header-banner-logo-crop-width, 202px);
+            height: var(--report-components-report-title-header-banner-logo-crop-height, 36px);
             overflow: hidden;
             position: relative;
         }
@@ -370,19 +370,19 @@
 
         .report-main-title {
             margin: 0;
-            font-size: var(--report-components-report-title-font-size, var(--report-font-size-title));
-            font-weight: var(--report-components-report-title-font-weight, var(--report-font-weight-bold));
+            font-size: var(--report-components-report-title-header-title-font-size, var(--report-font-size-title));
+            font-weight: var(--report-components-report-title-header-title-font-weight, var(--report-font-weight-bold));
             line-height: 0.98;
-            letter-spacing: var(--report-components-report-title-letter-spacing, -0.035em);
-            color: var(--report-components-report-title-color, var(--report-color-text-heading));
+            letter-spacing: var(--report-components-report-title-header-title-letter-spacing, -0.035em);
+            color: var(--report-components-report-title-header-title-color, var(--report-color-text-heading));
         }
 
         .report-hero-subtitle {
             margin: 0;
-            font-size: var(--report-components-report-subtitle-font-size, var(--report-font-size-section-subtitle));
+            font-size: var(--report-components-report-title-header-subtitle-font-size, var(--report-font-size-section-subtitle));
             line-height: 1.22;
-            color: var(--report-components-report-subtitle-color, var(--report-color-text-subtle));
-            font-weight: var(--report-components-report-subtitle-font-weight, var(--report-font-weight-medium));
+            color: var(--report-components-report-title-header-subtitle-color, var(--report-color-text-subtle));
+            font-weight: var(--report-components-report-title-header-subtitle-font-weight, var(--report-font-weight-medium));
         }
 
         .report-hero-stamp-icon,
@@ -404,9 +404,9 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: var(--report-components-report-metadata-font-size, var(--report-font-size-small));
-            color: var(--report-components-report-metadata-color, var(--report-color-text-muted));
-            font-weight: var(--report-components-report-metadata-font-weight, var(--report-font-weight-medium));
+            font-size: var(--report-components-report-title-header-metadata-font-size, var(--report-font-size-small));
+            color: var(--report-components-report-title-header-metadata-color, var(--report-color-text-muted));
+            font-weight: var(--report-components-report-title-header-metadata-font-weight, var(--report-font-weight-medium));
             white-space: nowrap;
         }
 
