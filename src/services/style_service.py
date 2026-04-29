@@ -898,8 +898,6 @@ class ReportStyleService:
             return deepcopy(value) if isinstance(value, dict) else {}
 
         existing_report = components.get("report") if isinstance(components.get("report"), dict) else {}
-        legacy_sections = components.get("sections") if isinstance(components.get("sections"), dict) else {}
-        legacy_chart_heights = components.get("chartHeights") if isinstance(components.get("chartHeights"), dict) else {}
         summary_card = components.get("summaryCard") if isinstance(components.get("summaryCard"), dict) else {}
         legacy_table = components.get("table") if isinstance(components.get("table"), dict) else {}
         legacy_report_container = _clone_dict(components.get("reportContainer"))
@@ -937,8 +935,6 @@ class ReportStyleService:
 
         has_legacy_inputs = any(
             [
-                legacy_sections,
-                legacy_chart_heights,
                 summary_card,
                 legacy_table,
                 legacy_report_container,
@@ -953,18 +949,6 @@ class ReportStyleService:
             _collapse_pdf_height_modes(existing_report)
             return
 
-        def _legacy_chart(section_name: str, chart_name: str) -> dict[str, Any]:
-            return _clone_dict(((legacy_sections.get(section_name) or {}).get("charts") or {}).get(chart_name))
-
-        def _legacy_chart_height(mode_name: str, section_name: str, key_name: str) -> Any:
-            return ((legacy_chart_heights.get(mode_name) or {}).get(section_name) or {}).get(key_name)
-
-        def _legacy_pdf_chart_height(section_name: str, key_name: str) -> Any:
-            return _first_non_none(
-                _legacy_chart_height("pdfCompact", section_name, key_name),
-                _legacy_chart_height("pdfBase", section_name, key_name),
-            )
-
         compare_common = {
             "blockMarginTop": summary_card.get("compareBlockMarginTop"),
             "padding": summary_card.get("comparePadding"),
@@ -976,44 +960,6 @@ class ReportStyleService:
             "valueFontSize": summary_card.get("compareValueFontSize"),
         }
         compare_common = {key: value for key, value in compare_common.items() if value is not None}
-
-        electric_primary_heights = {
-            "view": {
-                "default": _legacy_chart_height("view", "electricity", "base"),
-                "periodic": _legacy_chart_height("view", "electricity", "periodicBase"),
-                "weekly": _legacy_chart_height("view", "electricity", "periodicWeeklyPrimary"),
-            },
-            "pdf": {
-                "default": _legacy_pdf_chart_height("electricity", "base"),
-                "periodic": _legacy_pdf_chart_height("electricity", "periodicBase"),
-                "weekly": _legacy_pdf_chart_height("electricity", "periodicWeeklyPrimary"),
-            },
-        }
-
-        electric_heatmap_heights = {
-            "view": {
-                "default": _legacy_chart_height("view", "electricity", "heatmapBase"),
-                "weekly": _legacy_chart_height("view", "electricity", "periodicWeeklySecondary"),
-            },
-            "pdf": {
-                "default": _legacy_pdf_chart_height("electricity", "heatmapBase"),
-                "weekly": _legacy_pdf_chart_height("electricity", "periodicWeeklySecondary"),
-            },
-        }
-
-        electric_delta_heights = {
-            "view": {
-                "periodic": _legacy_chart_height("view", "electricity", "periodicDelta"),
-            },
-            "pdf": {
-                "periodic": _legacy_pdf_chart_height("electricity", "periodicDelta"),
-            },
-        }
-
-        utility_period_trend_heights = {
-            "view": _legacy_chart_height("view", "utility", "periodTrend"),
-            "pdf": _legacy_pdf_chart_height("utility", "periodTrend"),
-        }
 
         legacy_report = {
             "container": legacy_report_container,
@@ -1067,58 +1013,19 @@ class ReportStyleService:
                             "pdf": _clone_dict((summary_card.get("pdf") or {}).get("total")),
                         },
                     },
-                    "chart": {
-                        "dailyTrend": self._merge_defaults(
-                            _legacy_chart("electricity", "dailyTrend"),
-                            {"height": deepcopy(electric_primary_heights)},
-                        ),
-                        "areaComparison": self._merge_defaults(
-                            _legacy_chart("electricity", "areaComparison"),
-                            {"height": deepcopy(electric_primary_heights)},
-                        ),
-                        "areaShare": _legacy_chart("electricity", "areaShare"),
-                        "heatmap": {
-                            "height": deepcopy(electric_heatmap_heights),
-                            "grid": {
-                                "default": _clone_dict((_legacy_chart("electricity", "periodHeatmap").get("default") or {}).get("grid")),
-                                "dense": _clone_dict((_legacy_chart("electricity", "periodHeatmap").get("dense") or {}).get("grid")),
-                                "monthly": _clone_dict((_legacy_chart("electricity", "periodHeatmap").get("monthly") or {}).get("grid")),
-                            },
-                        },
-                        "delta": {
-                            "grid": _clone_dict(_legacy_chart("electricity", "periodAreaDelta").get("grid")),
-                            "height": deepcopy(electric_delta_heights),
-                        },
-                    },
+                    "chart": {},
                 },
                 "utility": {
                     "table": {
                         "common": _clone_dict(legacy_table),
                     },
-                    "chart": {
-                        "comparison": _legacy_chart("utility", "comparison"),
-                        "periodTrend": {
-                            "height": deepcopy(utility_period_trend_heights),
-                        },
-                        "typeTrend": _legacy_chart("utility", "typeTrend"),
-                        "mix": _legacy_chart("utility", "mix"),
-                        "energyTrend": _legacy_chart("utility", "energyTrend"),
-                        "periodSensorTrend": _legacy_chart("utility", "periodSensorTrend"),
-                        "sensorCluster": _legacy_chart("utility", "sensorCluster"),
-                        "deviation": _legacy_chart("utility", "deviation"),
-                    }
+                    "chart": {}
                 },
                 "kpi": {
                     "table": {
                         "common": _clone_dict(legacy_table),
                     },
-                    "chart": {
-                        "dailyGroupedBar": _legacy_chart("kpi", "dailyGroupedBar"),
-                        "compareBar": _legacy_chart("kpi", "compareBar"),
-                        "waterfall": _legacy_chart("kpi", "waterfall"),
-                        "variance": _legacy_chart("kpi", "variance"),
-                        "contribution": _legacy_chart("kpi", "contribution"),
-                    }
+                    "chart": {}
                 },
             },
         }
