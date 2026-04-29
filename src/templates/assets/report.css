@@ -576,39 +576,39 @@
         }
 
         .kpi-section-shell .section-header {
-            padding: 8px 12px 7px;
+            padding: var(--report-components-report-section-kpi-header-padding, 8px 12px 7px);
         }
 
         .kpi-header-shell {
-            gap: 14px;
+            gap: var(--report-components-report-section-kpi-header-shell-gap, 14px);
         }
 
         .kpi-section-shell .utility-header-main {
-            gap: 12px;
+            gap: var(--report-components-report-section-kpi-header-main-gap, 12px);
         }
 
         .kpi-section-shell .utility-header-icon {
-            width: 50px;
-            height: 50px;
+            width: var(--report-components-report-section-kpi-header-icon-size, 50px);
+            height: var(--report-components-report-section-kpi-header-icon-size, 50px);
         }
 
         .kpi-section-shell .utility-header-icon svg {
-            width: 28px;
-            height: 28px;
+            width: var(--report-components-report-section-kpi-header-icon-glyph-size, 28px);
+            height: var(--report-components-report-section-kpi-header-icon-glyph-size, 28px);
         }
 
         .kpi-section-shell .section-header h2 {
             font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title));
-            letter-spacing: 0.01em;
+            letter-spacing: var(--report-components-report-section-kpi-header-title-letter-spacing, 0.01em);
         }
 
         .kpi-section-shell .section-subtitle {
-            margin-top: 2px;
+            margin-top: var(--report-components-report-section-kpi-header-subtitle-margin-top, 2px);
             font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle));
         }
 
         .kpi-header-date-chip {
-            min-width: 228px;
+            min-width: var(--report-components-report-section-kpi-header-date-chip-min-width, 228px);
             justify-content: flex-start;
         }
 
@@ -1276,7 +1276,7 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 0;
             margin-top: var(--report-components-report-section-common-card-compare-block-margin-top, 2px);
-            padding: var(--report-components-report-section-common-card-compare-padding, 9px 10px);
+            padding: var(--kpi-card-compare-padding, var(--report-components-report-section-common-card-compare-padding, 9px 10px));
             border-radius: calc(var(--report-components-report-section-common-card-border-radius, 16px) - 4px);
             background: var(--section-card-compare-bg);
             border: 1px solid var(--section-card-compare-border);
@@ -1286,7 +1286,7 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
-            min-height: var(--report-components-report-section-common-card-compare-item-min-height, 46px);
+            min-height: var(--kpi-card-compare-item-min-height, var(--report-components-report-section-common-card-compare-item-min-height, 46px));
             padding: 4px 10px;
         }
 
@@ -1295,16 +1295,16 @@
         }
 
         .electricity-total-card-compare-label {
-            font-size: var(--report-components-report-section-common-card-compare-label-font-size, 10px);
-            font-weight: var(--report-components-report-section-common-card-compare-label-font-weight, 800);
-            color: var(--report-components-report-section-common-card-compare-label-color, var(--report-components-chart-meta-subtle-color, #64748b));
+            font-size: var(--kpi-card-compare-label-font-size, var(--report-components-report-section-common-card-compare-label-font-size, 10px));
+            font-weight: var(--kpi-card-compare-label-font-weight, var(--report-components-report-section-common-card-compare-label-font-weight, 800));
+            color: var(--kpi-card-compare-label-color, var(--report-components-report-section-common-card-compare-label-color, var(--report-components-chart-meta-subtle-color, #64748b)));
             text-transform: uppercase;
-            letter-spacing: var(--report-components-report-section-common-card-compare-label-letter-spacing, 0.05em);
+            letter-spacing: var(--kpi-card-compare-label-letter-spacing, var(--report-components-report-section-common-card-compare-label-letter-spacing, 0.05em));
             opacity: 1;
         }
 
         .electricity-total-card-compare-value {
-            font-size: var(--report-components-report-section-common-card-compare-value-font-size, 15px);
+            font-size: var(--kpi-card-compare-value-font-size, var(--report-components-report-section-common-card-compare-value-font-size, 15px));
             font-weight: 800;
             line-height: 1.15;
         }
@@ -3559,11 +3559,11 @@
         }
 
         .kpi-summary-table {
-            min-width: 1440px;
+            min-width: var(--report-components-report-section-kpi-table-summary-matrix-width-view, 1440px);
         }
 
         .kpi-summary-table .col-metric {
-            min-width: 160px;
+            min-width: var(--report-components-report-section-kpi-table-summary-matrix-metric-column-width-view, 160px);
             font-weight: 700;
             color: var(--report-color-text-primary);
         }
@@ -3631,15 +3631,15 @@
         .kpi-summary-table .kpi-group-header {
             font-weight: 700;
             color: var(--report-color-text-primary);
-            padding-top: 12px;
-            padding-bottom: 12px;
+            padding-top: var(--report-components-report-section-kpi-table-summary-matrix-group-header-padding-y-view, 12px);
+            padding-bottom: var(--report-components-report-section-kpi-table-summary-matrix-group-header-padding-y-view, 12px);
         }
 
         .kpi-summary-table .kpi-group-subheader {
             font-weight: 700;
             color: var(--report-components-chart-meta-text-color, #475569);
-            padding-top: 10px;
-            padding-bottom: 10px;
+            padding-top: var(--report-components-report-section-kpi-table-summary-matrix-group-subheader-padding-y-view, 10px);
+            padding-bottom: var(--report-components-report-section-kpi-table-summary-matrix-group-subheader-padding-y-view, 10px);
         }
 
         .kpi-summary-table .kpi-group-header[class*="kpi-group-"] {
@@ -3656,14 +3656,14 @@
         .kpi-summary-table .kpi-group-divider-diode.kpi-group-start,
         .kpi-summary-table .kpi-group-divider-ico.kpi-group-start,
         .kpi-summary-table .kpi-group-divider-sakari.kpi-group-start {
-            border-left: 3px solid var(--kpi-group-divider) !important;
+            border-left: var(--report-components-report-section-kpi-table-summary-matrix-group-divider-width-view, 3px) solid var(--kpi-group-divider) !important;
         }
 
         .kpi-summary-table .kpi-group-divider-total.kpi-group-end,
         .kpi-summary-table .kpi-group-divider-diode.kpi-group-end,
         .kpi-summary-table .kpi-group-divider-ico.kpi-group-end,
         .kpi-summary-table .kpi-group-divider-sakari.kpi-group-end {
-            border-right: 3px solid var(--kpi-group-divider) !important;
+            border-right: var(--report-components-report-section-kpi-table-summary-matrix-group-divider-width-view, 3px) solid var(--kpi-group-divider) !important;
         }
 
         .kpi-summary-table .col-value,
@@ -3739,10 +3739,22 @@
             --section-card-compare-bg: rgba(255, 255, 255, 0.92);
             --section-card-compare-border: rgba(185, 210, 255, 0.95);
             --section-card-compare-divider: rgba(207, 220, 239, 0.95);
+            --kpi-card-min-height: var(--report-components-report-section-kpi-card-total-layout-min-height, var(--report-components-report-section-kpi-card-plant-layout-min-height, 172px));
+            --kpi-card-padding: var(--report-components-report-section-kpi-card-total-layout-padding, var(--report-components-report-section-kpi-card-plant-layout-padding, 12px 14px 12px));
+            --kpi-card-top-gap: var(--report-components-report-section-kpi-card-total-layout-top-gap, var(--report-components-report-section-kpi-card-plant-layout-top-gap, 10px));
+            --kpi-card-footer-margin-top: var(--report-components-report-section-kpi-card-total-layout-footer-margin-top, var(--report-components-report-section-kpi-card-plant-layout-footer-margin-top, 12px));
+            --kpi-card-compare-block-margin-top: var(--report-components-report-section-kpi-card-total-compare-block-margin-top, var(--report-components-report-section-kpi-card-plant-compare-block-margin-top, var(--report-components-report-section-common-card-compare-block-margin-top, 10px)));
+            --kpi-card-compare-padding: var(--report-components-report-section-kpi-card-total-compare-padding, var(--report-components-report-section-kpi-card-plant-compare-padding, var(--report-components-report-section-common-card-compare-padding, 9px 10px)));
+            --kpi-card-compare-item-min-height: var(--report-components-report-section-kpi-card-total-compare-item-min-height, var(--report-components-report-section-kpi-card-plant-compare-item-min-height, var(--report-components-report-section-common-card-compare-item-min-height, 46px)));
+            --kpi-card-compare-label-font-size: var(--report-components-report-section-kpi-card-total-compare-label-font-size, var(--report-components-report-section-kpi-card-plant-compare-label-font-size, var(--report-components-report-section-common-card-compare-label-font-size, 10px)));
+            --kpi-card-compare-label-font-weight: var(--report-components-report-section-kpi-card-total-compare-label-font-weight, var(--report-components-report-section-kpi-card-plant-compare-label-font-weight, var(--report-components-report-section-common-card-compare-label-font-weight, 800)));
+            --kpi-card-compare-label-color: var(--report-components-report-section-kpi-card-total-compare-label-color, var(--report-components-report-section-kpi-card-plant-compare-label-color, var(--report-components-report-section-common-card-compare-label-color, var(--report-components-chart-meta-subtle-color, #64748b))));
+            --kpi-card-compare-label-letter-spacing: var(--report-components-report-section-kpi-card-total-compare-label-letter-spacing, var(--report-components-report-section-kpi-card-plant-compare-label-letter-spacing, var(--report-components-report-section-common-card-compare-label-letter-spacing, 0.05em)));
+            --kpi-card-compare-value-font-size: var(--report-components-report-section-kpi-card-total-compare-value-font-size, var(--report-components-report-section-kpi-card-plant-compare-value-font-size, var(--report-components-report-section-common-card-compare-value-font-size, 15px)));
             position: relative;
             overflow: hidden;
-            min-height: var(--report-components-report-section-kpi-card-plant-layout-min-height, 172px);
-            padding: var(--report-components-report-section-kpi-card-plant-layout-padding, 12px 14px 12px);
+            min-height: var(--kpi-card-min-height);
+            padding: var(--kpi-card-padding);
             border-radius: var(--report-components-report-section-common-card-border-radius, 16px);
             border: 1px solid var(--report-components-card-border-color, var(--report-color-border-soft));
             background: var(--section-card-surface);
@@ -3760,7 +3772,20 @@
             background: var(--section-card-accent);
         }
 
+        .kpi-daily-card-total,
         .kpi-daily-card.is-total {
+            --kpi-card-min-height: var(--report-components-report-section-kpi-card-total-layout-min-height, var(--report-components-report-section-kpi-card-plant-layout-min-height, 172px));
+            --kpi-card-padding: var(--report-components-report-section-kpi-card-total-layout-padding, var(--report-components-report-section-kpi-card-plant-layout-padding, 12px 14px 12px));
+            --kpi-card-top-gap: var(--report-components-report-section-kpi-card-total-layout-top-gap, var(--report-components-report-section-kpi-card-plant-layout-top-gap, 10px));
+            --kpi-card-footer-margin-top: var(--report-components-report-section-kpi-card-total-layout-footer-margin-top, var(--report-components-report-section-kpi-card-plant-layout-footer-margin-top, 12px));
+            --kpi-card-compare-block-margin-top: var(--report-components-report-section-kpi-card-total-compare-block-margin-top, var(--report-components-report-section-kpi-card-plant-compare-block-margin-top, var(--report-components-report-section-common-card-compare-block-margin-top, 10px)));
+            --kpi-card-compare-padding: var(--report-components-report-section-kpi-card-total-compare-padding, var(--report-components-report-section-kpi-card-plant-compare-padding, var(--report-components-report-section-common-card-compare-padding, 9px 10px)));
+            --kpi-card-compare-item-min-height: var(--report-components-report-section-kpi-card-total-compare-item-min-height, var(--report-components-report-section-kpi-card-plant-compare-item-min-height, var(--report-components-report-section-common-card-compare-item-min-height, 46px)));
+            --kpi-card-compare-label-font-size: var(--report-components-report-section-kpi-card-total-compare-label-font-size, var(--report-components-report-section-kpi-card-plant-compare-label-font-size, var(--report-components-report-section-common-card-compare-label-font-size, 10px)));
+            --kpi-card-compare-label-font-weight: var(--report-components-report-section-kpi-card-total-compare-label-font-weight, var(--report-components-report-section-kpi-card-plant-compare-label-font-weight, var(--report-components-report-section-common-card-compare-label-font-weight, 800)));
+            --kpi-card-compare-label-color: var(--report-components-report-section-kpi-card-total-compare-label-color, var(--report-components-report-section-kpi-card-plant-compare-label-color, var(--report-components-report-section-common-card-compare-label-color, var(--report-components-chart-meta-subtle-color, #64748b))));
+            --kpi-card-compare-label-letter-spacing: var(--report-components-report-section-kpi-card-total-compare-label-letter-spacing, var(--report-components-report-section-kpi-card-plant-compare-label-letter-spacing, var(--report-components-report-section-common-card-compare-label-letter-spacing, 0.05em)));
+            --kpi-card-compare-value-font-size: var(--report-components-report-section-kpi-card-total-compare-value-font-size, var(--report-components-report-section-kpi-card-plant-compare-value-font-size, var(--report-components-report-section-common-card-compare-value-font-size, 15px)));
             --section-card-accent: #0d63f4;
             --section-card-border: #5d98ff;
             --section-card-surface: linear-gradient(135deg, rgba(20, 99, 244, 0.98) 0%, rgba(11, 84, 224, 0.98) 100%);
@@ -3776,6 +3801,18 @@
         }
 
         .kpi-daily-card-diode {
+            --kpi-card-min-height: var(--report-components-report-section-kpi-card-diode-layout-min-height, var(--report-components-report-section-kpi-card-total-layout-min-height, var(--report-components-report-section-kpi-card-plant-layout-min-height, 172px)));
+            --kpi-card-padding: var(--report-components-report-section-kpi-card-diode-layout-padding, var(--report-components-report-section-kpi-card-total-layout-padding, var(--report-components-report-section-kpi-card-plant-layout-padding, 12px 14px 12px)));
+            --kpi-card-top-gap: var(--report-components-report-section-kpi-card-diode-layout-top-gap, var(--report-components-report-section-kpi-card-total-layout-top-gap, var(--report-components-report-section-kpi-card-plant-layout-top-gap, 10px)));
+            --kpi-card-footer-margin-top: var(--report-components-report-section-kpi-card-diode-layout-footer-margin-top, var(--report-components-report-section-kpi-card-total-layout-footer-margin-top, var(--report-components-report-section-kpi-card-plant-layout-footer-margin-top, 12px)));
+            --kpi-card-compare-block-margin-top: var(--report-components-report-section-kpi-card-diode-compare-block-margin-top, var(--report-components-report-section-kpi-card-total-compare-block-margin-top, var(--report-components-report-section-kpi-card-plant-compare-block-margin-top, var(--report-components-report-section-common-card-compare-block-margin-top, 10px))));
+            --kpi-card-compare-padding: var(--report-components-report-section-kpi-card-diode-compare-padding, var(--report-components-report-section-kpi-card-total-compare-padding, var(--report-components-report-section-kpi-card-plant-compare-padding, var(--report-components-report-section-common-card-compare-padding, 9px 10px))));
+            --kpi-card-compare-item-min-height: var(--report-components-report-section-kpi-card-diode-compare-item-min-height, var(--report-components-report-section-kpi-card-total-compare-item-min-height, var(--report-components-report-section-kpi-card-plant-compare-item-min-height, var(--report-components-report-section-common-card-compare-item-min-height, 46px))));
+            --kpi-card-compare-label-font-size: var(--report-components-report-section-kpi-card-diode-compare-label-font-size, var(--report-components-report-section-kpi-card-total-compare-label-font-size, var(--report-components-report-section-kpi-card-plant-compare-label-font-size, var(--report-components-report-section-common-card-compare-label-font-size, 10px))));
+            --kpi-card-compare-label-font-weight: var(--report-components-report-section-kpi-card-diode-compare-label-font-weight, var(--report-components-report-section-kpi-card-total-compare-label-font-weight, var(--report-components-report-section-kpi-card-plant-compare-label-font-weight, var(--report-components-report-section-common-card-compare-label-font-weight, 800))));
+            --kpi-card-compare-label-color: var(--report-components-report-section-kpi-card-diode-compare-label-color, var(--report-components-report-section-kpi-card-total-compare-label-color, var(--report-components-report-section-kpi-card-plant-compare-label-color, var(--report-components-report-section-common-card-compare-label-color, var(--report-components-chart-meta-subtle-color, #64748b)))));
+            --kpi-card-compare-label-letter-spacing: var(--report-components-report-section-kpi-card-diode-compare-label-letter-spacing, var(--report-components-report-section-kpi-card-total-compare-label-letter-spacing, var(--report-components-report-section-kpi-card-plant-compare-label-letter-spacing, var(--report-components-report-section-common-card-compare-label-letter-spacing, 0.05em))));
+            --kpi-card-compare-value-font-size: var(--report-components-report-section-kpi-card-diode-compare-value-font-size, var(--report-components-report-section-kpi-card-total-compare-value-font-size, var(--report-components-report-section-kpi-card-plant-compare-value-font-size, var(--report-components-report-section-common-card-compare-value-font-size, 15px))));
             --section-card-accent: #2d74ff;
             --section-card-tint: rgba(45, 116, 255, 0.13);
             --section-card-border: #c3d9ff;
@@ -3787,6 +3824,18 @@
         }
 
         .kpi-daily-card-ico {
+            --kpi-card-min-height: var(--report-components-report-section-kpi-card-ico-layout-min-height, var(--report-components-report-section-kpi-card-total-layout-min-height, var(--report-components-report-section-kpi-card-plant-layout-min-height, 172px)));
+            --kpi-card-padding: var(--report-components-report-section-kpi-card-ico-layout-padding, var(--report-components-report-section-kpi-card-total-layout-padding, var(--report-components-report-section-kpi-card-plant-layout-padding, 12px 14px 12px)));
+            --kpi-card-top-gap: var(--report-components-report-section-kpi-card-ico-layout-top-gap, var(--report-components-report-section-kpi-card-total-layout-top-gap, var(--report-components-report-section-kpi-card-plant-layout-top-gap, 10px)));
+            --kpi-card-footer-margin-top: var(--report-components-report-section-kpi-card-ico-layout-footer-margin-top, var(--report-components-report-section-kpi-card-total-layout-footer-margin-top, var(--report-components-report-section-kpi-card-plant-layout-footer-margin-top, 12px)));
+            --kpi-card-compare-block-margin-top: var(--report-components-report-section-kpi-card-ico-compare-block-margin-top, var(--report-components-report-section-kpi-card-total-compare-block-margin-top, var(--report-components-report-section-kpi-card-plant-compare-block-margin-top, var(--report-components-report-section-common-card-compare-block-margin-top, 10px))));
+            --kpi-card-compare-padding: var(--report-components-report-section-kpi-card-ico-compare-padding, var(--report-components-report-section-kpi-card-total-compare-padding, var(--report-components-report-section-kpi-card-plant-compare-padding, var(--report-components-report-section-common-card-compare-padding, 9px 10px))));
+            --kpi-card-compare-item-min-height: var(--report-components-report-section-kpi-card-ico-compare-item-min-height, var(--report-components-report-section-kpi-card-total-compare-item-min-height, var(--report-components-report-section-kpi-card-plant-compare-item-min-height, var(--report-components-report-section-common-card-compare-item-min-height, 46px))));
+            --kpi-card-compare-label-font-size: var(--report-components-report-section-kpi-card-ico-compare-label-font-size, var(--report-components-report-section-kpi-card-total-compare-label-font-size, var(--report-components-report-section-kpi-card-plant-compare-label-font-size, var(--report-components-report-section-common-card-compare-label-font-size, 10px))));
+            --kpi-card-compare-label-font-weight: var(--report-components-report-section-kpi-card-ico-compare-label-font-weight, var(--report-components-report-section-kpi-card-total-compare-label-font-weight, var(--report-components-report-section-kpi-card-plant-compare-label-font-weight, var(--report-components-report-section-common-card-compare-label-font-weight, 800))));
+            --kpi-card-compare-label-color: var(--report-components-report-section-kpi-card-ico-compare-label-color, var(--report-components-report-section-kpi-card-total-compare-label-color, var(--report-components-report-section-kpi-card-plant-compare-label-color, var(--report-components-report-section-common-card-compare-label-color, var(--report-components-chart-meta-subtle-color, #64748b)))));
+            --kpi-card-compare-label-letter-spacing: var(--report-components-report-section-kpi-card-ico-compare-label-letter-spacing, var(--report-components-report-section-kpi-card-total-compare-label-letter-spacing, var(--report-components-report-section-kpi-card-plant-compare-label-letter-spacing, var(--report-components-report-section-common-card-compare-label-letter-spacing, 0.05em))));
+            --kpi-card-compare-value-font-size: var(--report-components-report-section-kpi-card-ico-compare-value-font-size, var(--report-components-report-section-kpi-card-total-compare-value-font-size, var(--report-components-report-section-kpi-card-plant-compare-value-font-size, var(--report-components-report-section-common-card-compare-value-font-size, 15px))));
             --section-card-accent: #22a34a;
             --section-card-tint: rgba(34, 163, 74, 0.13);
             --section-card-border: #bfe8cb;
@@ -3798,6 +3847,18 @@
         }
 
         .kpi-daily-card-sakari {
+            --kpi-card-min-height: var(--report-components-report-section-kpi-card-sakari-layout-min-height, var(--report-components-report-section-kpi-card-total-layout-min-height, var(--report-components-report-section-kpi-card-plant-layout-min-height, 172px)));
+            --kpi-card-padding: var(--report-components-report-section-kpi-card-sakari-layout-padding, var(--report-components-report-section-kpi-card-total-layout-padding, var(--report-components-report-section-kpi-card-plant-layout-padding, 12px 14px 12px)));
+            --kpi-card-top-gap: var(--report-components-report-section-kpi-card-sakari-layout-top-gap, var(--report-components-report-section-kpi-card-total-layout-top-gap, var(--report-components-report-section-kpi-card-plant-layout-top-gap, 10px)));
+            --kpi-card-footer-margin-top: var(--report-components-report-section-kpi-card-sakari-layout-footer-margin-top, var(--report-components-report-section-kpi-card-total-layout-footer-margin-top, var(--report-components-report-section-kpi-card-plant-layout-footer-margin-top, 12px)));
+            --kpi-card-compare-block-margin-top: var(--report-components-report-section-kpi-card-sakari-compare-block-margin-top, var(--report-components-report-section-kpi-card-total-compare-block-margin-top, var(--report-components-report-section-kpi-card-plant-compare-block-margin-top, var(--report-components-report-section-common-card-compare-block-margin-top, 10px))));
+            --kpi-card-compare-padding: var(--report-components-report-section-kpi-card-sakari-compare-padding, var(--report-components-report-section-kpi-card-total-compare-padding, var(--report-components-report-section-kpi-card-plant-compare-padding, var(--report-components-report-section-common-card-compare-padding, 9px 10px))));
+            --kpi-card-compare-item-min-height: var(--report-components-report-section-kpi-card-sakari-compare-item-min-height, var(--report-components-report-section-kpi-card-total-compare-item-min-height, var(--report-components-report-section-kpi-card-plant-compare-item-min-height, var(--report-components-report-section-common-card-compare-item-min-height, 46px))));
+            --kpi-card-compare-label-font-size: var(--report-components-report-section-kpi-card-sakari-compare-label-font-size, var(--report-components-report-section-kpi-card-total-compare-label-font-size, var(--report-components-report-section-kpi-card-plant-compare-label-font-size, var(--report-components-report-section-common-card-compare-label-font-size, 10px))));
+            --kpi-card-compare-label-font-weight: var(--report-components-report-section-kpi-card-sakari-compare-label-font-weight, var(--report-components-report-section-kpi-card-total-compare-label-font-weight, var(--report-components-report-section-kpi-card-plant-compare-label-font-weight, var(--report-components-report-section-common-card-compare-label-font-weight, 800))));
+            --kpi-card-compare-label-color: var(--report-components-report-section-kpi-card-sakari-compare-label-color, var(--report-components-report-section-kpi-card-total-compare-label-color, var(--report-components-report-section-kpi-card-plant-compare-label-color, var(--report-components-report-section-common-card-compare-label-color, var(--report-components-chart-meta-subtle-color, #64748b)))));
+            --kpi-card-compare-label-letter-spacing: var(--report-components-report-section-kpi-card-sakari-compare-label-letter-spacing, var(--report-components-report-section-kpi-card-total-compare-label-letter-spacing, var(--report-components-report-section-kpi-card-plant-compare-label-letter-spacing, var(--report-components-report-section-common-card-compare-label-letter-spacing, 0.05em))));
+            --kpi-card-compare-value-font-size: var(--report-components-report-section-kpi-card-sakari-compare-value-font-size, var(--report-components-report-section-kpi-card-total-compare-value-font-size, var(--report-components-report-section-kpi-card-plant-compare-value-font-size, var(--report-components-report-section-common-card-compare-value-font-size, 15px))));
             --section-card-accent: #f59e0b;
             --section-card-tint: rgba(245, 158, 11, 0.13);
             --section-card-border: #fbd2a2;
@@ -3812,7 +3873,7 @@
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: var(--report-components-report-section-kpi-card-plant-layout-top-gap, 10px);
+            gap: var(--kpi-card-top-gap, 10px);
             margin-bottom: 10px;
         }
 
@@ -3913,7 +3974,7 @@
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 0;
-            margin-top: var(--report-components-report-section-common-card-compare-block-margin-top, 10px);
+            margin-top: var(--kpi-card-compare-block-margin-top, var(--report-components-report-section-common-card-compare-block-margin-top, 10px));
             padding: var(--report-components-report-section-common-card-compare-padding, 9px 10px);
             border-radius: calc(var(--report-components-report-section-common-card-border-radius, 16px) - 4px);
             background: var(--section-card-compare-bg);
@@ -3963,7 +4024,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: var(--report-components-report-section-kpi-card-plant-layout-footer-margin-top, 12px);
+            margin-top: var(--kpi-card-footer-margin-top, 12px);
         }
 
         .kpi-daily-card.is-total .kpi-daily-card-unit,
@@ -4210,42 +4271,42 @@
 
         .kpi-periodic-detail-table th,
         .kpi-periodic-detail-table td {
-            padding: 7px 8px;
-            font-size: 11px;
+            padding: var(--report-components-report-section-kpi-table-daily-detail-cell-padding-view, 7px 8px);
+            font-size: var(--report-components-report-section-kpi-table-daily-detail-cell-font-size-view, 11px);
             white-space: nowrap;
         }
 
         .kpi-periodic-detail-table .col-date {
-            width: 108px;
-            min-width: 108px;
+            width: var(--report-components-report-section-kpi-table-daily-detail-date-column-width-view, 108px);
+            min-width: var(--report-components-report-section-kpi-table-daily-detail-date-column-width-view, 108px);
             text-align: left;
         }
 
         .kpi-periodic-detail-table .col-source {
-            width: 56px;
-            min-width: 56px;
+            width: var(--report-components-report-section-kpi-table-daily-detail-source-column-width-view, 56px);
+            min-width: var(--report-components-report-section-kpi-table-daily-detail-source-column-width-view, 56px);
         }
 
         .kpi-periodic-detail-table .col-area {
-            width: 74px;
-            min-width: 74px;
+            width: var(--report-components-report-section-kpi-table-daily-detail-area-column-width-view, 74px);
+            min-width: var(--report-components-report-section-kpi-table-daily-detail-area-column-width-view, 74px);
             font-weight: 700;
             color: var(--report-color-text-primary);
-            background: #f8fbff;
+            background: var(--report-components-report-section-kpi-table-daily-detail-area-background, #f8fbff);
         }
 
         .kpi-periodic-detail-table .col-kpi,
         .kpi-periodic-detail-table .col-production,
         .kpi-periodic-detail-table .col-energy {
-            font-size: 10.75px;
+            font-size: var(--report-components-report-section-kpi-table-daily-detail-metric-font-size-view, 10.75px);
         }
 
         .kpi-periodic-detail-table .row-submetric td {
-            border-top-color: #eef4fa;
+            border-top-color: var(--report-components-report-section-kpi-table-daily-detail-submetric-border-color, #eef4fa);
         }
 
         .kpi-periodic-detail-table .row-group-end td {
-            border-bottom: 2px solid #dbeafe;
+            border-bottom: var(--report-components-report-section-kpi-table-daily-detail-group-end-border-width-view, 2px) solid var(--report-components-report-section-kpi-table-daily-detail-group-end-border-color, #dbeafe);
         }
 
         /* ==========================================================================

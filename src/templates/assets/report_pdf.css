@@ -1126,7 +1126,7 @@
     }
 
     .kpi-summary-table {
-        width: 100% !important;
+        width: var(--report-components-report-section-kpi-table-summary-matrix-width-pdf, 100%) !important;
         min-width: 0 !important;
         table-layout: fixed !important;
     }
@@ -1138,7 +1138,7 @@
     }
 
     .kpi-summary-table .col-metric {
-        width: 110px !important;
+        width: var(--report-components-report-section-kpi-table-summary-matrix-metric-column-width-pdf, 110px) !important;
     }
 
     .kpi-daily-detail-table {
@@ -1178,36 +1178,36 @@
 
     .kpi-periodic-detail-table th,
     .kpi-periodic-detail-table td {
-        padding: 4px 4px !important;
-        font-size: 7.5px !important;
+        padding: var(--report-components-report-section-kpi-table-daily-detail-cell-padding-pdf, 4px 4px) !important;
+        font-size: var(--report-components-report-section-kpi-table-daily-detail-cell-font-size-pdf, 7.5px) !important;
         white-space: nowrap !important;
     }
 
     .kpi-periodic-detail-table .col-date {
-        width: 78px !important;
-        min-width: 78px !important;
+        width: var(--report-components-report-section-kpi-table-daily-detail-date-column-width-pdf, 78px) !important;
+        min-width: var(--report-components-report-section-kpi-table-daily-detail-date-column-width-pdf, 78px) !important;
     }
 
     .kpi-periodic-detail-table .col-source {
-        width: 42px !important;
-        min-width: 42px !important;
+        width: var(--report-components-report-section-kpi-table-daily-detail-source-column-width-pdf, 42px) !important;
+        min-width: var(--report-components-report-section-kpi-table-daily-detail-source-column-width-pdf, 42px) !important;
     }
 
     .kpi-periodic-detail-table .col-area {
-        width: 52px !important;
-        min-width: 52px !important;
+        width: var(--report-components-report-section-kpi-table-daily-detail-area-column-width-pdf, 52px) !important;
+        min-width: var(--report-components-report-section-kpi-table-daily-detail-area-column-width-pdf, 52px) !important;
         font-weight: 700 !important;
-        background: #f8fbff !important;
+        background: var(--report-components-report-section-kpi-table-daily-detail-area-background, #f8fbff) !important;
     }
 
     .kpi-periodic-detail-table .col-kpi,
     .kpi-periodic-detail-table .col-production,
     .kpi-periodic-detail-table .col-energy {
-        font-size: 7.25px !important;
+        font-size: var(--report-components-report-section-kpi-table-daily-detail-metric-font-size-pdf, 7.25px) !important;
     }
 
     .kpi-periodic-detail-table .row-group-end td {
-        border-bottom: 1.5px solid #dbeafe !important;
+        border-bottom: var(--report-components-report-section-kpi-table-daily-detail-group-end-border-width-pdf, 1.5px) solid var(--report-components-report-section-kpi-table-daily-detail-group-end-border-color, #dbeafe) !important;
     }
 
     .electricity-chart-card-title {
