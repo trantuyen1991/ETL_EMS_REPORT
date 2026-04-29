@@ -4205,16 +4205,16 @@ class ReportBuilderService:
                 "offset": 0,
                 "alignTicks": True if len(axis_list) > 1 else False,
                 "nameLocation": "end",
-                "nameGap": 6 if is_right_axis else 12,
+                "nameGap": 2 if is_right_axis else 12,
                 "nameTextStyle": {
                     "color": muted_text_color,
                     "fontSize": 9,
-                    "padding": [8, 0, 0, 0] if is_right_axis else [16, 0, 0, 0],
+                    "padding": [0, 0, 0, 0] if is_right_axis else [16, 0, 0, 0],
                 },
                 "axisLabel": {
                     "color": muted_text_color,
                     "fontSize": 9,
-                    "margin": 2 if is_right_axis else 8,
+                    "margin": 0 if is_right_axis else 8,
                 },
                 "axisLine": {"show": len(axis_list) > 1, "lineStyle": {"color": axis_line_color}},
                 "splitLine": {"show": axis_index == 0, "lineStyle": {"color": split_line_color}},
@@ -4239,7 +4239,7 @@ class ReportBuilderService:
             "grid": self._resolve_chart_grid(
                 {
                     "left": 38,
-                    "right": 14,
+                    "right": 0,
                     "top": 38,
                     "bottom": 28,
                     "containLabel": True,

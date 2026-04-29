@@ -247,6 +247,7 @@
             padding: 0;
             border-radius: 18px;
             border: 1px solid var(--report-components-report-title-header-shell-border-color, var(--report-color-border-default));
+            border-left: 5px solid var(--report-components-report-title-header-shell-accent-border-color, var(--report-color-brand-primary, #005496));
             box-shadow: var(--report-components-report-title-header-shell-shadow, var(--report-components-card-shadow, var(--report-shadow-card)));
             background: var(--report-components-report-title-header-shell-background, var(--report-color-card-background));
         }
@@ -867,7 +868,7 @@
         }
 
         .report-table-ui .col-previous {
-            color: var(--report-color-brand-accent);
+            color: var(--report-color-text-previous-value, #703cd9);
             font-weight: 700;
         }
 
@@ -2959,7 +2960,7 @@
 
         .utility-value-bar-label-previous,
         .utility-previous-text {
-            color: var(--report-components-report-section-utility-table-theme-previous-text-color, var(--report-color-brand-accent)) !important;
+            color: var(--report-components-report-section-utility-table-theme-previous-text-color, var(--report-color-text-previous-value, #703cd9)) !important;
             font-weight: 700;
         }
 
@@ -3830,7 +3831,7 @@
         }
 
         .kpi-summary-table .col-yesterday {
-            color: var(--report-color-brand-accent);
+            color: var(--report-color-text-previous-value, #703cd9);
             font-weight: 700;
         }
 
@@ -3840,7 +3841,7 @@
         }
 
         .kpi-summary-table .kpi-group-cell.col-yesterday {
-            color: var(--kpi-group-secondary, var(--report-color-brand-accent));
+            color: var(--kpi-group-secondary, var(--report-color-text-previous-value, #703cd9));
         }
 
         .kpi-chart-card {
@@ -4289,7 +4290,7 @@
         }
 
         .kpi-plant-value.previous {
-            color: var(--report-color-brand-accent);
+            color: var(--report-color-text-previous-value, #703cd9);
         }
 
         .kpi-plant-value.kpi-delta,
