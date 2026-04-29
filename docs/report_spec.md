@@ -96,6 +96,48 @@ Current schema direction in implementation:
 - header/title/subtitle/metadata banner styling is now consumed directly from `components.report.titleHeader.*` CSS variables instead of passing through a separate alias naming layer
 - active CSS assets also now consume canonical report tokens directly for colors, text, borders, shadows, radii, and spacing instead of relying on a generic alias bridge layer
 
+### 2.6 Color Theme Architecture Rule
+The approved direction for the next style phase is to implement a centralized enterprise color palette directly inside `config/report_style.json`, not in a separate frontend-only JS theme file.
+
+Approved architecture:
+- `config/report_style.json` remains the single source of truth for report presentation tokens
+- `src/services/style_service.py` is responsible for:
+  - loading defaults
+  - normalizing the schema
+  - flattening CSS variables
+  - deriving the ECharts theme payload
+  - preserving only the temporary compatibility aliases still needed by active CSS/templates
+- chart colors should be derived from the same centralized palette instead of being hardcoded independently inside builder logic where avoidable
+
+Approved palette layering:
+1. foundation semantic palette under `reportStyle.color.*`
+2. object-level theme mapping under `reportStyle.components.report.*`
+3. derived runtime chart palette under `reportStyle.echartsTheme`
+
+Approved semantic palette direction:
+- brand primary color: `#005496`
+- report title / strong header text: `#003B6B`
+- page background should stay light and PDF-safe
+- cards should keep white or soft-tint surfaces with subtle borders
+- trend-good / favorable reduction should stay green
+- trend-bad / unfavorable increase should stay red
+- DIODE / ICO / SAKARI should keep distinct area colors, but with softer card backgrounds than the current stronger UI accents
+
+Approved object-theme direction:
+- report header should become a soft enterprise banner with brand-led blue treatment
+- common section headers should use a clean white / soft-blue shell with a branded icon circle
+- `TOTAL` summary cards should use the strongest brand treatment
+- workshop cards should use softer tinted surfaces by area theme
+- chart cards should remain neutral, readable, and A4/PDF-friendly
+
+Approved rollout rule:
+- do not introduce a second theme source such as `energyReportTheme.js`
+- preserve current report layout and backend logic
+- implement the palette incrementally in batches:
+  - Batch 1: foundation palette + common shell + Electricity pilot
+  - Batch 2: KPI section remap
+  - Batch 3: Utility section remap + remaining chart hardcode cleanup
+
 ---
 
 ## 3. Runtime and Deployment Context
@@ -413,6 +455,14 @@ For non-daily KPI summary matrices:
 - `Production day` means the count of dates in the resolved current / previous period where the relevant production metric is greater than zero
 - counts must be calculated per area and for plant total
 - do not use anchor-day snapshot production values for this row
+
+### 9.6 KPI / Electricity / Utility Theme Consistency Rule
+For the upcoming palette rollout:
+- Electricity should act as the first visual pilot for the new enterprise palette direction
+- KPI should reuse the same visual grammar after the Electricity pilot is approved, especially for total-card emphasis, workshop tint cards, status badges, and chart card surfaces
+- Utility should follow the same grammar afterward so the report reads as one product rather than three independently styled sections
+- chart series colors should stay consistent across sections when the meaning is the same, for example `current`, `previous`, `DIODE`, `ICO`, and `SAKARI`
+- PDF output readability takes precedence over decorative gradients, shadows, or saturated fills
 
 ---
 

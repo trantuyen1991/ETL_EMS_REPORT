@@ -22,6 +22,7 @@ Focus:
 - finalize the two-family template migration (`daily` / `periodic`)
 - stabilize PDF chart rendering and print flow
 - complete the JSON-driven inline style/theme rollout and document the stopping point
+- begin the approved enterprise color-palette rollout from a documentation + checkpoint baseline
 - keep sensor monitoring follow-up behind the now-stable presentation checkpoint
 Stable baseline:
 - PDF export stabilized after the 2026-04-27 chart-init timing fix and multi-anchor regression batches
@@ -201,7 +202,31 @@ Current anomaly rules:
 - keep compatibility aliases while CSS is still consuming older flat variable names
 - allow renderer-specific overrides only where print behavior really differs
 
-### 4.3 Sensor Monitoring UI
+### 4.3 Enterprise color palette rollout
+Approved architecture:
+- `config/report_style.json` remains the single source of truth for the report theme
+- `src/services/style_service.py` remains the mapper that normalizes config, emits CSS variables, and derives the ECharts theme
+- no separate JS-only theme source should be introduced for this report system
+
+Approved visual direction:
+- project primary brand color is now approved as `#005496`
+- the palette should stay clean, professional, and PDF-safe
+- `TOTAL` cards should use the strongest brand treatment
+- workshop cards should use softer tinted surfaces by area color
+- section headers should use a white / soft-blue enterprise shell
+- chart cards should stay neutral and readable
+
+Approved rollout order:
+1. Batch 1, foundation palette + common shell + Electricity pilot
+2. Batch 2, KPI section remap
+3. Batch 3, Utility section remap + remaining chart hardcode cleanup
+
+Immediate implementation goal after this doc checkpoint:
+- start Batch 1 only
+- preserve layout and business logic
+- prioritize compatibility and render stability over broad visual rewrites
+
+### 4.4 Sensor Monitoring UI
 - Step 2:
   - enrich derived flags and data-quality metadata
   - prepare reusable periodic trend context
@@ -238,6 +263,12 @@ Current anomaly rules:
 - The main print path now uses CDP-controlled PDF export instead of depending only on raw `--print-to-pdf` defaults
 - A major periodic-vs-daily PDF scale mismatch was resolved by fixing overflow in the periodic Utility Sensor Monitoring detail table rather than continuing to tune Electricity total-card CSS
 - Table pagination still needs improvement on very wide / dense sections
+
+### 5.5 Enterprise palette implementation
+- foundation semantic palette still needs to be added formally to `config/report_style.json`
+- CSS/report object color consumers still need to be repointed gradually toward the new palette branches
+- chart series / axis / grid colors still need a dedicated cleanup pass to remove remaining hardcoded values from builder logic where practical
+- the first rollout target is Electricity, which will act as the visual pilot before KPI and Utility are remapped
 
 ---
 
