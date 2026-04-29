@@ -243,7 +243,7 @@
             {% endif %}
 
             <div class="electricity-chart-grid {% if flags.is_daily_report %}pdf-daily-chart-grid{% else %}pdf-two-chart-grid pdf-chart-page-block periodic-electricity-chart-grid{% if is_weekly_period %} periodic-electricity-chart-grid-weekly{% elif is_monthly_period %} periodic-electricity-chart-grid-monthly{% endif %}{% endif %}">
-                <div class="electricity-chart-card electricity-chart-card-primary electricity-chart-card-trend">
+                <div class="electricity-chart-card electricity-chart-card-primary {% if flags.is_daily_report %}electricity-chart-card-share{% else %}electricity-chart-card-trend{% endif %}">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.daily_trend.title }}
                     </h3>

@@ -1535,9 +1535,14 @@
         }
 
         .electricity-chart-card-trend .electricity-chart,
+        .electricity-chart-card-share .electricity-chart,
         .electricity-chart-card-area .electricity-chart {
             width: 100%;
             height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-base-default, 384px);
+        }
+
+        .electricity-chart-card-share .electricity-chart {
+            height: var(--report-components-report-section-electric-chart-area-share-height-pdf-base-default, 384px);
         }
 
         .electricity-chart-card-area .electricity-chart {

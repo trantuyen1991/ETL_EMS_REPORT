@@ -132,14 +132,19 @@
     }
 
     .electricity-chart-card-trend .electricity-chart,
+    .electricity-chart-card-share .electricity-chart,
     .electricity-chart-card-area .electricity-chart {
         width: 100% !important;
         height: var(--report-components-report-section-electric-chart-daily-trend-height-pdf-compact-default, 216px) !important;
         overflow: hidden !important;
     }
 
+    .electricity-chart-card-share .electricity-chart {
+        height: var(--report-components-report-section-electric-chart-area-share-height-pdf-compact-default, 252px) !important;
+    }
+
     .electricity-chart-card-area .electricity-chart {
-        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-default, 216px) !important;
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-compact-default, 252px) !important;
     }
 
     .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart {
@@ -240,9 +245,6 @@
         color: var(--report-components-chart-card-subtitle-color, var(--text-muted)) !important;
     }
 
-    .pdf-daily-chart-grid .electricity-chart {
-        height: 252px !important;
-    }
 
     .electricity-top10-wrap.report-table-wrap {
         overflow: visible !important;
