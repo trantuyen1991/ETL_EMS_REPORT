@@ -259,6 +259,27 @@ Immediate implementation goal after this doc checkpoint:
   - review the 6 currently-flagged weekly sensors with domain context before finalizing threshold logic
   - consider a compact completeness block (`full / partial / no data`) after anomaly semantics are approved
 
+### 4.5 Approved chart-style preset rollout (2026-04-30)
+Current approved direction:
+- add a shared chart-preset registry so repeated chart-family tuning does not need to be re-implemented per section
+- keep chart-specific differences under `components.report.section.<section>.chart.<object>`
+- keep the public mode split to `view` and `pdf`
+- let preset structure stay ECharts-like at a controlled schema level, for example `grid`, `axis`, `series`, `label`, `legend`, `tooltip`, and `interaction`
+- use backend resolution/merge so builders consume one normalized chart config instead of scattered section-specific tweaks
+
+Implementation roadmap now approved:
+1. docs update first
+2. checkpoint commit
+3. MemPalace mine
+4. Step 1, scaffold chart-preset registry + preset-ref resolution support
+5. Step 2, pilot `column.standard` and repoint the first Electric + KPI column charts
+6. Step 3, validate view/PDF output before expanding to more chart families
+
+Execution rule:
+- presets should remain project-owned schema, not unrestricted raw ECharts blobs
+- interactive view-only behavior such as tooltip, hover, and zoom must stay isolated from PDF mode rules
+- builder runtime patching is still allowed as the last merge layer when data-driven chart logic requires it
+
 ---
 
 ## 5. Pending Features

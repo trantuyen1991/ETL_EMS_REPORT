@@ -175,6 +175,68 @@ Checkpoint rule for this migration:
 - run MemPalace mine
 - then begin implementation from roadmap step 1
 
+### 2.8 Approved Chart Style Preset Architecture (2026-04-30)
+A second presentation-architecture phase is now approved for chart configuration, focused on reducing duplicate per-chart tuning across sections.
+
+Problem being solved:
+- the same chart family, especially column/bar charts, currently repeats layout tuning in multiple places
+- value-label behavior, grid headroom, axis spacing, and legend defaults should not need separate Electric / KPI / Utility rewiring when the chart family is visually the same
+- future HTML-only interactions such as tooltip, hover, and zoom must not leak into PDF-only rendering rules
+
+Approved direction:
+- introduce a shared chart-preset registry as an ECharts-like option scaffold, but keep it as project-owned schema rather than raw full ECharts payload
+- keep section/object chart nodes under `components.report.section.*` as the owners of chart-specific differences
+- split chart presentation tokens by rendering mode using only public `view` and `pdf` branches
+- continue using backend normalization / merge logic so templates and builder helpers consume one resolved chart config per object
+
+Approved target architecture:
+1. `reportStyle.chartPreset`
+   - global registry for reusable chart-family presets
+   - first pilot family: column chart
+   - later families can include line, donut, deviation, stacked-column, and similar high-reuse chart types
+2. `reportStyle.components.report.section.*.chart.*`
+   - object-level chart branches remain where local differences live
+   - chart objects should point to a preset through `familyRef` or equivalent preset reference
+   - chart objects may still keep local overrides for only the parts that differ from the shared family preset
+3. `src/services/style_service.py`
+   - resolves chart-preset refs before chart builders consume the style tree
+   - merges preset base + mode + object-local overrides into one normalized config branch
+4. `src/services/report_builder_service.py`
+   - reads the normalized chart branch through reusable helpers instead of hardcoding the same layout rules per section
+
+Approved preset structure direction:
+- preserve an ECharts-like grouping because it matches how chart styling is reasoned about
+- examples of preset-owned groups include:
+  - `grid`
+  - `axis`
+  - `series`
+  - `label`
+  - `legend`
+  - `tooltip`
+  - `interaction`
+- avoid storing unrestricted raw ECharts option blobs in JSON; prefer the project schema to stay readable and controlled
+- formatter behavior should prefer symbolic refs such as `formatterRef` rather than raw callback code in config
+
+Approved mode split:
+- `base` = shared across all render targets for that chart family preset
+- `view` = interactive HTML-oriented behavior, for example tooltip, hover emphasis, zoom, and future click interactions
+- `pdf` = print-safe presentation adjustments, for example tighter spacing, label font reductions, and non-interactive layout protection
+- public object-level layout semantics remain only `view` and `pdf`
+
+Approved merge order for chart config:
+1. family preset `base`
+2. family preset mode branch, either `view` or `pdf`
+3. object-local shared chart override
+4. object-local mode branch, either `view` or `pdf`
+5. builder runtime patch only when data-driven logic still needs a final adjustment
+
+Approved implementation roadmap:
+1. update docs and create a checkpoint commit
+2. run MemPalace mine
+3. Step 1, introduce the chart-preset registry scaffold and preset-ref resolution flow
+4. Step 2, pilot `column.standard` and repoint the first Electric + KPI column-chart pair
+5. Step 3, validate view + PDF consistency, then extend to more chart families only after the column pilot is stable
+
 ---
 
 ## 3. Runtime and Deployment Context
