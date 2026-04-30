@@ -1784,20 +1784,7 @@ class ReportStyleService:
 
     def _build_compatibility_aliases(self, style_config: dict[str, Any]) -> list[str]:
         """Emit bridge variables so rollout can be gradual in existing CSS assets."""
-        aliases: list[str] = []
-
-        report_cfg = (style_config.get("components", {}) or {}).get("report", {})
-        section_cfg = report_cfg.get("section", {}) if isinstance(report_cfg, dict) else {}
-        common_cfg = section_cfg.get("common", {}) if isinstance(section_cfg, dict) else {}
-        if isinstance(common_cfg.get("header"), dict):
-            aliases.extend([
-                "--report-components-section-header-title-color: var(--report-components-report-section-common-header-title-color);",
-                "--report-components-section-header-subtitle-color: var(--report-components-report-section-common-header-subtitle-color);",
-                "--report-components-section-header-border-color: var(--report-components-report-section-common-header-border-color);",
-                "--report-components-section-header-accent-color: var(--report-components-report-section-common-header-accent-color);",
-            ])
-
-        return aliases
+        return []
 
     def _to_kebab_case(self, value: str) -> str:
         """Convert camelCase or mixedCase text to kebab-case for CSS variable names."""
