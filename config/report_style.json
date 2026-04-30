@@ -783,12 +783,30 @@
                 }
               },
               "delta": {
+                "familyRef": "delta.horizontal",
                 "grid": {
                   "left": 52,
                   "right": 32,
                   "top": 8,
                   "bottom": 15,
                   "containLabel": false
+                },
+                "series": {
+                  "barWidth": 24,
+                  "barCategoryGap": "34%",
+                  "positiveBorderRadius": [0, 7, 7, 0],
+                  "negativeBorderRadius": [7, 0, 0, 7],
+                  "neutralBorderRadius": [0, 7, 7, 0]
+                },
+                "valueLabel": {
+                  "positivePosition": "right",
+                  "negativePosition": "left",
+                  "distance": 6,
+                  "fontSize": 8,
+                  "fontWeight": 700,
+                  "color": "#223548",
+                  "axisPaddingLeft": 0,
+                  "axisPaddingRight": 0
                 },
                 "height": {
                   "view": {
@@ -994,6 +1012,7 @@
                 }
               },
               "deviation": {
+                "familyRef": "delta.horizontal",
                 "grid": {
                   "left": 92,
                   "right": 24,
@@ -1184,6 +1203,7 @@
                 }
               },
               "variance": {
+                "familyRef": "delta.horizontal",
                 "grid": {
                   "left": 70,
                   "right": 16,
@@ -1402,6 +1422,58 @@
             },
             "valueLabel": {
               "fontSize": 10
+            }
+          }
+        }
+      },
+      "delta": {
+        "horizontal": {
+          "base": {
+            "grid": {
+              "left": 92,
+              "right": 24,
+              "top": 12,
+              "bottom": 28,
+              "containLabel": false
+            },
+            "series": {
+              "barWidth": 12,
+              "positiveBorderRadius": [0, 4, 4, 0],
+              "negativeBorderRadius": [4, 0, 0, 4],
+              "neutralBorderRadius": [0, 4, 4, 0]
+            },
+            "valueLabel": {
+              "show": true,
+              "positivePosition": "right",
+              "negativePosition": "left",
+              "distance": 4,
+              "fontSize": 10,
+              "fontWeight": "700",
+              "color": "#223548",
+              "axisPaddingLeft": 22,
+              "axisPaddingRight": 22
+            }
+          },
+          "view": {
+            "tooltip": {
+              "show": true,
+              "trigger": "axis",
+              "axisPointer": {
+                "type": "shadow"
+              }
+            },
+            "interaction": {
+              "hoverEmphasis": true,
+              "dataZoom": false
+            }
+          },
+          "pdf": {
+            "tooltip": {
+              "show": false
+            },
+            "interaction": {
+              "hoverEmphasis": false,
+              "dataZoom": false
             }
           }
         }

@@ -426,7 +426,16 @@ class ReportBuilderService:
         if not isinstance(current, dict):
             return result
 
-        for key in ("barMaxWidth", "barBorderRadius", "labelLayoutHideOverlap"):
+        for key in (
+            "barMaxWidth",
+            "barBorderRadius",
+            "labelLayoutHideOverlap",
+            "barWidth",
+            "barCategoryGap",
+            "positiveBorderRadius",
+            "negativeBorderRadius",
+            "neutralBorderRadius",
+        ):
             if current.get(key) is not None:
                 result[key] = current.get(key)
 
@@ -1796,6 +1805,31 @@ class ReportBuilderService:
         muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
         border_color = str(self._get_style_color_value("#b9c8d6", "chart", "border"))
+        series_cfg = self._resolve_chart_series_config(
+            {
+                "barWidth": 24,
+                "barCategoryGap": "34%",
+                "positiveBorderRadius": [0, 7, 7, 0],
+                "negativeBorderRadius": [7, 0, 0, 7],
+                "neutralBorderRadius": [0, 7, 7, 0],
+            },
+            "electricity",
+            "periodAreaDelta",
+        )
+        label_config = self._resolve_chart_value_label(
+            {
+                "positivePosition": "right",
+                "negativePosition": "left",
+                "distance": 6,
+                "fontSize": 8,
+                "fontWeight": 700,
+                "color": primary_text_color,
+                "axisPaddingLeft": 0,
+                "axisPaddingRight": 0,
+            },
+            "electricity",
+            "periodAreaDelta",
+        )
 
         delta_source_rows = [
             {
@@ -1824,16 +1858,22 @@ class ReportBuilderService:
                 "itemStyle": {
                     "color": base_color,
                     "opacity": 0.95 if delta_value >= 0 else 0.55,
-                    "borderRadius": [0, 7, 7, 0] if delta_value >= 0 else [7, 0, 0, 7],
+                    "borderRadius": (
+                        series_cfg.get("positiveBorderRadius", [0, 7, 7, 0])
+                        if delta_value >= 0 else series_cfg.get("negativeBorderRadius", [7, 0, 0, 7])
+                    ),
                 },
                 "label": {
-                    "show": True,
-                    "position": "right" if delta_value >= 0 else "left",
-                    "distance": 6,
+                    "show": bool(label_config.get("show", True)),
+                    "position": (
+                        label_config.get("positivePosition", "right")
+                        if delta_value >= 0 else label_config.get("negativePosition", "left")
+                    ),
+                    "distance": label_config.get("distance", 6),
                     "formatter": label_text,
-                    "fontSize": 8,
-                    "fontWeight": 700,
-                    "color": primary_text_color,
+                    "fontSize": label_config.get("fontSize", 8),
+                    "fontWeight": label_config.get("fontWeight", 700),
+                    "color": label_config.get("color", primary_text_color),
                 },
             })
 
@@ -1890,8 +1930,8 @@ class ReportBuilderService:
                     {
                         "name": "Delta",
                         "type": "bar",
-                        "barWidth": 24,
-                        "barCategoryGap": "34%",
+                        "barWidth": series_cfg.get("barWidth", 24),
+                        "barCategoryGap": series_cfg.get("barCategoryGap", "34%"),
                         "data": delta_items,
                         "markLine": {
                             "silent": True,
@@ -2961,6 +3001,16 @@ class ReportBuilderService:
             for value in values
         ]
 
+        series_cfg = self._resolve_chart_series_config(
+            {
+                "barWidth": 12,
+                "positiveBorderRadius": [0, 4, 4, 0],
+                "negativeBorderRadius": [4, 0, 0, 4],
+                "neutralBorderRadius": [0, 4, 4, 0],
+            },
+            "utility",
+            "deviation",
+        )
         label_config = self._resolve_chart_value_label(
             {
                 "positivePosition": "right",
@@ -2969,8 +3019,8 @@ class ReportBuilderService:
                 "fontSize": 10,
                 "fontWeight": 700,
                 "color": str(self._get_style_color_value("#223548", "text", "primary")),
-                "axisPaddingLeft": 2,
-                "axisPaddingRight": 2,
+                "axisPaddingLeft": 22,
+                "axisPaddingRight": 22,
             },
             "utility",
             "deviation",
@@ -3023,13 +3073,16 @@ class ReportBuilderService:
             "series": [
                 {
                     "type": "bar",
-                    "barWidth": 12,
+                    "barWidth": series_cfg.get("barWidth", 12),
                     "data": [
                         {
                             "value": value,
                             "itemStyle": {
                                 "color": colors[index],
-                                "borderRadius": [0, 4, 4, 0] if value >= 0 else [4, 0, 0, 4],
+                                "borderRadius": (
+                                    series_cfg.get("positiveBorderRadius", [0, 4, 4, 0])
+                                    if value >= 0 else series_cfg.get("negativeBorderRadius", [4, 0, 0, 4])
+                                ),
                             },
                             "label": {
                                 "show": True,
@@ -5201,9 +5254,6 @@ class ReportBuilderService:
         items: list[dict[str, Any]],
     ) -> Dict[str, Any]:
         """Build a horizontal variance chart for KPI change vs yesterday."""
-        label_font_size = 10
-        axis_padding_left = 22.0
-        axis_padding_right = 22.0
         trend_up_color = str(self._get_style_color_value("#0b7a43", "trend", "up"))
         trend_down_color = str(self._get_style_color_value("#c04b39", "trend", "down"))
         trend_neutral_color = str(self._get_style_color_value("#6c7f91", "trend", "neutral"))
@@ -5211,6 +5261,30 @@ class ReportBuilderService:
         primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
         border_row_color = str(self._get_style_color_value("#e6edf3", "border", "row"))
+        series_cfg = self._resolve_chart_series_config(
+            {
+                "barWidth": 12,
+                "positiveBorderRadius": [0, 4, 4, 0],
+                "negativeBorderRadius": [4, 0, 0, 4],
+                "neutralBorderRadius": [0, 4, 4, 0],
+            },
+            "kpi",
+            "variance",
+        )
+        label_config = self._resolve_chart_value_label(
+            {
+                "positivePosition": "right",
+                "negativePosition": "left",
+                "distance": 4,
+                "fontSize": 10,
+                "fontWeight": 700,
+                "color": primary_text_color,
+                "axisPaddingLeft": 22,
+                "axisPaddingRight": 22,
+            },
+            "kpi",
+            "variance",
+        )
         values: list[float] = []
         chart_data = []
 
@@ -5227,14 +5301,14 @@ class ReportBuilderService:
                     "name": name,
                     "itemStyle": {
                         "color": border_row_color,
-                        "borderRadius": [0, 4, 4, 0],
+                        "borderRadius": series_cfg.get("neutralBorderRadius", [0, 4, 4, 0]),
                     },
                     "label": {
-                        "show": True,
-                        "position": "right",
+                        "show": bool(label_config.get("show", True)),
+                        "position": label_config.get("positivePosition", "right"),
                         "formatter": "-",
                         "color": muted_text_color,
-                        "fontSize": label_font_size,
+                        "fontSize": label_config.get("fontSize", 10),
                     },
                 })
                 continue
@@ -5250,16 +5324,22 @@ class ReportBuilderService:
                 "name": name,
                 "itemStyle": {
                     "color": trend_down_color if numeric_value > 0 else trend_up_color if numeric_value < 0 else trend_neutral_color,
-                    "borderRadius": [0, 4, 4, 0] if numeric_value >= 0 else [4, 0, 0, 4],
+                    "borderRadius": (
+                        series_cfg.get("positiveBorderRadius", [0, 4, 4, 0])
+                        if numeric_value >= 0 else series_cfg.get("negativeBorderRadius", [4, 0, 0, 4])
+                    ),
                 },
                 "label": {
-                    "show": True,
-                    "position": "right" if numeric_value >= 0 else "left",
-                    "distance": 4,
-                    "color": primary_text_color,
-                    "fontSize": label_font_size,
-                    "lineHeight": label_font_size + 2,
-                    "fontWeight": 700,
+                    "show": bool(label_config.get("show", True)),
+                    "position": (
+                        label_config.get("positivePosition", "right")
+                        if numeric_value >= 0 else label_config.get("negativePosition", "left")
+                    ),
+                    "distance": label_config.get("distance", 4),
+                    "color": label_config.get("color", primary_text_color),
+                    "fontSize": label_config.get("fontSize", 10),
+                    "lineHeight": max(int(label_config.get("fontSize", 10)) + 2, 12),
+                    "fontWeight": label_config.get("fontWeight", 700),
                     "formatter": self._format_delta_compact_label(
                         numeric_value,
                         current_value - previous_value,
@@ -5271,18 +5351,22 @@ class ReportBuilderService:
 
         min_value = min(values, default=0.0)
         max_value = max(values, default=0.0)
-        axis_min = min(-10.0, float(min_value)) - axis_padding_left
-        axis_max = max(10.0, float(max_value)) + axis_padding_right
+        axis_min = min(-10.0, float(min_value)) - float(label_config.get("axisPaddingLeft", 22) or 0.0)
+        axis_max = max(10.0, float(max_value)) + float(label_config.get("axisPaddingRight", 22) or 0.0)
 
         return {
             "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
-            "grid": {
-                "left": 92,
-                "right": 24,
-                "top": 18,
-                "bottom": 28,
-                "containLabel": False,
-            },
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 92,
+                    "right": 24,
+                    "top": 18,
+                    "bottom": 28,
+                    "containLabel": False,
+                },
+                "kpi",
+                "variance",
+            ),
             "xAxis": {
                 "type": "value",
                 "min": round(axis_min, 2),
@@ -5305,7 +5389,7 @@ class ReportBuilderService:
             "series": [
                 {
                     "type": "bar",
-                    "barWidth": 12,
+                    "barWidth": series_cfg.get("barWidth", 12),
                     "data": chart_data,
                 }
             ],
