@@ -383,6 +383,37 @@
                         </div>
                     </div>
 
+                    {% if is_monthly_utility_period and sections.utility.charts.period_heatmap.option %}
+                    <div class="utility-chart-block utility-chart-block-heatmap utility-chart-block-heatmap-primary pdf-keep-together">
+                        <div class="electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap">
+                            <h3 class="electricity-chart-card-title">
+                                {{ sections.utility.charts.period_heatmap.title }}
+                            </h3>
+                            <p class="electricity-chart-card-subtitle">
+                                {{ sections.utility.charts.period_heatmap.subtitle }}
+                            </p>
+                            <div id="utility-period-heatmap-chart" class="electricity-heatmap-chart utility-heatmap-chart"></div>
+                            <div class="electricity-heatmap-legend" aria-hidden="true">
+                                <span class="legend-label">Low</span>
+                                <span class="legend-bar"></span>
+                                <span class="legend-unit">{{ sections.utility.charts.period_heatmap.legend_unit or 'Scaled' }}</span>
+                                <span class="legend-bar legend-bar-strong"></span>
+                                <span class="legend-label">High</span>
+                            </div>
+                            {% if sections.utility.charts.period_heatmap.area_legend %}
+                            <div class="electricity-heatmap-area-legend" aria-hidden="true">
+                                {% for item in sections.utility.charts.period_heatmap.area_legend %}
+                                <span class="electricity-heatmap-area-legend-item">
+                                    <span class="electricity-heatmap-area-legend-dot" style="background: {{ item.color }};"></span>
+                                    <span class="electricity-heatmap-area-legend-label">{{ item.label }}</span>
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="utility-chart-block utility-chart-block-deviation">
                         <div class="electricity-chart-card utility-chart-card utility-chart-card-daily">
                             <h3 class="electricity-chart-card-title">
@@ -395,7 +426,7 @@
                         </div>
                     </div>
 
-                    {% if sections.utility.charts.period_heatmap.option %}
+                    {% if not is_monthly_utility_period and sections.utility.charts.period_heatmap.option %}
                     <div class="utility-chart-block utility-chart-block-heatmap pdf-keep-together">
                         <div class="electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap">
                             <h3 class="electricity-chart-card-title">

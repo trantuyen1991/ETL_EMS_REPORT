@@ -2888,7 +2888,11 @@ class ReportBuilderService:
             dates = row_def.get("dates") or []
             if row_index == 0:
                 x_labels = [
-                    self._format_heatmap_column_label(value, period_type)
+                    (
+                        self._format_periodic_axis_date_label(value, period_type)
+                        if period_type == "monthly"
+                        else self._format_heatmap_column_label(value, period_type)
+                    )
                     for value in dates
                 ]
                 x_labels.append("Avg")

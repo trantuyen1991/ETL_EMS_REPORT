@@ -669,7 +669,7 @@
     }
 
     .utility-periodic-chart-grid-monthly {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;
         grid-auto-flow: row !important;
     }
 
@@ -700,6 +700,14 @@
 
     .utility-periodic-chart-grid-monthly .utility-period-type-trend-chart {
         height: 262px !important;
+    }
+
+    .utility-periodic-chart-grid-monthly .utility-chart-block-deviation {
+        grid-column: 2 !important;
+    }
+
+    .utility-periodic-chart-grid-monthly .utility-chart-block-heatmap-primary {
+        grid-column: 1 !important;
     }
 
     .utility-comparison-chart-daily {
@@ -746,7 +754,10 @@
         height: 262px !important;
     }
 
-    .utility-periodic-chart-grid-monthly .utility-heatmap-chart,
+    .utility-periodic-chart-grid-monthly .utility-heatmap-chart {
+        height: var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px) !important;
+    }
+
     .utility-energy-chart-grid-monthly .utility-heatmap-chart {
         height: 192px !important;
     }
