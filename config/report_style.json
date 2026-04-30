@@ -20,6 +20,108 @@
       "lineHeightBase": "1.5",
       "lineHeightDense": "1.35"
     },
+    "palette": {
+      "title": "#0f2d45",
+      "textPrimary": "#223548",
+      "textMuted": "#5f7387",
+      "neutral": "#6c7f91",
+      "white": "#ffffff",
+      "page": "#edf3f8",
+      "brandPrimary": "#005496",
+      "previous": "#703cd9",
+      "trendUp": "#00c865",
+      "trendDown": "#ff2301",
+      "trendNeutral": "#6c7f91",
+      "areaDiode": "#005496",
+      "areaIco": "#6f9a6d",
+      "areaSakari": "#d09a45",
+      "utilityWater": "#005496",
+      "utilityCompressedAir": "#6f9a6d",
+      "utilityChilledWater": "#5ca7a4",
+      "utilitySteam": "#7a6da8"
+    },
+    "themes": {
+      "titleHeader": {
+        "default": {
+          "seedRef": "brandPrimary",
+          "mode": "headerShell"
+        }
+      },
+      "sectionHeader": {
+        "default": {
+          "seedRef": "brandPrimary",
+          "mode": "sectionHeader"
+        }
+      },
+      "card": {
+        "totalBrand": {
+          "seedRef": "brandPrimary",
+          "mode": "solidCard"
+        },
+        "areaDiode": {
+          "seedRef": "areaDiode",
+          "mode": "softCard"
+        },
+        "areaIco": {
+          "seedRef": "areaIco",
+          "mode": "softCard"
+        },
+        "areaSakari": {
+          "seedRef": "areaSakari",
+          "mode": "softCard"
+        },
+        "utilityWater": {
+          "seedRef": "utilityWater",
+          "mode": "softCard"
+        },
+        "utilityCompressedAir": {
+          "seedRef": "utilityCompressedAir",
+          "mode": "softCard"
+        },
+        "utilityChilledWater": {
+          "seedRef": "utilityChilledWater",
+          "mode": "softCard"
+        },
+        "utilitySteam": {
+          "seedRef": "utilitySteam",
+          "mode": "softCard"
+        }
+      },
+      "chart": {
+        "default": {
+          "currentRef": "brandPrimary",
+          "previousRef": "previous"
+        },
+        "areaDiode": {
+          "currentRef": "areaDiode",
+          "previousRef": "previous"
+        },
+        "areaIco": {
+          "currentRef": "areaIco",
+          "previousRef": "previous"
+        },
+        "areaSakari": {
+          "currentRef": "areaSakari",
+          "previousRef": "previous"
+        },
+        "utilityWater": {
+          "currentRef": "utilityWater",
+          "previousRef": "previous"
+        },
+        "utilityCompressedAir": {
+          "currentRef": "utilityCompressedAir",
+          "previousRef": "previous"
+        },
+        "utilityChilledWater": {
+          "currentRef": "utilityChilledWater",
+          "previousRef": "previous"
+        },
+        "utilitySteam": {
+          "currentRef": "utilitySteam",
+          "previousRef": "previous"
+        }
+      }
+    },
     "color": {
       "pageBackground": "#edf3f8",
       "cardBackground": "#ffffff",
@@ -37,8 +139,8 @@
       "borderRow": "#e6edf3",
       "brandPrimary": "#005496",
       "brandAccent": "#703cd9",
-      "trendUp": "#0b7a43",
-      "trendDown": "#c04b39",
+      "trendUp": "#00c865",
+      "trendDown": "#ff2301",
       "trendNeutral": "#6c7f91",
       "statusSuccess": "#0b7a43",
       "statusSuccessBackground": "#def4e7",

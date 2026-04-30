@@ -1248,6 +1248,9 @@ class ReportStyleService:
                     _collapse_pdf_height_modes(value)
 
         _collapse_pdf_height_modes(existing_report)
+        self._ensure_palette_registry(style_config)
+        self._ensure_theme_registry(style_config)
+        self._sync_palette_tokens(style_config)
         self._sync_legacy_color_tokens(style_config)
 
     def _validate_minimum_shape(self, style_config: dict[str, Any]) -> None:
@@ -1340,6 +1343,180 @@ class ReportStyleService:
                 defaults[target_key] = chart_cfg.get(source_key)
 
         return defaults
+
+    def _ensure_palette_registry(self, style_config: dict[str, Any]) -> None:
+        """Backfill the new short master palette from current semantic/report theme data."""
+        palette_cfg = style_config.get("palette")
+        if not isinstance(palette_cfg, dict):
+            palette_cfg = {}
+            style_config["palette"] = palette_cfg
+
+        color_cfg = style_config.get("color") if isinstance(style_config.get("color"), dict) else {}
+        text_cfg = color_cfg.get("text") if isinstance(color_cfg.get("text"), dict) else {}
+        surface_cfg = color_cfg.get("surface") if isinstance(color_cfg.get("surface"), dict) else {}
+        brand_cfg = color_cfg.get("brand") if isinstance(color_cfg.get("brand"), dict) else {}
+        trend_cfg = color_cfg.get("trend") if isinstance(color_cfg.get("trend"), dict) else {}
+        area_cfg = color_cfg.get("area") if isinstance(color_cfg.get("area"), dict) else {}
+
+        components = style_config.get("components") if isinstance(style_config.get("components"), dict) else {}
+        report_cfg = components.get("report") if isinstance(components.get("report"), dict) else {}
+        section_cfg = report_cfg.get("section") if isinstance(report_cfg.get("section"), dict) else {}
+        electric_cfg = section_cfg.get("electric") if isinstance(section_cfg.get("electric"), dict) else {}
+        utility_cfg = section_cfg.get("utility") if isinstance(section_cfg.get("utility"), dict) else {}
+        electric_card_theme = ((electric_cfg.get("card") or {}).get("theme") or {}) if isinstance(electric_cfg.get("card"), dict) else {}
+        utility_card_theme = ((utility_cfg.get("card") or {}).get("theme") or {}) if isinstance(utility_cfg.get("card"), dict) else {}
+
+        def _first_non_none(*values: Any) -> Any:
+            for value in values:
+                if value is not None:
+                    return value
+            return None
+
+        palette_defaults = {
+            "title": _first_non_none(text_cfg.get("heading"), color_cfg.get("textHeading"), "#0f2d45"),
+            "textPrimary": _first_non_none(text_cfg.get("primary"), color_cfg.get("textPrimary"), "#223548"),
+            "textMuted": _first_non_none(text_cfg.get("muted"), color_cfg.get("textMuted"), "#5f7387"),
+            "neutral": _first_non_none(trend_cfg.get("neutral"), color_cfg.get("trendNeutral"), "#6c7f91"),
+            "white": _first_non_none(text_cfg.get("inverse"), color_cfg.get("textInverse"), "#ffffff"),
+            "page": _first_non_none(surface_cfg.get("page"), color_cfg.get("pageBackground"), "#edf3f8"),
+            "brandPrimary": _first_non_none(brand_cfg.get("primary"), color_cfg.get("brandPrimary"), "#005496"),
+            "previous": _first_non_none(text_cfg.get("previousValue"), brand_cfg.get("accent"), color_cfg.get("brandAccent"), "#703cd9"),
+            "trendUp": _first_non_none(color_cfg.get("trendUp"), trend_cfg.get("up"), "#00c865"),
+            "trendDown": _first_non_none(color_cfg.get("trendDown"), trend_cfg.get("down"), "#ff2301"),
+            "trendNeutral": _first_non_none(color_cfg.get("trendNeutral"), trend_cfg.get("neutral"), "#6c7f91"),
+            "areaDiode": _first_non_none(
+                (area_cfg.get("diode") or {}).get("barColor") if isinstance(area_cfg.get("diode"), dict) else None,
+                (electric_card_theme.get("diode") or {}).get("accent") if isinstance(electric_card_theme.get("diode"), dict) else None,
+                "#005496",
+            ),
+            "areaIco": _first_non_none(
+                (area_cfg.get("ico") or {}).get("barColor") if isinstance(area_cfg.get("ico"), dict) else None,
+                (electric_card_theme.get("ico") or {}).get("accent") if isinstance(electric_card_theme.get("ico"), dict) else None,
+                "#6f9a6d",
+            ),
+            "areaSakari": _first_non_none(
+                (area_cfg.get("sakari") or {}).get("barColor") if isinstance(area_cfg.get("sakari"), dict) else None,
+                (electric_card_theme.get("sakari") or {}).get("accent") if isinstance(electric_card_theme.get("sakari"), dict) else None,
+                "#d09a45",
+            ),
+            "utilityWater": _first_non_none(
+                (utility_card_theme.get("water") or {}).get("accent") if isinstance(utility_card_theme.get("water"), dict) else None,
+                "#005496",
+            ),
+            "utilityCompressedAir": _first_non_none(
+                (utility_card_theme.get("compressedAir") or {}).get("accent") if isinstance(utility_card_theme.get("compressedAir"), dict) else None,
+                "#6f9a6d",
+            ),
+            "utilityChilledWater": _first_non_none(
+                (utility_card_theme.get("chilledWater") or {}).get("accent") if isinstance(utility_card_theme.get("chilledWater"), dict) else None,
+                "#5ca7a4",
+            ),
+            "utilitySteam": _first_non_none(
+                (utility_card_theme.get("steam") or {}).get("accent") if isinstance(utility_card_theme.get("steam"), dict) else None,
+                "#7a6da8",
+            ),
+        }
+
+        for key, value in palette_defaults.items():
+            if palette_cfg.get(key) is None and value is not None:
+                palette_cfg[key] = deepcopy(value)
+
+    def _ensure_theme_registry(self, style_config: dict[str, Any]) -> None:
+        """Backfill the new theme registry with approved default theme refs."""
+        themes_cfg = style_config.get("themes")
+        if not isinstance(themes_cfg, dict):
+            themes_cfg = {}
+            style_config["themes"] = themes_cfg
+
+        default_themes = {
+            "titleHeader": {
+                "default": {"seedRef": "brandPrimary", "mode": "headerShell"},
+            },
+            "sectionHeader": {
+                "default": {"seedRef": "brandPrimary", "mode": "sectionHeader"},
+            },
+            "card": {
+                "totalBrand": {"seedRef": "brandPrimary", "mode": "solidCard"},
+                "areaDiode": {"seedRef": "areaDiode", "mode": "softCard"},
+                "areaIco": {"seedRef": "areaIco", "mode": "softCard"},
+                "areaSakari": {"seedRef": "areaSakari", "mode": "softCard"},
+                "utilityWater": {"seedRef": "utilityWater", "mode": "softCard"},
+                "utilityCompressedAir": {"seedRef": "utilityCompressedAir", "mode": "softCard"},
+                "utilityChilledWater": {"seedRef": "utilityChilledWater", "mode": "softCard"},
+                "utilitySteam": {"seedRef": "utilitySteam", "mode": "softCard"},
+            },
+            "chart": {
+                "default": {"currentRef": "brandPrimary", "previousRef": "previous"},
+                "areaDiode": {"currentRef": "areaDiode", "previousRef": "previous"},
+                "areaIco": {"currentRef": "areaIco", "previousRef": "previous"},
+                "areaSakari": {"currentRef": "areaSakari", "previousRef": "previous"},
+                "utilityWater": {"currentRef": "utilityWater", "previousRef": "previous"},
+                "utilityCompressedAir": {"currentRef": "utilityCompressedAir", "previousRef": "previous"},
+                "utilityChilledWater": {"currentRef": "utilityChilledWater", "previousRef": "previous"},
+                "utilitySteam": {"currentRef": "utilitySteam", "previousRef": "previous"},
+            },
+        }
+
+        for group_key, default_group in default_themes.items():
+            existing_group = themes_cfg.get(group_key)
+            if not isinstance(existing_group, dict):
+                themes_cfg[group_key] = deepcopy(default_group)
+                continue
+
+            for theme_key, default_theme in default_group.items():
+                existing_theme = existing_group.get(theme_key)
+                if not isinstance(existing_theme, dict):
+                    existing_group[theme_key] = deepcopy(default_theme)
+                    continue
+
+                for prop_key, prop_value in default_theme.items():
+                    existing_theme.setdefault(prop_key, deepcopy(prop_value))
+
+    def _sync_palette_tokens(self, style_config: dict[str, Any]) -> None:
+        """Mirror the new short palette into the current semantic color tree for safe migration."""
+        palette_cfg = style_config.get("palette")
+        color_cfg = style_config.get("color")
+        if not isinstance(palette_cfg, dict) or not isinstance(color_cfg, dict):
+            return
+
+        text_cfg = color_cfg.get("text") if isinstance(color_cfg.get("text"), dict) else {}
+        surface_cfg = color_cfg.get("surface") if isinstance(color_cfg.get("surface"), dict) else {}
+        brand_cfg = color_cfg.get("brand") if isinstance(color_cfg.get("brand"), dict) else {}
+        trend_cfg = color_cfg.get("trend") if isinstance(color_cfg.get("trend"), dict) else {}
+        chart_cfg = color_cfg.get("chart") if isinstance(color_cfg.get("chart"), dict) else {}
+        chart_series_cfg = chart_cfg.get("series") if isinstance(chart_cfg.get("series"), dict) else {}
+        area_cfg = color_cfg.get("area") if isinstance(color_cfg.get("area"), dict) else {}
+
+        text_cfg["heading"] = palette_cfg.get("title", text_cfg.get("heading"))
+        text_cfg["primary"] = palette_cfg.get("textPrimary", text_cfg.get("primary"))
+        text_cfg["muted"] = palette_cfg.get("textMuted", text_cfg.get("muted"))
+        text_cfg["inverse"] = palette_cfg.get("white", text_cfg.get("inverse"))
+        text_cfg["previousValue"] = palette_cfg.get("previous", text_cfg.get("previousValue"))
+        color_cfg["text"] = text_cfg
+
+        surface_cfg["page"] = palette_cfg.get("page", surface_cfg.get("page"))
+        color_cfg["surface"] = surface_cfg
+
+        brand_cfg["primary"] = palette_cfg.get("brandPrimary", brand_cfg.get("primary"))
+        brand_cfg["accent"] = palette_cfg.get("previous", brand_cfg.get("accent"))
+        color_cfg["brand"] = brand_cfg
+
+        trend_cfg["up"] = palette_cfg.get("trendUp", trend_cfg.get("up"))
+        trend_cfg["down"] = palette_cfg.get("trendDown", trend_cfg.get("down"))
+        trend_cfg["neutral"] = palette_cfg.get("trendNeutral", trend_cfg.get("neutral"))
+        color_cfg["trend"] = trend_cfg
+
+        if isinstance(chart_series_cfg, dict):
+            chart_series_cfg["current"] = palette_cfg.get("brandPrimary", chart_series_cfg.get("current"))
+            chart_series_cfg["previous"] = palette_cfg.get("previous", chart_series_cfg.get("previous"))
+            chart_cfg["series"] = chart_series_cfg
+            color_cfg["chart"] = chart_cfg
+
+        for area_key, palette_key in (("diode", "areaDiode"), ("ico", "areaIco"), ("sakari", "areaSakari")):
+            area_node = area_cfg.get(area_key) if isinstance(area_cfg.get(area_key), dict) else {}
+            area_node["barColor"] = palette_cfg.get(palette_key, area_node.get("barColor"))
+            area_cfg[area_key] = area_node
+        color_cfg["area"] = area_cfg
 
     def _sync_legacy_color_tokens(self, style_config: dict[str, Any]) -> None:
         """Keep flat legacy color keys aligned with semantic palette branches."""
