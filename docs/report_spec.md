@@ -138,6 +138,43 @@ Approved rollout rule:
   - Batch 2: KPI section remap
   - Batch 3: Utility section remap + remaining chart hardcode cleanup
 
+### 2.7 Approved Color Architecture Reset (2026-04-30)
+The next color-system phase is now explicitly approved as a stronger reset of the theme architecture.
+
+Approved rules:
+- `report_style.json` must expose a short, human-readable master palette near the top of the file
+- component branches should stop storing direct hex / rgba color values where practical
+- component branches should prefer `...Ref` or `themeRef` ownership instead of local hardcoded color literals
+- derived colors such as soft backgrounds, borders, tints, and icon backgrounds should be generated from the seed color in backend normalization logic
+- SVG and icon assets must not keep inline hardcoded colors; they must inherit theme color from the container
+- component coloring rules must be consistent by component mode, for example:
+  - solid cards: icon background white, icon glyph seed-colored
+  - soft cards: icon background seed-colored, icon glyph white
+  - section headers: soft shell + seed accent border + seed icon circle
+
+Approved target architecture:
+1. `reportStyle.palette`
+   - one short master palette for the whole report
+   - intended examples: `title`, `previous`, `trendUp`, `trendDown`, `areaIco`, `areaSakari`, utility seeds, and brand seeds
+2. `reportStyle.themes`
+   - theme map from seed colors to reusable theme modes such as `solidCard`, `softCard`, `sectionHeader`, `titleHeader`, and chart modes
+3. `reportStyle.components.*`
+   - components keep layout, sizing, spacing, and object structure
+   - components reference colors through `themeRef` or future `...Ref` properties instead of embedding local hex values
+
+Approved technical roadmap:
+1. introduce `reportStyle.palette` and `reportStyle.themes` as the new canonical color registry while keeping current render behavior stable
+2. extend `style_service.py` so palette seeds and theme modes can derive the secondary colors needed by CSS and charts
+3. migrate shared shells first, especially title header, common section header, and the Electricity total-card pilot
+4. migrate remaining Electricity, KPI, and Utility card/chart/table themes to `themeRef`
+5. remove leftover direct color literals from components and SVG assets once all consumers are reading from the new theme registry
+
+Checkpoint rule for this migration:
+- update docs first
+- create a scoped checkpoint commit
+- run MemPalace mine
+- then begin implementation from roadmap step 1
+
 ---
 
 ## 3. Runtime and Deployment Context

@@ -202,7 +202,28 @@ Current anomaly rules:
 - keep compatibility aliases while CSS is still consuming older flat variable names
 - allow renderer-specific overrides only where print behavior really differs
 
-### 4.3 Enterprise color palette rollout
+### 4.3 Approved color-architecture reset (2026-04-30)
+Current approved direction:
+- add a short master palette at `reportStyle.palette`
+- add a reusable theme registry at `reportStyle.themes`
+- stop adding new direct hex / rgba literals into component branches
+- derive soft backgrounds, borders, tints, and icon shells from seed colors in backend normalization logic
+- move components toward `themeRef` / `...Ref` ownership while keeping layout tokens where they already live
+- remove inline hardcoded SVG colors as each asset is touched
+
+Implementation roadmap now approved:
+1. foundation: palette registry + theme registry + normalization support
+2. shared-shell pilot: title header, common section header, Electricity total card
+3. section migration: remaining Electricity, KPI, Utility cards / charts / tables
+4. cleanup: remove leftover local color literals and shrink compatibility bridges again
+
+Execution rule:
+- docs update first
+- checkpoint commit
+- MemPalace mine
+- then start implementation from roadmap step 1
+
+### 4.4 Enterprise color palette rollout
 Approved architecture:
 - `config/report_style.json` remains the single source of truth for the report theme
 - `src/services/style_service.py` remains the mapper that normalizes config, emits CSS variables, and derives the ECharts theme
