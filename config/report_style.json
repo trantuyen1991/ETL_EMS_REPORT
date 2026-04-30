@@ -896,6 +896,7 @@
             },
             "chart": {
               "comparison": {
+                "familyRef": "column.standard",
                 "legend": {
                   "bottom": "center"
                 },
@@ -905,6 +906,9 @@
                   "top": 10,
                   "bottom": 20,
                   "containLabel": true
+                },
+                "series": {
+                  "barMaxWidth": 24
                 },
                 "height": {
                   "view": "272px",

@@ -2591,6 +2591,13 @@ class ReportBuilderService:
         axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         axis_line_color = str(self._get_style_color_value("#b8cada", "border", "strong"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
+        series_cfg = self._resolve_chart_series_config(
+            {"barMaxWidth": 24, "labelLayoutHideOverlap": False},
+            "utility",
+            "comparison",
+        )
+        bar_max_width = int(series_cfg.get("barMaxWidth") or 24)
+        hide_overlap = bool(series_cfg.get("labelLayoutHideOverlap", False))
 
         return {
             "color": [series_palette["current"], series_palette["previous"]],
@@ -2639,7 +2646,8 @@ class ReportBuilderService:
                 {
                     "name": "Current period",
                     "type": "bar",
-                    "barMaxWidth": 24,
+                    "barMaxWidth": bar_max_width,
+                    "labelLayout": {"hideOverlap": hide_overlap},
                     "data": [
                         self._build_chart_bar_point(
                             value,
@@ -2648,6 +2656,7 @@ class ReportBuilderService:
                             label_rotate=16,
                             label_distance=4,
                             formatter=self._fmt_chart_compact(value),
+                            chart_path=("utility", "comparison"),
                         )
                         for value in current_values
                     ],
@@ -2655,7 +2664,8 @@ class ReportBuilderService:
                 {
                     "name": "Previous period",
                     "type": "bar",
-                    "barMaxWidth": 24,
+                    "barMaxWidth": bar_max_width,
+                    "labelLayout": {"hideOverlap": hide_overlap},
                     "data": [
                         self._build_chart_bar_point(
                             value,
@@ -2664,6 +2674,7 @@ class ReportBuilderService:
                             label_rotate=16,
                             label_distance=4,
                             formatter=self._fmt_chart_compact(value),
+                            chart_path=("utility", "comparison"),
                         )
                         for value in previous_values
                     ],
