@@ -697,7 +697,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.softBrand"
                 },
                 "total": {
                   "accent": "#005496",
@@ -734,7 +735,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.areaDiode"
                 },
                 "ico": {
                   "accent": "#6f9a6d",
@@ -752,7 +754,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.areaIco"
                 },
                 "sakari": {
                   "accent": "#d09a45",
@@ -770,7 +773,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.areaSakari"
                 }
               }
             },
@@ -937,10 +941,12 @@
                   "current": "#005496",
                   "previous": "#703cd9",
                   "currentTint": "rgba(0, 84, 150, 0.12)",
-                  "previousTint": "rgba(112, 60, 217, 0.10)"
+                  "previousTint": "rgba(112, 60, 217, 0.10)",
+                  "themeRef": "chart.default"
                 },
                 "delta": {
-                  "total": "#005496"
+                  "total": "#005496",
+                  "themeRef": "chart.deltaDefault"
                 }
               }
             },
@@ -1061,7 +1067,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.softBrand"
                 },
                 "water": {
                   "accent": "#005496",
@@ -1079,7 +1086,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.utilityWater"
                 },
                 "compressedAir": {
                   "accent": "#6f9a6d",
@@ -1097,7 +1105,8 @@
                   "primaryUnitColor": "#39553a",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(202, 223, 200, 0.95)",
-                  "compareDividerColor": "rgba(218, 232, 216, 0.95)"
+                  "compareDividerColor": "rgba(218, 232, 216, 0.95)",
+                  "themeRef": "card.utilityCompressedAir"
                 },
                 "chilledWater": {
                   "accent": "#5ca7a4",
@@ -1115,7 +1124,8 @@
                   "primaryUnitColor": "#1f5f5d",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(200, 225, 223, 0.95)",
-                  "compareDividerColor": "rgba(220, 236, 235, 0.95)"
+                  "compareDividerColor": "rgba(220, 236, 235, 0.95)",
+                  "themeRef": "card.utilityChilledWater"
                 },
                 "steam": {
                   "accent": "#7a6da8",
@@ -1133,7 +1143,8 @@
                   "primaryUnitColor": "#4d4177",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(216, 209, 234, 0.95)",
-                  "compareDividerColor": "rgba(229, 223, 241, 0.95)"
+                  "compareDividerColor": "rgba(229, 223, 241, 0.95)",
+                  "themeRef": "card.utilitySteam"
                 },
                 "totalEnergy": {
                   "accent": "#005496",
@@ -1151,7 +1162,8 @@
                   "primaryUnitColor": "rgba(255, 255, 255, 0.94)",
                   "compareBackground": "rgba(255, 255, 255, 0.98)",
                   "compareBorderColor": "rgba(213, 228, 242, 0.96)",
-                  "compareDividerColor": "rgba(221, 232, 242, 0.92)"
+                  "compareDividerColor": "rgba(221, 232, 242, 0.92)",
+                  "themeRef": "card.softBrand"
                 },
                 "airEnergy": {
                   "accent": "#6f9a6d",
@@ -1169,7 +1181,8 @@
                   "primaryUnitColor": "#39553a",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(202, 223, 200, 0.95)",
-                  "compareDividerColor": "rgba(218, 232, 216, 0.95)"
+                  "compareDividerColor": "rgba(218, 232, 216, 0.95)",
+                  "themeRef": "card.utilityCompressedAir"
                 },
                 "chilledWaterEnergy": {
                   "accent": "#5ca7a4",
@@ -1187,7 +1200,8 @@
                   "primaryUnitColor": "#1f5f5d",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(200, 225, 223, 0.95)",
-                  "compareDividerColor": "rgba(220, 236, 235, 0.95)"
+                  "compareDividerColor": "rgba(220, 236, 235, 0.95)",
+                  "themeRef": "card.utilityChilledWater"
                 },
                 "boilerEnergy": {
                   "accent": "#7a6da8",
@@ -1205,7 +1219,8 @@
                   "primaryUnitColor": "#4d4177",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(216, 209, 234, 0.95)",
-                  "compareDividerColor": "rgba(229, 223, 241, 0.95)"
+                  "compareDividerColor": "rgba(229, 223, 241, 0.95)",
+                  "themeRef": "card.utilitySteam"
                 }
               }
             },
@@ -1332,35 +1347,42 @@
                   "previous": "#703cd9",
                   "currentTint": "rgba(0, 84, 150, 0.12)",
                   "previousTint": "rgba(112, 60, 217, 0.10)",
-                  "neutral": "#6c7f91"
+                  "neutral": "#6c7f91",
+                  "themeRef": "chart.default"
                 },
                 "category": {
                   "water": {
                     "color": "#005496",
-                    "tint": "rgba(0, 84, 150, 0.12)"
+                    "tint": "rgba(0, 84, 150, 0.12)",
+                    "themeRef": "chart.utilityWater"
                   },
                   "compressedAir": {
                     "color": "#6f9a6d",
-                    "tint": "rgba(111, 154, 109, 0.14)"
+                    "tint": "rgba(111, 154, 109, 0.14)",
+                    "themeRef": "chart.utilityCompressedAir"
                   },
                   "chilledWater": {
                     "color": "#5ca7a4",
-                    "tint": "rgba(92, 167, 164, 0.14)"
+                    "tint": "rgba(92, 167, 164, 0.14)",
+                    "themeRef": "chart.utilityChilledWater"
                   },
                   "steam": {
                     "color": "#7a6da8",
-                    "tint": "rgba(122, 109, 168, 0.14)"
+                    "tint": "rgba(122, 109, 168, 0.14)",
+                    "themeRef": "chart.utilitySteam"
                   },
                   "totalEnergy": {
                     "color": "#005496",
-                    "tint": "rgba(0, 84, 150, 0.12)"
+                    "tint": "rgba(0, 84, 150, 0.12)",
+                    "themeRef": "chart.utilityTotalEnergy"
                   }
                 },
                 "delta": {
                   "positive": "#c04b39",
                   "negative": "#0b7a43",
                   "neutral": "#6c7f91",
-                  "total": "#005496"
+                  "total": "#005496",
+                  "themeRef": "chart.deltaDefault"
                 }
               }
             },
@@ -1535,7 +1557,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.softBrand"
                 },
                 "total": {
                   "accent": "#005496",
@@ -1553,7 +1576,8 @@
                   "primaryUnitColor": "rgba(255, 255, 255, 0.94)",
                   "compareBackground": "rgba(255, 255, 255, 0.98)",
                   "compareBorderColor": "rgba(213, 228, 242, 0.96)",
-                  "compareDividerColor": "rgba(221, 232, 242, 0.92)"
+                  "compareDividerColor": "rgba(221, 232, 242, 0.92)",
+                  "themeRef": "card.totalBrand"
                 },
                 "diode": {
                   "accent": "#005496",
@@ -1571,7 +1595,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.areaDiode"
                 },
                 "ico": {
                   "accent": "#6f9a6d",
@@ -1589,7 +1614,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.areaIco"
                 },
                 "sakari": {
                   "accent": "#d09a45",
@@ -1607,7 +1633,8 @@
                   "primaryUnitColor": "#0f2d45",
                   "compareBackground": "rgba(255, 255, 255, 0.94)",
                   "compareBorderColor": "rgba(191, 212, 229, 0.95)",
-                  "compareDividerColor": "rgba(214, 226, 236, 0.95)"
+                  "compareDividerColor": "rgba(214, 226, 236, 0.95)",
+                  "themeRef": "card.areaSakari"
                 }
               }
             },
@@ -1654,7 +1681,8 @@
                   "previous": "#703cd9",
                   "currentTint": "rgba(0, 84, 150, 0.12)",
                   "previousTint": "rgba(112, 60, 217, 0.10)",
-                  "neutral": "#6c7f91"
+                  "neutral": "#6c7f91",
+                  "themeRef": "chart.default"
                 }
               }
             },

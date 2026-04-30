@@ -1438,6 +1438,7 @@ class ReportStyleService:
             },
             "card": {
                 "totalBrand": {"seedRef": "brandPrimary", "mode": "solidCard"},
+                "softBrand": {"seedRef": "brandPrimary", "mode": "softCard"},
                 "areaDiode": {"seedRef": "areaDiode", "mode": "softCard"},
                 "areaIco": {"seedRef": "areaIco", "mode": "softCard"},
                 "areaSakari": {"seedRef": "areaSakari", "mode": "softCard"},
@@ -1447,14 +1448,16 @@ class ReportStyleService:
                 "utilitySteam": {"seedRef": "utilitySteam", "mode": "softCard"},
             },
             "chart": {
-                "default": {"currentRef": "brandPrimary", "previousRef": "previous"},
-                "areaDiode": {"currentRef": "areaDiode", "previousRef": "previous"},
-                "areaIco": {"currentRef": "areaIco", "previousRef": "previous"},
-                "areaSakari": {"currentRef": "areaSakari", "previousRef": "previous"},
-                "utilityWater": {"currentRef": "utilityWater", "previousRef": "previous"},
-                "utilityCompressedAir": {"currentRef": "utilityCompressedAir", "previousRef": "previous"},
-                "utilityChilledWater": {"currentRef": "utilityChilledWater", "previousRef": "previous"},
-                "utilitySteam": {"currentRef": "utilitySteam", "previousRef": "previous"},
+                "default": {"seedRef": "brandPrimary", "previousRef": "previous", "neutralRef": "trendNeutral", "mode": "chartSeries"},
+                "areaDiode": {"seedRef": "areaDiode", "previousRef": "previous", "neutralRef": "trendNeutral", "mode": "chartSeries"},
+                "areaIco": {"seedRef": "areaIco", "previousRef": "previous", "neutralRef": "trendNeutral", "mode": "chartSeries"},
+                "areaSakari": {"seedRef": "areaSakari", "previousRef": "previous", "neutralRef": "trendNeutral", "mode": "chartSeries"},
+                "utilityWater": {"seedRef": "utilityWater", "previousRef": "previous", "neutralRef": "trendNeutral", "mode": "chartCategory"},
+                "utilityCompressedAir": {"seedRef": "utilityCompressedAir", "previousRef": "previous", "neutralRef": "trendNeutral", "mode": "chartCategory"},
+                "utilityChilledWater": {"seedRef": "utilityChilledWater", "previousRef": "previous", "neutralRef": "trendNeutral", "mode": "chartCategory"},
+                "utilitySteam": {"seedRef": "utilitySteam", "previousRef": "previous", "neutralRef": "trendNeutral", "mode": "chartCategory"},
+                "utilityTotalEnergy": {"seedRef": "brandPrimary", "previousRef": "previous", "neutralRef": "trendNeutral", "mode": "chartCategory"},
+                "deltaDefault": {"positiveRef": "trendDown", "negativeRef": "trendUp", "neutralRef": "trendNeutral", "totalRef": "brandPrimary", "mode": "chartDelta"},
             },
         }
 
@@ -1573,24 +1576,39 @@ class ReportStyleService:
         return f"rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, {alpha_text})"
 
     def _derive_theme_mode_tokens(self, style_config: dict[str, Any], theme_cfg: dict[str, Any]) -> dict[str, Any]:
-        """Derive pilot component tokens from a theme registry entry."""
+        """Derive component/chart tokens from a theme registry entry."""
         palette_cfg = style_config.get("palette") if isinstance(style_config.get("palette"), dict) else {}
+
+        def _resolve_palette_color(ref_key: Any, fallback: str | None = None) -> str | None:
+            if isinstance(ref_key, str) and isinstance(palette_cfg.get(ref_key), str):
+                return palette_cfg.get(ref_key)
+            return fallback
+
         seed_ref = theme_cfg.get("seedRef")
-        seed = palette_cfg.get(seed_ref) if isinstance(seed_ref, str) else None
-        if not isinstance(seed, str):
-            return {}
+        seed = _resolve_palette_color(seed_ref)
+        current = _resolve_palette_color(theme_cfg.get("currentRef"), seed)
+        previous = _resolve_palette_color(theme_cfg.get("previousRef"), palette_cfg.get("previous", "#703cd9"))
+        neutral = _resolve_palette_color(theme_cfg.get("neutralRef"), palette_cfg.get("trendNeutral", "#6c7f91"))
+        positive = _resolve_palette_color(theme_cfg.get("positiveRef"), palette_cfg.get("trendDown", "#ff2301"))
+        negative = _resolve_palette_color(theme_cfg.get("negativeRef"), palette_cfg.get("trendUp", "#00c865"))
+        total = _resolve_palette_color(theme_cfg.get("totalRef"), palette_cfg.get("brandPrimary", "#005496"))
 
         mode = theme_cfg.get("mode")
+        if mode in {"headerShell", "sectionHeader", "solidCard", "softCard"} and not isinstance(seed, str):
+            return {}
+        if mode in {"chartSeries", "chartCategory"} and not isinstance(current, str):
+            return {}
+        if mode == "chartDelta" and not all(isinstance(v, str) for v in (positive, negative, neutral, total)):
+            return {}
+
         title = palette_cfg.get("title", "#0f2d45")
-        text_primary = palette_cfg.get("textPrimary", "#223548")
         text_muted = palette_cfg.get("textMuted", "#5f7387")
-        neutral = palette_cfg.get("neutral", "#6c7f91")
         white = palette_cfg.get("white", "#ffffff")
-        previous = palette_cfg.get("previous", "#703cd9")
-        soft_bg = self._mix_hex_colors(seed, white, 0.93)
-        soft_border = self._mix_hex_colors(seed, white, 0.75)
-        strong_border = self._mix_hex_colors(seed, white, 0.35)
-        seed_light = self._mix_hex_colors(seed, white, 0.18)
+        seed_for_surface = seed if isinstance(seed, str) else current
+        soft_bg = self._mix_hex_colors(seed_for_surface, white, 0.93)
+        soft_border = self._mix_hex_colors(seed_for_surface, white, 0.75)
+        strong_border = self._mix_hex_colors(seed_for_surface, white, 0.35)
+        seed_light = self._mix_hex_colors(seed_for_surface, white, 0.18)
 
         if mode == "headerShell":
             return {
@@ -1667,44 +1685,50 @@ class ReportStyleService:
                 "compareDividerColor": self._hex_to_rgba(self._mix_hex_colors(seed, white, 0.82), 0.95),
             }
 
+        if mode == "chartSeries":
+            return {
+                "current": current,
+                "previous": previous,
+                "currentTint": self._hex_to_rgba(current, 0.12),
+                "previousTint": self._hex_to_rgba(previous, 0.10),
+                "neutral": neutral,
+            }
+
+        if mode == "chartCategory":
+            return {
+                "color": current,
+                "tint": self._hex_to_rgba(current, 0.14),
+            }
+
+        if mode == "chartDelta":
+            return {
+                "positive": positive,
+                "negative": negative,
+                "neutral": neutral,
+                "total": total,
+            }
+
         return {}
 
     def _apply_theme_refs(self, style_config: dict[str, Any]) -> None:
-        """Resolve approved pilot `themeRef` branches into concrete tokens before CSS flattening."""
+        """Resolve any approved `themeRef` branch into concrete tokens before CSS flattening."""
         components = style_config.get("components") if isinstance(style_config.get("components"), dict) else {}
-        report_cfg = components.get("report") if isinstance(components.get("report"), dict) else {}
-        section_cfg = report_cfg.get("section") if isinstance(report_cfg.get("section"), dict) else {}
 
-        pilot_nodes = []
-        title_header = report_cfg.get("titleHeader") if isinstance(report_cfg.get("titleHeader"), dict) else {}
-        title_shell = title_header.get("shell") if isinstance(title_header.get("shell"), dict) else None
-        if isinstance(title_shell, dict):
-            pilot_nodes.append(title_shell)
-
-        common_cfg = section_cfg.get("common") if isinstance(section_cfg.get("common"), dict) else {}
-        common_header = common_cfg.get("header") if isinstance(common_cfg.get("header"), dict) else None
-        if isinstance(common_header, dict):
-            pilot_nodes.append(common_header)
-
-        electric_cfg = section_cfg.get("electric") if isinstance(section_cfg.get("electric"), dict) else {}
-        electric_card_cfg = electric_cfg.get("card") if isinstance(electric_cfg.get("card"), dict) else {}
-        electric_theme_cfg = electric_card_cfg.get("theme") if isinstance(electric_card_cfg.get("theme"), dict) else {}
-        electric_total = electric_theme_cfg.get("total") if isinstance(electric_theme_cfg.get("total"), dict) else None
-        if isinstance(electric_total, dict):
-            pilot_nodes.append(electric_total)
-
-        for node in pilot_nodes:
+        def _walk(node: Any) -> None:
+            if not isinstance(node, dict):
+                return
             theme_ref = node.get("themeRef")
-            if not isinstance(theme_ref, str) or not theme_ref:
-                continue
-            theme_cfg = self._resolve_theme_ref(style_config, theme_ref)
-            if not theme_cfg:
-                continue
-            derived_tokens = self._derive_theme_mode_tokens(style_config, theme_cfg)
-            if not derived_tokens:
-                continue
-            for key, value in derived_tokens.items():
-                node[key] = deepcopy(value)
+            if isinstance(theme_ref, str) and theme_ref:
+                theme_cfg = self._resolve_theme_ref(style_config, theme_ref)
+                if theme_cfg:
+                    derived_tokens = self._derive_theme_mode_tokens(style_config, theme_cfg)
+                    for key, value in derived_tokens.items():
+                        node[key] = deepcopy(value)
+            for value in node.values():
+                if isinstance(value, dict):
+                    _walk(value)
+
+        _walk(components)
 
     def _sync_legacy_color_tokens(self, style_config: dict[str, Any]) -> None:
         """Keep flat legacy color keys aligned with semantic palette branches."""
