@@ -1171,6 +1171,8 @@
         .electricity-total-card-icon svg {
             width: var(--report-components-report-section-electric-card-total-pdf-icon-glyph-size, 22px);
             height: var(--report-components-report-section-electric-card-total-pdf-icon-glyph-size, 22px);
+            color: inherit;
+            stroke: currentColor;
             stroke-width: 1.8;
             stroke-linecap: round;
             stroke-linejoin: round;

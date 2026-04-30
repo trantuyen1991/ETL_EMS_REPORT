@@ -1197,6 +1197,8 @@
         .electricity-total-card-icon svg {
             width: 22px;
             height: 22px;
+            color: inherit;
+            stroke: currentColor;
             stroke-width: 1.8;
             stroke-linecap: round;
             stroke-linejoin: round;
