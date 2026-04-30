@@ -524,10 +524,15 @@
     }
 
     .utility-energy-card .utility-overview-card-title {
-        display: block !important;
+        display: -webkit-box !important;
         min-height: 2.3em !important;
+        max-height: 2.3em !important;
         font-size: 7.6px !important;
         line-height: 1.15 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
     }
 
     .utility-overview-card-icon {
