@@ -1247,7 +1247,25 @@ class ReportStyleService:
                 if isinstance(value, dict):
                     _collapse_pdf_height_modes(value)
 
+        def _remove_redundant_section_table_common(report_cfg: dict[str, Any]) -> None:
+            section_cfg = report_cfg.get("section") if isinstance(report_cfg.get("section"), dict) else {}
+            common_table_base = (
+                (((section_cfg.get("common") or {}).get("table") or {}).get("base"))
+                if isinstance(section_cfg, dict)
+                else {}
+            )
+            if not isinstance(common_table_base, dict) or not common_table_base:
+                return
+
+            for section_name in ("electric", "utility", "kpi"):
+                section_table = ((section_cfg.get(section_name) or {}).get("table"))
+                if not isinstance(section_table, dict):
+                    continue
+                if section_table.get("common") == common_table_base:
+                    section_table.pop("common", None)
+
         _collapse_pdf_height_modes(existing_report)
+        _remove_redundant_section_table_common(existing_report)
         self._ensure_palette_registry(style_config)
         self._ensure_theme_registry(style_config)
         self._sync_palette_tokens(style_config)

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-labelledby="title desc" role="img">
+  <title id="title">Pressure sensor icon</title>
+  <desc id="desc">Clean SVG pressure gauge icon with 2px rounded purple stroke.</desc>
+  <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 41a20 20 0 1 1 40 0H12Z"/>
+    <path d="M25 50h14"/>
+    <path d="M23 45h18v5H23z"/>
+    <path d="M32 36l11-11"/>
+    <circle cx="32" cy="36" r="3" fill="currentColor" stroke="none"/>
+    <path d="M18 34l4 1"/>
+    <path d="M21 25l4 3"/>
+    <path d="M29 21l1 4"/>
+    <path d="M38 21l-1 4"/>
+    <path d="M46 27l-4 3"/>
+    <path d="M50 35l-4 1"/>
+  </g>
+</svg>

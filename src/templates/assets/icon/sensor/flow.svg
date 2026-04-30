@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-labelledby="title desc" role="img">
+  <title id="title">Flow sensor icon</title>
+  <desc id="desc">Clean SVG flow arrow icon with 2px rounded blue stroke.</desc>
+  <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 32h39"/>
+    <path d="M40 22l10 10-10 10"/>
+    <path d="M18 18c4 4 8 4 12 0s8-4 12 0 8 4 12 0"/>
+    <path d="M18 46c4 4 8 4 12 0s8-4 12 0 8 4 12 0"/>
+  </g>
+</svg>

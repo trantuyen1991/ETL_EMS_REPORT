@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-labelledby="title desc" role="img">
+  <title id="title">Power sensor icon</title>
+  <desc id="desc">Clean SVG lightning bolt icon with 2px rounded amber stroke.</desc>
+  <path d="M36 5 17 35h14l-3 24 19-33H34l2-21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

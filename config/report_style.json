@@ -853,17 +853,7 @@
                 }
               }
             },
-            "table": {
-              "common": {
-                "headerBackground": "#f8fafc",
-                "stripeBackground": "#fafafa",
-                "borderColor": "#e5e7eb",
-                "textColor": "#1f2937",
-                "headerTextColor": "#111827",
-                "cellPadding": "8px 10px",
-                "denseCellPadding": "4px 6px"
-              }
-            },
+            "table": {},
             "header": {
               "padding": "7px 11px 6px",
               "shellGap": "12px",
@@ -1127,15 +1117,6 @@
               }
             },
             "table": {
-              "common": {
-                "headerBackground": "#f8fafc",
-                "stripeBackground": "#fafafa",
-                "borderColor": "#e5e7eb",
-                "textColor": "#1f2937",
-                "headerTextColor": "#111827",
-                "cellPadding": "8px 10px",
-                "denseCellPadding": "4px 6px"
-              },
               "theme": {
                 "currentColumnBorderColor": "rgba(0, 84, 150, 0.18)",
                 "currentColumnBackground": "linear-gradient(90deg, rgba(0, 84, 150, 0.10) 0%, rgba(255, 255, 255, 0.02) 100%)",
@@ -1342,15 +1323,6 @@
               }
             },
             "table": {
-              "common": {
-                "headerBackground": "#f8fafc",
-                "stripeBackground": "#fafafa",
-                "borderColor": "#e5e7eb",
-                "textColor": "#1f2937",
-                "headerTextColor": "#111827",
-                "cellPadding": "8px 10px",
-                "denseCellPadding": "4px 6px"
-              },
               "summaryMatrix": {
                 "width": {
                   "view": "1440px",

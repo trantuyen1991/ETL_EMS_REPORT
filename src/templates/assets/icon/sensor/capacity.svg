@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-labelledby="title desc" role="img">
+  <title id="title">Capacity sensor icon</title>
+  <desc id="desc">Clean SVG battery capacity icon with 2px rounded green stroke.</desc>
+  <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 9h16v6H24z"/>
+    <rect x="18" y="15" width="28" height="43" rx="4"/>
+    <path d="M24 25h16"/>
+    <path d="M24 36h16"/>
+    <path d="M24 47h16"/>
+  </g>
+</svg>
