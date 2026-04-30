@@ -5119,6 +5119,7 @@ class ReportBuilderService:
                         self._build_chart_bar_point(
                             value,
                             color=series_palette["previous"],
+                            formatter=self._fmt_chart_compact(value),
                             chart_path=("kpi", "compareBar"),
                         )
                         for value in yesterday_values
@@ -5133,6 +5134,7 @@ class ReportBuilderService:
                         self._build_chart_bar_point(
                             value,
                             color=series_palette["current"],
+                            formatter=self._fmt_chart_compact(value),
                             chart_path=("kpi", "compareBar"),
                         )
                         for value in today_values
@@ -5209,7 +5211,7 @@ class ReportBuilderService:
                         {
                             "value": round(previous_kpi, 4),
                             "itemStyle": {"color": series_palette["previous"], "borderRadius": [6, 6, 0, 0]},
-                            "label": {"show": True, "position": "top", "formatter": self._fmt(previous_kpi), "color": value_label_color, "fontSize": 10},
+                            "label": {"show": True, "position": "top", "formatter": self._fmt_chart_compact(previous_kpi), "color": value_label_color, "fontSize": 10},
                         },
                         {
                             "value": round(abs(energy_impact), 4),
@@ -5220,7 +5222,7 @@ class ReportBuilderService:
                             "label": {
                                 "show": True,
                                 "position": "top",
-                                "formatter": self._fmt(energy_impact),
+                                "formatter": self._fmt_chart_compact(energy_impact),
                                 "color": value_label_color,
                                 "fontSize": 10,
                             },
@@ -5234,7 +5236,7 @@ class ReportBuilderService:
                             "label": {
                                 "show": True,
                                 "position": "top",
-                                "formatter": self._fmt(production_impact),
+                                "formatter": self._fmt_chart_compact(production_impact),
                                 "color": value_label_color,
                                 "fontSize": 10,
                             },
@@ -5242,7 +5244,7 @@ class ReportBuilderService:
                         {
                             "value": round(current_kpi, 4),
                             "itemStyle": {"color": series_palette["current"], "borderRadius": [6, 6, 0, 0]},
-                            "label": {"show": True, "position": "top", "formatter": self._fmt(current_kpi), "color": value_label_color, "fontSize": 10},
+                            "label": {"show": True, "position": "top", "formatter": self._fmt_chart_compact(current_kpi), "color": value_label_color, "fontSize": 10},
                         },
                     ],
                 },
