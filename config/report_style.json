@@ -453,7 +453,8 @@
             "dateChipMutedColor": "#5f7387",
             "dateChipIconColor": "#005496",
             "dateChipShadow": "inset 0 0 0 1px rgba(0, 84, 150, 0.08)",
-            "accentBorderColor": "#005496"
+            "accentBorderColor": "#005496",
+            "themeRef": "titleHeader.default"
           }
         },
         "footer": {
@@ -714,7 +715,8 @@
                   "primaryUnitColor": "rgba(255, 255, 255, 0.94)",
                   "compareBackground": "rgba(255, 255, 255, 0.98)",
                   "compareBorderColor": "rgba(213, 228, 242, 0.96)",
-                  "compareDividerColor": "rgba(221, 232, 242, 0.92)"
+                  "compareDividerColor": "rgba(221, 232, 242, 0.92)",
+                  "themeRef": "card.totalBrand"
                 },
                 "diode": {
                   "accent": "#005496",
@@ -1779,7 +1781,8 @@
               "dateChipMutedColor": "#5f7387",
               "dateChipIconColor": "#005496",
               "dateChipShadow": "inset 0 0 0 1px rgba(0, 84, 150, 0.08)",
-              "accentBorderColor": "#005496"
+              "accentBorderColor": "#005496",
+              "themeRef": "sectionHeader.default"
             }
           }
         }

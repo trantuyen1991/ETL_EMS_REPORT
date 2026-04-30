@@ -1251,6 +1251,7 @@ class ReportStyleService:
         self._ensure_palette_registry(style_config)
         self._ensure_theme_registry(style_config)
         self._sync_palette_tokens(style_config)
+        self._apply_theme_refs(style_config)
         self._sync_legacy_color_tokens(style_config)
 
     def _validate_minimum_shape(self, style_config: dict[str, Any]) -> None:
@@ -1517,6 +1518,193 @@ class ReportStyleService:
             area_node["barColor"] = palette_cfg.get(palette_key, area_node.get("barColor"))
             area_cfg[area_key] = area_node
         color_cfg["area"] = area_cfg
+
+    def _resolve_theme_ref(self, style_config: dict[str, Any], theme_ref: str) -> dict[str, Any]:
+        """Resolve a dotted theme ref such as `card.totalBrand` against `reportStyle.themes`."""
+        if not theme_ref or not isinstance(theme_ref, str) or "." not in theme_ref:
+            return {}
+
+        themes_cfg = style_config.get("themes") if isinstance(style_config.get("themes"), dict) else {}
+        group_key, theme_key = theme_ref.split(".", 1)
+        group_cfg = themes_cfg.get(group_key) if isinstance(themes_cfg.get(group_key), dict) else {}
+        theme_cfg = group_cfg.get(theme_key)
+        return deepcopy(theme_cfg) if isinstance(theme_cfg, dict) else {}
+
+    def _parse_hex_color(self, value: str) -> tuple[int, int, int] | None:
+        """Parse a #RRGGBB or #RGB color string into an RGB tuple."""
+        if not isinstance(value, str):
+            return None
+        raw = value.strip()
+        if not raw.startswith("#"):
+            return None
+        raw = raw[1:]
+        if len(raw) == 3:
+            raw = "".join(ch * 2 for ch in raw)
+        if len(raw) != 6:
+            return None
+        try:
+            return tuple(int(raw[idx:idx + 2], 16) for idx in (0, 2, 4))
+        except ValueError:
+            return None
+
+    def _to_hex_color(self, rgb: tuple[int, int, int] | None, fallback: str = "#000000") -> str:
+        """Convert an RGB tuple back into #RRGGBB form."""
+        if rgb is None:
+            return fallback
+        return "#" + "".join(f"{max(0, min(255, channel)):02x}" for channel in rgb)
+
+    def _mix_hex_colors(self, base: str, other: str, other_ratio: float) -> str:
+        """Mix two hex colors using `other_ratio` as the contribution of `other`."""
+        base_rgb = self._parse_hex_color(base)
+        other_rgb = self._parse_hex_color(other)
+        if base_rgb is None or other_rgb is None:
+            return base if base_rgb is not None else other
+        ratio = max(0.0, min(1.0, float(other_ratio)))
+        mixed = tuple(round(base_rgb[idx] * (1.0 - ratio) + other_rgb[idx] * ratio) for idx in range(3))
+        return self._to_hex_color(mixed, fallback=base)
+
+    def _hex_to_rgba(self, base: str, alpha: float) -> str:
+        """Convert a hex color into an rgba(...) string."""
+        rgb = self._parse_hex_color(base)
+        if rgb is None:
+            return base
+        alpha_value = max(0.0, min(1.0, float(alpha)))
+        alpha_text = f"{alpha_value:.2f}".rstrip("0").rstrip(".")
+        return f"rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, {alpha_text})"
+
+    def _derive_theme_mode_tokens(self, style_config: dict[str, Any], theme_cfg: dict[str, Any]) -> dict[str, Any]:
+        """Derive pilot component tokens from a theme registry entry."""
+        palette_cfg = style_config.get("palette") if isinstance(style_config.get("palette"), dict) else {}
+        seed_ref = theme_cfg.get("seedRef")
+        seed = palette_cfg.get(seed_ref) if isinstance(seed_ref, str) else None
+        if not isinstance(seed, str):
+            return {}
+
+        mode = theme_cfg.get("mode")
+        title = palette_cfg.get("title", "#0f2d45")
+        text_primary = palette_cfg.get("textPrimary", "#223548")
+        text_muted = palette_cfg.get("textMuted", "#5f7387")
+        neutral = palette_cfg.get("neutral", "#6c7f91")
+        white = palette_cfg.get("white", "#ffffff")
+        previous = palette_cfg.get("previous", "#703cd9")
+        soft_bg = self._mix_hex_colors(seed, white, 0.93)
+        soft_border = self._mix_hex_colors(seed, white, 0.75)
+        strong_border = self._mix_hex_colors(seed, white, 0.35)
+        seed_light = self._mix_hex_colors(seed, white, 0.18)
+
+        if mode == "headerShell":
+            return {
+                "background": white,
+                "borderColor": self._mix_hex_colors(seed, white, 0.80),
+                "shadow": f"0 12px 28px {self._hex_to_rgba(seed, 0.12)}",
+                "overlayGradient": (
+                    "linear-gradient(90deg, rgba(255,255,255,0.04) 0%, "
+                    "rgba(255,255,255,0.02) 36%, "
+                    f"{self._hex_to_rgba(seed, 0.16)} 100%)"
+                ),
+                "dividerColor": self._hex_to_rgba(seed, 0.16),
+                "dateChipBackground": self._hex_to_rgba(white, 0.96),
+                "dateChipBorderColor": self._mix_hex_colors(seed, white, 0.80),
+                "dateChipTextColor": title,
+                "dateChipMutedColor": text_muted,
+                "dateChipIconColor": seed,
+                "dateChipShadow": f"inset 0 0 0 1px {self._hex_to_rgba(seed, 0.08)}",
+                "accentBorderColor": seed,
+            }
+
+        if mode == "sectionHeader":
+            return {
+                "background": soft_bg,
+                "borderColor": soft_border,
+                "accentColor": seed,
+                "titleColor": title,
+                "subtitleColor": text_muted,
+                "dateChipBackground": self._hex_to_rgba(white, 0.94),
+                "dateChipBorderColor": self._mix_hex_colors(seed, white, 0.80),
+                "dateChipTextColor": title,
+                "dateChipMutedColor": text_muted,
+                "dateChipIconColor": seed,
+                "dateChipShadow": f"inset 0 0 0 1px {self._hex_to_rgba(seed, 0.08)}",
+                "accentBorderColor": seed,
+            }
+
+        if mode == "solidCard":
+            return {
+                "accent": seed,
+                "borderColor": strong_border,
+                "surface": f"linear-gradient(135deg, {seed} 0%, {seed_light} 100%)",
+                "shadow": f"0 16px 28px {self._hex_to_rgba(seed, 0.22)}",
+                "titleColor": white,
+                "copyColor": self._hex_to_rgba(white, 0.84),
+                "currentColor": white,
+                "previousColor": previous,
+                "noteColor": self._hex_to_rgba(white, 0.88),
+                "iconBackground": white,
+                "iconColor": seed,
+                "primaryColor": white,
+                "primaryUnitColor": self._hex_to_rgba(white, 0.94),
+                "compareBackground": self._hex_to_rgba(white, 0.98),
+                "compareBorderColor": self._hex_to_rgba(soft_border, 0.96),
+                "compareDividerColor": self._hex_to_rgba(self._mix_hex_colors(seed, white, 0.82), 0.92),
+            }
+
+        if mode == "softCard":
+            return {
+                "accent": seed,
+                "borderColor": soft_border,
+                "surface": f"linear-gradient(135deg, {self._hex_to_rgba(seed, 0.12)} 0%, {self._hex_to_rgba(white, 0.94)} 56%, {self._hex_to_rgba(white, 0.99)} 100%)",
+                "titleColor": title,
+                "copyColor": text_muted,
+                "currentColor": seed,
+                "previousColor": previous,
+                "noteColor": neutral,
+                "iconBackground": seed,
+                "iconColor": white,
+                "primaryColor": seed,
+                "primaryUnitColor": title,
+                "compareBackground": self._hex_to_rgba(white, 0.94),
+                "compareBorderColor": self._hex_to_rgba(soft_border, 0.95),
+                "compareDividerColor": self._hex_to_rgba(self._mix_hex_colors(seed, white, 0.82), 0.95),
+            }
+
+        return {}
+
+    def _apply_theme_refs(self, style_config: dict[str, Any]) -> None:
+        """Resolve approved pilot `themeRef` branches into concrete tokens before CSS flattening."""
+        components = style_config.get("components") if isinstance(style_config.get("components"), dict) else {}
+        report_cfg = components.get("report") if isinstance(components.get("report"), dict) else {}
+        section_cfg = report_cfg.get("section") if isinstance(report_cfg.get("section"), dict) else {}
+
+        pilot_nodes = []
+        title_header = report_cfg.get("titleHeader") if isinstance(report_cfg.get("titleHeader"), dict) else {}
+        title_shell = title_header.get("shell") if isinstance(title_header.get("shell"), dict) else None
+        if isinstance(title_shell, dict):
+            pilot_nodes.append(title_shell)
+
+        common_cfg = section_cfg.get("common") if isinstance(section_cfg.get("common"), dict) else {}
+        common_header = common_cfg.get("header") if isinstance(common_cfg.get("header"), dict) else None
+        if isinstance(common_header, dict):
+            pilot_nodes.append(common_header)
+
+        electric_cfg = section_cfg.get("electric") if isinstance(section_cfg.get("electric"), dict) else {}
+        electric_card_cfg = electric_cfg.get("card") if isinstance(electric_cfg.get("card"), dict) else {}
+        electric_theme_cfg = electric_card_cfg.get("theme") if isinstance(electric_card_cfg.get("theme"), dict) else {}
+        electric_total = electric_theme_cfg.get("total") if isinstance(electric_theme_cfg.get("total"), dict) else None
+        if isinstance(electric_total, dict):
+            pilot_nodes.append(electric_total)
+
+        for node in pilot_nodes:
+            theme_ref = node.get("themeRef")
+            if not isinstance(theme_ref, str) or not theme_ref:
+                continue
+            theme_cfg = self._resolve_theme_ref(style_config, theme_ref)
+            if not theme_cfg:
+                continue
+            derived_tokens = self._derive_theme_mode_tokens(style_config, theme_cfg)
+            if not derived_tokens:
+                continue
+            for key, value in derived_tokens.items():
+                node[key] = deepcopy(value)
 
     def _sync_legacy_color_tokens(self, style_config: dict[str, Any]) -> None:
         """Keep flat legacy color keys aligned with semantic palette branches."""
