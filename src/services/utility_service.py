@@ -553,6 +553,7 @@ class UtilityService:
             "active_sensor_count": active_sensor_count,
             "overview_cards": [
                 {
+                    "key": group["key"],
                     "label": group["label"],
                     "accent_color": group["accent_color"],
                     "accent_tint": group["accent_tint"],
@@ -692,6 +693,7 @@ class UtilityService:
             "anomaly_sensor_count": len(anomaly_rows),
             "overview_cards": [
                 {
+                    "key": group["key"],
                     "label": group["label"],
                     "accent_color": group["accent_color"],
                     "accent_tint": group["accent_tint"],

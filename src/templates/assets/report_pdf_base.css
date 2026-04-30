@@ -3101,10 +3101,10 @@
 
         .utility-sensor-heading-shell {
             width: 100%;
-            padding: 11px 12px;
-            border-radius: 14px;
-            border: 1px solid rgba(29, 120, 232, 0.16);
-            background: linear-gradient(135deg, rgba(29, 120, 232, 0.09) 0%, rgba(255, 255, 255, 0.98) 42%, rgba(16, 185, 129, 0.08) 100%);
+            padding: 13px 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 84, 150, 0.12);
+            background: linear-gradient(135deg, rgba(0, 84, 150, 0.08) 0%, rgba(255, 255, 255, 0.98) 44%, rgba(112, 60, 217, 0.05) 100%);
             break-inside: avoid;
             page-break-inside: avoid;
         }
@@ -3112,26 +3112,57 @@
         .utility-sensor-heading-main {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 11px;
         }
 
         .utility-sensor-heading-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            color: var(--report-components-report-section-common-header-accent-color, #005496);
-            background: var(--report-components-report-section-common-header-background, #f2f7fb);
-            border: 1px solid var(--report-components-report-section-common-header-border-color, #bfd4e5);
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            color: var(--report-color-text-inverse, #ffffff);
+            background: var(--report-components-report-section-common-header-accent-color, #005496);
+            border: 1px solid rgba(255, 255, 255, 0.24);
             flex-shrink: 0;
         }
 
         .utility-sensor-heading-icon svg {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             stroke-width: 2;
+        }
+
+        .utility-sensor-heading-icon svg *,
+        .utility-sensor-overview-icon svg *,
+        .utility-sensor-statpill-icon svg * {
+            stroke: currentColor;
+            fill: none;
+        }
+
+        .utility-sensor-statpill-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 12px;
+            height: 12px;
+            flex: 0 0 auto;
+        }
+
+        .utility-sensor-statpill-icon svg {
+            width: 12px;
+            height: 12px;
+            stroke-width: 2;
+        }
+
+        .utility-sensor-statpill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--report-components-report-section-common-header-accent-color, #005496);
+            box-shadow: 0 0 0 2px rgba(0, 84, 150, 0.12);
+            flex: 0 0 auto;
         }
 
         .utility-sensor-heading-copy {
@@ -3148,17 +3179,17 @@
         }
 
         .utility-sensor-heading-title {
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
 
         .utility-sensor-statline-period {
-            margin: 9px 0 0 0;
+            margin: 10px 0 0 0;
         }
 
         .utility-sensor-subtitle {
-            margin: 0 0 10px 0;
+            margin: 0;
             font-size: 10px;
-            line-height: 1.35;
+            line-height: 1.38;
             color: var(--report-color-text-muted);
         }
 
@@ -3172,19 +3203,20 @@
         .utility-sensor-statpill {
             display: inline-flex;
             align-items: center;
-            padding: 3px 8px;
+            gap: 6px;
+            padding: 5px 9px;
             border-radius: 999px;
             font-size: 8.5px;
             font-weight: 700;
             color: #334155;
-            background: #f8fafc;
-            border: 1px solid #dbe4ee;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid #d7e2ec;
         }
 
         .utility-sensor-statpill.has-alert {
-            color: #9a3412;
+            color: #c2410c;
             background: #fff7ed;
-            border-color: #fdba74;
+            border-color: #fdc48b;
         }
 
         .utility-sensor-toggle-row {
@@ -3299,24 +3331,59 @@
         }
 
         .utility-sensor-overview-card {
-            padding: 10px 12px;
-            border-radius: var(--report-components-card-border-radius, 12px);
-            border: 1px solid var(--report-components-card-border-color, #dbe4ee);
+            position: relative;
+            padding: 12px 13px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(203, 213, 225, 0.9);
             border-top: 4px solid var(--sensor-accent, #64748b);
-            background: linear-gradient(180deg, var(--report-components-card-background, #ffffff) 0%, var(--sensor-tint, rgba(148, 163, 184, 0.1)) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 255, 255, 0.96) 72%, var(--sensor-tint, rgba(148, 163, 184, 0.12)) 100%);
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .utility-sensor-overview-head {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .utility-sensor-overview-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            color: var(--sensor-accent, #64748b);
+            background: color-mix(in srgb, var(--sensor-tint, rgba(148, 163, 184, 0.12)) 75%, white);
+            flex: 0 0 auto;
+        }
+
+        .utility-sensor-overview-icon svg {
+            width: 21px;
+            height: 21px;
+            stroke-width: 2;
         }
 
         .utility-sensor-overview-title {
-            margin-bottom: 6px;
-            font-size: 10.5px;
+            min-width: 0;
+            font-size: 11px;
             font-weight: 800;
             color: var(--report-color-text-heading);
+            line-height: 1.2;
+        }
+
+        .utility-sensor-overview-divider {
+            height: 1px;
+            margin: 10px 0 9px;
+            background: linear-gradient(90deg, rgba(203, 213, 225, 0.7) 0%, rgba(226, 232, 240, 0.9) 100%);
         }
 
         .utility-sensor-overview-metrics {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
             gap: 8px;
+            align-items: stretch;
         }
 
         .utility-sensor-overview-item {
@@ -3325,19 +3392,25 @@
             gap: 2px;
         }
 
+        .utility-sensor-overview-metrics-divider {
+            width: 1px;
+            background: rgba(203, 213, 225, 0.88);
+            align-self: stretch;
+        }
+
         .utility-sensor-overview-label {
             font-size: 8px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.08em;
             color: var(--report-color-text-muted);
         }
 
         .utility-sensor-overview-value {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 800;
             line-height: 1.1;
-            color: var(--report-color-text-heading);
+            color: var(--sensor-accent, var(--report-color-text-heading));
         }
 
         .utility-sensor-overview-value.has-alert {

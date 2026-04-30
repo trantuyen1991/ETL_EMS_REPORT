@@ -1,4 +1,5 @@
 {% import "report/macros/common.html" as report %}
+{% import "report/macros/sensor_monitoring.html" as sensor_ui %}
 {% if flags.show_utility_section %}
         <section class="report-section daily-highlight-header utility-section-shell{% if not flags.is_daily_report %} utility-periodic-section{% endif %}">
             <div class="pdf-section-opening">
@@ -614,14 +615,12 @@
             {% if sensor_monitoring.enabled %}
             <div class="utility-sensor-block">
                 <div class="utility-sensor-header{% if flags.is_daily_report %} is-rich-heading{% else %} is-period-heading{% endif %}">
-                    {% if flags.is_daily_report %}
                     <div class="utility-sensor-heading-shell">
                         <div class="utility-sensor-heading-main">
                             <span class="utility-sensor-heading-icon" aria-hidden="true">
-                                {% include "assets/icon/utilityheader.svg" %}
+                                {{ sensor_ui.section_icon() }}
                             </span>
                             <div class="utility-sensor-heading-copy">
-                                <div class="utility-sensor-heading-eyebrow">Daily Utility Insight</div>
                                 <h3 class="electricity-subsection-title utility-sensor-heading-title">
                                     Sensor Monitoring
                                 </h3>
@@ -631,51 +630,47 @@
                             </div>
                         </div>
                         <div class="utility-sensor-statline utility-sensor-statline-period">
-                            <span class="utility-sensor-statpill">{{ sensor_monitoring.focus_date_display }}</span>
-                            <span class="utility-sensor-statpill">{{ sensor_monitoring_view.active_sensor_count }}/{{ sensor_monitoring_view.sensor_count }} sensors active</span>
+                            {% if flags.is_daily_report %}
+                            <span class="utility-sensor-statpill">
+                                <span class="utility-sensor-statpill-icon" aria-hidden="true">{% include "assets/icon/calendar.svg" %}</span>
+                                {{ sensor_monitoring.focus_date_display }}
+                            </span>
+                            {% else %}
+                            <span class="utility-sensor-statpill">
+                                <span class="utility-sensor-statpill-icon" aria-hidden="true">{% include "assets/icon/calendar.svg" %}</span>
+                                Period: {{ sensor_monitoring_view.period_days }} day{% if sensor_monitoring_view.period_days != 1 %}s{% endif %}
+                            </span>
+                            <span class="utility-sensor-statpill">
+                                Data days: {{ sensor_monitoring_view.days_with_any_data }}/{{ sensor_monitoring_view.period_days }}
+                            </span>
+                            {% endif %}
+                            <span class="utility-sensor-statpill">
+                                <span class="utility-sensor-statpill-dot" aria-hidden="true"></span>
+                                {{ sensor_monitoring_view.active_sensor_count }}/{{ sensor_monitoring_view.sensor_count }} sensors active
+                            </span>
                             <span class="utility-sensor-statpill {% if sensor_monitoring_view.anomaly_rows %}has-alert{% endif %}">
+                                <span class="utility-sensor-statpill-icon" aria-hidden="true">{{ sensor_ui.alert_icon() }}</span>
                                 {{ sensor_monitoring_view.anomaly_rows|length }} alert{% if sensor_monitoring_view.anomaly_rows|length != 1 %}s{% endif %}
                             </span>
                         </div>
                     </div>
-                    {% else %}
-                    <div class="utility-sensor-heading-shell">
-                        <div class="utility-sensor-heading-main">
-                            <span class="utility-sensor-heading-icon" aria-hidden="true">
-                                {% include "assets/icon/utilityheader.svg" %}
-                            </span>
-                            <div class="utility-sensor-heading-copy">
-                                <div class="utility-sensor-heading-eyebrow">Period Utility Insight</div>
-                                <h3 class="electricity-subsection-title utility-sensor-heading-title">
-                                    Sensor Monitoring
-                                </h3>
-                                {% if sensor_monitoring_subtitle %}
-                                <p class="utility-sensor-subtitle">{{ sensor_monitoring_subtitle }}</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="utility-sensor-statline utility-sensor-statline-period">
-                            <span class="utility-sensor-statpill">Period: {{ sensor_monitoring_view.period_days }} day{% if sensor_monitoring_view.period_days != 1 %}s{% endif %}</span>
-                            <span class="utility-sensor-statpill">Data days: {{ sensor_monitoring_view.days_with_any_data }}/{{ sensor_monitoring_view.period_days }}</span>
-                            <span class="utility-sensor-statpill">{{ sensor_monitoring_view.active_sensor_count }}/{{ sensor_monitoring_view.sensor_count }} sensors active</span>
-                            <span class="utility-sensor-statpill {% if sensor_monitoring_view.anomaly_rows %}has-alert{% endif %}">
-                                {{ sensor_monitoring_view.anomaly_rows|length }} alert{% if sensor_monitoring_view.anomaly_rows|length != 1 %}s{% endif %}
-                            </span>
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
 
                 {% if sensor_monitoring_view.overview_cards %}
                 <div class="utility-sensor-overview-grid">
                     {% for card in sensor_monitoring_view.overview_cards %}
                     <div class="utility-sensor-overview-card" style="--sensor-accent: {{ card.accent_color }}; --sensor-tint: {{ card.accent_tint }};">
-                        <div class="utility-sensor-overview-title">{{ card.label }}</div>
+                        <div class="utility-sensor-overview-head">
+                            <span class="utility-sensor-overview-icon" aria-hidden="true">{{ sensor_ui.group_icon(card.key) }}</span>
+                            <div class="utility-sensor-overview-title">{{ card.label }}</div>
+                        </div>
+                        <div class="utility-sensor-overview-divider"></div>
                         <div class="utility-sensor-overview-metrics">
                             <div class="utility-sensor-overview-item">
                                 <span class="utility-sensor-overview-label">Sensors</span>
                                 <span class="utility-sensor-overview-value">{{ card.active_sensor_count }}/{{ card.sensor_count }}</span>
                             </div>
+                            <div class="utility-sensor-overview-metrics-divider" aria-hidden="true"></div>
                             <div class="utility-sensor-overview-item">
                                 <span class="utility-sensor-overview-label">Alerts</span>
                                 <span class="utility-sensor-overview-value {% if card.anomaly_count > 0 %}has-alert{% endif %}">{{ card.anomaly_count }}</span>

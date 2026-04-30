@@ -1,0 +1,21 @@
+{% macro group_icon(group_key) -%}
+    {%- if group_key in ['ico_chilled_water', 'diode_chilled_water'] -%}
+        {% include "assets/icon/outline/snowflake.svg" %}
+    {%- elif group_key in ['ico_air', 'diode_air'] -%}
+        {% include "assets/icon/outline/wind.svg" %}
+    {%- elif group_key == 'steam' -%}
+        {% include "assets/icon/outline/flame.svg" %}
+    {%- elif group_key in ['domestic_water', 'sakari_water'] -%}
+        {% include "assets/icon/outline/droplet.svg" %}
+    {%- else -%}
+        {% include "assets/icon/outline/activity.svg" %}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro section_icon() -%}
+    {% include "assets/icon/outline/activity.svg" %}
+{%- endmacro %}
+
+{% macro alert_icon() -%}
+    {% include "assets/icon/outline/bell.svg" %}
+{%- endmacro %}

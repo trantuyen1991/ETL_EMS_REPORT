@@ -1271,8 +1271,8 @@
     }
 
     .utility-sensor-heading-shell {
-        padding: 8px 9px !important;
-        border-radius: 10px !important;
+        padding: 10px 11px !important;
+        border-radius: 12px !important;
     }
 
     .utility-sensor-heading-main {
@@ -1280,14 +1280,29 @@
     }
 
     .utility-sensor-heading-icon {
-        width: 28px !important;
-        height: 28px !important;
-        border-radius: 9px !important;
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 10px !important;
     }
 
     .utility-sensor-heading-icon svg {
-        width: 14px !important;
-        height: 14px !important;
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .utility-sensor-statpill-icon {
+        width: 10px !important;
+        height: 10px !important;
+    }
+
+    .utility-sensor-statpill-icon svg {
+        width: 10px !important;
+        height: 10px !important;
+    }
+
+    .utility-sensor-statpill-dot {
+        width: 7px !important;
+        height: 7px !important;
     }
 
     .utility-sensor-heading-eyebrow {
@@ -1300,38 +1315,57 @@
     }
 
     .utility-sensor-statline-period {
-        margin-top: 6px !important;
+        margin-top: 7px !important;
     }
 
     .utility-sensor-subtitle {
-        margin-bottom: 6px !important;
+        margin-bottom: 0 !important;
         font-size: 9px !important;
     }
 
     .utility-sensor-statline {
-        gap: 4px !important;
+        gap: 5px !important;
         margin-bottom: 8px !important;
     }
 
     .utility-sensor-statpill {
-        padding: 2px 6px !important;
+        gap: 4px !important;
+        padding: 3px 7px !important;
         font-size: 7.5px !important;
     }
 
     .utility-sensor-overview-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 6px !important;
-        margin-bottom: 8px !important;
+        gap: 7px !important;
+        margin-bottom: 9px !important;
     }
 
     .utility-sensor-overview-card {
-        padding: 7px 8px !important;
+        padding: 8px 9px 9px !important;
         border-radius: 10px !important;
+    }
+
+    .utility-sensor-overview-head {
+        gap: 7px !important;
+    }
+
+    .utility-sensor-overview-icon {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .utility-sensor-overview-icon svg {
+        width: 14px !important;
+        height: 14px !important;
     }
 
     .utility-sensor-overview-title {
         font-size: 8.5px !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .utility-sensor-overview-divider {
+        margin: 7px 0 6px !important;
     }
 
     .utility-sensor-overview-label {
@@ -1340,6 +1374,10 @@
 
     .utility-sensor-overview-value {
         font-size: 12px !important;
+    }
+
+    .utility-sensor-overview-metrics-divider {
+        width: 1px !important;
     }
 
     .utility-sensor-group-grid {
