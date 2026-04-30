@@ -308,6 +308,7 @@
                 </div>
             </div>
             {% else %}
+            {% set is_monthly_utility_period = period.type == "monthly" %}
             <div class="utility-overview-block">
                 <div class="utility-overview-heading">
                     <h3 class="electricity-subsection-title">Overview By Utility Group</h3>
@@ -363,7 +364,7 @@
                 </div>
             </div>
 
-            <div class="utility-periodic-chart-grid">
+            <div class="utility-periodic-chart-grid{% if is_monthly_utility_period %} utility-periodic-chart-grid-monthly{% endif %}">
                 <div class="utility-chart-block utility-chart-block-trend">
                     <div class="electricity-chart-card utility-chart-card">
                         <h3 class="electricity-chart-card-title">
@@ -387,6 +388,37 @@
                         <div id="utility-deviation-chart" class="electricity-chart utility-comparison-chart utility-comparison-chart-daily"></div>
                     </div>
                 </div>
+
+                {% if sections.utility.charts.period_heatmap.option %}
+                <div class="utility-chart-block utility-chart-block-heatmap">
+                    <div class="electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap">
+                        <h3 class="electricity-chart-card-title">
+                            {{ sections.utility.charts.period_heatmap.title }}
+                        </h3>
+                        <p class="electricity-chart-card-subtitle">
+                            {{ sections.utility.charts.period_heatmap.subtitle }}
+                        </p>
+                        <div id="utility-period-heatmap-chart" class="electricity-heatmap-chart utility-heatmap-chart"></div>
+                        <div class="electricity-heatmap-legend" aria-hidden="true">
+                            <span class="legend-label">Low</span>
+                            <span class="legend-bar"></span>
+                            <span class="legend-unit">{{ sections.utility.charts.period_heatmap.legend_unit or 'Scaled' }}</span>
+                            <span class="legend-bar legend-bar-strong"></span>
+                            <span class="legend-label">High</span>
+                        </div>
+                        {% if sections.utility.charts.period_heatmap.area_legend %}
+                        <div class="electricity-heatmap-area-legend" aria-hidden="true">
+                            {% for item in sections.utility.charts.period_heatmap.area_legend %}
+                            <span class="electricity-heatmap-area-legend-item">
+                                <span class="electricity-heatmap-area-legend-dot" style="background: {{ item.color }};"></span>
+                                <span class="electricity-heatmap-area-legend-label">{{ item.label }}</span>
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
             <div class="utility-chart-split-grid utility-chart-split-grid-periodic">
@@ -472,17 +504,23 @@
                     {% endfor %}
                 </div>
 
-                {% if sections.utility.energy.charts.trend and sections.utility.energy.charts.distribution %}
-                <div class="utility-energy-chart-grid">
-                    <div class="utility-chart-block utility-chart-block-wide">
+                {% set has_energy_trend = sections.utility.energy.charts.trend and sections.utility.energy.charts.trend.option %}
+                {% set has_energy_distribution = sections.utility.energy.charts.distribution and sections.utility.energy.charts.distribution.option %}
+                {% set has_energy_heatmap = sections.utility.energy.charts.heatmap and sections.utility.energy.charts.heatmap.option %}
+                {% if has_energy_trend or has_energy_distribution or has_energy_heatmap %}
+                <div class="utility-energy-chart-grid{% if is_monthly_utility_period %} utility-energy-chart-grid-monthly{% endif %}">
+                    {% if has_energy_trend %}
+                    <div class="utility-chart-block utility-chart-block-wide utility-chart-block-energy-trend">
                         <div class="electricity-chart-card utility-chart-card utility-energy-chart-card">
                             <h3 class="electricity-chart-card-title">{{ sections.utility.energy.charts.trend.title }}</h3>
                             <p class="electricity-chart-card-subtitle">{{ sections.utility.energy.charts.trend.subtitle }}</p>
                             <div id="utility-energy-trend-chart" class="electricity-chart utility-energy-trend-chart"></div>
                         </div>
                     </div>
+                    {% endif %}
 
-                    <div class="utility-chart-block utility-chart-block-narrow">
+                    {% if has_energy_distribution %}
+                    <div class="utility-chart-block utility-chart-block-narrow utility-chart-block-energy-distribution">
                         <div class="electricity-chart-card utility-chart-card utility-energy-chart-card utility-energy-distribution-card">
                             <h3 class="electricity-chart-card-title">{{ sections.utility.energy.charts.distribution.title }}</h3>
                             <p class="electricity-chart-card-subtitle">{{ sections.utility.energy.charts.distribution.subtitle }}</p>
@@ -513,6 +551,34 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
+
+                    {% if has_energy_heatmap %}
+                    <div class="utility-chart-block utility-chart-block-narrow utility-chart-block-heatmap">
+                        <div class="electricity-chart-card utility-chart-card utility-energy-chart-card utility-heatmap-card electricity-chart-card-heatmap">
+                            <h3 class="electricity-chart-card-title">{{ sections.utility.energy.charts.heatmap.title }}</h3>
+                            <p class="electricity-chart-card-subtitle">{{ sections.utility.energy.charts.heatmap.subtitle }}</p>
+                            <div id="utility-energy-heatmap-chart" class="electricity-heatmap-chart utility-heatmap-chart"></div>
+                            <div class="electricity-heatmap-legend" aria-hidden="true">
+                                <span class="legend-label">Low</span>
+                                <span class="legend-bar"></span>
+                                <span class="legend-unit">{{ sections.utility.energy.charts.heatmap.legend_unit or 'kWh' }}</span>
+                                <span class="legend-bar legend-bar-strong"></span>
+                                <span class="legend-label">High</span>
+                            </div>
+                            {% if sections.utility.energy.charts.heatmap.area_legend %}
+                            <div class="electricity-heatmap-area-legend" aria-hidden="true">
+                                {% for item in sections.utility.energy.charts.heatmap.area_legend %}
+                                <span class="electricity-heatmap-area-legend-item">
+                                    <span class="electricity-heatmap-area-legend-dot" style="background: {{ item.color }};"></span>
+                                    <span class="electricity-heatmap-area-legend-label">{{ item.label }}</span>
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 {% endif %}
             </div>
@@ -918,12 +984,20 @@
                                 option: {{ sections.utility.charts.period_type_trend.option | tojson }},
                             },
                             {
+                                id: "utility-period-heatmap-chart",
+                                option: {{ sections.utility.charts.period_heatmap.option | tojson if sections.utility.charts.period_heatmap else {} }},
+                            },
+                            {
                                 id: "utility-energy-trend-chart",
                                 option: {{ sections.utility.energy.charts.trend.option | tojson if sections.utility.energy.charts.trend else {} }},
                             },
                             {
                                 id: "utility-energy-distribution-chart",
                                 option: {{ sections.utility.energy.charts.distribution.option | tojson if sections.utility.energy.charts.distribution else {} }},
+                            },
+                            {
+                                id: "utility-energy-heatmap-chart",
+                                option: {{ sections.utility.energy.charts.heatmap.option | tojson if sections.utility.energy.charts.heatmap else {} }},
                             },
                             {
                                 id: "utility-deviation-chart",

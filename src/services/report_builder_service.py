@@ -2401,6 +2401,7 @@ class ReportBuilderService:
                 "comparison_bar": {},
                 "deviation_vs_yesterday": {},
                 "period_type_trend": {},
+                "period_heatmap": {},
                 "period_mix": {},
                 "comparison_split": {
                     "wide": {},
@@ -2436,6 +2437,13 @@ class ReportBuilderService:
         ]
         period_type = str((period or {}).get("type") or "").strip().lower()
         is_daily_report = period_type == "daily"
+        period_heatmap = (
+            self._build_v3_utility_period_heatmap_chart(
+                utility_object=utility_object,
+                period_type=period_type,
+            )
+            if period_type == "monthly" else {}
+        )
 
         return {
             "comparison_bar": {
@@ -2456,6 +2464,7 @@ class ReportBuilderService:
                     period_type=period_type,
                 ),
             },
+            "period_heatmap": period_heatmap,
             "period_mix": {
                 "title": "Current period mix",
                 "subtitle": "Share of total utility consumption by group",
@@ -2750,10 +2759,11 @@ class ReportBuilderService:
 
         labels: list[str] = []
         series_values: dict[str, list[float | None]] = {key: [] for key, _label, _color in category_defs}
+        is_monthly_period = period_type == "monthly"
 
         for row in timeseries:
             dt_value = row.get("dt")
-            labels.append(self._format_periodic_axis_date_label(dt_value))
+            labels.append(self._format_periodic_axis_date_label(dt_value, period_type))
 
             grouped_totals = {key: 0.0 for key, _label, _color in category_defs}
             grouped_has_value = {key: False for key, _label, _color in category_defs}
@@ -2836,7 +2846,7 @@ class ReportBuilderService:
                     "itemStyle": {"color": color},
                     "areaStyle": {"color": category_palette[key]["tint"]},
                     "label": {
-                        "show": True,
+                        "show": not is_monthly_period,
                         "position": "top",
                         "fontSize": 8,
                         "color": color,
@@ -2844,20 +2854,248 @@ class ReportBuilderService:
                         "padding": [2, 4],
                         "borderRadius": 4,
                     },
-                    "data": [
-                        {
-                            "value": value,
-                            "label": {
-                                "formatter": self._fmt_chart_compact(value),
-                            },
-                        }
-                        if value is not None else None
-                        for value in series_values[key]
-                    ],
+                    "data": self._build_chart_line_points(
+                        series_values[key],
+                        color=color,
+                        label_formatter=self._fmt_chart_compact if is_monthly_period else None,
+                        show_only_min_max=is_monthly_period,
+                    ),
                 }
                 for key, label, color in category_defs
             ],
         }
+
+
+    def _build_v3_periodic_group_heatmap_chart(
+        self,
+        *,
+        title: str,
+        subtitle: str,
+        series_name: str,
+        period_type: str,
+        row_defs: list[dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build a utility-style periodic heatmap card using row-local intensity scaling."""
+        if not row_defs:
+            return {}
+
+        row_value_map: list[list[float | None]] = []
+        any_numeric_value = False
+        x_labels: list[str] = []
+        area_legend: list[dict[str, str]] = []
+
+        for row_index, row_def in enumerate(row_defs):
+            dates = row_def.get("dates") or []
+            if row_index == 0:
+                x_labels = [
+                    self._format_heatmap_column_label(value, period_type)
+                    for value in dates
+                ]
+                x_labels.append("Avg")
+
+            normalized_values: list[float | None] = []
+            for raw_value in row_def.get("values") or []:
+                if isinstance(raw_value, (int, float)):
+                    normalized_values.append(round(float(raw_value), 4))
+                    any_numeric_value = True
+                else:
+                    normalized_values.append(None)
+
+            numeric_values = [value for value in normalized_values if value is not None]
+            avg_value = (
+                round(sum(numeric_values) / len(numeric_values), 2)
+                if numeric_values else None
+            )
+            normalized_values.append(avg_value)
+            row_value_map.append(normalized_values)
+            area_legend.append({
+                "label": str(row_def.get("legend_label") or row_def.get("label") or "-"),
+                "color": str(row_def.get("color") or "#005496"),
+            })
+
+        if not any_numeric_value or not x_labels:
+            return {}
+
+        y_labels = [str(row_def.get("label") or "-") for row_def in row_defs]
+        bottom_gap = 44 if len(x_labels) <= 8 else 62
+        label_rotate = 0 if len(x_labels) <= 8 else 28
+        label_font_size = 9 if len(x_labels) <= 8 else 8
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
+        chart_text_color = str(self._get_style_color_value("#0f172a", "chart", "text"))
+
+        heatmap_data = []
+        for row_index, row_values in enumerate(row_value_map):
+            base_color = str(row_defs[row_index].get("color") or "#005496")
+            numeric_row_values = [value for value in row_values if value is not None]
+            row_min = min(numeric_row_values) if numeric_row_values else 0.0
+            row_max = max(numeric_row_values) if numeric_row_values else 0.0
+            row_span = row_max - row_min
+
+            for col_index, raw_value in enumerate(row_values):
+                if raw_value is None:
+                    continue
+
+                is_avg_col = col_index == len(row_values) - 1
+                display_value = (
+                    self._fmt_chart_compact(raw_value)
+                    if period_type == "monthly"
+                    else (f"{raw_value:.2f}" if is_avg_col else f"{raw_value:.1f}")
+                )
+                intensity = 0.45
+                if row_span > 0:
+                    intensity = 0.28 + (0.68 * ((float(raw_value) - row_min) / row_span))
+
+                heatmap_data.append({
+                    "value": [col_index, row_index, round(float(raw_value), 4)],
+                    "label": {
+                        "formatter": display_value,
+                    },
+                    "itemStyle": {
+                        "color": self._blend_hex_with_white(base_color, intensity),
+                        "borderColor": "rgba(255,255,255,0.78)",
+                        "borderWidth": 1,
+                    },
+                })
+
+        return {
+            "title": title,
+            "subtitle": subtitle,
+            "area_legend": area_legend if period_type == "monthly" else [],
+            "legend_unit": "kWh" if "kwh" in subtitle.lower() else "Scaled",
+            "option": {
+                "tooltip": {
+                    "position": "top",
+                },
+                "grid": self._resolve_chart_grid(
+                    {
+                        "left": 18 if period_type == "monthly" else 58,
+                        "right": 18,
+                        "top": 10,
+                        "bottom": bottom_gap,
+                        "containLabel": False,
+                    },
+                    "utility",
+                    "heatmap",
+                    "monthly" if period_type == "monthly" else ("dense" if len(x_labels) > 8 else "default"),
+                ),
+                "xAxis": {
+                    "type": "category",
+                    "data": x_labels,
+                    "splitArea": {"show": False},
+                    "axisLabel": {
+                        "interval": 0,
+                        "rotate": label_rotate,
+                        "fontSize": label_font_size,
+                        "color": muted_text_color,
+                    },
+                    "axisLine": {"lineStyle": {"color": axis_line_color}},
+                    "axisTick": {"show": False},
+                },
+                "yAxis": {
+                    "type": "category",
+                    "data": y_labels,
+                    "axisLine": {"show": False},
+                    "axisTick": {"show": False},
+                    "axisLabel": {
+                        "show": period_type != "monthly",
+                        "fontWeight": 700,
+                        "color": primary_text_color,
+                    },
+                },
+                "series": [
+                    {
+                        "name": series_name,
+                        "type": "heatmap",
+                        "data": heatmap_data,
+                        "label": {
+                            "show": period_type != "monthly",
+                            "fontSize": 8,
+                            "fontWeight": 700,
+                            "color": chart_text_color,
+                        },
+                        "emphasis": {
+                            "itemStyle": {
+                                "shadowBlur": 8,
+                                "shadowColor": "rgba(15, 23, 42, 0.15)",
+                            },
+                        },
+                    }
+                ],
+            },
+        }
+
+    def _build_v3_utility_period_heatmap_chart(
+        self,
+        *,
+        utility_object: Optional[Dict[str, Any]],
+        period_type: str,
+    ) -> Dict[str, Any]:
+        """Build monthly heatmap for physical utility quantities by group."""
+        if period_type != "monthly" or not utility_object:
+            return {}
+
+        metadata = utility_object.get("current", {}).get("metadata", {}) or {}
+        timeseries = utility_object.get("current", {}).get("timeseries", []) or []
+        if not metadata or not timeseries:
+            return {}
+
+        category_palette = self._get_utility_chart_category_palette()
+        category_units: dict[str, set[str]] = {
+            "water": set(),
+            "compressed_air": set(),
+            "chilled_water": set(),
+            "steam": set(),
+        }
+        for meta in metadata.values():
+            category = str(meta.get("category") or "").strip().lower()
+            unit = str(meta.get("unit") or "").strip()
+            if category in category_units and unit:
+                category_units[category].add(unit)
+
+        category_defs = [
+            ("water", "Water", category_palette["water"]["color"]),
+            ("compressed_air", "Air", category_palette["compressed_air"]["color"]),
+            ("chilled_water", "CHW", category_palette["chilled_water"]["color"]),
+            ("steam", "Steam", category_palette["steam"]["color"]),
+        ]
+        row_defs: list[dict[str, Any]] = []
+
+        for category_key, label, color in category_defs:
+            values: list[float | None] = []
+            dates: list[Any] = []
+            for row in timeseries:
+                dates.append(row.get("dt"))
+                total_value = 0.0
+                has_value = False
+                for utility_key, meta in metadata.items():
+                    category = str(meta.get("category") or "").strip().lower()
+                    if category != category_key:
+                        continue
+                    raw_value = row.get(utility_key)
+                    if isinstance(raw_value, (int, float)):
+                        total_value += float(raw_value)
+                        has_value = True
+                values.append(round(total_value, 4) if has_value else None)
+
+            unit_label = " / ".join(sorted(category_units.get(category_key) or []))
+            legend_label = f"{label} ({unit_label})" if unit_label else label
+            row_defs.append({
+                "label": label,
+                "legend_label": legend_label,
+                "color": color,
+                "dates": dates,
+                "values": values,
+            })
+
+        return self._build_v3_periodic_group_heatmap_chart(
+            title="Utility daily total heatmap",
+            subtitle="Daily total by utility group (row-scaled mixed units)",
+            series_name="Utility total",
+            period_type=period_type,
+            row_defs=row_defs,
+        )
 
     def _build_v3_utility_mix_option(
         self,
@@ -3212,7 +3450,11 @@ class ReportBuilderService:
             "summary_note": "",
             "overview_cards": [],
             "detail_rows": [],
-            "charts": {},
+            "charts": {
+                "trend": {},
+                "distribution": {},
+                "heatmap": {},
+            },
         }
 
         if not utility_object or not energy_object:
@@ -3463,14 +3705,22 @@ class ReportBuilderService:
         """Build periodic utility-energy charts shown below the overview cards."""
         period_type = str((period or {}).get("type") or "").strip().lower()
         if period_type == "daily" or not utility_object or not energy_object:
-            return {}
+            return {
+                "trend": {},
+                "distribution": {},
+                "heatmap": {},
+            }
 
         energy_current = energy_object.get("current", {}) or {}
         metadata = utility_object.get("current", {}).get("metadata", {}) or {}
         lookup = self._build_utility_energy_meter_lookup(energy_current)
         dates = lookup.get("dates", []) or []
         if not metadata or not dates:
-            return {}
+            return {
+                "trend": {},
+                "distribution": {},
+                "heatmap": {},
+            }
 
         category_palette = self._get_utility_chart_category_palette()
         category_defs = [
@@ -3479,7 +3729,7 @@ class ReportBuilderService:
             ("steam", "Boiler Energy", category_palette["steam"]["color"]),
         ]
         category_series: dict[str, list[float]] = {key: [] for key, _label, _color in category_defs}
-        labels = [self._format_periodic_axis_date_label(value) for value in dates]
+        labels = [self._format_periodic_axis_date_label(value, period_type) for value in dates]
 
         for dt_value in dates:
             category_day_totals = {key: 0.0 for key, _label, _color in category_defs}
@@ -3519,6 +3769,17 @@ class ReportBuilderService:
             day_count=len(labels),
         )
         distribution_title = self._resolve_utility_energy_distribution_title(period_badge)
+        energy_heatmap = (
+            self._build_v3_utility_energy_heatmap_chart(
+                dates=dates,
+                air_values=category_series["compressed_air"],
+                chilled_values=category_series["chilled_water"],
+                steam_values=category_series["steam"],
+                total_values=total_series,
+                period_type=period_type,
+            )
+            if period_type == "monthly" else {}
+        )
 
         distribution_items = []
         total_current = 0.0
@@ -3550,6 +3811,7 @@ class ReportBuilderService:
                     chilled_values=category_series["chilled_water"],
                     steam_values=category_series["steam"],
                     total_values=total_series,
+                    period_type=period_type,
                 ),
             },
             "distribution": {
@@ -3566,6 +3828,7 @@ class ReportBuilderService:
                     period_badge=period_badge,
                 ),
             },
+            "heatmap": energy_heatmap,
         }
 
     def _resolve_utility_energy_total_for_date(
@@ -3623,10 +3886,12 @@ class ReportBuilderService:
         chilled_values: list[float],
         steam_values: list[float],
         total_values: list[float],
+        period_type: str,
     ) -> Dict[str, Any]:
         """Build periodic utility-energy trend line chart."""
         rotate_labels = 28
         bottom_space = 52
+        is_monthly_period = period_type == "monthly"
         category_palette = self._get_utility_chart_category_palette()
         axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         axis_line_color = str(self._get_style_color_value("#b8cada", "border", "strong"))
@@ -3731,7 +3996,7 @@ class ReportBuilderService:
                     "lineStyle": {"width": item["line_width"], "color": item["color"]},
                     "itemStyle": {"color": item["color"]},
                     "label": {
-                        "show": True,
+                        "show": not is_monthly_period,
                         "position": item["label_position"],
                         "distance": 6,
                         "fontSize": 8,
@@ -3741,18 +4006,70 @@ class ReportBuilderService:
                         "padding": [2, 4],
                         "borderRadius": 4,
                     },
-                    "data": [
-                        {
-                            "value": value,
-                            "label": {"formatter": self._fmt_chart_series_label(value)},
-                        }
-                        if value is not None else None
-                        for value in item["values"]
-                    ],
+                    "data": self._build_chart_line_points(
+                        item["values"],
+                        color=item["color"],
+                        label_formatter=self._fmt_chart_compact if is_monthly_period else self._fmt_chart_series_label,
+                        show_only_min_max=is_monthly_period,
+                    ),
                 }
                 for item in series_defs
             ],
         }
+
+    def _build_v3_utility_energy_heatmap_chart(
+        self,
+        *,
+        dates: list[Any],
+        air_values: list[float],
+        chilled_values: list[float],
+        steam_values: list[float],
+        total_values: list[float],
+        period_type: str,
+    ) -> Dict[str, Any]:
+        """Build monthly heatmap for utility-energy daily totals."""
+        if period_type != "monthly" or not dates:
+            return {}
+
+        category_palette = self._get_utility_chart_category_palette()
+        row_defs = [
+            {
+                "label": "TOTAL",
+                "legend_label": "Total Utility Energy",
+                "color": category_palette["total_energy"]["color"],
+                "dates": dates,
+                "values": total_values,
+            },
+            {
+                "label": "AIR",
+                "legend_label": "Air Energy",
+                "color": category_palette["compressed_air"]["color"],
+                "dates": dates,
+                "values": air_values,
+            },
+            {
+                "label": "CHW",
+                "legend_label": "Chilled Water Energy",
+                "color": category_palette["chilled_water"]["color"],
+                "dates": dates,
+                "values": chilled_values,
+            },
+            {
+                "label": "BOILER",
+                "legend_label": "Boiler Energy",
+                "color": category_palette["steam"]["color"],
+                "dates": dates,
+                "values": steam_values,
+            },
+        ]
+
+        return self._build_v3_periodic_group_heatmap_chart(
+            title="Utility energy heatmap",
+            subtitle="Daily total by energy group (kWh)",
+            series_name="Utility energy total",
+            period_type=period_type,
+            row_defs=row_defs,
+        )
 
     def _build_v3_utility_energy_distribution_option(
         self,

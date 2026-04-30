@@ -668,6 +668,15 @@
         margin-bottom: 8px !important;
     }
 
+    .utility-periodic-chart-grid-monthly {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-auto-flow: row !important;
+    }
+
+    .utility-periodic-chart-grid-monthly .utility-chart-block-trend {
+        grid-column: 1 / -1 !important;
+    }
+
     .utility-chart-split-grid {
         gap: 8px !important;
         margin-bottom: 8px !important;
@@ -689,6 +698,10 @@
         height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;
     }
 
+    .utility-periodic-chart-grid-monthly .utility-period-type-trend-chart {
+        height: 262px !important;
+    }
+
     .utility-comparison-chart-daily {
         height: var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px) !important;
     }
@@ -703,6 +716,15 @@
         margin-top: 10px !important;
     }
 
+    .utility-energy-chart-grid-monthly {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-auto-flow: row !important;
+    }
+
+    .utility-energy-chart-grid-monthly .utility-chart-block-energy-trend {
+        grid-column: 1 / -1 !important;
+    }
+
     .utility-energy-chart-card {
         padding: 12px 13px 10px !important;
     }
@@ -711,9 +733,22 @@
         margin-bottom: 8px !important;
     }
 
+    .utility-heatmap-card .electricity-chart-card-subtitle {
+        margin-bottom: 8px !important;
+    }
+
     .utility-energy-trend-chart,
     .utility-energy-distribution-chart {
         height: var(--report-components-report-section-utility-chart-energy-trend-height-pdf, 220px) !important;
+    }
+
+    .utility-energy-chart-grid-monthly .utility-energy-trend-chart {
+        height: 262px !important;
+    }
+
+    .utility-periodic-chart-grid-monthly .utility-heatmap-chart,
+    .utility-energy-chart-grid-monthly .utility-heatmap-chart {
+        height: 192px !important;
     }
 
     .utility-energy-distribution-layout {
