@@ -1666,8 +1666,8 @@
               "titleLetterSpacing": "0.01em",
               "subtitleMarginTop": "1px",
               "dateChipMinWidth": "228px",
-              "background": "#f6f9fc",
-              "borderColor": "#cdd9e5",
+              "background": "#f2f7fb",
+              "borderColor": "#bfd4e5",
               "accentColor": "#005496",
               "titleColor": "#0f2d45",
               "subtitleColor": "#5f7387",
@@ -1688,8 +1688,8 @@
         "titleColor": "#0f2d45",
         "subtitleFontSize": "12px",
         "subtitleColor": "#5f7387",
-        "background": "#f6f9fc",
-        "borderColor": "#cdd9e5",
+        "background": "#f2f7fb",
+        "borderColor": "#bfd4e5",
         "accentColor": "#005496"
       }
     },
