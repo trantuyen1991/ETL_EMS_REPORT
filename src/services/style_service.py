@@ -1264,8 +1264,52 @@ class ReportStyleService:
                 if section_table.get("common") == common_table_base:
                     section_table.pop("common", None)
 
+        def _remove_redundant_card_compare_overrides(report_cfg: dict[str, Any]) -> None:
+            section_cfg = report_cfg.get("section") if isinstance(report_cfg.get("section"), dict) else {}
+            common_compare = (
+                (((section_cfg.get("common") or {}).get("card") or {}).get("compare"))
+                if isinstance(section_cfg, dict)
+                else {}
+            )
+            if not isinstance(common_compare, dict) or not common_compare:
+                return
+
+            section_card_keys = {
+                "electric": ("total", "diode", "ico", "sakari"),
+                "utility": ("totalUtility", "airEnergy", "chilledWaterEnergy", "boilerEnergy"),
+                "kpi": ("total", "plant", "diode", "ico", "sakari"),
+            }
+            for section_name, card_keys in section_card_keys.items():
+                section_card = ((section_cfg.get(section_name) or {}).get("card"))
+                if not isinstance(section_card, dict):
+                    continue
+                for card_key in card_keys:
+                    card_cfg = section_card.get(card_key)
+                    if not isinstance(card_cfg, dict):
+                        continue
+                    if card_cfg.get("compare") == common_compare:
+                        card_cfg.pop("compare", None)
+
+        def _remove_legacy_section_header_component(components_cfg: dict[str, Any], report_cfg: dict[str, Any]) -> None:
+            legacy_section_header = components_cfg.get("sectionHeader")
+            common_header = (
+                ((((report_cfg.get("section") or {}).get("common") or {}).get("header")))
+                if isinstance(report_cfg, dict)
+                else {}
+            )
+            if isinstance(legacy_section_header, dict) and isinstance(common_header, dict):
+                if common_header.get("titleFontSize") is None and legacy_section_header.get("titleFontSize") is not None:
+                    common_header["titleFontSize"] = deepcopy(legacy_section_header["titleFontSize"])
+                if common_header.get("titleFontWeight") is None and legacy_section_header.get("titleFontWeight") is not None:
+                    common_header["titleFontWeight"] = deepcopy(legacy_section_header["titleFontWeight"])
+                if common_header.get("subtitleFontSize") is None and legacy_section_header.get("subtitleFontSize") is not None:
+                    common_header["subtitleFontSize"] = deepcopy(legacy_section_header["subtitleFontSize"])
+            components_cfg.pop("sectionHeader", None)
+
         _collapse_pdf_height_modes(existing_report)
         _remove_redundant_section_table_common(existing_report)
+        _remove_redundant_card_compare_overrides(existing_report)
+        _remove_legacy_section_header_component(components, existing_report)
         self._ensure_palette_registry(style_config)
         self._ensure_theme_registry(style_config)
         self._sync_palette_tokens(style_config)

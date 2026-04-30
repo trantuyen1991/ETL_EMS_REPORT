@@ -451,8 +451,8 @@
 
         .section-header h2 {
             margin: 0;
-            font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title));
-            font-weight: var(--report-components-section-header-title-font-weight, var(--report-font-weight-bold));
+            font-size: var(--report-components-report-section-common-header-title-font-size, var(--report-font-size-section-title));
+            font-weight: var(--report-components-report-section-common-header-title-font-weight, var(--report-font-weight-bold));
             line-height: 1.2;
             letter-spacing: 0.2px;
             color: var(--report-components-report-section-common-header-title-color, var(--report-color-brand-primary));
@@ -464,14 +464,14 @@
 
         .section-subtitle {
             margin: 8px 0 0 14px;
-            font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle));
+            font-size: var(--report-components-report-section-common-header-subtitle-font-size, var(--report-font-size-section-subtitle));
             line-height: 1.45;
             color: var(--report-components-report-section-common-header-subtitle-color, var(--report-color-text-subtle));
             font-weight: var(--report-font-weight-medium);
         }
 
         .daily-highlight-header .section-header {
-            background: var(--report-components-report-section-common-header-background, var(--report-components-section-header-background, var(--report-color-header-background)));
+            background: var(--report-components-report-section-common-header-background, var(--report-color-header-background));
             border: 1px solid var(--report-components-report-section-common-header-border-color, var(--report-color-border-default));
             border-left: 5px solid var(--report-components-report-section-common-header-accent-color, var(--report-components-report-section-common-header-accent-border-color, var(--report-color-brand-primary)));
             border-radius: 12px;
@@ -601,13 +601,13 @@
         }
 
         .kpi-section-shell .section-header h2 {
-            font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title));
+            font-size: var(--report-components-report-section-common-header-title-font-size, var(--report-font-size-section-title));
             letter-spacing: var(--report-components-report-section-kpi-header-title-letter-spacing, 0.01em);
         }
 
         .kpi-section-shell .section-subtitle {
             margin-top: var(--report-components-report-section-kpi-header-subtitle-margin-top, 2px);
-            font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle));
+            font-size: var(--report-components-report-section-common-header-subtitle-font-size, var(--report-font-size-section-subtitle));
         }
 
         .kpi-header-date-chip {
@@ -638,13 +638,13 @@
         }
 
         .electricity-section-shell .section-header h2 {
-            font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title));
+            font-size: var(--report-components-report-section-common-header-title-font-size, var(--report-font-size-section-title));
             letter-spacing: var(--report-components-report-section-electric-header-title-letter-spacing, var(--report-components-report-section-common-header-title-letter-spacing, 0.01em));
         }
 
         .electricity-section-shell .section-subtitle {
             margin-top: var(--report-components-report-section-electric-header-subtitle-margin-top, var(--report-components-report-section-common-header-subtitle-margin-top, 1px));
-            font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle));
+            font-size: var(--report-components-report-section-common-header-subtitle-font-size, var(--report-font-size-section-subtitle));
         }
 
         .electricity-header-date-chip {
@@ -676,13 +676,13 @@
         }
 
         .utility-periodic-section .section-header h2 {
-            font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title));
+            font-size: var(--report-components-report-section-common-header-title-font-size, var(--report-font-size-section-title));
             letter-spacing: 0.01em;
         }
 
         .utility-periodic-section .section-subtitle {
             margin-top: 1px;
-            font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle));
+            font-size: var(--report-components-report-section-common-header-subtitle-font-size, var(--report-font-size-section-subtitle));
         }
 
         .utility-periodic-section .utility-date-chip {

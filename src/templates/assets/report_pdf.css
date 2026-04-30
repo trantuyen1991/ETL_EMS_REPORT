@@ -346,12 +346,12 @@
     }
 
     .electricity-section-shell .section-header h2 {
-        font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title)) !important;
+        font-size: var(--report-components-report-section-common-header-title-font-size, var(--report-font-size-section-title)) !important;
     }
 
     .electricity-section-shell .section-subtitle {
         margin-top: var(--report-components-report-section-electric-header-subtitle-margin-top, 1px) !important;
-        font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
+        font-size: var(--report-components-report-section-common-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
     }
 
     .utility-date-chip {
@@ -386,12 +386,12 @@
     }
 
     .kpi-section-shell .section-header h2 {
-        font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title)) !important;
+        font-size: var(--report-components-report-section-common-header-title-font-size, var(--report-font-size-section-title)) !important;
     }
 
     .kpi-section-shell .section-subtitle {
         margin-top: var(--report-components-report-section-kpi-header-subtitle-margin-top, 2px) !important;
-        font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
+        font-size: var(--report-components-report-section-common-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
     }
 
     .kpi-header-date-chip {
@@ -418,12 +418,12 @@
     }
 
     .electricity-section-shell .section-header h2 {
-        font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title)) !important;
+        font-size: var(--report-components-report-section-common-header-title-font-size, var(--report-font-size-section-title)) !important;
     }
 
     .electricity-section-shell .section-subtitle {
         margin-top: var(--report-components-report-section-electric-header-subtitle-margin-top, 2px) !important;
-        font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
+        font-size: var(--report-components-report-section-common-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
     }
 
     .electricity-header-date-chip {
@@ -455,12 +455,12 @@
     }
 
     .utility-periodic-section .section-header h2 {
-        font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title)) !important;
+        font-size: var(--report-components-report-section-common-header-title-font-size, var(--report-font-size-section-title)) !important;
     }
 
     .utility-periodic-section .section-subtitle {
         margin-top: var(--report-components-report-section-common-header-subtitle-margin-top, 2px) !important;
-        font-size: var(--report-components-section-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
+        font-size: var(--report-components-report-section-common-header-subtitle-font-size, var(--report-font-size-section-subtitle)) !important;
     }
 
     .utility-periodic-section .utility-date-chip {
@@ -1666,7 +1666,7 @@
     }
 
     .section-header h2 {
-        font-size: var(--report-components-section-header-title-font-size, var(--report-font-size-section-title)) !important;
+        font-size: var(--report-components-report-section-common-header-title-font-size, var(--report-font-size-section-title)) !important;
     }
 
     .kpi-plant-card {

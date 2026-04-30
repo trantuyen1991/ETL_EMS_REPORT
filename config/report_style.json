@@ -461,16 +461,6 @@
                   "footerGap": "6px",
                   "footerMarginTop": "8px"
                 },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
-                },
                 "pdf": {
                   "height": "130px",
                   "minHeight": "130px",
@@ -514,16 +504,6 @@
                   "primaryValueFontSize": "20px",
                   "footerGap": "6px",
                   "footerMarginTop": "8px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 },
                 "pdf": {
                   "height": "130px",
@@ -569,16 +549,6 @@
                   "footerGap": "6px",
                   "footerMarginTop": "8px"
                 },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
-                },
                 "pdf": {
                   "height": "130px",
                   "minHeight": "130px",
@@ -622,16 +592,6 @@
                   "primaryValueFontSize": "20px",
                   "footerGap": "6px",
                   "footerMarginTop": "8px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 },
                 "pdf": {
                   "height": "130px",
@@ -874,16 +834,6 @@
                   "topGap": "10px",
                   "primaryValueFontSize": "20px",
                   "deltaPaddingTop": "8px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 }
               },
               "airEnergy": {
@@ -893,16 +843,6 @@
                   "topGap": "10px",
                   "primaryValueFontSize": "20px",
                   "deltaPaddingTop": "8px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 }
               },
               "chilledWaterEnergy": {
@@ -912,16 +852,6 @@
                   "topGap": "10px",
                   "primaryValueFontSize": "20px",
                   "deltaPaddingTop": "8px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 }
               },
               "boilerEnergy": {
@@ -931,16 +861,6 @@
                   "topGap": "10px",
                   "primaryValueFontSize": "20px",
                   "deltaPaddingTop": "8px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 }
               },
               "theme": {
@@ -1177,16 +1097,6 @@
                   "padding": "12px 14px 12px",
                   "topGap": "10px",
                   "footerMarginTop": "12px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 }
               },
               "plant": {
@@ -1195,16 +1105,6 @@
                   "padding": "12px 14px 12px",
                   "topGap": "10px",
                   "footerMarginTop": "12px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 }
               },
               "diode": {
@@ -1213,16 +1113,6 @@
                   "padding": "12px 14px 12px",
                   "topGap": "10px",
                   "footerMarginTop": "12px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 }
               },
               "ico": {
@@ -1231,16 +1121,6 @@
                   "padding": "12px 14px 12px",
                   "topGap": "10px",
                   "footerMarginTop": "12px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 }
               },
               "sakari": {
@@ -1249,16 +1129,6 @@
                   "padding": "12px 14px 12px",
                   "topGap": "10px",
                   "footerMarginTop": "12px"
-                },
-                "compare": {
-                  "blockMarginTop": "2px",
-                  "padding": "7px 8px",
-                  "itemMinHeight": "30px",
-                  "labelFontSize": "10px",
-                  "labelFontWeight": "800",
-                  "labelColor": "#64748b",
-                  "labelLetterSpacing": "0.05em",
-                  "valueFontSize": "15px"
                 }
               },
               "theme": {
@@ -1425,20 +1295,13 @@
               "titleLetterSpacing": "0.01em",
               "subtitleMarginTop": "1px",
               "dateChipMinWidth": "228px",
-              "themeRef": "sectionHeader.default"
+              "themeRef": "sectionHeader.default",
+              "titleFontSize": "18px",
+              "titleFontWeight": "700",
+              "subtitleFontSize": "12px"
             }
           }
         }
-      },
-      "sectionHeader": {
-        "titleFontSize": "18px",
-        "titleFontWeight": "700",
-        "titleColor": "#0f2d45",
-        "subtitleFontSize": "12px",
-        "subtitleColor": "#5f7387",
-        "background": "#f2f7fb",
-        "borderColor": "#bfd4e5",
-        "accentColor": "#005496"
       }
     },
     "echartsTheme": {
