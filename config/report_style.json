@@ -1330,6 +1330,71 @@
         "top": 20,
         "bottom": 15
       }
+    },
+    "chartPreset": {
+      "column": {
+        "standard": {
+          "base": {
+            "grid": {
+              "top": 32,
+              "bottom": 15,
+              "left": "10%",
+              "right": "10%",
+              "containLabel": true
+            },
+            "axis": {
+              "xLabelRotate": 0,
+              "ySplitLine": true
+            },
+            "series": {
+              "barMaxWidth": 28,
+              "barBorderRadius": [
+                6,
+                6,
+                0,
+                0
+              ]
+            },
+            "valueLabel": {
+              "show": true,
+              "positivePosition": "top",
+              "negativePosition": "bottom",
+              "distance": 8,
+              "fontSize": 11,
+              "fontWeight": "700",
+              "axisPaddingLeft": 0,
+              "axisPaddingRight": 0
+            },
+            "legend": {
+              "show": true,
+              "itemGap": 8
+            }
+          },
+          "view": {
+            "tooltip": {
+              "show": true,
+              "trigger": "axis",
+              "axisPointer": "shadow"
+            },
+            "interaction": {
+              "hoverEmphasis": true,
+              "dataZoom": false
+            }
+          },
+          "pdf": {
+            "tooltip": {
+              "show": false
+            },
+            "interaction": {
+              "hoverEmphasis": false,
+              "dataZoom": false
+            },
+            "valueLabel": {
+              "fontSize": 10
+            }
+          }
+        }
+      }
     }
   }
 }

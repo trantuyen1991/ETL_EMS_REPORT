@@ -50,6 +50,7 @@ class ReportBuilderService:
             )
         """
         self._style_config = style_config or {}
+        self._render_mode = str(mode or "html").strip().lower()
 
         v3_period_block = self._build_v3_period_block(
             period=period,

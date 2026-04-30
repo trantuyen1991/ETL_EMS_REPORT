@@ -1312,7 +1312,9 @@ class ReportStyleService:
         _remove_legacy_section_header_component(components, existing_report)
         self._ensure_palette_registry(style_config)
         self._ensure_theme_registry(style_config)
+        self._ensure_chart_preset_registry(style_config)
         self._sync_palette_tokens(style_config)
+        self._apply_chart_preset_refs(style_config)
         self._apply_theme_refs(style_config)
         self._sync_legacy_color_tokens(style_config)
 
@@ -1538,6 +1540,88 @@ class ReportStyleService:
                 for prop_key, prop_value in default_theme.items():
                     existing_theme.setdefault(prop_key, deepcopy(prop_value))
 
+    def _ensure_chart_preset_registry(self, style_config: dict[str, Any]) -> None:
+        """Backfill the shared chart-preset registry with the approved starter presets."""
+        chart_preset_cfg = style_config.get("chartPreset")
+        if not isinstance(chart_preset_cfg, dict):
+            chart_preset_cfg = {}
+            style_config["chartPreset"] = chart_preset_cfg
+
+        default_presets = {
+            "column": {
+                "standard": {
+                    "base": {
+                        "grid": {
+                            "top": 32,
+                            "bottom": 15,
+                            "left": "10%",
+                            "right": "10%",
+                            "containLabel": True,
+                        },
+                        "axis": {
+                            "xLabelRotate": 0,
+                            "ySplitLine": True,
+                        },
+                        "series": {
+                            "barMaxWidth": 28,
+                            "barBorderRadius": [6, 6, 0, 0],
+                        },
+                        "valueLabel": {
+                            "show": True,
+                            "positivePosition": "top",
+                            "negativePosition": "bottom",
+                            "distance": 8,
+                            "fontSize": 11,
+                            "fontWeight": "700",
+                            "axisPaddingLeft": 0,
+                            "axisPaddingRight": 0,
+                        },
+                        "legend": {
+                            "show": True,
+                            "itemGap": 8,
+                        },
+                    },
+                    "view": {
+                        "tooltip": {
+                            "show": True,
+                            "trigger": "axis",
+                            "axisPointer": "shadow",
+                        },
+                        "interaction": {
+                            "hoverEmphasis": True,
+                            "dataZoom": False,
+                        },
+                    },
+                    "pdf": {
+                        "tooltip": {
+                            "show": False,
+                        },
+                        "interaction": {
+                            "hoverEmphasis": False,
+                            "dataZoom": False,
+                        },
+                        "valueLabel": {
+                            "fontSize": 10,
+                        },
+                    },
+                },
+            },
+        }
+
+        for family_key, default_family in default_presets.items():
+            family_cfg = chart_preset_cfg.get(family_key)
+            if not isinstance(family_cfg, dict):
+                chart_preset_cfg[family_key] = deepcopy(default_family)
+                continue
+
+            for preset_key, default_preset in default_family.items():
+                preset_cfg = family_cfg.get(preset_key)
+                if not isinstance(preset_cfg, dict):
+                    family_cfg[preset_key] = deepcopy(default_preset)
+                    continue
+
+                family_cfg[preset_key] = self._merge_defaults(default_preset, preset_cfg)
+
     def _sync_palette_tokens(self, style_config: dict[str, Any]) -> None:
         """Mirror the new short palette into the current semantic color tree for safe migration."""
         palette_cfg = style_config.get("palette")
@@ -1583,6 +1667,17 @@ class ReportStyleService:
             area_node["barColor"] = palette_cfg.get(palette_key, area_node.get("barColor"))
             area_cfg[area_key] = area_node
         color_cfg["area"] = area_cfg
+
+    def _resolve_chart_preset_ref(self, style_config: dict[str, Any], family_ref: str) -> dict[str, Any]:
+        """Resolve a dotted chart-preset ref such as `column.standard` against `reportStyle.chartPreset`."""
+        if not family_ref or not isinstance(family_ref, str) or "." not in family_ref:
+            return {}
+
+        chart_preset_cfg = style_config.get("chartPreset") if isinstance(style_config.get("chartPreset"), dict) else {}
+        family_key, preset_key = family_ref.split(".", 1)
+        family_cfg = chart_preset_cfg.get(family_key) if isinstance(chart_preset_cfg.get(family_key), dict) else {}
+        preset_cfg = family_cfg.get(preset_key)
+        return deepcopy(preset_cfg) if isinstance(preset_cfg, dict) else {}
 
     def _resolve_theme_ref(self, style_config: dict[str, Any], theme_ref: str) -> dict[str, Any]:
         """Resolve a dotted theme ref such as `card.totalBrand` against `reportStyle.themes`."""
@@ -1771,6 +1866,47 @@ class ReportStyleService:
             }
 
         return {}
+
+    def _apply_chart_preset_refs(self, style_config: dict[str, Any]) -> None:
+        """Resolve any approved `familyRef` branch into merged preset scaffolding."""
+        components = style_config.get("components") if isinstance(style_config.get("components"), dict) else {}
+
+        def _walk(node: Any) -> None:
+            if not isinstance(node, dict):
+                return
+
+            family_ref = node.get("familyRef")
+            if isinstance(family_ref, str) and family_ref:
+                preset_cfg = self._resolve_chart_preset_ref(style_config, family_ref)
+                if preset_cfg:
+                    base_cfg = preset_cfg.get("base") if isinstance(preset_cfg.get("base"), dict) else {}
+                    view_cfg = preset_cfg.get("view") if isinstance(preset_cfg.get("view"), dict) else {}
+                    pdf_cfg = preset_cfg.get("pdf") if isinstance(preset_cfg.get("pdf"), dict) else {}
+
+                    object_base_cfg = {
+                        key: deepcopy(value)
+                        for key, value in node.items()
+                        if key not in {"familyRef", "themeRef", "view", "pdf"}
+                    }
+                    merged_base = self._merge_defaults(base_cfg, object_base_cfg)
+                    for key, value in merged_base.items():
+                        node[key] = deepcopy(value)
+
+                    existing_view_cfg = node.get("view") if isinstance(node.get("view"), dict) else {}
+                    if view_cfg or existing_view_cfg:
+                        node["view"] = self._merge_defaults(view_cfg, existing_view_cfg)
+
+                    existing_pdf_cfg = node.get("pdf") if isinstance(node.get("pdf"), dict) else {}
+                    if pdf_cfg or existing_pdf_cfg:
+                        node["pdf"] = self._merge_defaults(pdf_cfg, existing_pdf_cfg)
+
+            for key, value in node.items():
+                if key in {"view", "pdf"}:
+                    continue
+                if isinstance(value, dict):
+                    _walk(value)
+
+        _walk(components)
 
     def _apply_theme_refs(self, style_config: dict[str, Any]) -> None:
         """Resolve any approved `themeRef` branch into concrete tokens before CSS flattening."""
