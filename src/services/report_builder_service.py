@@ -4220,6 +4220,22 @@ class ReportBuilderService:
                 "splitLine": {"show": axis_index == 0, "lineStyle": {"color": split_line_color}},
             })
 
+        grid_option = self._resolve_chart_grid(
+            {
+                "left": 38,
+                "right": 0,
+                "top": 38,
+                "bottom": 28,
+                "containLabel": True,
+            },
+            "utility",
+            "sensorCluster",
+        )
+        if len(axis_list) > 1 and isinstance(grid_option, dict):
+            grid_option = dict(grid_option)
+            grid_option["right"] = 14
+            grid_option["containLabel"] = False
+
         return {
             "tooltip": {
                 "trigger": "axis",
@@ -4236,17 +4252,7 @@ class ReportBuilderService:
                 "utility",
                 "sensorCluster",
             ),
-            "grid": self._resolve_chart_grid(
-                {
-                    "left": 38,
-                    "right": 0,
-                    "top": 38,
-                    "bottom": 28,
-                    "containLabel": True,
-                },
-                "utility",
-                "sensorCluster",
-            ),
+            "grid": grid_option,
             "xAxis": {
                 "type": "category",
                 "data": formatted_labels,
