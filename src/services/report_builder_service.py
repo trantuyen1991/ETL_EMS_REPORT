@@ -149,6 +149,28 @@ class ReportBuilderService:
 
         return current if isinstance(current, dict) else {}
 
+    def _get_section_chart_mode_node(self, *path: str) -> Dict[str, Any]:
+        """Resolve the active mode branch for one chart node, for example `view` or `pdf`."""
+        current = self._get_section_chart_node(*path)
+        if not isinstance(current, dict):
+            return {}
+
+        mode_key = "pdf" if self._render_mode == "pdf" else "view"
+        mode_node = current.get(mode_key)
+        return mode_node if isinstance(mode_node, dict) else {}
+
+    def _get_chart_config_branch(self, branch_name: str, *path: str) -> Dict[str, Any]:
+        """Resolve one chart branch merged with the active mode override."""
+        node = self._get_section_chart_node(*path)
+        result = dict(node.get(branch_name) or {}) if isinstance(node.get(branch_name), dict) else {}
+
+        mode_node = self._get_section_chart_mode_node(*path)
+        mode_branch = mode_node.get(branch_name) if isinstance(mode_node.get(branch_name), dict) else {}
+        if isinstance(mode_branch, dict):
+            result.update(mode_branch)
+
+        return result
+
     def _get_style_color_node(self, *path: str) -> Dict[str, Any]:
         """Resolve one semantic color node under reportStyle.color.*."""
         current: Any = (self._style_config or {}).get("color", {})
@@ -332,8 +354,7 @@ class ReportBuilderService:
     ) -> Dict[str, Any]:
         """Resolve chart grid tokens from section-tree style config with safe defaults."""
         result = dict(defaults)
-        node = self._get_section_chart_node(*path)
-        current = node.get("grid", {}) if isinstance(node, dict) else {}
+        current = self._get_chart_config_branch("grid", *path)
 
         if isinstance(current, dict):
             for key in ("left", "right", "top", "bottom", "containLabel"):
@@ -349,8 +370,7 @@ class ReportBuilderService:
     ) -> Dict[str, Any]:
         """Resolve chart legend tokens from section-tree style config with safe defaults."""
         result = dict(defaults)
-        node = self._get_section_chart_node(*path)
-        current = node.get("legend", {}) if isinstance(node, dict) else {}
+        current = self._get_chart_config_branch("legend", *path)
 
         if not isinstance(current, dict):
             return result
@@ -391,6 +411,24 @@ class ReportBuilderService:
             else:
                 result["bottom"] = bottom_value
                 result.pop("top", None)
+
+        return result
+
+    def _resolve_chart_series_config(
+        self,
+        defaults: Dict[str, Any],
+        *path: str,
+    ) -> Dict[str, Any]:
+        """Resolve bar/series presentation tokens from section-tree style config with safe defaults."""
+        result = dict(defaults)
+        current = self._get_chart_config_branch("series", *path)
+
+        if not isinstance(current, dict):
+            return result
+
+        for key in ("barMaxWidth", "barBorderRadius", "labelLayoutHideOverlap"):
+            if current.get(key) is not None:
+                result[key] = current.get(key)
 
         return result
 
@@ -446,16 +484,17 @@ class ReportBuilderService:
     ) -> Dict[str, Any]:
         """Resolve bar/value-label tuning tokens from section-tree style config with safe defaults."""
         result = dict(defaults)
-        node = self._get_section_chart_node(*path)
-        current = node.get("valueLabel", {}) if isinstance(node, dict) else {}
+        current = self._get_chart_config_branch("valueLabel", *path)
 
         if not isinstance(current, dict):
             return result
 
         for key in (
+            "show",
             "positivePosition",
             "negativePosition",
             "distance",
+            "rotate",
             "fontSize",
             "fontWeight",
             "color",
@@ -1629,6 +1668,12 @@ class ReportBuilderService:
                 area_rows=area_rows,
             )
 
+        area_comparison_series_cfg = self._resolve_chart_series_config(
+            {"barMaxWidth": 22, "labelLayoutHideOverlap": True},
+            "electricity",
+            "areaComparison",
+        )
+
         return {
             "daily_trend": share_chart,
             "area_comparison": {
@@ -1684,9 +1729,9 @@ class ReportBuilderService:
                         {
                             "name": "Current period",
                             "type": "bar",
-                            "barMaxWidth": 22,
+                            "barMaxWidth": int(area_comparison_series_cfg.get("barMaxWidth") or 22),
                             "labelLayout": {
-                                "hideOverlap": True,
+                                "hideOverlap": bool(area_comparison_series_cfg.get("labelLayoutHideOverlap", True)),
                             },
                             "data": [
                                 self._build_chart_bar_point(
@@ -1696,6 +1741,7 @@ class ReportBuilderService:
                                     label_rotate=16,
                                     label_distance=4,
                                     formatter=self._fmt_chart_compact(value),
+                                    chart_path=("electricity", "areaComparison"),
                                 )
                                 for value in current_area_values
                             ],
@@ -1703,9 +1749,9 @@ class ReportBuilderService:
                         {
                             "name": "Previous period",
                             "type": "bar",
-                            "barMaxWidth": 22,
+                            "barMaxWidth": int(area_comparison_series_cfg.get("barMaxWidth") or 22),
                             "labelLayout": {
-                                "hideOverlap": True,
+                                "hideOverlap": bool(area_comparison_series_cfg.get("labelLayoutHideOverlap", True)),
                             },
                             "data": [
                                 self._build_chart_bar_point(
@@ -1715,6 +1761,7 @@ class ReportBuilderService:
                                     label_rotate=16,
                                     label_distance=4,
                                     formatter=self._fmt_chart_compact(value),
+                                    chart_path=("electricity", "areaComparison"),
                                 )
                                 for value in previous_area_values
                             ],
@@ -2441,26 +2488,41 @@ class ReportBuilderService:
         formatter: str | None = None,
         label_rotate: int = 28,
         label_distance: int = 6,
+        chart_path: tuple[str, ...] | None = None,
     ) -> dict[str, Any]:
         """Build one bar datum with a compact value label above the bar."""
+        series_cfg = {"barBorderRadius": border_radius or [6, 6, 0, 0]}
+        label_cfg = {
+            "show": True,
+            "positivePosition": "top",
+            "distance": label_distance,
+            "rotate": label_rotate,
+            "fontSize": font_size,
+            "fontWeight": 700,
+            "color": str(self._get_style_color_value("#475569", "text", "muted")),
+        }
+        if chart_path:
+            series_cfg = self._resolve_chart_series_config(series_cfg, *chart_path)
+            label_cfg = self._resolve_chart_value_label(label_cfg, *chart_path)
+
         point = {
             "value": round(float(value), 4) if isinstance(value, (int, float)) else None,
             "itemStyle": {
                 "color": color,
-                "borderRadius": border_radius or [6, 6, 0, 0],
+                "borderRadius": series_cfg.get("barBorderRadius") or border_radius or [6, 6, 0, 0],
             },
         }
 
         if isinstance(value, (int, float)):
             point["label"] = {
-                "show": True,
-                "position": "top",
-                "distance": label_distance,
-                "rotate": label_rotate,
+                "show": bool(label_cfg.get("show", True)),
+                "position": label_cfg.get("positivePosition", "top"),
+                "distance": label_cfg.get("distance", label_distance),
+                "rotate": label_cfg.get("rotate", label_rotate),
                 "formatter": formatter or self._fmt_chart_callout(value),
-                "color": "#475569",
-                "fontSize": font_size,
-                "fontWeight": 700,
+                "color": label_cfg.get("color", "#475569"),
+                "fontSize": label_cfg.get("fontSize", font_size),
+                "fontWeight": label_cfg.get("fontWeight", 700),
             }
         else:
             point["label"] = {"show": False}
@@ -4938,6 +5000,13 @@ class ReportBuilderService:
         axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         axis_line_color = str(self._get_style_color_value("#b9c8d6", "border", "strong"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
+        series_cfg = self._resolve_chart_series_config(
+            {"barMaxWidth": 22, "labelLayoutHideOverlap": False},
+            "kpi",
+            "compareBar",
+        )
+        bar_max_width = int(series_cfg.get("barMaxWidth") or 22)
+        hide_overlap = bool(series_cfg.get("labelLayoutHideOverlap", False))
         return {
             "color": [series_palette["previous"], series_palette["current"]],
             "tooltip": {
@@ -4980,18 +5049,28 @@ class ReportBuilderService:
                 {
                     "name": previous_series_name,
                     "type": "bar",
-                    "barMaxWidth": 22,
+                    "barMaxWidth": bar_max_width,
+                    "labelLayout": {"hideOverlap": hide_overlap},
                     "data": [
-                        self._build_chart_bar_point(value, color=series_palette["previous"])
+                        self._build_chart_bar_point(
+                            value,
+                            color=series_palette["previous"],
+                            chart_path=("kpi", "compareBar"),
+                        )
                         for value in yesterday_values
                     ],
                 },
                 {
                     "name": current_series_name,
                     "type": "bar",
-                    "barMaxWidth": 22,
+                    "barMaxWidth": bar_max_width,
+                    "labelLayout": {"hideOverlap": hide_overlap},
                     "data": [
-                        self._build_chart_bar_point(value, color=series_palette["current"])
+                        self._build_chart_bar_point(
+                            value,
+                            color=series_palette["current"],
+                            chart_path=("kpi", "compareBar"),
+                        )
                         for value in today_values
                     ],
                 },

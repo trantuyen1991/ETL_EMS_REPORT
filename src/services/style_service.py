@@ -1563,16 +1563,19 @@ class ReportStyleService:
                             "ySplitLine": True,
                         },
                         "series": {
-                            "barMaxWidth": 28,
+                            "barMaxWidth": 22,
                             "barBorderRadius": [6, 6, 0, 0],
+                            "labelLayoutHideOverlap": True,
                         },
                         "valueLabel": {
                             "show": True,
                             "positivePosition": "top",
                             "negativePosition": "bottom",
-                            "distance": 8,
-                            "fontSize": 11,
+                            "distance": 4,
+                            "rotate": 16,
+                            "fontSize": 8,
                             "fontWeight": "700",
+                            "color": "#475569",
                             "axisPaddingLeft": 0,
                             "axisPaddingRight": 0,
                         },
@@ -1585,7 +1588,7 @@ class ReportStyleService:
                         "tooltip": {
                             "show": True,
                             "trigger": "axis",
-                            "axisPointer": "shadow",
+                            "axisPointer": {"type": "shadow"},
                         },
                         "interaction": {
                             "hoverEmphasis": True,
