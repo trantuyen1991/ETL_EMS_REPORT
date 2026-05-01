@@ -5000,7 +5000,7 @@ class ReportBuilderService:
                 "subtitle": "Energy intensity and production context.",
                 "coverage": {},
                 "summary_matrix": {
-                    "title": "Current period KPI summary",
+                    "title": "KPI Summary Matrix",
                     "rows": [],
                 },
                 "charts": {
@@ -5198,7 +5198,7 @@ class ReportBuilderService:
         """Build the compact KPI summary matrix shown above the KPI chart."""
         if not kpi_object:
             return {
-                "title": "Current period KPI summary",
+                "title": "KPI Summary Matrix",
                 "group_columns": [],
                 "rows": [],
             }
@@ -5367,7 +5367,7 @@ class ReportBuilderService:
         ])
 
         return {
-            "title": "Current period KPI summary",
+            "title": "KPI Summary Matrix",
             "group_columns": [
                 {"key": "total", "label": "Total", "tone": "total", "is_total": True},
                 {"key": "diode", "label": "DIODE", "tone": "diode", "is_total": False},
