@@ -34,3 +34,12 @@ def test_daily_pdf_utility_template_contains_sensor_health_and_top_issues_blocks
     assert "Top issues today" in pdf_template
     assert "sensor_monitoring_view.health_snapshot" in pdf_template
     assert "sensor_monitoring_view.top_issues_preview" in pdf_template
+
+
+def test_daily_pdf_utility_template_splits_sensor_groups_for_page_5_preview() -> None:
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/utility.html").read_text(encoding="utf-8")
+
+    assert "sensor_group_preview = sensor_monitoring_view.groups[:3]" in pdf_template
+    assert "sensor_group_remaining = sensor_monitoring_view.groups[3:]" in pdf_template
+    assert "utility-sensor-group-grid-preview" in pdf_template
+    assert "utility-sensor-group-grid-remaining" in pdf_template

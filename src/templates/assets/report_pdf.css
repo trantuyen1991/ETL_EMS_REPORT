@@ -1667,9 +1667,23 @@
         gap: 6px !important;
     }
 
+    .utility-sensor-group-preview-block {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        margin-bottom: 8px !important;
+    }
+
     .report-period-daily .utility-sensor-group-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
         gap: 5px !important;
+    }
+
+    .report-period-daily .utility-sensor-group-grid-preview {
+        margin-bottom: 0 !important;
+    }
+
+    .report-period-daily .utility-sensor-group-grid-remaining {
+        margin-top: 2px !important;
     }
 
     .utility-sensor-group-card {

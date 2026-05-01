@@ -26,10 +26,18 @@ Improve underfilled sensor monitoring pages in the daily PDF, one page at a time
 - Follow-up direction: audit a page-6 enrichment block instead of shrinking the no-data tiles further.
 - Approved enrichment direction: add `Sensor health snapshot` + `Top issues today` preview for the daily PDF overview page.
 - Implementation scope confirmed by user: build both blocks for page 6 daily PDF and re-render page 6 for review.
+- Split scope confirmed by user: pull the first sensor-group row onto page 5, then continue remaining groups + anomaly scan on page 6.
+- Follow-up approved by user: split daily sensor group section so the first row renders on page 5 and the remaining groups continue on page 6 with the anomaly table.
 - Enrichment applied:
   - `Sensor health snapshot`
   - `Top issues today` preview
-- Observed result: page 6 now has a more useful middle layer between the overview cards and the detailed sensor groups.
+- Split applied:
+  - first sensor-group row now renders on page 5
+  - remaining groups continue on page 6 with the anomaly scan
+- Observed result:
+  - page 5 improved materially and feels more complete
+  - page 6 now has a more useful middle layer between the overview cards and the detailed sensor groups
+  - page 6 remains balanced, though slightly denser in the lower half
 - Tradeoff note: when the failure mode is uniformly `Missing data`, the page becomes slightly repetitive, but it is still more valuable than leaving the space empty.
 - [x] Re-render daily PDF sample (`2025-06-25`) and capture the fixed page image
 - [x] Update checklist/findings, commit, and mine the slice
