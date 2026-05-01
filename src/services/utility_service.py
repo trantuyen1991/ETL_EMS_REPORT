@@ -507,6 +507,53 @@ class UtilityService:
             )
         )
 
+        missing_sensor_count = max(0, total_sensor_count - active_sensor_count)
+        critical_alert_count = sum(1 for row in anomaly_rows if row["severity_class"] == "is-critical")
+        warning_alert_count = sum(1 for row in anomaly_rows if row["severity_class"] == "is-warning")
+        health_snapshot = [
+            {
+                "key": "active",
+                "label": "Active sensors",
+                "value": active_sensor_count,
+                "value_display": f"{active_sensor_count}/{total_sensor_count}",
+                "tone": "is-good" if active_sensor_count > 0 else "is-muted",
+            },
+            {
+                "key": "missing",
+                "label": "Missing data",
+                "value": missing_sensor_count,
+                "value_display": str(missing_sensor_count),
+                "tone": "is-critical" if missing_sensor_count > 0 else "is-good",
+            },
+            {
+                "key": "critical",
+                "label": "Critical alerts",
+                "value": critical_alert_count,
+                "value_display": str(critical_alert_count),
+                "tone": "is-critical" if critical_alert_count > 0 else "is-good",
+            },
+            {
+                "key": "warning",
+                "label": "Warning alerts",
+                "value": warning_alert_count,
+                "value_display": str(warning_alert_count),
+                "tone": "is-warning" if warning_alert_count > 0 else "is-good",
+            },
+        ]
+        top_issues_preview = [
+            {
+                "rank": index + 1,
+                "display_name": row["display_name"],
+                "group_label": row["group_label"],
+                "measurement_type": row["measurement_type"],
+                "flag_summary": row["flag_summary"],
+                "flag_detail_summary": row["flag_detail_summary"],
+                "severity_class": row["severity_class"],
+                "latest_display": row["latest_display"],
+            }
+            for index, row in enumerate(anomaly_rows[:5])
+        ]
+
         trend_clusters = self._build_sensor_trend_clusters(
             raw_rows=raw_rows or [],
             sensor_metadata=sensor_metadata,
@@ -551,6 +598,11 @@ class UtilityService:
             "representation_mode": "period_snapshot_plus_rollup" if is_period_report else "intraday_snapshot",
             "sensor_count": total_sensor_count,
             "active_sensor_count": active_sensor_count,
+            "missing_sensor_count": missing_sensor_count,
+            "critical_alert_count": critical_alert_count,
+            "warning_alert_count": warning_alert_count,
+            "health_snapshot": health_snapshot,
+            "top_issues_preview": top_issues_preview,
             "overview_cards": [
                 {
                     "key": group["key"],

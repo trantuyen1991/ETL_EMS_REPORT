@@ -631,6 +631,55 @@
                 </div>
                 {% endif %}
 
+                {% if flags.is_daily_report and (sensor_monitoring_view.health_snapshot or sensor_monitoring_view.top_issues_preview) %}
+                <div class="utility-sensor-insight-grid">
+                    {% if sensor_monitoring_view.health_snapshot %}
+                    <div class="utility-sensor-insight-card utility-sensor-health-card">
+                        <div class="utility-sensor-insight-head">
+                            <h4 class="utility-sensor-anomaly-title">Sensor health snapshot</h4>
+                            <p class="utility-sensor-subtitle">Quick health read for today across all monitored sensors</p>
+                        </div>
+                        <div class="utility-sensor-health-grid">
+                            {% for item in sensor_monitoring_view.health_snapshot %}
+                            <div class="utility-sensor-health-item {{ item.tone }}">
+                                <div class="utility-sensor-health-label">{{ item.label }}</div>
+                                <div class="utility-sensor-health-value">{{ item.value_display }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if sensor_monitoring_view.top_issues_preview %}
+                    <div class="utility-sensor-insight-card utility-sensor-top-issues-card">
+                        <div class="utility-sensor-insight-head">
+                            <h4 class="utility-sensor-anomaly-title">Top issues today</h4>
+                            <p class="utility-sensor-subtitle">Highest-priority sensor checks before the detailed anomaly scan</p>
+                        </div>
+                        <div class="utility-sensor-top-issues-list">
+                            {% for item in sensor_monitoring_view.top_issues_preview %}
+                            <div class="utility-sensor-top-issue {{ item.severity_class }}">
+                                <div class="utility-sensor-top-issue-main">
+                                    <div class="utility-sensor-top-issue-title-row">
+                                        <span class="utility-sensor-top-issue-rank">#{{ item.rank }}</span>
+                                        <span class="utility-sensor-top-issue-name">{{ item.display_name }}</span>
+                                    </div>
+                                    <div class="utility-sensor-top-issue-meta">{{ item.group_label }} · {{ item.measurement_type }}</div>
+                                </div>
+                                <div class="utility-sensor-top-issue-side">
+                                    <span class="utility-sensor-range-flag {{ item.severity_class }}">{{ item.flag_summary }}</span>
+                                    {% if item.latest_display and item.latest_display != '-' %}
+                                    <span class="utility-sensor-top-issue-latest">Latest {{ item.latest_display }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
                 {% if not flags.is_daily_report and sensor_monitoring.period_trend_charts_render %}
                 <div class="utility-sensor-trend-preview-block pdf-keep-together">
                     <div class="utility-sensor-trend-preview-head">
