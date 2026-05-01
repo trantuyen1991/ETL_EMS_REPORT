@@ -43,11 +43,18 @@ def test_daily_electric_area_comparison_chart_uses_today_yesterday_labels() -> N
     assert area_chart["option"]["series"][1]["name"] == "Yesterday"
 
 
-def test_daily_electric_templates_use_today_wording_for_top10_note() -> None:
+def test_electric_templates_use_period_aware_wording_for_top10_note_and_headers() -> None:
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/electricity.html").read_text(encoding="utf-8")
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/electricity.html").read_text(encoding="utf-8")
 
-    expected_note = 'Top 10 meters are sorted by {{ "today" if flags.is_daily_report else "current-period" }} consumption.'
+    expected_note = 'Top 10 meters are sorted by {{ labels.current_period | lower }} consumption.'
+    expected_header = '<th>{{ labels.current_period }}</th>'
 
     assert expected_note in view_template
     assert expected_note in pdf_template
+    assert expected_header in view_template
+    assert expected_header in pdf_template
+    assert 'if flags.is_daily_report else "Current"' not in view_template
+    assert 'if flags.is_daily_report else "Current"' not in pdf_template
+    assert 'if flags.is_daily_report else "current-period"' not in view_template
+    assert 'if flags.is_daily_report else "current-period"' not in pdf_template

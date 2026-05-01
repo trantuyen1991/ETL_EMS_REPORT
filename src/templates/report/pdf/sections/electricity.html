@@ -321,13 +321,13 @@
                                 <th class="col-rank">Rank</th>
                                 <th class="col-meter">Meter</th>
                                 <th class="col-area">Area</th>
-                                <th>{{ labels.current_period if flags.is_daily_report else "Current" }}</th>
+                                <th>{{ labels.current_period }}</th>
                                 <th class="top10-group-divider">Meter</th>
-                                <th>{{ labels.current_period if flags.is_daily_report else "Current" }}</th>
+                                <th>{{ labels.current_period }}</th>
                                 <th class="top10-group-divider">Meter</th>
-                                <th>{{ labels.current_period if flags.is_daily_report else "Current" }}</th>
+                                <th>{{ labels.current_period }}</th>
                                 <th class="top10-group-divider">Meter</th>
-                                <th>{{ labels.current_period if flags.is_daily_report else "Current" }}</th>
+                                <th>{{ labels.current_period }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -393,7 +393,7 @@
                 </div>
 
                 <p class="electricity-top10-note">
-                    Top 10 meters are sorted by {{ "today" if flags.is_daily_report else "current-period" }} consumption.
+                    Top 10 meters are sorted by {{ labels.current_period | lower }} consumption.
                     Configured feeder and excluded meters are filtered by area rules.
                 </p>
             </div>
