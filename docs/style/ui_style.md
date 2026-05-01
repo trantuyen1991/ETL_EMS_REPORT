@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-This file defines the shared visual language for the Energy Consumption Reporting Tool.
+This file defines the shared visual language for the Energy Consumption Reporting System.
 
 It exists to prevent mixed styles across the same screen or report.
 All future UI updates must follow this guide unless the user explicitly requests an exception.

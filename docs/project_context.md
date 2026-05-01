@@ -1,13 +1,15 @@
 # Project Context
 
 ## Project Name
-Energy Consumption Reporting Tool
+Energy Consumption Reporting System
 
 ## 1. Overview
 
 This project is an automated energy reporting system.
 
 It collects data from multiple database sources, processes and aggregates it in backend services, builds a unified report context, and renders it into HTML and PDF outputs.
+
+Presentation tokens are loaded from `config/report_style.json` through `src/services/style_service.py` and injected into the render context as inline CSS variables plus the runtime ECharts theme payload.
 
 The system is designed to run once per day and generate one or more reports for the effective anchor day.
 
@@ -151,7 +153,7 @@ Responsibilities:
 
 Rules:
 
-* follow `kpi_report_ruler.md`
+* follow `kpi_reporting_rules.md`
 * no prorating
 * explicit coverage status
 
@@ -197,6 +199,7 @@ Output:
 ### 6.1 Entry Point
 
 * `main.py`
+* `ReportStyleService` is initialized in `main.py` and merged into `report_context` before template rendering
 
 Main responsibilities:
 

@@ -157,7 +157,7 @@ Before making any change, OpenClaw must consider:
 - `project_context.md` → system architecture
 - `project_status.md` → current state
 - `report_spec.md` → expected output
-- `kpi_report_ruler.md` → KPI logic rules
+- `kpi_reporting_rules.md` → KPI logic rules
 
 If mismatch is detected:
 → propose update instead of forcing code change
@@ -237,7 +237,7 @@ Use structured logging:
 ### 6.1 KPI Logic
 
 Must follow:
-- `kpi_report_ruler.md`
+- `kpi_reporting_rules.md`
 
 Key rules:
 - coverage-first

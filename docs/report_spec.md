@@ -90,8 +90,8 @@ Current schema direction in implementation:
 - `reportStyle.components.report.section.utility.*`
 - `reportStyle.components.report.section.kpi.*`
 - common shared tokens still remain above the `report` branch when they apply across the whole report family
-- compatibility aliases are allowed during migration so templates/CSS can keep rendering while the tree becomes the primary source
-- once a template/CSS area has been repointed to direct `components.report.*` variables, the matching bridge aliases should be removed instead of kept indefinitely
+- historical compatibility aliases were acceptable during migration, but the current active CSS path should stay on canonical `components.report.*` variables
+- do not reintroduce generic bridge aliases unless a short-lived migration is truly necessary for an in-flight refactor
 - the active config now treats `components.report.*` as the only canonical report-owned schema; duplicated top-level legacy branches such as `components.summaryCard`, `components.table`, `components.reportContainer`, `components.reportTitle`, `components.reportSubtitle`, `components.reportMetadata`, `components.reportHeader`, and `components.footer` are no longer part of live config loading
 - header/title/subtitle/metadata banner styling is now consumed directly from `components.report.titleHeader.*` CSS variables instead of passing through a separate alias naming layer
 - active CSS assets also now consume canonical report tokens directly for colors, text, borders, shadows, radii, and spacing instead of relying on a generic alias bridge layer
@@ -106,7 +106,7 @@ Approved architecture:
   - normalizing the schema
   - flattening CSS variables
   - deriving the ECharts theme payload
-  - preserving only the temporary compatibility aliases still needed by active CSS/templates
+  - keeping the runtime mapping on canonical variables instead of rebuilding a generic alias bridge layer
 - chart colors should be derived from the same centralized palette instead of being hardcoded independently inside builder logic where avoidable
 
 Approved palette layering:

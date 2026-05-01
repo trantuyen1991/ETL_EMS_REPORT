@@ -1151,7 +1151,7 @@ class ReportStyleService:
         return merged
 
     def build_inline_css(self, style_config: dict[str, Any]) -> str:
-        """Convert the style config into inline CSS variables plus compatibility aliases."""
+        """Convert the style config into inline CSS variables for the active canonical schema."""
         sections_for_css = [
             "font",
             "color",
@@ -2097,7 +2097,7 @@ class ReportStyleService:
                 color_cfg[legacy_bg_key] = background_value
 
     def _build_compatibility_aliases(self, style_config: dict[str, Any]) -> list[str]:
-        """Emit bridge variables so rollout can be gradual in existing CSS assets."""
+        """Return any temporary bridge variables that remain for legacy CSS consumers."""
         return []
 
     def _to_kebab_case(self, value: str) -> str:

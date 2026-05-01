@@ -36,7 +36,7 @@ Stable baseline:
 - layout-oriented chart height tokens now prefer a public `view` / `pdf` split in config, while `report_pdf_base.css` and `report_pdf.css` remain internal PDF layers that can share the same `pdf` branch
 - summary-card and table tokens have now moved into shared report-tree foundations under `components.report.section.common.*`
 - the active `config/report_style.json` has dropped duplicated top-level legacy branches such as `components.summaryCard`, `components.table`, `components.reportContainer`, `components.reportTitle`, `components.reportSubtitle`, `components.reportMetadata`, `components.reportHeader`, and `components.footer`; `ReportStyleService` now expects the canonical `components.report.*` tree and only keeps the narrow `pdfBase` / `pdfCompact` to `pdf` height collapse inside the report tree
-- the report header/title/subtitle/metadata CSS consumers have also been repointed to direct `components.report.titleHeader.*` variables, allowing another alias-cleanup pass in `style_service.py`
+- the report header/title/subtitle/metadata CSS consumers have also been repointed to direct `components.report.titleHeader.*` variables, and the old generic alias bridge is no longer part of the active CSS path
 - the active CSS assets now consume canonical report tokens directly for colors, text, borders, shadows, radii, and spacing, so the old generic alias bridge variables are no longer emitted by `ReportStyleService`
 - electricity heatmap/delta chart heights and the shared table/card CSS layer now consume report-tree variables directly, reducing the old compatibility bridge surface in `ReportStyleService`
 - the 2026-04-28 periodic shrink bug was traced to a Utility Sensor Monitoring table overflow in PDF, and the weekly document width is now back in sync with daily at document level
@@ -199,7 +199,7 @@ Current anomaly rules:
 - keep common report-wide tokens near the top of `report_style.json`
 - move section-specific tuning toward `components.report -> section -> object type -> object`
 - keep shared 1-source geometry where HTML preview, PDF source, and final PDF should match
-- keep compatibility aliases while CSS is still consuming older flat variable names
+- keep CSS and templates on canonical `components.report.*` variables, and avoid reintroducing generic compatibility aliases unless a short-lived migration is unavoidable
 - allow renderer-specific overrides only where print behavior really differs
 
 ### 4.3 Approved color-architecture reset (2026-04-30)
@@ -465,7 +465,7 @@ Expected behavior:
 - Commit only when explicitly requested by user
 
 ### 11.3 Context Awareness
-- Must use project documentation (`report_spec.md`, `kpi_report_ruler.md`, etc.)
+- Must use project documentation (`report_spec.md`, `kpi_reporting_rules.md`, etc.)
 - Must stay consistent with real implementation
 
 ### 11.4 MemPalace-First Project Recall

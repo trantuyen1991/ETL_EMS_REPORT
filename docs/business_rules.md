@@ -150,7 +150,7 @@ For all comparable metrics:
 - KPI rendering must reflect stored business-approved values, not inferred or reconstructed values.
 
 Reference principle:
-- coverage-first, no prorating  [oai_citation:1‡kpi_report_ruler.md](sediment://file_00000000a6ac71fa9b0b126484e70b78)
+- coverage-first, no prorating. See `docs/kpi_reporting_rules.md`.
 
 ---
 
