@@ -323,6 +323,7 @@ Execution rule:
   - otherwise `OUTPUT_DIR` when non-hidden
   - otherwise another safe non-hidden fallback
 - The final PDF is still copied back into project `output/reports/`
+- The current export batch is also copied into a dated folder under `output/reports/YYYY_MM_DD/`
 
 ---
 

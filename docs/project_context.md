@@ -352,6 +352,10 @@ project_output_dir
         <export_stem>_view.html
         <export_stem>_pdf_source.html
         <export_stem>.pdf
+        <export_run_date>/
+            <export_stem>_view.html
+            <export_stem>_pdf_source.html
+            <export_stem>.pdf
 
 staging_output_dir
     <non-hidden print-safe directory>
@@ -361,7 +365,8 @@ staging_output_dir
 
 Responsibility split:
 
-* `project_output_dir` stores the canonical report artifacts
+* `project_output_dir` stores the canonical flat report artifacts for the latest run
+* `project_output_dir / <export_run_date>` stores a dated copy of the full export batch, for example `output/reports/2026_05_01/`
 * `staging_output_dir` is the Chromium-safe print location
 
 The current stable PDF flow depends on this separation.
@@ -379,9 +384,10 @@ Current flow:
 5. render `*_pdf_source.html`
 6. generate PDF with Chromium headless
 7. copy PDF back into project output
+8. copy the current batch into a dated folder named from the export run date, for example `output/reports/2026_05_01/`
 
 Planned:
-8. export CSV
+9. export CSV
 
 ---
 

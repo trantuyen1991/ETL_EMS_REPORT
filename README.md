@@ -311,6 +311,7 @@ Current production flow:
 4. the PDF source HTML is written into both `output/reports/` and the print staging directory
 5. Chromium headless prints the staged HTML into a staged PDF
 6. the final PDF is copied back into `output/reports/`
+7. the current run is also copied into a dated batch folder such as `output/reports/2026_05_01/`
 
 Template mapping:
 
@@ -484,7 +485,11 @@ Generated files:
 output/reports/
 ├── <filename>_<period_type>_<anchor-date>_view.html
 ├── <filename>_<period_type>_<anchor-date>_pdf_source.html
-└── <filename>_<period_type>_<anchor-date>.pdf
+├── <filename>_<period_type>_<anchor-date>.pdf
+└── <export_run_date>/
+    ├── <filename>_<period_type>_<anchor-date>_view.html
+    ├── <filename>_<period_type>_<anchor-date>_pdf_source.html
+    └── <filename>_<period_type>_<anchor-date>.pdf
 
 ```
 

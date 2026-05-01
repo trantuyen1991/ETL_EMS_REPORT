@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import re
+import shutil
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from src.config.config_loader import load_config
 from src.config.data_sources import get_data_sources
@@ -357,6 +359,49 @@ def _resolve_pdf_staging_dir(
     return Path.home() / "Reports"
 
 
+def _resolve_export_run_date(env_cfg: dict[str, Any]) -> date:
+    """Resolve the export-run date using APP_TIMEZONE when available."""
+    timezone_name = str(env_cfg.get("APP_TIMEZONE") or "").strip()
+    if timezone_name:
+        try:
+            return datetime.now(ZoneInfo(timezone_name)).date()
+        except ZoneInfoNotFoundError:
+            pass
+
+    return date.today()
+
+
+def _resolve_report_batch_dir(
+    env_cfg: dict[str, Any],
+    project_output_dir: Path,
+) -> Path:
+    """Build the dated archive directory for one production export run."""
+    export_run_date = _resolve_export_run_date(env_cfg)
+    return project_output_dir / export_run_date.strftime("%Y_%m_%d")
+
+
+def _archive_report_batch(
+    rendered_reports: list[dict[str, Any]],
+    report_batch_dir: Path,
+) -> list[Path]:
+    """Copy canonical artifacts from the current run into a dated batch directory."""
+    archived_paths: list[Path] = []
+    report_batch_dir.mkdir(parents=True, exist_ok=True)
+
+    for item in rendered_reports:
+        artifacts = item.get("artifacts", {})
+        for artifact_key in ("view_html", "pdf_source_html", "pdf"):
+            artifact_path = artifacts.get(artifact_key)
+            if not isinstance(artifact_path, Path) or not artifact_path.exists():
+                continue
+
+            archived_path = report_batch_dir / artifact_path.name
+            shutil.copy2(artifact_path, archived_path)
+            archived_paths.append(archived_path)
+
+    return archived_paths
+
+
 def _render_report_artifacts(
     *,
     renderer: TemplateRenderingService,
@@ -419,6 +464,11 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
     )
     staging_output_dir.mkdir(parents=True, exist_ok=True)
 
+    report_batch_dir = _resolve_report_batch_dir(
+        env_cfg=env_cfg,
+        project_output_dir=project_output_dir,
+    )
+
     rendered_reports: list[dict[str, Any]] = []
 
     for period in scheduled_periods:
@@ -460,6 +510,17 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
             getattr(period, "anchor_date", None),
             artifacts["pdf"],
         )
+
+    archived_paths = _archive_report_batch(
+        rendered_reports=rendered_reports,
+        report_batch_dir=report_batch_dir,
+    )
+
+    logger.info(
+        "Archived current report batch | batch_dir=%s file_count=%s",
+        report_batch_dir,
+        len(archived_paths),
+    )
 
     return rendered_reports
 def run_production() -> None:
