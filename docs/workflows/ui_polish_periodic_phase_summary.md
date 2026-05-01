@@ -56,3 +56,7 @@
 ## Final conclusion
 - The wording cleanup chain for this phase is effectively closed.
 - Primary rendered report surfaces and remaining low-risk fallback paths now follow the intended daily and periodic label policy.
+
+## Next workstream
+- Next planned workstream: template layout audit by surface/page, starting with the daily PDF output.
+- See `docs/workflows/template_layout_audit_master_checklist.md` for the audit order and checks.
