@@ -192,6 +192,12 @@ def test_electric_templates_use_period_aware_wording_for_top10_note_and_headers(
     assert 'if flags.is_daily_report else "current-period"' not in pdf_template
 
 
+def test_daily_pdf_electric_template_skips_empty_top10_block() -> None:
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/electricity.html").read_text(encoding="utf-8")
+
+    assert '{% if sections.electricity.top10.grouped_rows %}' in pdf_template
+
+
 def test_periodic_electric_area_top10_subtitles_use_period_aware_wording() -> None:
     service = ReportBuilderService()
     service._style_config = {}

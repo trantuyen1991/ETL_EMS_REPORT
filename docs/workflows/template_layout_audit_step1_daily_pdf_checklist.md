@@ -22,20 +22,16 @@
 ## Findings
 
 ### Page 1, Electricity Consumption / Top 10 Meter Consumption
-- Moderate-to-large bottom whitespace below the Top 10 section.
-- Current page balance is weak: large chart cards + summary area leave only the Top 10 heading/table start on page 1.
+- Initial issue: bottom whitespace and weak page balance because page 1 ended with an empty Top 10 block shell.
+- Root cause confirmed in rendered HTML: `sections.electricity.top10.grouped_rows` was empty for this sample, but the PDF template still rendered the Top 10 heading/table shell.
 - Likely source: `src/templates/report/pdf/sections/electricity.html`
-- Proposed fix direction:
-  - reduce chart/card vertical footprint on page 1, or
-  - intentionally push the whole Top 10 block to page 2 instead of leaving it half-started on page 1.
-- Minor label density issue: some tiny `0.0` labels sit too close to the baseline in the area comparison chart.
+- Status: resolved by the follow-up fix slice tracked in `docs/workflows/template_layout_fix_electricity_daily_pdf_p2_checklist.md`.
+- Minor label density issue still remains: some tiny `0.0` labels sit too close to the baseline in the area comparison chart.
 
 ### Page 2, Daily Energy Detail / DIODE Daily Energy Detail
-- Very large whitespace in the lower half of the page.
-- No overflow found.
-- Likely source: `src/templates/report/pdf/sections/electricity.html`
-- Proposed fix direction:
-  - re-balance page 1 and page 2 together so table sections flow more naturally.
+- Initial state had very large whitespace in the lower half of the page.
+- Status after page 1 fix: transition is cleaner because page 2 now starts directly with `Daily Energy Detail` instead of being preceded by an empty Top 10 shell on page 1.
+- Remaining whitespace is acceptable for this sparse sample and no overflow was found.
 
 ### Page 3, ICO Daily Energy Detail / SAKARI Daily Energy Detail
 - Bottom whitespace exists but is still acceptable.

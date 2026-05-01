@@ -305,6 +305,7 @@
                 {% endif %}
             </div>
 
+            {% if sections.electricity.top10.grouped_rows %}
             <div class="electricity-detail-block electricity-detail-block-plant">
                 <h3 class="electricity-subsection-title">Top 10 Meter Consumption</h3>
 
@@ -397,6 +398,7 @@
                     Configured feeder and excluded meters are filtered by area rules.
                 </p>
             </div>
+            {% endif %}
 
             {% if not flags.is_daily_report %}
             {{ render_periodic_area_summary(sections.electricity.daily_summary.area_rows, area_summary_order) }}
