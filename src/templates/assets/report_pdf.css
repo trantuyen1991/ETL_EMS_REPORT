@@ -512,6 +512,29 @@
         margin-bottom: 4px !important;
     }
 
+    .report-period-daily .utility-overview-heading {
+        margin-bottom: 6px !important;
+    }
+
+    .report-period-daily .utility-overview-card-grid {
+        gap: 5px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .report-period-daily .utility-energy-card-grid {
+        gap: 5px !important;
+    }
+
+    .report-period-daily .utility-overview-card {
+        min-height: 70px !important;
+        padding: 6px 7px !important;
+    }
+
+    .report-period-daily .utility-energy-card {
+        min-height: 68px !important;
+        padding: 5px 6px !important;
+    }
+
     .utility-overview-card-summary {
         display: grid !important;
         grid-template-columns: auto minmax(0, 1fr) !important;
@@ -656,11 +679,12 @@
     }
 
     .utility-chart-split-grid-daily {
-        margin-top: 6px !important;
+        gap: 6px !important;
+        margin-top: 4px !important;
     }
 
     .utility-chart-detail-stack {
-        gap: 6px !important;
+        gap: 4px !important;
     }
 
     .utility-periodic-chart-grid {
@@ -690,6 +714,11 @@
         padding-bottom: 6px !important;
     }
 
+    .utility-chart-block-daily .utility-chart-card,
+    .utility-chart-split-grid-daily .utility-chart-card {
+        padding-bottom: 4px !important;
+    }
+
     .utility-comparison-chart {
         height: var(--report-components-report-section-utility-chart-comparison-height-pdf, 168px) !important;
     }
@@ -711,7 +740,12 @@
     }
 
     .utility-comparison-chart-daily {
-        height: var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px) !important;
+        height: var(--report-components-report-section-utility-chart-deviation-height-pdf, 204px) !important;
+    }
+
+    .utility-chart-split-grid-daily .utility-comparison-chart-wide,
+    .utility-chart-split-grid-daily .utility-comparison-chart-narrow {
+        height: var(--report-components-report-section-utility-chart-comparison-height-pdf, 152px) !important;
     }
 
     .utility-comparison-chart-wide,

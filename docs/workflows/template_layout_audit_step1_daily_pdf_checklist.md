@@ -42,14 +42,11 @@
 - No immediate overflow or collision found.
 
 ### Page 4-5, Utility Overview / Utility Detail Summary
-- Strongest issue in the daily PDF.
-- Page 4 charts appear too tall relative to the remaining table height.
-- Result: only the last row of `Utility Detail Summary` spills to page 5.
-- Page 5 then has severe whitespace with only one leftover row at the top.
+- Strongest issue found in the initial daily PDF audit.
+- Initial state: page 4 charts were too tall relative to the remaining table height.
+- Initial result: only the last row of `Utility Detail Summary` spilled to page 5, leaving severe whitespace.
 - Likely source: `src/templates/report/pdf/sections/utility.html`
-- Proposed fix direction:
-  - reduce utility chart heights first,
-  - then re-test whether the full summary table can stay on page 4.
+- Status: resolved by the follow-up fix slice tracked in `docs/workflows/template_layout_fix_utility_daily_pdf_p1_checklist.md`.
 
 ### Page 6-8, Sensor Monitoring
 - Pages 6-8 are underfilled overall, especially page 7 and page 8.
