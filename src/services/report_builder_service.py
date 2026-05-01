@@ -698,8 +698,8 @@ class ReportBuilderService:
 
         Business rules:
         - daily   -> Today / Yesterday
-        - weekly  -> This Week / Previous Week
-        - monthly -> This Month / Previous Month
+        - weekly  -> This Week / Last Week
+        - monthly -> This Month / Last Month
         - weekly/monthly should show total days and average per day
         - daily should hide total days and average per day
 
@@ -722,13 +722,13 @@ class ReportBuilderService:
         if is_monthly_report:
             priority = 3
             current_period_title = "This Month"
-            previous_period_title = "Previous Month"
+            previous_period_title = "Last Month"
             show_total_days = True
             show_average_per_day = True
         elif is_weekly_report:
             priority = 2
             current_period_title = "This Week"
-            previous_period_title = "Previous Week"
+            previous_period_title = "Last Week"
             show_total_days = True
             show_average_per_day = True
         else:
@@ -1643,10 +1643,10 @@ class ReportBuilderService:
         is_daily_report = period_type == "daily"
         if period_type == "monthly":
             current_period_label = "This Month"
-            previous_period_label = "Previous Month"
+            previous_period_label = "Last Month"
         elif period_type == "weekly":
             current_period_label = "This Week"
-            previous_period_label = "Previous Week"
+            previous_period_label = "Last Week"
         else:
             current_period_label = "Today"
             previous_period_label = "Yesterday"
@@ -5400,10 +5400,10 @@ class ReportBuilderService:
         normalized_period_type = str(period_type or "").strip().lower()
         if normalized_period_type == "monthly":
             current_label = "This Month"
-            previous_label = "Previous Month"
+            previous_label = "Last Month"
         elif normalized_period_type == "weekly":
             current_label = "This Week"
-            previous_label = "Previous Week"
+            previous_label = "Last Week"
         else:
             current_label = "Today"
             previous_label = "Yesterday"

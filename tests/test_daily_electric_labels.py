@@ -87,19 +87,31 @@ def test_periodic_electric_charts_use_period_aware_labels() -> None:
         period_type="monthly",
     )
 
-    assert weekly_charts["daily_trend"]["subtitle"] == "This Week vs previous week"
+    assert weekly_charts["daily_trend"]["subtitle"] == "This Week vs last week"
     assert weekly_charts["daily_trend"]["option"]["series"][0]["name"] == "This Week"
-    assert weekly_charts["daily_trend"]["option"]["series"][1]["name"] == "Previous Week"
-    assert weekly_charts["area_comparison"]["subtitle"] == "This Week vs previous week total by workshop"
+    assert weekly_charts["daily_trend"]["option"]["series"][1]["name"] == "Last Week"
+    assert weekly_charts["area_comparison"]["subtitle"] == "This Week vs last week total by workshop"
     assert weekly_charts["area_comparison"]["option"]["series"][0]["name"] == "This Week"
-    assert weekly_charts["area_comparison"]["option"]["series"][1]["name"] == "Previous Week"
+    assert weekly_charts["area_comparison"]["option"]["series"][1]["name"] == "Last Week"
 
-    assert monthly_charts["daily_trend"]["subtitle"] == "This Month vs previous month"
+    assert monthly_charts["daily_trend"]["subtitle"] == "This Month vs last month"
     assert monthly_charts["daily_trend"]["option"]["series"][0]["name"] == "This Month"
-    assert monthly_charts["daily_trend"]["option"]["series"][1]["name"] == "Previous Month"
-    assert monthly_charts["area_comparison"]["subtitle"] == "This Month vs previous month total by workshop"
+    assert monthly_charts["daily_trend"]["option"]["series"][1]["name"] == "Last Month"
+    assert monthly_charts["area_comparison"]["subtitle"] == "This Month vs last month total by workshop"
     assert monthly_charts["area_comparison"]["option"]["series"][0]["name"] == "This Month"
-    assert monthly_charts["area_comparison"]["option"]["series"][1]["name"] == "Previous Month"
+    assert monthly_charts["area_comparison"]["option"]["series"][1]["name"] == "Last Month"
+
+
+def test_period_block_uses_last_week_and_last_month_labels() -> None:
+    service = ReportBuilderService()
+
+    weekly_block = service._build_v3_period_block(period={"type": "weekly"})
+    monthly_block = service._build_v3_period_block(period={"type": "monthly"})
+
+    assert weekly_block["labels"]["current_period"] == "This Week"
+    assert weekly_block["labels"]["previous_period"] == "Last Week"
+    assert monthly_block["labels"]["current_period"] == "This Month"
+    assert monthly_block["labels"]["previous_period"] == "Last Month"
 
 
 def test_electric_templates_use_period_aware_wording_for_top10_note_and_headers() -> None:

@@ -90,7 +90,7 @@ Stable baseline:
 - KPI summary matrix by area + total: ✅
 - KPI summary matrix reordered to `Total -> DIODE -> ICO -> SAKARI`: ✅
 - KPI summary matrix now shows `Today / Yesterday / Delta %`: ✅
-- Period KPI summary matrix now reuses the same structure with `This Week / Previous Week` and `This Month / Previous Month` labels: ✅
+- Period KPI summary matrix now reuses the same structure with `This Week / Last Week` and `This Month / Last Month` labels: ✅
 - Period `Production day` row now counts actual production days in each compared period: ✅
 - Header-only grouped color styling for summary matrix: ✅
 - Delta% by area and total: ✅

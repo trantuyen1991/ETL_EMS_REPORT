@@ -527,7 +527,7 @@ This section should include:
 - KPI coverage information
 - section header styling consistent with Electricity in the daily template
 - period header/date-chip styling aligned with the Utility section in the periodic template
-- period chart wording that follows the resolved labels such as `This Week / Previous Week` or `This Month / Previous Month`
+- period chart wording that follows the resolved labels such as `This Week / Last Week` or `This Month / Last Month`
 
 ### 9.3 KPI Daily Detail
 Daily KPI detail should include:
