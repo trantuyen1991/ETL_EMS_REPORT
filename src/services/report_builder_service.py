@@ -2598,8 +2598,17 @@ class ReportBuilderService:
         ]
         period_type = str((period or {}).get("type") or "").strip().lower()
         is_daily_report = period_type == "daily"
-        current_series_name = "Today" if is_daily_report else "Current period"
-        previous_series_name = "Yesterday" if is_daily_report else "Previous period"
+        if period_type == "monthly":
+            current_period_label = "This Month"
+            previous_period_label = "Last Month"
+        elif period_type == "weekly":
+            current_period_label = "This Week"
+            previous_period_label = "Last Week"
+        else:
+            current_period_label = "Today"
+            previous_period_label = "Yesterday"
+        current_series_name = current_period_label
+        previous_series_name = previous_period_label
         period_heatmap = (
             self._build_v3_utility_period_heatmap_chart(
                 utility_object=utility_object,
@@ -2617,11 +2626,11 @@ class ReportBuilderService:
                         charts={
                             "deviation_vs_yesterday": {
                                 "title": "Deviation vs Yesterday" if is_daily_report else "Consumption delta (%)",
-                                "subtitle": "Positive value means higher consumption" if is_daily_report else "Current period versus previous period",
+                                "subtitle": "Positive value means higher consumption" if is_daily_report else f"{current_period_label} versus {previous_period_label.lower()}",
                             },
                             "period_type_trend": {
                                 "title": "Utility daily trend",
-                                "subtitle": "Today total by utility group" if is_daily_report else "Current period daily total by utility group",
+                                "subtitle": "Today total by utility group" if is_daily_report else f"Daily totals for {current_period_label.lower()} by utility group",
                             },
                             "period_heatmap": period_heatmap,
                         },
@@ -2631,7 +2640,7 @@ class ReportBuilderService:
             },
             "comparison_bar": {
                 "title": "Utility comparison",
-                "subtitle": "Current vs previous total by load type",
+                "subtitle": "Current vs previous total by load type" if is_daily_report else f"{current_period_label} vs {previous_period_label.lower()} total by load type",
                 "option": self._build_v3_utility_comparison_option(
                     utility_items,
                     current_series_name=current_series_name,
@@ -2640,12 +2649,12 @@ class ReportBuilderService:
             },
             "deviation_vs_yesterday": {
                 "title": "Deviation vs Yesterday" if is_daily_report else "Consumption delta (%)",
-                "subtitle": "Positive value means higher consumption" if is_daily_report else "Current period versus previous period",
+                "subtitle": "Positive value means higher consumption" if is_daily_report else f"{current_period_label} versus {previous_period_label.lower()}",
                 "option": self._build_v3_utility_deviation_option(utility_items),
             },
             "period_type_trend": {
                 "title": "Utility daily trend",
-                "subtitle": "Today total by utility group" if is_daily_report else "Current period daily total by utility group",
+                "subtitle": "Today total by utility group" if is_daily_report else f"Daily totals for {current_period_label.lower()} by utility group",
                 "option": self._build_v3_utility_type_trend_option(
                     utility_object=utility_object,
                     period_type=period_type,
@@ -2653,7 +2662,7 @@ class ReportBuilderService:
             },
             "period_heatmap": period_heatmap,
             "period_mix": {
-                "title": "Current period mix",
+                "title": "Current period mix" if is_daily_report else f"{current_period_label} mix",
                 "subtitle": "Share of total utility consumption by group",
                 "option": self._build_v3_utility_mix_option(utility_items),
             },
