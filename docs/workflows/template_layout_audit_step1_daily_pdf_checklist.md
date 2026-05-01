@@ -45,22 +45,26 @@
 - Status: resolved by the follow-up fix slice tracked in `docs/workflows/template_layout_fix_utility_daily_pdf_p1_checklist.md`.
 
 ### Page 6-8, Sensor Monitoring
-- Pages 6-8 are underfilled overall, especially page 7 and page 8.
-- No obvious overflow.
-- Likely source: sensor-monitoring blocks/macros referenced from the PDF report flow.
-- Proposed fix direction:
-  - audit card min-heights, grid spacing, and page-break behavior for sensor blocks after electricity/utility balancing.
+- Initial state: sensor pages were underfilled overall, especially page 7 and the tail end before KPI.
+- Status: partially resolved by the follow-up sensor fix slice tracked in `docs/workflows/template_layout_fix_sensor_daily_pdf_p3_checklist.md`.
+- Applied changes:
+  - denser 3-column daily sensor group layout
+  - compact empty-state handling for no-data daily sensor tiles
+- Result:
+  - total daily PDF page count dropped from 9 to 8
+  - page 7 improved materially
+  - page 6 also improved without destabilizing later pages
 
-### Page 8, Sensor anomaly scan
-- Large whitespace below the anomaly table.
-- Reason column is tight but still within page width.
-
-### Page 9, Energy KPI / KPI Summary Matrix
-- Overall page use is acceptable.
-- `Deviation vs yesterday` chart has too much internal empty space when values are near zero.
-- Small `0.0` labels cluster near the baseline in KPI charts.
-- Waterfall x-axis label wrapping is awkward (`Yesterday\nKPI`, `Today\nKPI`) and hurts polish.
-- Likely source: `src/templates/report/pdf/sections/kpi.html` and related KPI chart config in `report_builder_service.py`
+### Page 8, Energy KPI / KPI Summary Matrix
+- After sensor compaction, KPI moved onto page 8.
+- Initial KPI issue: zero-data charts looked like empty frames and made the page feel underfilled.
+- Status: resolved by the follow-up KPI fix slice tracked in `docs/workflows/template_layout_fix_kpi_daily_pdf_p4_checklist.md`.
+- Applied changes:
+  - tighter KPI daily card/chart/table spacing
+  - shorter waterfall axis labels
+  - zero-only variance labels hidden
+  - compact empty-state panels for zero-only daily KPI charts
+- Result: the final page is materially cleaner and appropriate for the zero-data daily sample.
 
 ### No overflow findings in step 1
 - No table/text block was observed spilling outside the card/page width in the audited daily PDF sample.

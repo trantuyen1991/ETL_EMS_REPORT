@@ -670,7 +670,7 @@
 
                         <div class="utility-sensor-range-list">
                             {% for sensor in group.sensors %}
-                            <div class="utility-sensor-range-row {{ sensor.severity_class }}">
+                            <div class="utility-sensor-range-row {{ sensor.severity_class }}{% if flags.is_daily_report and not sensor.has_data %} is-empty-compact{% endif %}">
                                 <div class="utility-sensor-range-top">
                                     <div>
                                         <div class="utility-sensor-range-name">{{ sensor.display_name }}</div>
@@ -679,6 +679,13 @@
                                     <span class="utility-sensor-range-flag {{ sensor.severity_class }}">{{ sensor.flag_summary }}</span>
                                 </div>
 
+                                {% if flags.is_daily_report and not sensor.has_data %}
+                                {% if sensor.has_alert and sensor.flag_detail_summary %}
+                                <div class="utility-sensor-range-reason utility-sensor-range-reason-compact {{ sensor.severity_class }}">
+                                    {{ sensor.flag_detail_summary }}
+                                </div>
+                                {% endif %}
+                                {% else %}
                                 <div class="utility-sensor-range-track">
                                     <span class="utility-sensor-range-line"></span>
                                     <span class="utility-sensor-range-dot" style="left: {{ sensor.avg_position_pct }}%;"></span>
@@ -700,6 +707,7 @@
                                 <div class="utility-sensor-range-reason {{ sensor.severity_class }}">
                                     {{ sensor.flag_detail_summary }}
                                 </div>
+                                {% endif %}
                                 {% endif %}
                             </div>
                             {% endfor %}

@@ -399,6 +399,15 @@
         padding: 6px 8px !important;
     }
 
+    .report-period-daily .kpi-section-shell .section-header {
+        padding: 6px 8px 5px !important;
+    }
+
+    .report-period-daily .kpi-header-date-chip {
+        min-width: 124px !important;
+        padding: 5px 7px !important;
+    }
+
     .electricity-section-shell .section-header {
         padding: var(--report-components-report-section-electric-header-padding, 7px 10px 6px) !important;
     }
@@ -865,10 +874,20 @@
         margin-bottom: 8px !important;
     }
 
+    .report-period-daily .kpi-daily-card-grid {
+        gap: 5px !important;
+        margin-bottom: 6px !important;
+    }
+
     .kpi-daily-card {
         min-height: 126px !important;
         padding: 7px 8px !important;
         border-radius: 10px !important;
+    }
+
+    .report-period-daily .kpi-daily-card {
+        min-height: 112px !important;
+        padding: 6px 7px !important;
     }
 
     .kpi-daily-card-top {
@@ -956,6 +975,14 @@
         gap: 8px !important;
     }
 
+    .report-period-daily .kpi-daily-dashboard {
+        margin-bottom: 10px !important;
+    }
+
+    .report-period-daily .kpi-daily-dashboard-grid {
+        gap: 6px !important;
+    }
+
     .kpi-daily-chart-tile-wide {
         grid-column: span 2 !important;
     }
@@ -964,10 +991,42 @@
         height: var(--report-components-report-section-kpi-chart-dashboard-height-pdf, 196px) !important;
     }
 
+    .report-period-daily .kpi-daily-dashboard-chart {
+        height: 176px !important;
+    }
+
+    .report-period-daily .kpi-daily-chart-tile-wide .kpi-daily-dashboard-chart {
+        height: 148px !important;
+    }
+
     .kpi-daily-dashboard-note {
         margin-top: 6px !important;
         font-size: 8px !important;
         color: var(--report-components-chart-note-text-color, var(--report-color-text-muted)) !important;
+    }
+
+    .report-period-daily .kpi-daily-dashboard-note {
+        margin-top: 4px !important;
+        font-size: 7.4px !important;
+    }
+
+    .kpi-daily-empty-state {
+        min-height: 72px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 10px 12px !important;
+        border: 1px dashed var(--report-color-border-strong, #b9c8d6) !important;
+        border-radius: 10px !important;
+        background: var(--report-color-surface-muted, #f8fafc) !important;
+        color: var(--report-color-text-muted, #5f7387) !important;
+        font-size: 9px !important;
+        line-height: 1.35 !important;
+    }
+
+    .kpi-daily-empty-state-wide {
+        min-height: 62px !important;
     }
 
     .utility-chart-block,
@@ -1238,6 +1297,12 @@
         font-size: 10px !important;
     }
 
+    .report-period-daily .kpi-summary-table th,
+    .report-period-daily .kpi-summary-table td {
+        padding: 3px 4px !important;
+        font-size: 8.8px !important;
+    }
+
     .kpi-summary-table .col-metric {
         width: var(--report-components-report-section-kpi-table-summary-matrix-metric-column-width-pdf, 110px) !important;
     }
@@ -1465,13 +1530,27 @@
         gap: 6px !important;
     }
 
+    .report-period-daily .utility-sensor-group-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 5px !important;
+    }
+
     .utility-sensor-group-card {
         padding: 8px !important;
         border-radius: 10px !important;
     }
 
+    .report-period-daily .utility-sensor-group-card {
+        padding: 6px !important;
+    }
+
     .utility-sensor-group-head {
         margin-bottom: 7px !important;
+    }
+
+    .report-period-daily .utility-sensor-group-head {
+        margin-bottom: 5px !important;
+        gap: 6px !important;
     }
 
     .utility-sensor-group-title,
@@ -1479,9 +1558,19 @@
         font-size: 9px !important;
     }
 
+    .report-period-daily .utility-sensor-group-title {
+        font-size: 8.2px !important;
+        line-height: 1.15 !important;
+    }
+
     .utility-sensor-group-meta,
     .utility-sensor-range-submeta {
         font-size: 7px !important;
+    }
+
+    .report-period-daily .utility-sensor-group-meta {
+        font-size: 6.5px !important;
+        line-height: 1.15 !important;
     }
 
     .utility-sensor-group-badge,
@@ -1490,13 +1579,30 @@
         padding: 2px 5px !important;
     }
 
+    .report-period-daily .utility-sensor-group-badge {
+        min-width: 0 !important;
+        padding: 2px 4px !important;
+    }
+
     .utility-sensor-range-list {
         gap: 6px !important;
+    }
+
+    .report-period-daily .utility-sensor-range-list {
+        gap: 4px !important;
     }
 
     .utility-sensor-range-row {
         padding: 6px 7px !important;
         border-radius: 9px !important;
+    }
+
+    .report-period-daily .utility-sensor-range-row {
+        padding: 5px 6px !important;
+    }
+
+    .report-period-daily .utility-sensor-range-row.is-empty-compact {
+        padding: 4px 5px !important;
     }
 
     .utility-sensor-range-name {
@@ -1546,10 +1652,20 @@
         line-height: 1.15 !important;
     }
 
+    .report-period-daily .utility-sensor-range-reason-compact {
+        margin-top: 2px !important;
+        font-size: 5.8px !important;
+        line-height: 1.1 !important;
+    }
+
     .utility-sensor-anomaly-block {
         margin-top: 10px !important;
         padding: 8px !important;
         border-radius: 10px !important;
+    }
+
+    .report-period-daily .utility-sensor-anomaly-block {
+        margin-top: 8px !important;
     }
 
     .utility-sensor-anomaly-table {

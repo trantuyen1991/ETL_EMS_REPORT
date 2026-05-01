@@ -5562,6 +5562,9 @@ class ReportBuilderService:
         compare_subtitle = "KPI comparison by Total and workshop" if is_daily_comparison else f"{current_label} vs {previous_label.lower()} by Total and workshop"
         waterfall_subtitle = "Decomposition of the Total KPI movement" if is_daily_comparison else f"Decomposition of KPI movement from {previous_label.lower()} to {current_label.lower()}"
         variance_title = "Deviation vs yesterday" if is_daily_comparison else f"Deviation vs {previous_label.lower()}"
+        compare_chart_empty = all((value in (None, 0.0) for value in [*today_values, *yesterday_values]))
+        waterfall_chart_empty = all(abs(value) < 0.005 for value in [prev_total_kpi, energy_impact, production_impact, curr_total_kpi])
+        variance_chart_empty = all((item.get("value") in (None, 0.0) for item in variance_items))
 
         return {
             "cards": cards,
@@ -5570,6 +5573,7 @@ class ReportBuilderService:
                 "compare_bar": {
                     "title": compare_title,
                     "subtitle": compare_subtitle,
+                    "empty_message": "No KPI values recorded for this day." if compare_chart_empty else "",
                     "option": self._build_v3_kpi_compare_bar_option(
                         labels=["Total", "DIODE", "ICO", "SAKARI"],
                         yesterday_values=yesterday_values,
@@ -5581,6 +5585,7 @@ class ReportBuilderService:
                 "waterfall": {
                     "title": "Total KPI change explanation",
                     "subtitle": waterfall_subtitle,
+                    "empty_message": "No KPI movement recorded for this day." if waterfall_chart_empty else "",
                     "option": self._build_v3_kpi_waterfall_option(
                         previous_kpi=prev_total_kpi,
                         energy_impact=energy_impact,
@@ -5593,6 +5598,7 @@ class ReportBuilderService:
                 "variance": {
                     "title": variance_title,
                     "subtitle": "Positive KPI change means higher energy intensity",
+                    "empty_message": "No KPI deviation detected for this day." if variance_chart_empty else "",
                     "option": self._build_v3_kpi_variance_option(variance_items),
                 },
             },
@@ -5741,12 +5747,12 @@ class ReportBuilderService:
             "xAxis": {
                 "type": "category",
                 "data": [
-                    f"{previous_label}\\nKPI",
-                    "Energy\nimpact",
-                    "Production\nimpact",
-                    f"{current_label}\\nKPI",
+                    previous_label,
+                    "Energy",
+                    "Prod.",
+                    current_label,
                 ],
-                "axisLabel": {"color": axis_label_color, "fontSize": 10, "interval": 0, "lineHeight": 11},
+                "axisLabel": {"color": axis_label_color, "fontSize": 10, "interval": 0, "lineHeight": 10},
                 "axisLine": {"lineStyle": {"color": axis_line_color}},
             },
             "yAxis": {
@@ -5892,7 +5898,7 @@ class ReportBuilderService:
                     ),
                 },
                 "label": {
-                    "show": bool(label_config.get("show", True)),
+                    "show": bool(label_config.get("show", True)) and abs(numeric_value) >= 0.005,
                     "position": (
                         label_config.get("positivePosition", "right")
                         if numeric_value >= 0 else label_config.get("negativePosition", "left")
@@ -5920,10 +5926,10 @@ class ReportBuilderService:
             "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
             "grid": self._resolve_chart_grid(
                 {
-                    "left": 92,
-                    "right": 24,
+                    "left": 84,
+                    "right": 18,
                     "top": 18,
-                    "bottom": 28,
+                    "bottom": 24,
                     "containLabel": False,
                 },
                 "kpi",
