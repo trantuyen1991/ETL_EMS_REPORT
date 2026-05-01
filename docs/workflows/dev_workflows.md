@@ -37,6 +37,13 @@ The goal is to:
 - OpenClaw should propose findings first when deletion or behavior changes may be risky.
 - The user decides before destructive cleanup.
 
+### 2.6 Large-Context Change Control
+- When a requested change would create a large or messy context, split it into smaller sequential steps automatically.
+- Create or update a checklist document under `docs/` for that task slice.
+- Mark each checklist step complete as soon as the step is verified.
+- Do not send fragmented mini-summaries after every step unless the user needs a decision.
+- After the checklist is finished, send one consolidated summary of the completed slice.
+
 ---
 
 ## 3. Standard Working Cycle
@@ -50,11 +57,12 @@ Use this base cycle for most development tasks:
 5. Review result
 6. Commit stable checkpoint
 7. Re-mine project memory if code/docs changed significantly
+8. If the task was large-context work, update the checklist status before moving to the next step
 
 Short form:
 
 ```text
-BUILD → CHANGE → BUILD → REVIEW → COMMIT → MINE
+BUILD → CHANGE → BUILD → REVIEW → CHECKLIST UPDATE → COMMIT → MINE
 ```
 
 ---

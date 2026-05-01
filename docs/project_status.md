@@ -471,10 +471,9 @@ Expected behavior:
 
 ### 11.4 MemPalace-First Project Recall
 - Default project recall path: `mempalace search`
-- Do not rely on `memory_search` as the default recall path for this project while quota/availability remains unstable
+- Do not use `memory_search` for this project workflow; use MemPalace recall instead
 - Recalled context must still be checked against the live repo and rendered outputs
-- Future follow-up:
-  - restore `memory_search` only as an optional secondary recall path when availability is confirmed again
+- If `memory_search` becomes healthy again, treat it as optional only, not the primary recall path
 
 ---
 
