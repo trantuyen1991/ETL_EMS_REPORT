@@ -193,9 +193,11 @@ class ReportBuilderService:
 
         block_order = layout.get('blockOrder') if isinstance(layout.get('blockOrder'), list) else []
         normalized_order = [str(item).strip() for item in block_order if str(item).strip()]
+        layout_variant = str(layout.get('layoutVariant') or variant_name or 'default').strip() or 'default'
+        heatmap_slot = str(layout.get('heatmapSlot') or 'default').strip() or 'default'
         return {
-            'grid_modifier_class': str(layout.get('gridModifierClass') or '').strip(),
-            'heatmap_block_class': str(layout.get('heatmapBlockClass') or 'utility-chart-block utility-chart-block-heatmap').strip(),
+            'layout_variant': layout_variant,
+            'heatmap_slot': heatmap_slot,
             'block_order': normalized_order,
         }
 

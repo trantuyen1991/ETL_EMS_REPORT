@@ -309,9 +309,9 @@
             </div>
             {% else %}
             {% set utility_periodic_layout = sections.utility.charts.layout.periodic_overview if sections.utility.charts.layout is defined and sections.utility.charts.layout.periodic_overview is defined else {} %}
-            {% set utility_periodic_grid_modifier_class = utility_periodic_layout.grid_modifier_class if utility_periodic_layout.grid_modifier_class is defined else '' %}
+            {% set utility_periodic_layout_variant = utility_periodic_layout.layout_variant if utility_periodic_layout.layout_variant is defined and utility_periodic_layout.layout_variant else 'default' %}
             {% set utility_periodic_block_order = utility_periodic_layout.block_order if utility_periodic_layout.block_order is defined and utility_periodic_layout.block_order else ['trend', 'deviation', 'heatmap'] %}
-            {% set utility_periodic_heatmap_block_class = utility_periodic_layout.heatmap_block_class if utility_periodic_layout.heatmap_block_class is defined and utility_periodic_layout.heatmap_block_class else 'utility-chart-block utility-chart-block-heatmap' %}
+            {% set utility_periodic_heatmap_slot = utility_periodic_layout.heatmap_slot if utility_periodic_layout.heatmap_slot is defined and utility_periodic_layout.heatmap_slot else 'default' %}
             <div class="utility-overview-block">
                 <div class="utility-overview-heading">
                     <h3 class="electricity-subsection-title">Overview By Utility Group</h3>
@@ -367,7 +367,7 @@
                 </div>
             </div>
 
-            <div class="utility-periodic-chart-grid{% if utility_periodic_grid_modifier_class %} {{ utility_periodic_grid_modifier_class }}{% endif %}">
+            <div class="utility-periodic-chart-grid" data-layout-variant="{{ utility_periodic_layout_variant }}">
                 {% for block_key in utility_periodic_block_order %}
                 {% if block_key == 'trend' %}
                 <div class="utility-chart-block utility-chart-block-trend">
@@ -382,7 +382,7 @@
                     </div>
                 </div>
                 {% elif block_key == 'heatmap' and sections.utility.charts.period_heatmap.option %}
-                <div class="{{ utility_periodic_heatmap_block_class }}">
+                <div class="utility-chart-block utility-chart-block-heatmap" data-layout-slot="{{ utility_periodic_heatmap_slot }}">
                     <div class="electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap">
                         <h3 class="electricity-chart-card-title">
                             {{ sections.utility.charts.period_heatmap.title }}
@@ -513,10 +513,10 @@
                 {% set has_energy_distribution = sections.utility.energy.charts.distribution and sections.utility.energy.charts.distribution.option %}
                 {% set has_energy_heatmap = sections.utility.energy.charts.heatmap and sections.utility.energy.charts.heatmap.option %}
                 {% set utility_energy_layout = sections.utility.energy.layout if sections.utility.energy.layout is defined else {} %}
-                {% set utility_energy_grid_modifier_class = utility_energy_layout.grid_modifier_class if utility_energy_layout.grid_modifier_class is defined else '' %}
+                {% set utility_energy_layout_variant = utility_energy_layout.layout_variant if utility_energy_layout.layout_variant is defined and utility_energy_layout.layout_variant else 'default' %}
                 {% set utility_energy_block_order = utility_energy_layout.block_order if utility_energy_layout.block_order is defined and utility_energy_layout.block_order else ['trend', 'distribution', 'heatmap'] %}
                 {% if has_energy_trend or has_energy_distribution or has_energy_heatmap %}
-                <div class="utility-energy-chart-grid{% if utility_energy_grid_modifier_class %} {{ utility_energy_grid_modifier_class }}{% endif %}">
+                <div class="utility-energy-chart-grid" data-layout-variant="{{ utility_energy_layout_variant }}">
                     {% for block_key in utility_energy_block_order %}
                     {% if block_key == 'trend' and has_energy_trend %}
                     <div class="utility-chart-block utility-chart-block-wide utility-chart-block-energy-trend">

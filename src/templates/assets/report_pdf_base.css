@@ -2570,12 +2570,12 @@
             margin-bottom: 12px;
         }
 
-        .utility-periodic-chart-grid-monthly {
+        .utility-periodic-chart-grid[data-layout-variant="monthly"] {
             grid-template-columns: var(--report-components-report-section-utility-chart-monthly-layout-pdf-grid-template-columns, minmax(0, 6fr) minmax(0, 4fr));
             grid-auto-flow: var(--report-components-report-section-utility-chart-monthly-layout-pdf-grid-auto-flow, row);
         }
 
-        .utility-periodic-chart-grid-monthly .utility-chart-block-trend {
+        .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-trend {
             grid-column: var(--report-components-report-section-utility-chart-period-trend-monthly-pdf-grid-column, 1 / -1);
         }
 
@@ -2615,15 +2615,15 @@
             height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 274px);
         }
 
-        .utility-periodic-chart-grid-monthly .utility-period-type-trend-chart {
+        .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-period-type-trend-chart {
             height: var(--report-components-report-section-utility-chart-period-trend-monthly-pdf-height, 262px);
         }
 
-        .utility-periodic-chart-grid-monthly .utility-chart-block-deviation {
+        .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-deviation {
             grid-column: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-grid-column, 2);
         }
 
-        .utility-periodic-chart-grid-monthly .utility-chart-block-heatmap-primary {
+        .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-heatmap[data-layout-slot="primary"] {
             grid-column: var(--report-components-report-section-utility-chart-period-heatmap-monthly-pdf-grid-column, 1);
         }
 
@@ -2660,12 +2660,12 @@
             margin-top: 14px;
         }
 
-        .utility-energy-chart-grid-monthly {
+        .utility-energy-chart-grid[data-layout-variant="monthly"] {
             grid-template-columns: var(--report-components-report-section-utility-chart-energy-monthly-layout-pdf-grid-template-columns, repeat(2, minmax(0, 1fr)));
             grid-auto-flow: var(--report-components-report-section-utility-chart-energy-monthly-layout-pdf-grid-auto-flow, row);
         }
 
-        .utility-energy-chart-grid-monthly .utility-chart-block-energy-trend {
+        .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-trend {
             grid-column: var(--report-components-report-section-utility-chart-energy-trend-monthly-pdf-grid-column, 1 / -1);
         }
 
@@ -2687,15 +2687,15 @@
             height: var(--report-components-report-section-utility-chart-energy-trend-height-pdf, 272px);
         }
 
-        .utility-energy-chart-grid-monthly .utility-energy-trend-chart {
+        .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-trend-chart {
             height: var(--report-components-report-section-utility-chart-energy-trend-monthly-pdf-height, 262px);
         }
 
-        .utility-periodic-chart-grid-monthly .utility-heatmap-chart {
+        .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {
             height: var(--report-components-report-section-utility-chart-period-heatmap-height-pdf, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px));
         }
 
-        .utility-energy-chart-grid-monthly .utility-heatmap-chart {
+        .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {
             height: var(--report-components-report-section-utility-chart-energy-heatmap-height-pdf, 192px);
         }
 

@@ -1145,49 +1145,49 @@
               "periodicOverview": {
                 "default": {
                   "view": {
-                    "gridModifierClass": "",
+                    "layoutVariant": "default",
                     "blockOrder": [
                       "trend",
                       "deviation",
                       "heatmap"
                     ],
-                    "heatmapBlockClass": "utility-chart-block utility-chart-block-heatmap"
+                    "heatmapSlot": "default"
                   },
                   "pdf": {
-                    "gridModifierClass": "",
+                    "layoutVariant": "default",
                     "blockOrder": [
                       "trend",
                       "deviation",
                       "heatmap"
                     ],
-                    "heatmapBlockClass": "utility-chart-block utility-chart-block-heatmap"
+                    "heatmapSlot": "default"
                   }
                 },
                 "monthly": {
                   "view": {
-                    "gridModifierClass": "utility-periodic-chart-grid-monthly",
+                    "layoutVariant": "monthly",
                     "blockOrder": [
                       "trend",
                       "heatmap",
                       "deviation"
                     ],
-                    "heatmapBlockClass": "utility-chart-block utility-chart-block-heatmap utility-chart-block-heatmap-primary"
+                    "heatmapSlot": "primary"
                   },
                   "pdf": {
-                    "gridModifierClass": "utility-periodic-chart-grid-monthly",
+                    "layoutVariant": "monthly",
                     "blockOrder": [
                       "trend",
                       "heatmap",
                       "deviation"
                     ],
-                    "heatmapBlockClass": "utility-chart-block utility-chart-block-heatmap utility-chart-block-heatmap-primary"
+                    "heatmapSlot": "primary"
                   }
                 }
               },
               "energyOverview": {
                 "default": {
                   "view": {
-                    "gridModifierClass": "",
+                    "layoutVariant": "default",
                     "blockOrder": [
                       "trend",
                       "distribution",
@@ -1195,7 +1195,7 @@
                     ]
                   },
                   "pdf": {
-                    "gridModifierClass": "",
+                    "layoutVariant": "default",
                     "blockOrder": [
                       "trend",
                       "distribution",
@@ -1205,7 +1205,7 @@
                 },
                 "monthly": {
                   "view": {
-                    "gridModifierClass": "utility-energy-chart-grid-monthly",
+                    "layoutVariant": "monthly",
                     "blockOrder": [
                       "trend",
                       "distribution",
@@ -1213,7 +1213,7 @@
                     ]
                   },
                   "pdf": {
-                    "gridModifierClass": "utility-energy-chart-grid-monthly",
+                    "layoutVariant": "monthly",
                     "blockOrder": [
                       "trend",
                       "distribution",
