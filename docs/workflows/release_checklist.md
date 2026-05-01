@@ -2,6 +2,8 @@
 
 Use this checklist before calling a build or report package ready for release.
 
+Companion runbook: `docs/workflows/release_runbook.md`
+
 ## 1. Runtime and configuration
 
 - [ ] Confirm the active working copy is `/home/nbt/workspace/02_MySQL`
