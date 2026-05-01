@@ -1141,6 +1141,86 @@
                 "delta": {
                   "themeRef": "chart.deltaDefault"
                 }
+              },
+              "periodicOverview": {
+                "default": {
+                  "view": {
+                    "gridModifierClass": "",
+                    "blockOrder": [
+                      "trend",
+                      "deviation",
+                      "heatmap"
+                    ],
+                    "heatmapBlockClass": "utility-chart-block utility-chart-block-heatmap"
+                  },
+                  "pdf": {
+                    "gridModifierClass": "",
+                    "blockOrder": [
+                      "trend",
+                      "deviation",
+                      "heatmap"
+                    ],
+                    "heatmapBlockClass": "utility-chart-block utility-chart-block-heatmap"
+                  }
+                },
+                "monthly": {
+                  "view": {
+                    "gridModifierClass": "utility-periodic-chart-grid-monthly",
+                    "blockOrder": [
+                      "trend",
+                      "heatmap",
+                      "deviation"
+                    ],
+                    "heatmapBlockClass": "utility-chart-block utility-chart-block-heatmap utility-chart-block-heatmap-primary"
+                  },
+                  "pdf": {
+                    "gridModifierClass": "utility-periodic-chart-grid-monthly",
+                    "blockOrder": [
+                      "trend",
+                      "heatmap",
+                      "deviation"
+                    ],
+                    "heatmapBlockClass": "utility-chart-block utility-chart-block-heatmap utility-chart-block-heatmap-primary"
+                  }
+                }
+              },
+              "energyOverview": {
+                "default": {
+                  "view": {
+                    "gridModifierClass": "",
+                    "blockOrder": [
+                      "trend",
+                      "distribution",
+                      "heatmap"
+                    ]
+                  },
+                  "pdf": {
+                    "gridModifierClass": "",
+                    "blockOrder": [
+                      "trend",
+                      "distribution",
+                      "heatmap"
+                    ]
+                  }
+                },
+                "monthly": {
+                  "view": {
+                    "gridModifierClass": "utility-energy-chart-grid-monthly",
+                    "blockOrder": [
+                      "trend",
+                      "distribution",
+                      "heatmap"
+                    ]
+                  },
+                  "pdf": {
+                    "gridModifierClass": "utility-energy-chart-grid-monthly",
+                    "blockOrder": [
+                      "trend",
+                      "distribution",
+                      "heatmap"
+                    ]
+                  }
+                }
               }
             },
             "table": {

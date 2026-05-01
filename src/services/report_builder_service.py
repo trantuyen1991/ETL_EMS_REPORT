@@ -171,6 +171,34 @@ class ReportBuilderService:
 
         return result
 
+    def _get_chart_variant_mode_node(self, variant_name: str, *path: str) -> Dict[str, Any]:
+        """Resolve one named chart-variant branch for the active render mode."""
+        node = self._get_section_chart_node(*path)
+        variant_node = node.get(variant_name) if isinstance(node, dict) else {}
+        if not isinstance(variant_node, dict):
+            return {}
+
+        mode_key = 'pdf' if self._render_mode == 'pdf' else 'view'
+        mode_node = variant_node.get(mode_key)
+        if isinstance(mode_node, dict):
+            return dict(mode_node)
+        return dict(variant_node)
+
+    def _resolve_utility_chart_layout(self, layout_key: str, period_type: str) -> Dict[str, Any]:
+        """Resolve config-driven Utility layout metadata for the active period."""
+        variant_name = 'monthly' if str(period_type or '').strip().lower() == 'monthly' else 'default'
+        layout = self._get_chart_variant_mode_node(variant_name, layout_key)
+        if not layout and variant_name != 'default':
+            layout = self._get_chart_variant_mode_node('default', layout_key)
+
+        block_order = layout.get('blockOrder') if isinstance(layout.get('blockOrder'), list) else []
+        normalized_order = [str(item).strip() for item in block_order if str(item).strip()]
+        return {
+            'grid_modifier_class': str(layout.get('gridModifierClass') or '').strip(),
+            'heatmap_block_class': str(layout.get('heatmapBlockClass') or 'utility-chart-block utility-chart-block-heatmap').strip(),
+            'block_order': normalized_order,
+        }
+
     def _get_style_color_node(self, *path: str) -> Dict[str, Any]:
         """Resolve one semantic color node under reportStyle.color.*."""
         current: Any = (self._style_config or {}).get("color", {})
@@ -2398,6 +2426,9 @@ class ReportBuilderService:
         """Build ECharts options for utility comparison."""
         if not utility_object:
             return {
+                "layout": {
+                    "periodic_overview": self._resolve_utility_chart_layout("periodicOverview", ""),
+                },
                 "comparison_bar": {},
                 "deviation_vs_yesterday": {},
                 "period_type_trend": {},
@@ -2446,6 +2477,9 @@ class ReportBuilderService:
         )
 
         return {
+            "layout": {
+                "periodic_overview": self._resolve_utility_chart_layout("periodicOverview", period_type),
+            },
             "comparison_bar": {
                 "title": "Utility comparison",
                 "subtitle": "Current vs previous total by load type",
@@ -3454,6 +3488,7 @@ class ReportBuilderService:
             "summary_note": "",
             "overview_cards": [],
             "detail_rows": [],
+            "layout": self._resolve_utility_chart_layout("energyOverview", str((period or {}).get("type") or "").strip().lower()),
             "charts": {
                 "trend": {},
                 "distribution": {},
@@ -3553,6 +3588,7 @@ class ReportBuilderService:
             "summary_note": "Total = Air + Chilled Water + Boiler",
             "overview_cards": overview_cards,
             "detail_rows": detail_rows,
+            "layout": self._resolve_utility_chart_layout("energyOverview", str((period or {}).get("type") or "").strip().lower()),
             "charts": energy_charts,
         }
 

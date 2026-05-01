@@ -1,7 +1,7 @@
 {% import "report/macros/common.html" as report %}
 {% import "report/macros/sensor_monitoring.html" as sensor_ui %}
 {% if flags.show_utility_section %}
-        <section class="report-section daily-highlight-header utility-section-shell{% if not flags.is_daily_report %} utility-periodic-section{% endif %}">
+        <section class="report-section daily-highlight-header utility-section-shell{% if not flags.is_daily_report %} utility-periodic-section page-break-before{% endif %}">
             <div class="pdf-section-opening">
                 <div class="section-header">
                     <div class="utility-header-shell">
@@ -314,7 +314,10 @@
                     </div>
                 </div>
                 {% else %}
-                {% set is_monthly_utility_period = period.type == "monthly" %}
+                {% set utility_periodic_layout = sections.utility.charts.layout.periodic_overview if sections.utility.charts.layout is defined and sections.utility.charts.layout.periodic_overview is defined else {} %}
+                {% set utility_periodic_grid_modifier_class = utility_periodic_layout.grid_modifier_class if utility_periodic_layout.grid_modifier_class is defined else '' %}
+                {% set utility_periodic_block_order = utility_periodic_layout.block_order if utility_periodic_layout.block_order is defined and utility_periodic_layout.block_order else ['trend', 'deviation', 'heatmap'] %}
+                {% set utility_periodic_heatmap_block_class = utility_periodic_layout.heatmap_block_class if utility_periodic_layout.heatmap_block_class is defined and utility_periodic_layout.heatmap_block_class else 'utility-chart-block utility-chart-block-heatmap' %}
                 <div class="utility-overview-block pdf-keep-together">
                     <div class="utility-overview-heading">
                         <h3 class="electricity-subsection-title">Overview By Utility Group</h3>
@@ -370,7 +373,9 @@
                     </div>
                 </div>
 
-                <div class="utility-periodic-chart-grid pdf-keep-together{% if is_monthly_utility_period %} utility-periodic-chart-grid-monthly{% endif %}">
+                <div class="utility-periodic-chart-grid pdf-keep-together{% if utility_periodic_grid_modifier_class %} {{ utility_periodic_grid_modifier_class }}{% endif %}">
+                    {% for block_key in utility_periodic_block_order %}
+                    {% if block_key == 'trend' %}
                     <div class="utility-chart-block utility-chart-block-trend">
                         <div class="electricity-chart-card utility-chart-card">
                             <h3 class="electricity-chart-card-title">
@@ -382,9 +387,8 @@
                             <div id="utility-period-type-trend-chart" class="electricity-chart utility-period-type-trend-chart"></div>
                         </div>
                     </div>
-
-                    {% if is_monthly_utility_period and sections.utility.charts.period_heatmap.option %}
-                    <div class="utility-chart-block utility-chart-block-heatmap utility-chart-block-heatmap-primary pdf-keep-together">
+                    {% elif block_key == 'heatmap' and sections.utility.charts.period_heatmap.option %}
+                    <div class="{{ utility_periodic_heatmap_block_class }} pdf-keep-together">
                         <div class="electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap">
                             <h3 class="electricity-chart-card-title">
                                 {{ sections.utility.charts.period_heatmap.title }}
@@ -412,8 +416,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    {% endif %}
-
+                    {% elif block_key == 'deviation' %}
                     <div class="utility-chart-block utility-chart-block-deviation">
                         <div class="electricity-chart-card utility-chart-card utility-chart-card-daily">
                             <h3 class="electricity-chart-card-title">
@@ -425,37 +428,8 @@
                             <div id="utility-deviation-chart" class="electricity-chart utility-comparison-chart utility-comparison-chart-daily"></div>
                         </div>
                     </div>
-
-                    {% if not is_monthly_utility_period and sections.utility.charts.period_heatmap.option %}
-                    <div class="utility-chart-block utility-chart-block-heatmap pdf-keep-together">
-                        <div class="electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap">
-                            <h3 class="electricity-chart-card-title">
-                                {{ sections.utility.charts.period_heatmap.title }}
-                            </h3>
-                            <p class="electricity-chart-card-subtitle">
-                                {{ sections.utility.charts.period_heatmap.subtitle }}
-                            </p>
-                            <div id="utility-period-heatmap-chart" class="electricity-heatmap-chart utility-heatmap-chart"></div>
-                            <div class="electricity-heatmap-legend" aria-hidden="true">
-                                <span class="legend-label">Low</span>
-                                <span class="legend-bar"></span>
-                                <span class="legend-unit">{{ sections.utility.charts.period_heatmap.legend_unit or 'Scaled' }}</span>
-                                <span class="legend-bar legend-bar-strong"></span>
-                                <span class="legend-label">High</span>
-                            </div>
-                            {% if sections.utility.charts.period_heatmap.area_legend %}
-                            <div class="electricity-heatmap-area-legend" aria-hidden="true">
-                                {% for item in sections.utility.charts.period_heatmap.area_legend %}
-                                <span class="electricity-heatmap-area-legend-item">
-                                    <span class="electricity-heatmap-area-legend-dot" style="background: {{ item.color }};"></span>
-                                    <span class="electricity-heatmap-area-legend-label">{{ item.label }}</span>
-                                </span>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
                     {% endif %}
+                    {% endfor %}
                 </div>
 
                 <div class="utility-chart-split-grid utility-chart-split-grid-periodic pdf-keep-together">
@@ -544,9 +518,13 @@
                     {% set has_energy_trend = sections.utility.energy.charts.trend and sections.utility.energy.charts.trend.option %}
                     {% set has_energy_distribution = sections.utility.energy.charts.distribution and sections.utility.energy.charts.distribution.option %}
                     {% set has_energy_heatmap = sections.utility.energy.charts.heatmap and sections.utility.energy.charts.heatmap.option %}
+                    {% set utility_energy_layout = sections.utility.energy.layout if sections.utility.energy.layout is defined else {} %}
+                    {% set utility_energy_grid_modifier_class = utility_energy_layout.grid_modifier_class if utility_energy_layout.grid_modifier_class is defined else '' %}
+                    {% set utility_energy_block_order = utility_energy_layout.block_order if utility_energy_layout.block_order is defined and utility_energy_layout.block_order else ['trend', 'distribution', 'heatmap'] %}
                     {% if has_energy_trend or has_energy_distribution or has_energy_heatmap %}
-                    <div class="utility-energy-chart-grid pdf-keep-together{% if is_monthly_utility_period %} utility-energy-chart-grid-monthly{% endif %}">
-                        {% if has_energy_trend %}
+                    <div class="utility-energy-chart-grid{% if utility_energy_grid_modifier_class %} {{ utility_energy_grid_modifier_class }}{% endif %}">
+                        {% for block_key in utility_energy_block_order %}
+                        {% if block_key == 'trend' and has_energy_trend %}
                         <div class="utility-chart-block utility-chart-block-wide utility-chart-block-energy-trend pdf-keep-together">
                             <div class="electricity-chart-card utility-chart-card utility-energy-chart-card">
                                 <h3 class="electricity-chart-card-title">{{ sections.utility.energy.charts.trend.title }}</h3>
@@ -554,9 +532,7 @@
                                 <div id="utility-energy-trend-chart" class="electricity-chart utility-energy-trend-chart"></div>
                             </div>
                         </div>
-                        {% endif %}
-
-                        {% if has_energy_distribution %}
+                        {% elif block_key == 'distribution' and has_energy_distribution %}
                         <div class="utility-chart-block utility-chart-block-narrow utility-chart-block-energy-distribution pdf-keep-together">
                             <div class="electricity-chart-card utility-chart-card utility-energy-chart-card utility-energy-distribution-card">
                                 <h3 class="electricity-chart-card-title">{{ sections.utility.energy.charts.distribution.title }}</h3>
@@ -588,9 +564,7 @@
                                 </div>
                             </div>
                         </div>
-                        {% endif %}
-
-                        {% if has_energy_heatmap %}
+                        {% elif block_key == 'heatmap' and has_energy_heatmap %}
                         <div class="utility-chart-block utility-chart-block-narrow utility-chart-block-heatmap pdf-keep-together">
                             <div class="electricity-chart-card utility-chart-card utility-energy-chart-card utility-heatmap-card electricity-chart-card-heatmap">
                                 <h3 class="electricity-chart-card-title">{{ sections.utility.energy.charts.heatmap.title }}</h3>
@@ -616,11 +590,11 @@
                             </div>
                         </div>
                         {% endif %}
+                        {% endfor %}
                     </div>
                     {% endif %}
                 </div>
                 {% endif %}
-
                 <div class="utility-total-block pdf-keep-together">
                     <h3 class="electricity-subsection-title">Utility Detail Summary</h3>
 
