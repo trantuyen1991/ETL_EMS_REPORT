@@ -1,0 +1,95 @@
+{% macro render_periodic_block(block, pdf_mode=false) -%}
+    {% set block_classes = block.block_classes or 'utility-chart-block' %}
+    {% if pdf_mode and block.pdf_keep_together %}
+        {% set block_classes = block_classes ~ ' pdf-keep-together' %}
+    {% endif %}
+    <div class="{{ block_classes }}"{% if block.data_layout_slot %} data-layout-slot="{{ block.data_layout_slot }}"{% endif %}>
+        <div class="{{ block.card_classes }}">
+            <h3 class="electricity-chart-card-title">{{ block.title }}</h3>
+            <p class="electricity-chart-card-subtitle">{{ block.subtitle }}</p>
+            {% if block.kind == 'heatmap' %}
+            <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
+            <div class="electricity-heatmap-legend" aria-hidden="true">
+                <span class="legend-label">Low</span>
+                <span class="legend-bar"></span>
+                <span class="legend-unit">{{ block.legend_unit or 'Scaled' }}</span>
+                <span class="legend-bar legend-bar-strong"></span>
+                <span class="legend-label">High</span>
+            </div>
+            {% if block.area_legend %}
+            <div class="electricity-heatmap-area-legend" aria-hidden="true">
+                {% for item in block.area_legend %}
+                <span class="electricity-heatmap-area-legend-item">
+                    <span class="electricity-heatmap-area-legend-dot" style="background: {{ item.color }};"></span>
+                    <span class="electricity-heatmap-area-legend-label">{{ item.label }}</span>
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
+            {% endif %}
+        </div>
+    </div>
+{%- endmacro %}
+
+{% macro render_energy_block(block, pdf_mode=false) -%}
+    {% set block_classes = block.block_classes or 'utility-chart-block' %}
+    {% if pdf_mode and block.pdf_keep_together %}
+        {% set block_classes = block_classes ~ ' pdf-keep-together' %}
+    {% endif %}
+    <div class="{{ block_classes }}">
+        <div class="{{ block.card_classes }}">
+            <h3 class="electricity-chart-card-title">{{ block.title }}</h3>
+            <p class="electricity-chart-card-subtitle">{{ block.subtitle }}</p>
+            {% if block.kind == 'distribution' %}
+            <div class="utility-energy-distribution-layout">
+                <div class="utility-energy-distribution-chart-wrap">
+                    <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
+                    <div class="utility-energy-distribution-center" aria-hidden="true">
+                        <span class="utility-energy-distribution-center-value">{{ block.total_display }}</span>
+                        <span class="utility-energy-distribution-center-unit">{{ block.total_unit or 'kWh' }}</span>
+                        <span class="utility-energy-distribution-center-caption">{{ block.center_caption }}</span>
+                    </div>
+                </div>
+                <div class="utility-energy-distribution-legend">
+                    {% for item in block.legend_items %}
+                    <div class="utility-energy-distribution-legend-item">
+                        <span class="utility-energy-distribution-dot" style="background: {{ item.itemStyle.color }};"></span>
+                        <div class="utility-energy-distribution-legend-copy">
+                            <span class="utility-energy-distribution-legend-name">{{ item.name }}</span>
+                            <span class="utility-energy-distribution-legend-value">{{ item.value_display }} {{ block.total_unit or 'kWh' }} <span class="utility-energy-distribution-legend-pct">({{ item.percent_display }})</span></span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="utility-energy-distribution-total">
+                        <span class="utility-energy-distribution-total-label">Total:</span>
+                        <span class="utility-energy-distribution-total-value">{{ block.total_display }} <span>{{ block.total_unit or 'kWh' }}</span></span>
+                    </div>
+                </div>
+            </div>
+            {% elif block.kind == 'heatmap' %}
+            <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
+            <div class="electricity-heatmap-legend" aria-hidden="true">
+                <span class="legend-label">Low</span>
+                <span class="legend-bar"></span>
+                <span class="legend-unit">{{ block.legend_unit or 'kWh' }}</span>
+                <span class="legend-bar legend-bar-strong"></span>
+                <span class="legend-label">High</span>
+            </div>
+            {% if block.area_legend %}
+            <div class="electricity-heatmap-area-legend" aria-hidden="true">
+                {% for item in block.area_legend %}
+                <span class="electricity-heatmap-area-legend-item">
+                    <span class="electricity-heatmap-area-legend-dot" style="background: {{ item.color }};"></span>
+                    <span class="electricity-heatmap-area-legend-label">{{ item.label }}</span>
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
+            {% endif %}
+        </div>
+    </div>
+{%- endmacro %}

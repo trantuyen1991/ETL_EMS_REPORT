@@ -201,6 +201,118 @@ class ReportBuilderService:
             'block_order': normalized_order,
         }
 
+    def _build_utility_periodic_overview_blocks(
+        self,
+        *,
+        charts: Dict[str, Any],
+        layout: Dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Build ordered Utility periodic-overview block descriptors for the template."""
+        blocks: list[dict[str, Any]] = []
+        heatmap_slot = str(layout.get('heatmap_slot') or 'default').strip() or 'default'
+
+        registry: dict[str, dict[str, Any]] = {
+            'trend': {
+                'kind': 'trend',
+                'block_classes': 'utility-chart-block utility-chart-block-trend',
+                'card_classes': 'electricity-chart-card utility-chart-card',
+                'title': str(((charts.get('period_type_trend') or {}).get('title')) or ''),
+                'subtitle': str(((charts.get('period_type_trend') or {}).get('subtitle')) or ''),
+                'chart_id': 'utility-period-type-trend-chart',
+                'chart_classes': 'electricity-chart utility-period-type-trend-chart',
+            },
+            'heatmap': {
+                'kind': 'heatmap',
+                'enabled': bool((charts.get('period_heatmap') or {}).get('option')),
+                'block_classes': 'utility-chart-block utility-chart-block-heatmap',
+                'card_classes': 'electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap',
+                'title': str(((charts.get('period_heatmap') or {}).get('title')) or ''),
+                'subtitle': str(((charts.get('period_heatmap') or {}).get('subtitle')) or ''),
+                'chart_id': 'utility-period-heatmap-chart',
+                'chart_classes': 'electricity-heatmap-chart utility-heatmap-chart',
+                'legend_unit': str(((charts.get('period_heatmap') or {}).get('legend_unit')) or 'Scaled'),
+                'area_legend': list((charts.get('period_heatmap') or {}).get('area_legend') or []),
+                'data_layout_slot': heatmap_slot,
+                'pdf_keep_together': True,
+            },
+            'deviation': {
+                'kind': 'deviation',
+                'block_classes': 'utility-chart-block utility-chart-block-deviation',
+                'card_classes': 'electricity-chart-card utility-chart-card utility-chart-card-daily',
+                'title': str(((charts.get('deviation_vs_yesterday') or {}).get('title')) or ''),
+                'subtitle': str(((charts.get('deviation_vs_yesterday') or {}).get('subtitle')) or ''),
+                'chart_id': 'utility-deviation-chart',
+                'chart_classes': 'electricity-chart utility-comparison-chart utility-comparison-chart-daily',
+            },
+        }
+
+        for block_key in layout.get('block_order') or []:
+            block = registry.get(str(block_key).strip())
+            if not block or block.get('enabled') is False:
+                continue
+            blocks.append(dict(block))
+
+        return blocks
+
+    def _build_utility_energy_overview_blocks(
+        self,
+        *,
+        charts: Dict[str, Any],
+        layout: Dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Build ordered Utility energy-overview block descriptors for the template."""
+        blocks: list[dict[str, Any]] = []
+
+        registry: dict[str, dict[str, Any]] = {
+            'trend': {
+                'kind': 'trend',
+                'enabled': bool((charts.get('trend') or {}).get('option')),
+                'block_classes': 'utility-chart-block utility-chart-block-wide utility-chart-block-energy-trend',
+                'card_classes': 'electricity-chart-card utility-chart-card utility-energy-chart-card',
+                'title': str(((charts.get('trend') or {}).get('title')) or ''),
+                'subtitle': str(((charts.get('trend') or {}).get('subtitle')) or ''),
+                'chart_id': 'utility-energy-trend-chart',
+                'chart_classes': 'electricity-chart utility-energy-trend-chart',
+                'pdf_keep_together': True,
+            },
+            'distribution': {
+                'kind': 'distribution',
+                'enabled': bool((charts.get('distribution') or {}).get('option')),
+                'block_classes': 'utility-chart-block utility-chart-block-narrow utility-chart-block-energy-distribution',
+                'card_classes': 'electricity-chart-card utility-chart-card utility-energy-chart-card utility-energy-distribution-card',
+                'title': str(((charts.get('distribution') or {}).get('title')) or ''),
+                'subtitle': str(((charts.get('distribution') or {}).get('subtitle')) or ''),
+                'chart_id': 'utility-energy-distribution-chart',
+                'chart_classes': 'electricity-chart utility-energy-distribution-chart',
+                'center_caption': str(((charts.get('distribution') or {}).get('center_caption')) or ''),
+                'total_display': str(((charts.get('distribution') or {}).get('total_display')) or ''),
+                'total_unit': str(((charts.get('distribution') or {}).get('total_unit')) or 'kWh'),
+                'legend_items': list((charts.get('distribution') or {}).get('legend_items') or []),
+                'pdf_keep_together': True,
+            },
+            'heatmap': {
+                'kind': 'heatmap',
+                'enabled': bool((charts.get('heatmap') or {}).get('option')),
+                'block_classes': 'utility-chart-block utility-chart-block-narrow utility-chart-block-heatmap',
+                'card_classes': 'electricity-chart-card utility-chart-card utility-energy-chart-card utility-heatmap-card electricity-chart-card-heatmap',
+                'title': str(((charts.get('heatmap') or {}).get('title')) or ''),
+                'subtitle': str(((charts.get('heatmap') or {}).get('subtitle')) or ''),
+                'chart_id': 'utility-energy-heatmap-chart',
+                'chart_classes': 'electricity-heatmap-chart utility-heatmap-chart',
+                'legend_unit': str(((charts.get('heatmap') or {}).get('legend_unit')) or 'kWh'),
+                'area_legend': list((charts.get('heatmap') or {}).get('area_legend') or []),
+                'pdf_keep_together': True,
+            },
+        }
+
+        for block_key in layout.get('block_order') or []:
+            block = registry.get(str(block_key).strip())
+            if not block or block.get('enabled') is False:
+                continue
+            blocks.append(dict(block))
+
+        return blocks
+
     def _get_style_color_node(self, *path: str) -> Dict[str, Any]:
         """Resolve one semantic color node under reportStyle.color.*."""
         current: Any = (self._style_config or {}).get("color", {})
@@ -2427,9 +2539,13 @@ class ReportBuilderService:
     ) -> Dict[str, Any]:
         """Build ECharts options for utility comparison."""
         if not utility_object:
+            empty_layout = self._resolve_utility_chart_layout("periodicOverview", "")
             return {
                 "layout": {
-                    "periodic_overview": self._resolve_utility_chart_layout("periodicOverview", ""),
+                    "periodic_overview": {
+                        **empty_layout,
+                        "blocks": [],
+                    },
                 },
                 "comparison_bar": {},
                 "deviation_vs_yesterday": {},
@@ -2477,10 +2593,27 @@ class ReportBuilderService:
             )
             if period_type == "monthly" else {}
         )
+        periodic_layout = self._resolve_utility_chart_layout("periodicOverview", period_type)
 
         return {
             "layout": {
-                "periodic_overview": self._resolve_utility_chart_layout("periodicOverview", period_type),
+                "periodic_overview": {
+                    **periodic_layout,
+                    "blocks": self._build_utility_periodic_overview_blocks(
+                        charts={
+                            "deviation_vs_yesterday": {
+                                "title": "Deviation vs Yesterday" if is_daily_report else "Consumption delta (%)",
+                                "subtitle": "Positive value means higher consumption" if is_daily_report else "Current period versus previous period",
+                            },
+                            "period_type_trend": {
+                                "title": "Utility daily trend",
+                                "subtitle": "Current period daily total by utility group",
+                            },
+                            "period_heatmap": period_heatmap,
+                        },
+                        layout=periodic_layout,
+                    ),
+                },
             },
             "comparison_bar": {
                 "title": "Utility comparison",
@@ -3483,6 +3616,7 @@ class ReportBuilderService:
         period: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Build utility energy cards and detail rows from meter mappings."""
+        default_energy_layout = self._resolve_utility_chart_layout("energyOverview", str((period or {}).get("type") or "").strip().lower())
         default_context = {
             "enabled": False,
             "title": "UTILITY ENERGY (CONVERTED TO kWh)",
@@ -3490,7 +3624,10 @@ class ReportBuilderService:
             "summary_note": "",
             "overview_cards": [],
             "detail_rows": [],
-            "layout": self._resolve_utility_chart_layout("energyOverview", str((period or {}).get("type") or "").strip().lower()),
+            "layout": {
+                **default_energy_layout,
+                "blocks": [],
+            },
             "charts": {
                 "trend": {},
                 "distribution": {},
@@ -3582,6 +3719,7 @@ class ReportBuilderService:
             category_totals=category_totals,
             period=period,
         )
+        energy_layout = self._resolve_utility_chart_layout("energyOverview", str((period or {}).get("type") or "").strip().lower())
 
         return {
             "enabled": True,
@@ -3590,7 +3728,13 @@ class ReportBuilderService:
             "summary_note": "Total = Air + Chilled Water + Boiler",
             "overview_cards": overview_cards,
             "detail_rows": detail_rows,
-            "layout": self._resolve_utility_chart_layout("energyOverview", str((period or {}).get("type") or "").strip().lower()),
+            "layout": {
+                **energy_layout,
+                "blocks": self._build_utility_energy_overview_blocks(
+                    charts=energy_charts,
+                    layout=energy_layout,
+                ),
+            },
             "charts": energy_charts,
         }
 
