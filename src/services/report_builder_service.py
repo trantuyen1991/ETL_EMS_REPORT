@@ -2589,6 +2589,8 @@ class ReportBuilderService:
         ]
         period_type = str((period or {}).get("type") or "").strip().lower()
         is_daily_report = period_type == "daily"
+        current_series_name = "Today" if is_daily_report else "Current period"
+        previous_series_name = "Yesterday" if is_daily_report else "Previous period"
         period_heatmap = (
             self._build_v3_utility_period_heatmap_chart(
                 utility_object=utility_object,
@@ -2610,7 +2612,7 @@ class ReportBuilderService:
                             },
                             "period_type_trend": {
                                 "title": "Utility daily trend",
-                                "subtitle": "Current period daily total by utility group",
+                                "subtitle": "Today total by utility group" if is_daily_report else "Current period daily total by utility group",
                             },
                             "period_heatmap": period_heatmap,
                         },
@@ -2621,7 +2623,11 @@ class ReportBuilderService:
             "comparison_bar": {
                 "title": "Utility comparison",
                 "subtitle": "Current vs previous total by load type",
-                "option": self._build_v3_utility_comparison_option(utility_items),
+                "option": self._build_v3_utility_comparison_option(
+                    utility_items,
+                    current_series_name=current_series_name,
+                    previous_series_name=previous_series_name,
+                ),
             },
             "deviation_vs_yesterday": {
                 "title": "Deviation vs Yesterday" if is_daily_report else "Consumption delta (%)",
@@ -2630,7 +2636,7 @@ class ReportBuilderService:
             },
             "period_type_trend": {
                 "title": "Utility daily trend",
-                "subtitle": "Current period daily total by utility group",
+                "subtitle": "Today total by utility group" if is_daily_report else "Current period daily total by utility group",
                 "option": self._build_v3_utility_type_trend_option(
                     utility_object=utility_object,
                     period_type=period_type,
@@ -2646,12 +2652,20 @@ class ReportBuilderService:
                 "wide": {
                     "title": "Utility comparison",
                     "subtitle": "Water and steam",
-                    "option": self._build_v3_utility_comparison_option(split_wide_items),
+                    "option": self._build_v3_utility_comparison_option(
+                        split_wide_items,
+                        current_series_name=current_series_name,
+                        previous_series_name=previous_series_name,
+                    ),
                 },
                 "narrow": {
                     "title": "Utility comparison",
                     "subtitle": "Air",
-                    "option": self._build_v3_utility_comparison_option(split_narrow_items),
+                    "option": self._build_v3_utility_comparison_option(
+                        split_narrow_items,
+                        current_series_name=current_series_name,
+                        previous_series_name=previous_series_name,
+                    ),
                 },
             },
         }
@@ -2803,6 +2817,9 @@ class ReportBuilderService:
     def _build_v3_utility_comparison_option(
         self,
         items: list[dict[str, Any]],
+        *,
+        current_series_name: str = "Current period",
+        previous_series_name: str = "Previous period",
     ) -> Dict[str, Any]:
         """Build one grouped utility comparison bar chart option."""
         chart_labels = [item.get("chart_label") or item.get("display_name") or "-" for item in items]
@@ -2865,7 +2882,7 @@ class ReportBuilderService:
             },
             "series": [
                 {
-                    "name": "Current period",
+                    "name": current_series_name,
                     "type": "bar",
                     "barMaxWidth": bar_max_width,
                     "labelLayout": {"hideOverlap": hide_overlap},
@@ -2883,7 +2900,7 @@ class ReportBuilderService:
                     ],
                 },
                 {
-                    "name": "Previous period",
+                    "name": previous_series_name,
                     "type": "bar",
                     "barMaxWidth": bar_max_width,
                     "labelLayout": {"hideOverlap": hide_overlap},
