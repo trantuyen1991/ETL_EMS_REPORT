@@ -669,12 +669,12 @@
     }
 
     .utility-periodic-chart-grid-monthly {
-        grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;
-        grid-auto-flow: row !important;
+        grid-template-columns: var(--report-components-report-section-utility-chart-monthly-layout-pdf-grid-template-columns, minmax(0, 6fr) minmax(0, 4fr)) !important;
+        grid-auto-flow: var(--report-components-report-section-utility-chart-monthly-layout-pdf-grid-auto-flow, row) !important;
     }
 
     .utility-periodic-chart-grid-monthly .utility-chart-block-trend {
-        grid-column: 1 / -1 !important;
+        grid-column: var(--report-components-report-section-utility-chart-period-trend-monthly-pdf-grid-column, 1 / -1) !important;
     }
 
     .utility-chart-split-grid {
@@ -699,15 +699,15 @@
     }
 
     .utility-periodic-chart-grid-monthly .utility-period-type-trend-chart {
-        height: 262px !important;
+        height: var(--report-components-report-section-utility-chart-period-trend-monthly-pdf-height, 262px) !important;
     }
 
     .utility-periodic-chart-grid-monthly .utility-chart-block-deviation {
-        grid-column: 2 !important;
+        grid-column: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-grid-column, 2) !important;
     }
 
     .utility-periodic-chart-grid-monthly .utility-chart-block-heatmap-primary {
-        grid-column: 1 !important;
+        grid-column: var(--report-components-report-section-utility-chart-period-heatmap-monthly-pdf-grid-column, 1) !important;
     }
 
     .utility-comparison-chart-daily {
@@ -725,12 +725,12 @@
     }
 
     .utility-energy-chart-grid-monthly {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        grid-auto-flow: row !important;
+        grid-template-columns: var(--report-components-report-section-utility-chart-energy-monthly-layout-pdf-grid-template-columns, repeat(2, minmax(0, 1fr))) !important;
+        grid-auto-flow: var(--report-components-report-section-utility-chart-energy-monthly-layout-pdf-grid-auto-flow, row) !important;
     }
 
     .utility-energy-chart-grid-monthly .utility-chart-block-energy-trend {
-        grid-column: 1 / -1 !important;
+        grid-column: var(--report-components-report-section-utility-chart-energy-trend-monthly-pdf-grid-column, 1 / -1) !important;
     }
 
     .utility-energy-chart-card {
@@ -751,15 +751,15 @@
     }
 
     .utility-energy-chart-grid-monthly .utility-energy-trend-chart {
-        height: 262px !important;
+        height: var(--report-components-report-section-utility-chart-energy-trend-monthly-pdf-height, 262px) !important;
     }
 
     .utility-periodic-chart-grid-monthly .utility-heatmap-chart {
-        height: var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px) !important;
+        height: var(--report-components-report-section-utility-chart-period-heatmap-height-pdf, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px)) !important;
     }
 
     .utility-energy-chart-grid-monthly .utility-heatmap-chart {
-        height: 192px !important;
+        height: var(--report-components-report-section-utility-chart-energy-heatmap-height-pdf, 192px) !important;
     }
 
     .utility-energy-distribution-layout {

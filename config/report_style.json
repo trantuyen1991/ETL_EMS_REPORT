@@ -794,9 +794,24 @@
                 "series": {
                   "barWidth": 24,
                   "barCategoryGap": "34%",
-                  "positiveBorderRadius": [0, 7, 7, 0],
-                  "negativeBorderRadius": [7, 0, 0, 7],
-                  "neutralBorderRadius": [0, 7, 7, 0]
+                  "positiveBorderRadius": [
+                    0,
+                    7,
+                    7,
+                    0
+                  ],
+                  "negativeBorderRadius": [
+                    7,
+                    0,
+                    0,
+                    7
+                  ],
+                  "neutralBorderRadius": [
+                    0,
+                    7,
+                    7,
+                    0
+                  ]
                 },
                 "valueLabel": {
                   "positivePosition": "right",
@@ -805,8 +820,8 @@
                   "fontSize": 8,
                   "fontWeight": 700,
                   "color": "#223548",
-                  "axisPaddingLeft": 0,
-                  "axisPaddingRight": 0
+                  "axisPaddingLeft": 30,
+                  "axisPaddingRight": 30
                 },
                 "height": {
                   "view": {
@@ -933,10 +948,44 @@
                   "pdf": "140px"
                 }
               },
+              "monthlyLayout": {
+                "view": {
+                  "gridTemplateColumns": "minmax(0, 6fr) minmax(0, 4fr)",
+                  "gridAutoFlow": "row"
+                },
+                "pdf": {
+                  "gridTemplateColumns": "minmax(0, 6fr) minmax(0, 4fr)",
+                  "gridAutoFlow": "row"
+                }
+              },
               "periodTrend": {
                 "height": {
                   "view": "326px",
                   "pdf": "228px"
+                },
+                "monthly": {
+                  "view": {
+                    "height": "200px",
+                    "gridColumn": "1 / -1"
+                  },
+                  "pdf": {
+                    "height": "200px",
+                    "gridColumn": "1 / -1"
+                  }
+                }
+              },
+              "periodHeatmap": {
+                "height": {
+                  "view": "326px",
+                  "pdf": "150px"
+                },
+                "monthly": {
+                  "view": {
+                    "gridColumn": "1"
+                  },
+                  "pdf": {
+                    "gridColumn": "1"
+                  }
                 }
               },
               "typeTrend": {
@@ -962,18 +1011,44 @@
               },
               "energyTrend": {
                 "legend": {
-                  "top": "left"
+                  "bottom": "center"
                 },
                 "grid": {
                   "left": 18,
                   "right": 12,
-                  "top": 44,
-                  "bottom": 52,
+                  "top": 40,
+                  "bottom": 40,
                   "containLabel": true
                 },
                 "height": {
                   "view": "308px",
                   "pdf": "220px"
+                },
+                "monthly": {
+                  "view": {
+                    "height": "262px",
+                    "gridColumn": "1 / -1"
+                  },
+                  "pdf": {
+                    "height": "262px",
+                    "gridColumn": "1 / -1"
+                  }
+                }
+              },
+              "energyMonthlyLayout": {
+                "view": {
+                  "gridTemplateColumns": "repeat(2, minmax(0, 1fr))",
+                  "gridAutoFlow": "row"
+                },
+                "pdf": {
+                  "gridTemplateColumns": "repeat(2, minmax(0, 1fr))",
+                  "gridAutoFlow": "row"
+                }
+              },
+              "energyHeatmap": {
+                "height": {
+                  "view": "192px",
+                  "pdf": "192px"
                 }
               },
               "periodSensorTrend": {
@@ -1014,24 +1089,32 @@
               "deviation": {
                 "familyRef": "delta.horizontal",
                 "grid": {
-                  "left": 92,
+                  "left": 65,
                   "right": 24,
                   "top": 10,
                   "bottom": 28
                 },
                 "height": {
                   "view": "326px",
-                  "pdf": "150px"
+                  "pdf": "186px"
                 },
                 "valueLabel": {
-                  "positivePosition": "right",
-                  "negativePosition": "left",
+                  "positivePosition": "left",
+                  "negativePosition": "right",
                   "distance": 4,
                   "fontSize": 10,
                   "fontWeight": 700,
                   "color": "#334155",
                   "axisPaddingLeft": 30,
                   "axisPaddingRight": 30
+                },
+                "monthly": {
+                  "view": {
+                    "gridColumn": "2"
+                  },
+                  "pdf": {
+                    "gridColumn": "2"
+                  }
                 }
               },
               "theme": {
@@ -1438,9 +1521,24 @@
             },
             "series": {
               "barWidth": 12,
-              "positiveBorderRadius": [0, 4, 4, 0],
-              "negativeBorderRadius": [4, 0, 0, 4],
-              "neutralBorderRadius": [0, 4, 4, 0]
+              "positiveBorderRadius": [
+                0,
+                4,
+                4,
+                0
+              ],
+              "negativeBorderRadius": [
+                4,
+                0,
+                0,
+                4
+              ],
+              "neutralBorderRadius": [
+                0,
+                4,
+                4,
+                0
+              ]
             },
             "valueLabel": {
               "show": true,
