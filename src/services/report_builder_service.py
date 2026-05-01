@@ -187,9 +187,9 @@ class ReportBuilderService:
     def _resolve_utility_chart_layout(self, layout_key: str, period_type: str) -> Dict[str, Any]:
         """Resolve config-driven Utility layout metadata for the active period."""
         variant_name = 'monthly' if str(period_type or '').strip().lower() == 'monthly' else 'default'
-        layout = self._get_chart_variant_mode_node(variant_name, layout_key)
+        layout = self._get_chart_variant_mode_node(variant_name, 'utility', layout_key)
         if not layout and variant_name != 'default':
-            layout = self._get_chart_variant_mode_node('default', layout_key)
+            layout = self._get_chart_variant_mode_node('default', 'utility', layout_key)
 
         block_order = layout.get('blockOrder') if isinstance(layout.get('blockOrder'), list) else []
         normalized_order = [str(item).strip() for item in block_order if str(item).strip()]
