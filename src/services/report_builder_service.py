@@ -1107,6 +1107,7 @@ class ReportBuilderService:
         self,
         energy_object: Optional[Dict[str, Any]],
         area_display_order: list[tuple[str, str]],
+        period_type: str = "",
     ) -> list[dict[str, Any]]:
         """Build one Top 10 table per area."""
         if not energy_object:
@@ -1123,6 +1124,14 @@ class ReportBuilderService:
             table.get("area_key"): table
             for table in energy_object.get("previous", {}).get("daily_tables", [])
         }
+
+        normalized_period_type = str(period_type or "").strip().lower()
+        if normalized_period_type == "monthly":
+            current_period_label = "This Month"
+        elif normalized_period_type == "weekly":
+            current_period_label = "This Week"
+        else:
+            current_period_label = "Today"
 
         result: list[dict[str, Any]] = []
 
@@ -1162,7 +1171,7 @@ class ReportBuilderService:
             result.append({
                 "area_key": area_key,
                 "title": f"{area_name} Top 10 meters",
-                "subtitle": "Sorted by current-period consumption within this area.",
+                "subtitle": f"Sorted by {current_period_label.lower()} consumption within this area.",
                 "rows": rendered_rows,
             })
 
@@ -1494,6 +1503,7 @@ class ReportBuilderService:
         area_top10_tables = self._build_v3_area_top10_tables(
             energy_object=energy_object,
             area_display_order=area_display_order,
+            period_type=period_type,
         )
 
         daily_summary_rows = energy_object.get("current", {}).get("daily_summary_rows", [])
@@ -1829,6 +1839,7 @@ class ReportBuilderService:
             periodic_area_delta_chart = self._build_v3_periodic_area_delta_chart(
                 energy_object=energy_object,
                 area_rows=area_rows,
+                period_type=period_type,
             )
 
         area_comparison_series_cfg = self._resolve_chart_series_config(
@@ -1941,6 +1952,7 @@ class ReportBuilderService:
         *,
         energy_object: Dict[str, Any],
         area_rows: list[dict[str, Any]],
+        period_type: str = "",
     ) -> Dict[str, Any]:
         """Build a compact area delta chart for periodic electricity reports."""
         if not area_rows:
@@ -2034,9 +2046,16 @@ class ReportBuilderService:
         max_abs = max([abs(float(item.get("value") or 0.0)) for item in delta_items], default=0.0)
         axis_limit = max(1.0, round(max_abs * 1.35, 2))
 
+        if period_type == "monthly":
+            subtitle = "This Month vs last month change by total and workshop"
+        elif period_type == "weekly":
+            subtitle = "This Week vs last week change by total and workshop"
+        else:
+            subtitle = "Total and workshop change vs previous period"
+
         return {
             "title": "Consumption delta",
-            "subtitle": "Total and workshop change vs previous period",
+            "subtitle": subtitle,
             "option": {
                 "tooltip": {
                     "trigger": "axis",

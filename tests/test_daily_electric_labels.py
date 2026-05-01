@@ -19,22 +19,81 @@ def _build_periodic_energy_object(current_start: date, previous_start: date) -> 
         for index in range(3)
     ]
 
+    current_daily_tables = [
+        {
+            "area_key": "diode",
+            "rows": [
+                {"meter_name": "D1", "total_energy_display": "25"},
+                {"meter_name": "D2", "total_energy_display": "15"},
+            ],
+        },
+        {
+            "area_key": "ico",
+            "rows": [
+                {"meter_name": "I1", "total_energy_display": "20"},
+                {"meter_name": "I2", "total_energy_display": "15"},
+            ],
+        },
+        {
+            "area_key": "sakari",
+            "rows": [
+                {"meter_name": "S1", "total_energy_display": "14"},
+                {"meter_name": "S2", "total_energy_display": "11"},
+            ],
+        },
+    ]
+    previous_daily_tables = [
+        {
+            "area_key": "diode",
+            "rows": [
+                {"meter_name": "D1", "total_energy_display": "22"},
+                {"meter_name": "D2", "total_energy_display": "16"},
+            ],
+        },
+        {
+            "area_key": "ico",
+            "rows": [
+                {"meter_name": "I1", "total_energy_display": "18"},
+                {"meter_name": "I2", "total_energy_display": "12"},
+            ],
+        },
+        {
+            "area_key": "sakari",
+            "rows": [
+                {"meter_name": "S1", "total_energy_display": "12"},
+                {"meter_name": "S2", "total_energy_display": "10"},
+            ],
+        },
+    ]
+
     return {
         "current": {
             "summary": {
                 "diode": {"total_energy": 40.0},
                 "ico": {"total_energy": 35.0},
                 "sakari": {"total_energy": 25.0},
+                "plant": {"total_energy": 100.0},
             },
             "daily_summary_rows": current_rows,
+            "daily_tables": current_daily_tables,
         },
         "previous": {
             "summary": {
                 "diode": {"total_energy": 38.0},
                 "ico": {"total_energy": 30.0},
                 "sakari": {"total_energy": 22.0},
+                "plant": {"total_energy": 90.0},
             },
             "daily_summary_rows": previous_rows,
+            "daily_tables": previous_daily_tables,
+        },
+        "comparison": {
+            "summary": {
+                "diode": {"current": 40.0, "previous": 38.0, "delta": 2.0, "delta_pct": 2.0 / 38.0, "meter_count": 2},
+                "ico": {"current": 35.0, "previous": 30.0, "delta": 5.0, "delta_pct": 5.0 / 30.0, "meter_count": 2},
+                "sakari": {"current": 25.0, "previous": 22.0, "delta": 3.0, "delta_pct": 3.0 / 22.0, "meter_count": 2},
+            },
+            "top10_meters": [],
         },
     }
 
@@ -93,6 +152,7 @@ def test_periodic_electric_charts_use_period_aware_labels() -> None:
     assert weekly_charts["area_comparison"]["subtitle"] == "This Week vs last week total by workshop"
     assert weekly_charts["area_comparison"]["option"]["series"][0]["name"] == "This Week"
     assert weekly_charts["area_comparison"]["option"]["series"][1]["name"] == "Last Week"
+    assert weekly_charts["period_area_delta"]["subtitle"] == "This Week vs last week change by total and workshop"
 
     assert monthly_charts["daily_trend"]["subtitle"] == "This Month vs last month"
     assert monthly_charts["daily_trend"]["option"]["series"][0]["name"] == "This Month"
@@ -100,6 +160,7 @@ def test_periodic_electric_charts_use_period_aware_labels() -> None:
     assert monthly_charts["area_comparison"]["subtitle"] == "This Month vs last month total by workshop"
     assert monthly_charts["area_comparison"]["option"]["series"][0]["name"] == "This Month"
     assert monthly_charts["area_comparison"]["option"]["series"][1]["name"] == "Last Month"
+    assert monthly_charts["period_area_delta"]["subtitle"] == "This Month vs last month change by total and workshop"
 
 
 def test_period_block_uses_last_week_and_last_month_labels() -> None:
@@ -129,3 +190,32 @@ def test_electric_templates_use_period_aware_wording_for_top10_note_and_headers(
     assert 'if flags.is_daily_report else "Current"' not in pdf_template
     assert 'if flags.is_daily_report else "current-period"' not in view_template
     assert 'if flags.is_daily_report else "current-period"' not in pdf_template
+
+
+def test_periodic_electric_area_top10_subtitles_use_period_aware_wording() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    weekly_section = service._build_v3_electricity_section(
+        energy_object=_build_periodic_energy_object(date(2025, 4, 14), date(2025, 4, 7)),
+        period_type="weekly",
+    )
+    monthly_section = service._build_v3_electricity_section(
+        energy_object=_build_periodic_energy_object(date(2025, 5, 1), date(2025, 4, 1)),
+        period_type="monthly",
+    )
+
+    weekly_subtitles = [table["subtitle"] for table in weekly_section["top10"]["area_tables"]]
+    monthly_subtitles = [table["subtitle"] for table in monthly_section["top10"]["area_tables"]]
+
+    assert weekly_subtitles == [
+        "Sorted by this week consumption within this area.",
+        "Sorted by this week consumption within this area.",
+        "Sorted by this week consumption within this area.",
+    ]
+    assert monthly_subtitles == [
+        "Sorted by this month consumption within this area.",
+        "Sorted by this month consumption within this area.",
+        "Sorted by this month consumption within this area.",
+    ]
