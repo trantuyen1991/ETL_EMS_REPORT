@@ -42,20 +42,17 @@
 - **KPI:** rendered periodic wording already aligned; only non-surfacing fallback/default builder strings remain.
 
 ### Verification status
-- Latest code-changing periodic UI checkpoint passed: `19 passed` via `./venv/bin/pytest -q`
-- KPI periodic audit was docs-only and did not change runtime behavior
+- The periodic cleanup chain was extended through three final follow-up slices:
+  - P1: residual electricity builder subtitle cleanup
+  - P2: KPI fallback title cleanup
+  - P3: template fallback copy cleanup
+- Final verification state after the completed cleanup chain: `24 passed` via `./venv/bin/pytest -q`
 
-## Recommended small cleanups
+## Follow-up cleanups completed
+- **P1 completed:** electricity residual builder subtitles were normalized to period-aware wording.
+- **P2 completed:** KPI fallback/default title `Current period KPI summary` was normalized to `KPI Summary Matrix`.
+- **P3 completed:** utility template fallback copy now uses `last period` instead of `previous period` when labels are missing.
 
-### P1. Normalize remaining periodic electricity residual subtitles in builder
-Residuals still use generic wording in `src/services/report_builder_service.py`, for example:
-- `Sorted by current-period consumption within this area.`
-- `Total and workshop change vs previous period`
-
-These should be switched to resolved period-aware wording for consistency with the completed periodic policy.
-
-### P2. Normalize non-surfacing KPI fallback/default titles
-`Current period KPI summary` still exists in KPI builder fallback/default payloads. It does not currently surface in live templates, but changing it to a neutral or canonical title would reduce future drift risk.
-
-### P3. Remove fallback display copy that still mentions generic `previous period`
-A few template fallbacks still contain generic display text such as `previous period` when labels are missing. These are low risk because the normal render path provides labels, but they are worth cleaning if we want stricter wording consistency.
+## Final conclusion
+- The wording cleanup chain for this phase is effectively closed.
+- Primary rendered report surfaces and remaining low-risk fallback paths now follow the intended daily and periodic label policy.
