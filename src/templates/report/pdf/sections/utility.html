@@ -366,7 +366,7 @@
                                     {{ report.delta_arrow(card.delta_class) }}
                                     {{ card.delta_pct_display }}
                                 </span>
-                                <span class="utility-overview-card-compare-note">vs {{ labels.previous_period | lower if labels.previous_period else "previous period" }}</span>
+                                <span class="utility-overview-card-compare-note">vs {{ labels.previous_period | lower if labels.previous_period else "last period" }}</span>
                             </div>
                         </article>
                         {% endfor %}
@@ -456,7 +456,7 @@
                                     {{ report.delta_arrow(card.delta_class) }}
                                     {{ card.delta_pct_display }}
                                 </span>
-                                <span class="utility-overview-card-compare-note">vs {{ labels.previous_period | lower if labels.previous_period else "previous period" }}</span>
+                                <span class="utility-overview-card-compare-note">vs {{ labels.previous_period | lower if labels.previous_period else "last period" }}</span>
                             </div>
                         </article>
                         {% endfor %}

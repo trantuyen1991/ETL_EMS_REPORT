@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from src.services.report_builder_service import ReportBuilderService
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_daily_utility_comparison_legend_uses_today_yesterday() -> None:
@@ -105,3 +110,15 @@ def test_periodic_utility_charts_use_period_aware_wording() -> None:
     assert monthly_charts["deviation_vs_yesterday"]["subtitle"] == "This Month versus last month"
     assert monthly_charts["period_type_trend"]["subtitle"] == "Daily totals for this month by utility group"
     assert monthly_charts["period_mix"]["title"] == "This Month mix"
+
+
+def test_utility_templates_use_last_period_fallback_copy() -> None:
+    view_template = (PROJECT_ROOT / "src/templates/report/view/sections/utility.html").read_text(encoding="utf-8")
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/utility.html").read_text(encoding="utf-8")
+
+    expected_note = 'labels.previous_period | lower if labels.previous_period else "last period"'
+
+    assert expected_note in view_template
+    assert expected_note in pdf_template
+    assert 'previous period' not in view_template
+    assert 'previous period' not in pdf_template
