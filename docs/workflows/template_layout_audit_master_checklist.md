@@ -17,18 +17,18 @@ For each audited surface/section, check:
 - [ ] Record exact file/block and proposed fix before editing
 
 ## Audit scenarios
-- [ ] Daily-only anchor: `2025-06-25`
+- [x] Daily-only anchor: `2025-06-25`
 - [ ] Sunday anchor (daily + weekly): `2025-06-29`
 - [ ] Month-end anchor (daily + monthly): `2025-05-31`
 
 ## Surface order
 ### Step 1. Daily PDF layout audit
-- [ ] `src/templates/report/pdf/report_pdf_daily.html`
-- [ ] `src/templates/report/pdf/sections/header_daily.html`
-- [ ] `src/templates/report/pdf/sections/electricity.html`
-- [ ] `src/templates/report/pdf/sections/utility.html`
-- [ ] `src/templates/report/pdf/sections/kpi.html`
-- [ ] `src/templates/report/pdf/sections/footer.html`
+- [x] `src/templates/report/pdf/report_pdf_daily.html`
+- [x] `src/templates/report/pdf/sections/header_daily.html`
+- [x] `src/templates/report/pdf/sections/electricity.html`
+- [x] `src/templates/report/pdf/sections/utility.html`
+- [x] `src/templates/report/pdf/sections/kpi.html`
+- [x] `src/templates/report/pdf/sections/footer.html`
 
 ### Step 2. Daily view layout audit
 - [ ] `src/templates/report/view/report_view_daily.html`
