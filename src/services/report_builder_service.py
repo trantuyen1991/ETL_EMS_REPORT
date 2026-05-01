@@ -1641,8 +1641,17 @@ class ReportBuilderService:
         axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
         is_daily_report = period_type == "daily"
-        current_series_name = "Today" if is_daily_report else "Current period"
-        previous_series_name = "Yesterday" if is_daily_report else "Previous period"
+        if period_type == "monthly":
+            current_period_label = "This Month"
+            previous_period_label = "Previous Month"
+        elif period_type == "weekly":
+            current_period_label = "This Week"
+            previous_period_label = "Previous Week"
+        else:
+            current_period_label = "Today"
+            previous_period_label = "Yesterday"
+        current_series_name = current_period_label
+        previous_series_name = previous_period_label
 
         if period_type == "daily":
             current_total_value = sum(current_area_values)
@@ -1719,7 +1728,7 @@ class ReportBuilderService:
 
             share_chart = {
                 "title": "Daily trend",
-                "subtitle": "Current vs previous period",
+                "subtitle": f"{current_period_label} vs {previous_period_label.lower()}",
                 "option": {
                     "color": [series_palette["current"], series_palette["previous"]],
                     "tooltip": {
@@ -1766,7 +1775,7 @@ class ReportBuilderService:
                     },
                     "series": [
                         {
-                            "name": "Current period",
+                            "name": current_series_name,
                             "type": "line",
                             "smooth": False,
                             "symbol": "circle",
@@ -1788,7 +1797,7 @@ class ReportBuilderService:
                             "data": current_line_data,
                         },
                         {
-                            "name": "Previous period",
+                            "name": previous_series_name,
                             "type": "line",
                             "smooth": False,
                             "symbol": "circle",
@@ -1832,7 +1841,7 @@ class ReportBuilderService:
             "daily_trend": share_chart,
             "area_comparison": {
                 "title": "Area comparison",
-                "subtitle": "Today vs yesterday total by workshop" if is_daily_report else "Current vs previous total by workshop",
+                "subtitle": "Today vs yesterday total by workshop" if is_daily_report else f"{current_period_label} vs {previous_period_label.lower()} total by workshop",
                 "option": {
                     "color": [series_palette["current"], series_palette["previous"]],
                     "tooltip": {
