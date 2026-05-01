@@ -1640,6 +1640,9 @@ class ReportBuilderService:
         muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
+        is_daily_report = period_type == "daily"
+        current_series_name = "Today" if is_daily_report else "Current period"
+        previous_series_name = "Yesterday" if is_daily_report else "Previous period"
 
         if period_type == "daily":
             current_total_value = sum(current_area_values)
@@ -1829,7 +1832,7 @@ class ReportBuilderService:
             "daily_trend": share_chart,
             "area_comparison": {
                 "title": "Area comparison",
-                "subtitle": "Current vs previous total by workshop",
+                "subtitle": "Today vs yesterday total by workshop" if is_daily_report else "Current vs previous total by workshop",
                 "option": {
                     "color": [series_palette["current"], series_palette["previous"]],
                     "tooltip": {
@@ -1878,7 +1881,7 @@ class ReportBuilderService:
                     },
                     "series": [
                         {
-                            "name": "Current period",
+                            "name": current_series_name,
                             "type": "bar",
                             "barMaxWidth": int(area_comparison_series_cfg.get("barMaxWidth") or 22),
                             "labelLayout": {
@@ -1898,7 +1901,7 @@ class ReportBuilderService:
                             ],
                         },
                         {
-                            "name": "Previous period",
+                            "name": previous_series_name,
                             "type": "bar",
                             "barMaxWidth": int(area_comparison_series_cfg.get("barMaxWidth") or 22),
                             "labelLayout": {
