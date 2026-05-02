@@ -4047,9 +4047,31 @@
             padding-bottom: 8px;
         }
 
+        .kpi-daily-empty-state {
+            min-height: 118px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 12px 14px;
+            border: 1px dashed var(--report-color-border-strong, #b9c8d6);
+            border-radius: 10px;
+            background: var(--report-color-surface-muted, #f8fafc);
+            color: var(--report-color-text-muted, #5f7387);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .kpi-daily-empty-state-wide {
+            min-height: 96px;
+        }
 
         .kpi-daily-dashboard {
             margin-bottom: 14px;
+        }
+
+        .report-family-daily .kpi-daily-dashboard {
+            margin-bottom: 10px;
         }
 
         .kpi-daily-card-grid {
@@ -4057,6 +4079,11 @@
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: var(--report-components-report-section-common-card-grid-gap, 16px);
             margin-bottom: 12px;
+        }
+
+        .report-family-daily .kpi-daily-card-grid {
+            gap: 12px;
+            margin-bottom: 10px;
         }
 
         .kpi-daily-card {
@@ -4417,6 +4444,18 @@
             gap: 14px;
         }
 
+        .report-family-daily .kpi-chart-card {
+            padding: 12px 14px 10px;
+        }
+
+        .report-family-daily .kpi-section-shell .electricity-chart-card-subtitle {
+            margin: 4px 0 8px;
+        }
+
+        .report-family-daily .kpi-daily-dashboard-grid {
+            gap: 12px;
+        }
+
         .kpi-daily-chart-tile {
             padding-bottom: 10px;
         }
@@ -4429,12 +4468,20 @@
             height: var(--report-components-report-section-kpi-chart-dashboard-height-view, 288px);
         }
 
+        .report-family-daily .kpi-daily-dashboard-chart {
+            height: 236px;
+        }
+
         .kpi-daily-dashboard-note {
             margin: var(--report-components-chart-layout-note-margin-top, 10px) 2px 0;
             font-size: var(--report-components-chart-note-font-size, 12px);
             font-weight: var(--report-components-chart-note-font-weight, 500);
             color: var(--report-components-chart-note-text-color, var(--report-color-text-muted));
             line-height: 1.45;
+        }
+
+        .report-family-daily .kpi-daily-dashboard-note {
+            margin-top: 8px;
         }
 
         .kpi-total-grid {

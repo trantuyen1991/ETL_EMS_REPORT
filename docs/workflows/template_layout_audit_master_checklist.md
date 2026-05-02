@@ -32,12 +32,12 @@ For each audited surface/section, check:
 - [x] Checkpoint closed and accepted as-is
 
 ### Step 2. Daily view layout audit
-- [ ] `src/templates/report/view/report_view_daily.html`
-- [ ] `src/templates/report/view/sections/header_daily.html`
-- [ ] `src/templates/report/view/sections/electricity.html`
-- [ ] `src/templates/report/view/sections/utility.html`
-- [ ] `src/templates/report/view/sections/kpi.html`
-- [ ] `src/templates/report/view/sections/footer.html`
+- [x] `src/templates/report/view/report_view_daily.html`
+- [x] `src/templates/report/view/sections/header_daily.html`
+- [x] `src/templates/report/view/sections/electricity.html`
+- [x] `src/templates/report/view/sections/utility.html`
+- [x] `src/templates/report/view/sections/kpi.html`
+- [x] `src/templates/report/view/sections/footer.html`
 
 ### Step 3. Weekly PDF layout audit
 - [ ] `src/templates/report/pdf/report_pdf_periodic.html`

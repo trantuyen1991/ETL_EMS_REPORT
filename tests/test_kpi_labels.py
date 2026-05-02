@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from src.services.report_builder_service import ReportBuilderService
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _build_minimal_kpi_object() -> dict:
@@ -152,3 +157,12 @@ def test_daily_kpi_charts_use_empty_state_messages_for_zero_only_data() -> None:
     assert dashboard["charts"]["compare_bar"]["empty_message"] == "No KPI values recorded for this day."
     assert dashboard["charts"]["waterfall"]["empty_message"] == "No KPI movement recorded for this day."
     assert dashboard["charts"]["variance"]["empty_message"] == "No KPI deviation detected for this day."
+
+
+def test_daily_kpi_view_template_renders_empty_state_blocks() -> None:
+    view_template = (PROJECT_ROOT / "src/templates/report/view/sections/kpi.html").read_text(encoding="utf-8")
+
+    assert "sections.kpi.charts.daily_dashboard.charts.compare_bar.empty_message" in view_template
+    assert "sections.kpi.charts.daily_dashboard.charts.waterfall.empty_message" in view_template
+    assert "sections.kpi.charts.daily_dashboard.charts.variance.empty_message" in view_template
+    assert "kpi-daily-empty-state" in view_template

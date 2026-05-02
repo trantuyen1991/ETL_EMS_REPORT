@@ -12,13 +12,15 @@
 
 ### Audit targets
 - [x] Render daily view sample for anchor `2025-06-25`
-- [ ] Inspect section spacing and visual balance
-- [ ] Check for oversized charts, label collisions, and awkward empty states
-- [ ] Check whether tables/cards overflow or feel too compressed on desktop view
-- [ ] Record findings by section + probable source template/block
-- [ ] If clean, explicitly mark no-finding areas
+- [x] Inspect section spacing and visual balance
+- [x] Check for oversized charts, label collisions, and awkward empty states
+- [x] Check whether tables/cards overflow or feel too compressed on desktop view
+- [x] Record findings by section + probable source template/block
+- [x] If clean, explicitly mark no-finding areas
 
 ## Findings
+- Header/footer:
+  - no layout issue worth changing in this slice
 - Electricity slice P1 completed:
   - tightened daily electricity chart spacing
   - reduced daily electricity chart heights
@@ -31,4 +33,8 @@
   - tightened overview/detail spacing in the lower half
 - Remaining utility issue:
   - the two `Utility comparison` charts still feel visually sparse when one dominant bar drives the scale
-- KPI daily view audit remains pending as the next slice.
+- KPI slice P3 completed:
+  - reduced daily KPI chart height and tightened dashboard spacing
+  - added explicit empty-state panels for zero/near-zero daily KPI charts in view mode
+- Remaining KPI issue:
+  - empty-state panels are clearer now, but still visually subtle when the whole KPI section is near-empty
