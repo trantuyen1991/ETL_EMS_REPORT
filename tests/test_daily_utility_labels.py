@@ -128,3 +128,42 @@ def test_daily_view_utility_template_marks_comparison_cards_for_compact_layout()
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/utility.html").read_text(encoding="utf-8")
 
     assert 'utility-chart-card-compare-compact' in view_template
+
+
+def test_utility_pdf_deviation_chart_uses_shorter_value_labels() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "pdf"
+
+    option = service._build_v3_utility_deviation_option([
+        {"display_name": "RO Water", "unit": "m³", "current": 120.0, "previous": 100.0},
+        {"display_name": "Plant Steam", "unit": "kg", "current": 60.0, "previous": 90.0},
+    ])
+
+    labels = [item["label"]["formatter"] for item in option["series"][0]["data"]]
+
+    assert labels[0].endswith("%")
+    assert "(" not in labels[0]
+    assert labels[1].endswith("%")
+    assert "(" not in labels[1]
+
+
+def test_utility_pdf_distribution_chart_uses_compact_donut_geometry() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "pdf"
+
+    option = service._build_v3_utility_energy_distribution_option(
+        items=[
+            {"name": "Air", "value": 60.0, "itemStyle": {"color": "#00aa88"}},
+            {"name": "Steam", "value": 40.0, "itemStyle": {"color": "#8844cc"}},
+        ],
+        total_value=100.0,
+        period_badge="This Week",
+    )
+
+    series = option["series"][0]
+
+    assert series["radius"] == ["48%", "72%"]
+    assert series["center"] == ["42%", "54%"]
+    assert series["label"]["fontSize"] == 7

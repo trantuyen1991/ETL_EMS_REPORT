@@ -22,10 +22,14 @@
 - Weekly PDF page count in first-pass audit: 13 pages
 - Strongest first issue:
   - Page 8
-  - section: Utility Overview
-  - block: right-side `Consumption delta (%)` comparison chart
-  - symptom: horizontal bars, long labels, and percentage text are overcrowded/overlapping, especially on the dominant positive bar near the bottom
-  - likely cause: chart label/axis spacing is too tight for weekly data density in the periodic utility PDF chart container
+  - section: Utility Energy Overview
+  - block: `Utility Distribution (This Week)` donut chart
+  - symptom: percentage labels around the donut are clipped/crowded near the chart boundary
+  - likely cause: donut radius/center/font-size are too aggressive for weekly PDF card width
+- Step 3 fix P1 result:
+  - weekly PDF page 8 donut label crowding reduced to acceptable RC quality
+  - final fix used compact PDF-only donut geometry plus smaller in-slice labels
+  - follow-up polish is optional, not blocking
 - No-finding pages for this pass:
   - Page 10: sensor anomaly card grid looks balanced
   - Page 13: KPI continuation/footer page is sparse but visually stable

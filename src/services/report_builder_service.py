@@ -3479,16 +3479,17 @@ class ReportBuilderService:
             "utility",
             "deviation",
         )
+        is_pdf_mode = self._render_mode == "pdf"
         label_config = self._resolve_chart_value_label(
             {
                 "positivePosition": "right",
                 "negativePosition": "left",
-                "distance": 4,
-                "fontSize": 10,
+                "distance": 3 if is_pdf_mode else 4,
+                "fontSize": 9 if is_pdf_mode else 10,
                 "fontWeight": 700,
                 "color": str(self._get_style_color_value("#223548", "text", "primary")),
-                "axisPaddingLeft": 22,
-                "axisPaddingRight": 22,
+                "axisPaddingLeft": 18 if is_pdf_mode else 22,
+                "axisPaddingRight": 32 if is_pdf_mode else 22,
             },
             "utility",
             "deviation",
@@ -3506,8 +3507,8 @@ class ReportBuilderService:
             },
             "grid": self._resolve_chart_grid(
                 {
-                    "left": 118,
-                    "right": 24,
+                    "left": 110 if is_pdf_mode else 118,
+                    "right": 30 if is_pdf_mode else 24,
                     "top": 18,
                     "bottom": 28,
                 },
@@ -3533,8 +3534,8 @@ class ReportBuilderService:
                 "axisLine": {"show": False},
                 "axisLabel": {
                     "color": y_axis_label_color,
-                    "fontSize": 10,
-                    "lineHeight": 11,
+                    "fontSize": 9 if is_pdf_mode else 10,
+                    "lineHeight": 10 if is_pdf_mode else 11,
                     "fontWeight": 600,
                 },
             },
@@ -3563,11 +3564,14 @@ class ReportBuilderService:
                                 "fontSize": label_config.get("fontSize", 10),
                                 "lineHeight": max(int(label_config.get("fontSize", 10)) + 2, 12),
                                 "fontWeight": label_config.get("fontWeight", 700),
-                                "formatter": self._format_delta_compact_label(
-                                    value,
-                                    float(deviation_items[index].get("current", 0.0) or 0.0)
-                                    - float(deviation_items[index].get("previous", 0.0) or 0.0),
-                                    str(deviation_items[index].get("unit") or ""),
+                                "formatter": (
+                                    f"{float(value):.1f}%"
+                                    if is_pdf_mode else self._format_delta_compact_label(
+                                        value,
+                                        float(deviation_items[index].get("current", 0.0) or 0.0)
+                                        - float(deviation_items[index].get("previous", 0.0) or 0.0),
+                                        str(deviation_items[index].get("unit") or ""),
+                                    )
                                 ),
                             },
                         }
@@ -4322,16 +4326,17 @@ class ReportBuilderService:
         period_badge: str,
     ) -> Dict[str, Any]:
         """Build periodic utility-energy distribution doughnut option."""
+        is_pdf_mode = self._render_mode == "pdf"
         return {
             "tooltip": {"trigger": "item", "formatter": "{b}: {c} kWh ({d}%)"},
             "series": [
                 {
                     "type": "pie",
-                    "radius": ["56%", "86%"],
-                    "center": ["42%", "56%"],
+                    "radius": ["48%", "72%"] if is_pdf_mode else ["56%", "86%"],
+                    "center": ["42%", "54%"] if is_pdf_mode else ["42%", "56%"],
                     "startAngle": 90,
                     "avoidLabelOverlap": True,
-                    "minShowLabelAngle": 4,
+                    "minShowLabelAngle": 10 if is_pdf_mode else 4,
                     "itemStyle": {
                         "borderColor": str(self._get_style_color_value("#ffffff", "text", "inverse")),
                         "borderWidth": 3,
@@ -4343,7 +4348,7 @@ class ReportBuilderService:
                         "formatter": "{d}%",
                         "color": str(self._get_style_color_value("#ffffff", "text", "inverse")),
                         "fontWeight": 700,
-                        "fontSize": 10,
+                        "fontSize": 7 if is_pdf_mode else 10,
                     },
                     "labelLine": {"show": False},
                     "data": items,
