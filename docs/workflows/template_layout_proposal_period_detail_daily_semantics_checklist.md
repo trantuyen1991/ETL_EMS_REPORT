@@ -73,7 +73,41 @@ Align weekly/monthly `Daily Energy Detail` visual semantics with the daily templ
 - [x] Period detail should feel like the same product family as daily through tone and emphasis only
 - [x] Period detail must remain a stable matrix, not a ranked card layout
 - [x] Preferred inheritance path is CSS/token alignment, not backend logic change
-- [ ] Step 2: map current periodic rules that differ only in presentation
+
+### Step 2 findings: current Period vs Daily presentation diffs
+- [x] Shared semantic layer is already aligned
+  - both surfaces consume `value-zero`, `heat-1..4`, and `is_row_max` from the same backend contract
+  - no backend remapping is needed for the inheritance slice
+- [x] Intentional structural differences that should stay
+  - Daily uses ranked single-day vertical rows with internal value bars
+  - Period uses a fixed multi-day matrix with stable meter columns and per-cell emphasis
+  - Period needs denser font/padding/date-width rules for multi-day PDF fit
+- [x] Presentation-only differences that still deserve alignment
+  - **Base numeric text tone**:
+    - Daily reference: dark neutral value text (`electricity-daily-value-bar-label`)
+    - Period current: default numeric text is still more brand-blue leaning in the PDF override layer
+    - alignment target: Period default values should read darker/more neutral like Daily, while reserving accent color for stronger emphasis only
+  - **Heat progression style**:
+    - Daily reference: `heat-2..4` use progressively stronger but still soft accent-led gradients
+    - Period current: after P5, heat tiers are closer in palette but still flatter and more table-cell-like than Daily’s contrast ladder
+    - alignment target: keep the table-cell model, but make tier progression follow Daily’s softer tonal ramp more explicitly
+  - **Row-max emphasis style**:
+    - Daily reference: strongest value stands out mainly through clearer text emphasis and stronger local tone, not through a hard border accent
+    - Period current: border artifact is already removed, but `value-max` is still handled as a distinct filled cell treatment rather than a Daily-like emphasis hierarchy
+    - alignment target: keep artifact-free cell emphasis, but tune max-state contrast to feel closer to Daily’s emphasis logic
+  - **Zero-state treatment**:
+    - Daily reference: zero values are visually quieter than strong values without becoming the dominant visual signal
+    - Period current: zero cells are already de-emphasized, but should be checked against the final chosen daily-like contrast balance so they do not feel disconnected from the rest of the row
+- [x] Presentation differences that are acceptable and should not be normalized away
+  - index/date/meter width controls added for Period PDF density
+  - explicit `colgroup` for Period table stability
+  - multi-part chunking across pages
+  - lack of daily-style in-cell fill bars
+
+### Step 2 output: implementation-ready scope for the future code slice
+- [x] The next implementation slice should touch CSS/tokens only unless a template hook is strictly necessary
+- [x] The main target is tone alignment, not layout conversion
+- [x] Success means Period keeps its matrix structure but visually reads closer to Daily in value hierarchy
 - [ ] Step 3: align periodic PDF palette and emphasis to daily semantics without touching sorting
 - [ ] Step 4: re-render weekly and monthly samples to confirm no regression in readability or pagination
 
