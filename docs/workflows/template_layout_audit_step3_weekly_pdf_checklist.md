@@ -30,6 +30,10 @@
   - weekly PDF page 8 donut label crowding reduced to acceptable RC quality
   - final fix used compact PDF-only donut geometry plus smaller in-slice labels
   - follow-up polish is optional, not blocking
+- Step 3 fix P2 result:
+  - weekly PDF page 9 trailing `Sensor daily average trend` card now spans full width
+  - page balance improved materially without changing data or section order
+  - remaining sparseness is acceptable and comes from low data density
 - No-finding pages for this pass:
   - Page 10: sensor anomaly card grid looks balanced
   - Page 13: KPI continuation/footer page is sparse but visually stable

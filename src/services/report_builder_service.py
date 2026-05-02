@@ -4587,6 +4587,13 @@ class ReportBuilderService:
                 },
             })
 
+        normal_chart_indexes = [
+            index for index, chart in enumerate(rendered_charts)
+            if not bool(chart.get("is_full_width"))
+        ]
+        if len(rendered_charts) > 1 and len(normal_chart_indexes) % 2 == 1 and normal_chart_indexes:
+            rendered_charts[normal_chart_indexes[-1]]["is_tail_single"] = True
+
         return rendered_charts
 
     def _build_v3_sensor_trend_clusters(

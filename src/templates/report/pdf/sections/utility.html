@@ -693,7 +693,7 @@
 
                     <div class="utility-sensor-trend-preview-grid {% if sensor_monitoring.period_trend_charts_render|length == 1 %}is-single{% endif %}">
                         {% for chart in sensor_monitoring.period_trend_charts_render %}
-                        <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card pdf-keep-together {% if chart.is_full_width %}is-full-width{% endif %}">
+                        <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card pdf-keep-together {% if chart.is_full_width %}is-full-width{% endif %}{% if chart.is_tail_single %} is-tail-single{% endif %}">
                             <h3 class="electricity-chart-card-title">{{ chart.title }}</h3>
                             <p class="electricity-chart-card-subtitle">{{ chart.subtitle }}</p>
                             <div id="{{ chart.chart_id }}" class="electricity-chart utility-sensor-trend-chart"></div>

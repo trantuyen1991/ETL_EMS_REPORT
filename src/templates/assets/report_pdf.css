@@ -1858,7 +1858,8 @@
         gap: 10px !important;
     }
 
-    .utility-sensor-trend-card.is-full-width {
+    .utility-sensor-trend-card.is-full-width,
+    .utility-sensor-trend-card.is-tail-single {
         grid-column: 1 / -1 !important;
     }
 
@@ -1884,6 +1885,10 @@
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-chart {
         height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-single, 142px) !important;
+    }
+
+    .utility-sensor-trend-card.is-tail-single .utility-sensor-trend-chart {
+        height: var(--report-components-report-section-utility-chart-period-sensor-trend-height-pdf-tail-single, 168px) !important;
     }
 
     .utility-sensor-trend-cluster .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-chart {

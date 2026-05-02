@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
+from src.services.report_builder_service import ReportBuilderService
 from src.services.utility_service import UtilityService
 
 
@@ -43,3 +44,56 @@ def test_daily_pdf_utility_template_splits_sensor_groups_for_page_5_preview() ->
     assert "sensor_group_remaining = sensor_monitoring_view.groups[3:]" in pdf_template
     assert "utility-sensor-group-grid-preview" in pdf_template
     assert "utility-sensor-group-grid-remaining" in pdf_template
+
+
+def test_period_sensor_trend_builder_marks_lone_tail_chart_for_full_width_pdf_layout() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "pdf"
+
+    charts = service._build_v3_period_sensor_trend_charts(
+        {
+            "trend_mode": "period",
+            "daily_rows": [
+                {
+                    "date": date(2025, 6, 23),
+                    "metrics": {
+                        "water_1": {"avg": 10.0},
+                        "water_2": {"avg": 20.0},
+                        "water_3": {"avg": 30.0},
+                        "water_4": {"avg": 40.0},
+                        "steam_1": {"avg": 50.0},
+                    },
+                },
+                {
+                    "date": date(2025, 6, 24),
+                    "metrics": {
+                        "water_1": {"avg": 11.0},
+                        "water_2": {"avg": 21.0},
+                        "water_3": {"avg": 31.0},
+                        "water_4": {"avg": 41.0},
+                        "steam_1": {"avg": 51.0},
+                    },
+                },
+            ],
+            "metric_columns": [
+                {"key": "water_1", "display_name": "Water 1", "unit": "m³/h"},
+                {"key": "water_2", "display_name": "Water 2", "unit": "m³/h"},
+                {"key": "water_3", "display_name": "Water 3", "unit": "m³/h"},
+                {"key": "water_4", "display_name": "Water 4", "unit": "m³/h"},
+                {"key": "steam_1", "display_name": "Steam 1", "unit": "kg/h"},
+            ],
+        }
+    )
+
+    assert len(charts) == 2
+    assert charts[0]["is_full_width"] is True
+    assert charts[1].get("is_tail_single") is True
+
+
+def test_period_sensor_pdf_template_supports_tail_single_trend_card() -> None:
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/utility.html").read_text(encoding="utf-8")
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+
+    assert "is-tail-single" in pdf_template
+    assert ".utility-sensor-trend-card.is-tail-single" in pdf_css
