@@ -108,8 +108,19 @@ Align weekly/monthly `Daily Energy Detail` visual semantics with the daily templ
 - [x] The next implementation slice should touch CSS/tokens only unless a template hook is strictly necessary
 - [x] The main target is tone alignment, not layout conversion
 - [x] Success means Period keeps its matrix structure but visually reads closer to Daily in value hierarchy
-- [ ] Step 3: align periodic PDF palette and emphasis to daily semantics without touching sorting
-- [ ] Step 4: re-render weekly and monthly samples to confirm no regression in readability or pagination
+- [x] Step 3: align periodic PDF palette and emphasis to daily semantics without touching sorting
+- [x] Step 4: re-render weekly and monthly samples to confirm no regression in readability or pagination
+
+### Step 3 implementation result
+- [x] Period detail default numeric tone was pulled closer to daily neutral readability
+- [x] Heat ramp was softened toward daily-style progression instead of flat blocky fills
+- [x] `value-max` emphasis remained artifact-safe and was re-strengthened after the first pass proved too subtle
+- [x] Zero-state remained subdued but readable
+- [x] No sorting, backend, or matrix-structure change was introduced
+
+### Step 4 validation result
+- [x] Weekly sample confirmed the revised pass recovered max-cell scanability while keeping the calmer daily-like tone
+- [x] Monthly sample showed no obvious regression in readability, tone balance, or date/meter separation
 
 ### Done when
 - [ ] Period detail colors feel like the same product family as daily detail

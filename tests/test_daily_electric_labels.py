@@ -224,8 +224,13 @@ def test_weekly_pdf_electric_detail_uses_daily_like_palette_and_tighter_date_wid
 
     assert '.electricity-periodic-detail-table .col-date' in pdf_css
     assert 'width: 82px !important;' in pdf_css
+    assert '.electricity-periodic-detail-table .col-value' in pdf_css
+    assert 'color: var(--report-color-text-primary, #0f172a) !important;' in pdf_css
     assert '.electricity-periodic-detail-table .heat-4' in pdf_css
-    assert 'background: #deecff !important;' in pdf_css
+    assert 'background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, rgba(255, 255, 255, 0.98) 74%) !important;' in pdf_css
+    assert '.electricity-periodic-detail-table .col-value.value-max' in pdf_css
+    assert 'background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, rgba(255, 255, 255, 0.94) 58%) !important;' in pdf_css
+    assert 'color: var(--detail-accent-color, #1d4ed8) !important;' in pdf_css
 
 
 def test_periodic_electric_area_top10_subtitles_use_period_aware_wording() -> None:
