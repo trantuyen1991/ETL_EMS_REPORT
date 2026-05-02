@@ -211,6 +211,23 @@ def test_weekly_pdf_electric_detail_highlight_disables_border_artifact() -> None
     assert 'border-bottom: none !important;' in pdf_css
 
 
+def test_weekly_pdf_electric_detail_template_has_meter_colgroup() -> None:
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/electricity.html").read_text(encoding="utf-8")
+
+    assert '<col class="col-meter">' in pdf_template
+    assert '<th class="col-meter">{{ column.display_name }}</th>' in pdf_template
+    assert '<td class="col-meter col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}">' in pdf_template
+
+
+def test_weekly_pdf_electric_detail_uses_daily_like_palette_and_tighter_date_width() -> None:
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+
+    assert '.electricity-periodic-detail-table .col-date' in pdf_css
+    assert 'width: 82px !important;' in pdf_css
+    assert '.electricity-periodic-detail-table .heat-4' in pdf_css
+    assert 'background: #deecff !important;' in pdf_css
+
+
 def test_periodic_electric_area_top10_subtitles_use_period_aware_wording() -> None:
     service = ReportBuilderService()
     service._style_config = {}

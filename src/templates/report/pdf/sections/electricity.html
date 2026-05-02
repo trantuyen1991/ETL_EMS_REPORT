@@ -471,12 +471,19 @@
 
                     <div class="electricity-daily-detail-table-wrap electricity-periodic-detail-wrap report-table-wrap">
                         <table class="electricity-daily-detail-table electricity-periodic-detail-table report-table-ui">
+                            <colgroup>
+                                <col class="col-index">
+                                <col class="col-date">
+                                {% for column in column_chunk %}
+                                <col class="col-meter">
+                                {% endfor %}
+                            </colgroup>
                             <thead>
                                 <tr>
                                     <th class="col-index">Index</th>
                                     <th class="col-date sticky-date-col">Date</th>
                                     {% for column in column_chunk %}
-                                    <th>{{ column.display_name }}</th>
+                                    <th class="col-meter">{{ column.display_name }}</th>
                                     {% endfor %}
                                 </tr>
                             </thead>
@@ -486,7 +493,7 @@
                                     <td class="col-index">{{ loop.index }}</td>
                                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                                     {% for cell in row.cells[start:end] %}
-                                    <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}">
+                                    <td class="col-meter col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}">
                                         {{ cell.display }}
                                     </td>
                                     {% endfor %}

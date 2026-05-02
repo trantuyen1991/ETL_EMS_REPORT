@@ -42,6 +42,10 @@
   - weekly PDF page 2 periodic electricity detail-table highlight artifacts were materially reduced
   - the fix removed the PDF-only `value-max` bottom border accent that was rendering as dark underline noise in Chrome PDF
   - remaining highlight remnants are faint and not visually disruptive
+- Step 3 fix P5 result:
+  - weekly `Daily Energy Detail` now uses a softer daily-like PDF palette instead of the harsher periodic fill treatment
+  - page 2 date-to-first-meter crowding was relieved by tighter date/index sizing plus explicit meter colgroup hooks
+  - remaining highlight emphasis is acceptable and no longer visually broken
 - No-finding pages for this pass:
   - Page 10: sensor anomaly card grid looks balanced
   - Page 13: KPI continuation/footer page is sparse but visually stable

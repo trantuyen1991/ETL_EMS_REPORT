@@ -1928,24 +1928,76 @@
 
     .electricity-periodic-detail-table th,
     .electricity-periodic-detail-table td {
-        padding: 5px 6px !important;
-        font-size: 8.5px !important;
+        padding: 5px 4px !important;
+        font-size: 8px !important;
+    }
+
+    .electricity-periodic-detail-table .col-index {
+        width: 34px !important;
+        min-width: 34px !important;
     }
 
     .electricity-periodic-detail-table .col-date {
-        min-width: 72px !important;
+        width: 82px !important;
+        min-width: 82px !important;
+        max-width: 82px !important;
         white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        font-size: 7.8px !important;
+        letter-spacing: -0.01em !important;
+    }
+
+    .electricity-periodic-detail-table .col-meter {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    .electricity-periodic-detail-table th.col-meter,
+    .electricity-periodic-detail-table td.col-meter {
+        padding-left: 3px !important;
+        padding-right: 3px !important;
+    }
+
+    .electricity-periodic-detail-table th.col-meter {
+        font-size: 7.6px !important;
+        letter-spacing: -0.01em !important;
     }
 
     .electricity-periodic-detail-table .col-value {
+        color: var(--report-color-brand-primary, #005496) !important;
         font-weight: 600 !important;
     }
 
+    .electricity-periodic-detail-table .value-zero {
+        color: #cbd5e1 !important;
+        font-weight: 400 !important;
+    }
+
     .electricity-periodic-detail-table .value-max {
+        background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%) !important;
+        color: #1d4ed8 !important;
         border-bottom: none !important;
         box-shadow: none !important;
         text-decoration: none !important;
         font-weight: 700 !important;
+    }
+
+    .electricity-periodic-detail-table .heat-1 {
+        background: #f8fbff !important;
+    }
+
+    .electricity-periodic-detail-table .heat-2 {
+        background: #f1f7ff !important;
+    }
+
+    .electricity-periodic-detail-table .heat-3 {
+        background: #e8f2ff !important;
+    }
+
+    .electricity-periodic-detail-table .heat-4 {
+        background: #deecff !important;
     }
 
     .electricity-daily-vertical-index {
