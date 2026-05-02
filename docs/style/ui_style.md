@@ -448,11 +448,17 @@ The daily `ENERGY KPI` deviation chart must stay style-driven through:
 That branch should own at least:
 - `grid.*`
 - `xAxis.axisLabel.*`
-- `xAxis.splitLine.show`
+- `xAxis.splitLine.*`
 - `yAxis.axisLabel.*`
+- `valueLabel.*`, including near-zero fallback placement when labels would crowd the center axis
 
 Shared horizontal-delta defaults such as series shape and value-label behavior are inherited through:
 - `reportStyle.components.report.section.kpi.chart.variance.familyRef = "delta.horizontal"`
+
+For the current PDF/readability pass:
+- keep the main daily variance label rule aligned with the approved KPI policy
+- allow `valueLabel.nearZero*` to move tiny bars away from the 0% axis
+- prefer slightly stronger PDF axis/split-line contrast via `variance.pdf.*` instead of hardcoding render-only colors elsewhere
 
 ### 11.5 PDF Rules
 For PDF mode:

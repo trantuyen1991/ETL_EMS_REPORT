@@ -351,7 +351,7 @@
         "textColor": "#6f8293"
       },
       "chartCard": {
-        "background": "#fbfdff",
+        "background": "#ffffff",
         "borderColor": "#d9e4ee",
         "borderRadius": "10px",
         "padding": "16px",
@@ -1427,7 +1427,11 @@
                 },
                 "valueLabel": {
                   "positivePosition": "left",
-                  "negativePosition": "right"
+                  "negativePosition": "right",
+                  "nearZeroPositivePosition": "right",
+                  "nearZeroNegativePosition": "left",
+                  "nearZeroThreshold": 4,
+                  "nearZeroDistance": 12
                 },
                 "xAxis": {
                   "axisLabel": {
@@ -1444,6 +1448,21 @@
                     "fontSize": 10,
                     "lineHeight": 11,
                     "fontWeight": 600
+                  }
+                },
+                "pdf": {
+                  "xAxis": {
+                    "axisLabel": {
+                      "color": "#4b6074"
+                    },
+                    "splitLine": {
+                      "color": "#d6e0e9"
+                    }
+                  },
+                  "yAxis": {
+                    "axisLabel": {
+                      "color": "#223548"
+                    }
                   }
                 }
               },

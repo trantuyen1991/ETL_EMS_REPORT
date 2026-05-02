@@ -150,6 +150,10 @@ def test_report_style_json_sets_kpi_variance_label_positions_like_utility() -> N
 
     assert variance_cfg["valueLabel"]["positivePosition"] == "left"
     assert variance_cfg["valueLabel"]["negativePosition"] == "right"
+    assert variance_cfg["valueLabel"]["nearZeroPositivePosition"] == "right"
+    assert variance_cfg["valueLabel"]["nearZeroNegativePosition"] == "left"
+    assert variance_cfg["valueLabel"]["nearZeroThreshold"] == 4
+    assert variance_cfg["valueLabel"]["nearZeroDistance"] == 12
 
 
 def test_kpi_variance_option_uses_configured_axis_tokens() -> None:
@@ -206,6 +210,81 @@ def test_kpi_variance_option_uses_configured_axis_tokens() -> None:
     assert option["yAxis"]["axisLabel"]["fontSize"] == 13
     assert option["yAxis"]["axisLabel"]["lineHeight"] == 15
     assert option["yAxis"]["axisLabel"]["fontWeight"] == 500
+
+
+def test_kpi_variance_option_moves_near_zero_labels_away_from_center_and_uses_pdf_contrast_tokens() -> None:
+    service = ReportBuilderService()
+    service._render_mode = "pdf"
+    service._style_config = {
+        "components": {
+            "report": {
+                "section": {
+                    "kpi": {
+                        "chart": {
+                            "variance": {
+                                "valueLabel": {
+                                    "positivePosition": "left",
+                                    "negativePosition": "right",
+                                    "nearZeroPositivePosition": "right",
+                                    "nearZeroNegativePosition": "left",
+                                    "nearZeroThreshold": 4,
+                                    "nearZeroDistance": 12,
+                                },
+                                "pdf": {
+                                    "xAxis": {
+                                        "axisLabel": {"color": "#4b6074"},
+                                        "splitLine": {"color": "#d6e0e9"},
+                                    },
+                                    "yAxis": {
+                                        "axisLabel": {"color": "#223548"},
+                                    },
+                                },
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    option = service._build_v3_kpi_variance_option(
+        [
+            {
+                "name": "DIODE",
+                "value": 3.35,
+                "current": 10.335,
+                "previous": 10.0,
+                "unit": "%",
+            },
+            {
+                "name": "Total",
+                "value": -1.75,
+                "current": 9.825,
+                "previous": 10.0,
+                "unit": "%",
+            },
+            {
+                "name": "ICO",
+                "value": -23.37,
+                "current": 7.663,
+                "previous": 10.0,
+                "unit": "%",
+            },
+        ]
+    )
+
+    diode_point = option["series"][0]["data"][0]
+    total_point = option["series"][0]["data"][1]
+    ico_point = option["series"][0]["data"][2]
+
+    assert diode_point["label"]["position"] == "right"
+    assert diode_point["label"]["distance"] == 12
+    assert total_point["label"]["position"] == "left"
+    assert total_point["label"]["distance"] == 12
+    assert ico_point["label"]["position"] == "right"
+    assert option["xAxis"]["axisLabel"]["color"] == "#4b6074"
+    assert option["xAxis"]["splitLine"]["lineStyle"]["color"] == "#d6e0e9"
+    assert option["yAxis"]["axisLabel"]["color"] == "#223548"
 
 
 def test_daily_kpi_charts_use_empty_state_messages_for_zero_only_data() -> None:

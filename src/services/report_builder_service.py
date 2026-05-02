@@ -644,7 +644,11 @@ class ReportBuilderService:
             "show",
             "positivePosition",
             "negativePosition",
+            "nearZeroPositivePosition",
+            "nearZeroNegativePosition",
             "distance",
+            "nearZeroDistance",
+            "nearZeroThreshold",
             "rotate",
             "fontSize",
             "fontWeight",
@@ -5897,7 +5901,11 @@ class ReportBuilderService:
             {
                 "positivePosition": "right",
                 "negativePosition": "left",
+                "nearZeroPositivePosition": "right",
+                "nearZeroNegativePosition": "left",
                 "distance": 4,
+                "nearZeroDistance": 12,
+                "nearZeroThreshold": 4,
                 "fontSize": 10,
                 "fontWeight": 700,
                 "color": primary_text_color,
@@ -5918,6 +5926,19 @@ class ReportBuilderService:
         variance_y_axis_label_cfg = (
             variance_y_axis_cfg.get("axisLabel", {}) if isinstance(variance_y_axis_cfg.get("axisLabel"), dict) else {}
         )
+        variance_x_axis_label_color = str(
+            variance_x_axis_label_cfg.get("color")
+            or (primary_text_color if self._render_mode == "pdf" else muted_text_color)
+        )
+        variance_y_axis_label_color = str(
+            variance_y_axis_label_cfg.get("color") or primary_text_color
+        )
+        variance_split_line_color = str(
+            variance_x_axis_split_cfg.get("color")
+            or ("#d6e0e9" if self._render_mode == "pdf" else split_line_color)
+        )
+        near_zero_threshold = abs(float(label_config.get("nearZeroThreshold", 0) or 0.0))
+        near_zero_distance = label_config.get("nearZeroDistance", label_config.get("distance", 4))
         values: list[float] = []
         chart_data = []
 
@@ -5940,7 +5961,7 @@ class ReportBuilderService:
                         "show": bool(label_config.get("show", True)),
                         "position": label_config.get("positivePosition", "right"),
                         "formatter": "-",
-                        "color": muted_text_color,
+                        "color": variance_x_axis_label_color,
                         "fontSize": label_config.get("fontSize", 10),
                     },
                 })
@@ -5948,9 +5969,18 @@ class ReportBuilderService:
 
             numeric_value = round(float(value), 2)
             values.append(numeric_value)
-            delta_value = abs(current_value - previous_value)
-            delta_display = self._fmt(delta_value)
-            unit_suffix = f" {unit}" if unit else ""
+            is_near_zero = 0.0 < abs(numeric_value) <= near_zero_threshold
+            label_position = (
+                label_config.get("positivePosition", "right")
+                if numeric_value >= 0 else label_config.get("negativePosition", "left")
+            )
+            label_distance = label_config.get("distance", 4)
+            if is_near_zero:
+                label_position = (
+                    label_config.get("nearZeroPositivePosition", "right")
+                    if numeric_value >= 0 else label_config.get("nearZeroNegativePosition", "left")
+                )
+                label_distance = near_zero_distance
 
             chart_data.append({
                 "value": numeric_value,
@@ -5964,11 +5994,8 @@ class ReportBuilderService:
                 },
                 "label": {
                     "show": bool(label_config.get("show", True)) and abs(numeric_value) >= 0.005,
-                    "position": (
-                        label_config.get("positivePosition", "right")
-                        if numeric_value >= 0 else label_config.get("negativePosition", "left")
-                    ),
-                    "distance": label_config.get("distance", 4),
+                    "position": label_position,
+                    "distance": label_distance,
                     "color": label_config.get("color", primary_text_color),
                     "fontSize": label_config.get("fontSize", 10),
                     "lineHeight": max(int(label_config.get("fontSize", 10)) + 2, 12),
@@ -6006,21 +6033,21 @@ class ReportBuilderService:
                 "max": round(axis_max, 2),
                 "axisLabel": {
                     "show": variance_x_axis_label_cfg.get("show", True),
-                    "color": muted_text_color,
+                    "color": variance_x_axis_label_color,
                     "formatter": "{value}%",
                     "fontSize": variance_x_axis_label_cfg.get("fontSize", 10),
                     "margin": variance_x_axis_label_cfg.get("margin", 8),
                 },
                 "splitLine": {
                     "show": variance_x_axis_split_cfg.get("show", True),
-                    "lineStyle": {"color": split_line_color},
+                    "lineStyle": {"color": variance_split_line_color},
                 },
             },
             "yAxis": {
                 "type": "category",
                 "data": [item.get("name") or "-" for item in items],
                 "axisLabel": {
-                    "color": primary_text_color,
+                    "color": variance_y_axis_label_color,
                     "fontWeight": variance_y_axis_label_cfg.get("fontWeight", 600),
                     "fontSize": variance_y_axis_label_cfg.get("fontSize", 10),
                     "lineHeight": variance_y_axis_label_cfg.get("lineHeight", 11),
