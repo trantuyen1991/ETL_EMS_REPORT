@@ -38,6 +38,7 @@ For each audited surface/section, check:
 - [x] `src/templates/report/view/sections/utility.html`
 - [x] `src/templates/report/view/sections/kpi.html`
 - [x] `src/templates/report/view/sections/footer.html`
+- [x] Checkpoint closed after residual polish
 
 ### Step 3. Weekly PDF layout audit
 - [ ] `src/templates/report/pdf/report_pdf_periodic.html`

@@ -36,12 +36,10 @@
 - KPI slice P3 completed:
   - reduced daily KPI chart height and tightened dashboard spacing
   - added explicit empty-state panels for zero/near-zero daily KPI charts in view mode
-- KPI slice P3 completed:
-  - reduced daily KPI chart height and tightened dashboard spacing
-  - added explicit empty-state panels for zero/near-zero daily KPI charts in view mode
 - Residual polish P4 completed:
   - compacted the sparse daily electricity area comparison panel
   - compacted the two sparse daily utility comparison charts
   - strengthened KPI empty-state panel treatment
-- Remaining KPI issue:
-  - sparse panels are now intentional, though still visually light because the underlying data is near-empty
+- Final step-2 status:
+  - daily view checkpoint accepted after residual polish
+  - remaining sparse panels now read as intentional, though still visually light because the underlying data is near-empty
