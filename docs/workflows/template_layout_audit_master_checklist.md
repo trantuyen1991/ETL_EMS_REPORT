@@ -29,6 +29,7 @@ For each audited surface/section, check:
 - [x] `src/templates/report/pdf/sections/utility.html`
 - [x] `src/templates/report/pdf/sections/kpi.html`
 - [x] `src/templates/report/pdf/sections/footer.html`
+- [x] Checkpoint closed and accepted as-is
 
 ### Step 2. Daily view layout audit
 - [ ] `src/templates/report/view/report_view_daily.html`

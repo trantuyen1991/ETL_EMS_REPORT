@@ -28,6 +28,7 @@ Improve underfilled sensor monitoring pages in the daily PDF, one page at a time
 - Implementation scope confirmed by user: build both blocks for page 6 daily PDF and re-render page 6 for review.
 - Split scope confirmed by user: pull the first sensor-group row onto page 5, then continue remaining groups + anomaly scan on page 6.
 - Follow-up approved by user: split daily sensor group section so the first row renders on page 5 and the remaining groups continue on page 6 with the anomaly table.
+- Final checkpoint decision: pagination split did not land as intended in rendered output, but this checkpoint is accepted as-is for now and work will move to the next audit step.
 - Enrichment applied:
   - `Sensor health snapshot`
   - `Top issues today` preview

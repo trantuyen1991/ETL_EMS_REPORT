@@ -1667,8 +1667,37 @@
             margin-top: 14px;
         }
 
+        .report-family-daily .electricity-chart-grid.electricity-chart-grid-daily {
+            gap: 12px;
+            margin: 12px 0 10px;
+        }
+
+        .report-family-daily .electricity-section-shell .electricity-chart-card {
+            padding: 12px 14px 10px;
+        }
+
+        .report-family-daily .electricity-section-shell .electricity-chart-card-subtitle {
+            margin: 4px 0 8px;
+        }
+
+        .report-family-daily .electricity-chart-card-share .electricity-chart {
+            height: 280px;
+        }
+
+        .report-family-daily .electricity-chart-card-area .electricity-chart {
+            height: 268px;
+        }
+
+        .report-family-daily .electricity-detail-block {
+            margin-top: 10px;
+        }
+
         .electricity-top10-wrap {
             margin-bottom: 10px;
+        }
+
+        .report-family-daily .electricity-top10-wrap {
+            margin-bottom: 8px;
         }
 
         .electricity-area-top10-grid {
@@ -1829,12 +1858,21 @@
             margin-bottom: 14px;
         }
 
+        .report-family-daily .electricity-daily-summary-block {
+            margin-top: 16px;
+            margin-bottom: 10px;
+        }
+
         .electricity-daily-summary-table {
             min-width: 980px;
         }
 
         .electricity-daily-summary-area-wrap {
             margin-top: 12px;
+        }
+
+        .report-family-daily .electricity-daily-summary-area-wrap {
+            margin-top: 8px;
         }
 
         .electricity-daily-summary-area-table {
