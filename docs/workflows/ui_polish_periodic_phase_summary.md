@@ -57,6 +57,24 @@
 - The wording cleanup chain for this phase is effectively closed.
 - Primary rendered report surfaces and remaining low-risk fallback paths now follow the intended daily and periodic label policy.
 
+## Period detail semantics follow-up (2026-05-02)
+- The periodic `Daily Energy Detail` tables were polished further so they read closer to the daily product family without changing backend logic, sorting, or matrix structure.
+- P6 aligned the base periodic value hierarchy toward daily semantics:
+  - default numeric tone was made more neutral
+  - heat tiers were softened away from hard block fills
+  - `value-max` stayed artifact-safe in Chrome PDF
+  - zero-state stayed subdued but readable
+- P7 completed the remaining presentation gap:
+  - area identity now reads more clearly inside each table, not only in the title
+  - DIODE / ICO / SAKARI blocks now carry distinct area-tinted index/date bands and table surfaces
+  - in-table heat separation is stronger, so high/mid/low values scan faster
+  - missing (`-`), zero (`0.00`), and very small nonzero states are more clearly separated
+  - date/index columns remain visually subordinate after a final small saturation reduction
+- Validation result:
+  - weekly page 2 improved materially in area identity and cell-state readability
+  - monthly page 2 showed no obvious regression in readability or column separation
+  - automated regression status remained `43 passed`
+
 ## Next workstream
 - Next planned workstream: template layout audit by surface/page, starting with the daily PDF output.
 - See `docs/workflows/template_layout_audit_master_checklist.md` for the audit order and checks.

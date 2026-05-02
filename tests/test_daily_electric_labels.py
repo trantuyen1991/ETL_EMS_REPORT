@@ -216,20 +216,25 @@ def test_weekly_pdf_electric_detail_template_has_meter_colgroup() -> None:
 
     assert '<col class="col-meter">' in pdf_template
     assert '<th class="col-meter">{{ column.display_name }}</th>' in pdf_template
-    assert '<td class="col-meter col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}">' in pdf_template
+    assert 'value-missing' in pdf_template
+    assert 'value-low' in pdf_template
 
 
-def test_weekly_pdf_electric_detail_uses_daily_like_palette_and_tighter_date_width() -> None:
+def test_weekly_pdf_electric_detail_uses_area_palette_and_state_hierarchy() -> None:
     pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
 
     assert '.electricity-periodic-detail-table .col-date' in pdf_css
     assert 'width: 82px !important;' in pdf_css
-    assert '.electricity-periodic-detail-table .col-value' in pdf_css
-    assert 'color: var(--report-color-text-primary, #0f172a) !important;' in pdf_css
+    assert '.electricity-periodic-detail-table-block.area-diode' in pdf_css
+    assert '.electricity-periodic-detail-table-block.area-ico' in pdf_css
+    assert '.electricity-periodic-detail-table-block.area-sakari' in pdf_css
+    assert '--period-detail-index-bg' in pdf_css
+    assert '.electricity-periodic-detail-table thead th' in pdf_css
+    assert '.electricity-periodic-detail-table .value-missing' in pdf_css
+    assert '.electricity-periodic-detail-table .value-zero' in pdf_css
+    assert '.electricity-periodic-detail-table .value-low' in pdf_css
     assert '.electricity-periodic-detail-table .heat-4' in pdf_css
-    assert 'background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, rgba(255, 255, 255, 0.98) 74%) !important;' in pdf_css
-    assert '.electricity-periodic-detail-table .col-value.value-max' in pdf_css
-    assert 'background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, rgba(255, 255, 255, 0.94) 58%) !important;' in pdf_css
+    assert 'background: var(--period-detail-max-bg) !important;' in pdf_css
     assert 'color: var(--detail-accent-color, #1d4ed8) !important;' in pdf_css
 
 
