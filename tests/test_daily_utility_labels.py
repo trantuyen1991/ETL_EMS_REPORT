@@ -187,6 +187,50 @@ def test_utility_pdf_deviation_chart_uses_compact_axis_spacing() -> None:
     assert option["series"][0]["barWidth"] == 10
 
 
+def test_utility_deviation_chart_moves_near_zero_labels_away_from_center() -> None:
+    service = ReportBuilderService()
+    service._style_config = {
+        "components": {
+            "report": {
+                "section": {
+                    "utility": {
+                        "chart": {
+                            "deviation": {
+                                "valueLabel": {
+                                    "positivePosition": "left",
+                                    "negativePosition": "right",
+                                    "nearZeroPositivePosition": "right",
+                                    "nearZeroNegativePosition": "left",
+                                    "nearZeroThreshold": 4,
+                                    "nearZeroDistance": 10,
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    service._render_mode = "pdf"
+
+    option = service._build_v3_utility_deviation_option([
+        {"display_name": "Near Zero Up", "unit": "%", "current": 103.35, "previous": 100.0},
+        {"display_name": "Near Zero Down", "unit": "%", "current": 98.25, "previous": 100.0},
+        {"display_name": "Large Drop", "unit": "%", "current": 76.63, "previous": 100.0},
+    ])
+
+    up_point = option["series"][0]["data"][0]
+    down_point = option["series"][0]["data"][1]
+    large_drop_point = option["series"][0]["data"][2]
+
+    assert up_point["label"]["position"] == "right"
+    assert up_point["label"]["distance"] == 10
+    assert down_point["label"]["position"] == "left"
+    assert down_point["label"]["distance"] == 10
+    assert large_drop_point["label"]["position"] == "right"
+    assert large_drop_point["label"]["distance"] == 3
+
+
 def test_daily_sensor_dual_axis_chart_uses_style_config_tokens() -> None:
     service = ReportBuilderService()
     service._render_mode = "html"
@@ -270,8 +314,10 @@ def test_daily_sensor_dual_axis_chart_uses_style_config_tokens() -> None:
 
 def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens() -> None:
     style_cfg = json.loads((PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8"))
-    sensor_cluster = style_cfg["reportStyle"]["components"]["report"]["section"]["utility"]["chart"]["sensorCluster"]
+    utility_chart_cfg = style_cfg["reportStyle"]["components"]["report"]["section"]["utility"]["chart"]
+    sensor_cluster = utility_chart_cfg["sensorCluster"]
     dual_axis = sensor_cluster["dualAxis"]
+    deviation_value_label = utility_chart_cfg["deviation"]["valueLabel"]
 
     assert sensor_cluster["height"]["view"] == "280px"
     assert sensor_cluster["height"]["pdf"] == "140px"
@@ -281,3 +327,7 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
     assert dual_axis["rightAxis"]["nameGap"] == 2
     assert dual_axis["series"]["lineWidth"] == 2.2
     assert dual_axis["markPoint"]["label"]["fontSize"] == 9
+    assert deviation_value_label["nearZeroPositivePosition"] == "right"
+    assert deviation_value_label["nearZeroNegativePosition"] == "left"
+    assert deviation_value_label["nearZeroThreshold"] == 4
+    assert deviation_value_label["nearZeroDistance"] == 10

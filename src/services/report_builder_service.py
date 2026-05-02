@@ -3488,7 +3488,11 @@ class ReportBuilderService:
             {
                 "positivePosition": "right",
                 "negativePosition": "left",
+                "nearZeroPositivePosition": "right",
+                "nearZeroNegativePosition": "left",
                 "distance": 3 if is_pdf_mode else 4,
+                "nearZeroDistance": 10 if is_pdf_mode else 8,
+                "nearZeroThreshold": 4,
                 "fontSize": 9 if is_pdf_mode else 10,
                 "fontWeight": 700,
                 "color": str(self._get_style_color_value("#223548", "text", "primary")),
@@ -3498,6 +3502,8 @@ class ReportBuilderService:
             "utility",
             "deviation",
         )
+        near_zero_threshold = abs(float(label_config.get("nearZeroThreshold", 0) or 0.0))
+        near_zero_distance = label_config.get("nearZeroDistance", label_config.get("distance", 4))
 
         min_value = min(values, default=0.0)
         max_value = max(values, default=0.0)
@@ -3564,10 +3570,19 @@ class ReportBuilderService:
                             "label": {
                                 "show": True,
                                 "position": (
-                                    label_config.get("positivePosition", "right")
-                                    if value >= 0 else label_config.get("negativePosition", "left")
+                                    (
+                                        label_config.get("nearZeroPositivePosition", "right")
+                                        if value >= 0 else label_config.get("nearZeroNegativePosition", "left")
+                                    )
+                                    if 0.0 < abs(float(value)) <= near_zero_threshold else (
+                                        label_config.get("positivePosition", "right")
+                                        if value >= 0 else label_config.get("negativePosition", "left")
+                                    )
                                 ),
-                                "distance": label_config.get("distance", 4),
+                                "distance": (
+                                    near_zero_distance
+                                    if 0.0 < abs(float(value)) <= near_zero_threshold else label_config.get("distance", 4)
+                                ),
                                 "color": label_config.get("color", "#223548"),
                                 "fontSize": label_config.get("fontSize", 10),
                                 "lineHeight": max(int(label_config.get("fontSize", 10)) + 2, 12),

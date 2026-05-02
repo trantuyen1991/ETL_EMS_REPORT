@@ -1152,7 +1152,11 @@
                 "valueLabel": {
                   "positivePosition": "left",
                   "negativePosition": "right",
+                  "nearZeroPositivePosition": "right",
+                  "nearZeroNegativePosition": "left",
                   "distance": 4,
+                  "nearZeroDistance": 10,
+                  "nearZeroThreshold": 4,
                   "fontSize": 10,
                   "fontWeight": 700,
                   "color": "#334155",
