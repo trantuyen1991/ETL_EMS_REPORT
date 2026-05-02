@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from src.services.report_builder_service import ReportBuilderService
@@ -141,6 +142,70 @@ def test_kpi_variance_option_hides_zero_value_labels() -> None:
     assert point["label"]["show"] is False
     assert option["grid"]["left"] == 84
     assert option["grid"]["right"] == 18
+
+
+def test_report_style_json_sets_kpi_variance_label_positions_like_utility() -> None:
+    style_cfg = json.loads((PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8"))
+    variance_cfg = style_cfg["reportStyle"]["components"]["report"]["section"]["kpi"]["chart"]["variance"]
+
+    assert variance_cfg["valueLabel"]["positivePosition"] == "left"
+    assert variance_cfg["valueLabel"]["negativePosition"] == "right"
+
+
+def test_kpi_variance_option_uses_configured_axis_tokens() -> None:
+    service = ReportBuilderService()
+    service._render_mode = "view"
+    service._style_config = {
+        "components": {
+            "report": {
+                "section": {
+                    "kpi": {
+                        "chart": {
+                            "variance": {
+                                "xAxis": {
+                                    "axisLabel": {
+                                        "show": False,
+                                        "fontSize": 12,
+                                        "margin": 3,
+                                    },
+                                    "splitLine": {
+                                        "show": False,
+                                    },
+                                },
+                                "yAxis": {
+                                    "axisLabel": {
+                                        "fontSize": 13,
+                                        "lineHeight": 15,
+                                        "fontWeight": 500,
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    option = service._build_v3_kpi_variance_option(
+        [
+            {
+                "name": "ICO",
+                "value": 1.25,
+                "current": 10.25,
+                "previous": 10.12,
+                "unit": "%",
+            }
+        ]
+    )
+
+    assert option["xAxis"]["axisLabel"]["show"] is False
+    assert option["xAxis"]["axisLabel"]["fontSize"] == 12
+    assert option["xAxis"]["axisLabel"]["margin"] == 3
+    assert option["xAxis"]["splitLine"]["show"] is False
+    assert option["yAxis"]["axisLabel"]["fontSize"] == 13
+    assert option["yAxis"]["axisLabel"]["lineHeight"] == 15
+    assert option["yAxis"]["axisLabel"]["fontWeight"] == 500
 
 
 def test_daily_kpi_charts_use_empty_state_messages_for_zero_only_data() -> None:

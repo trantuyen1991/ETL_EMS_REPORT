@@ -30,6 +30,11 @@ For each audited surface/section, check:
 - [x] `src/templates/report/pdf/sections/kpi.html`
 - [x] `src/templates/report/pdf/sections/footer.html`
 - [x] Checkpoint closed and accepted as-is
+- Durable summary:
+  - utility page 4-5 pagination was rebalanced
+  - empty electricity Top 10 shell was removed from PDF output
+  - KPI zero-data pages now use explicit empty-state panels
+  - daily sensor overview page was enriched with health snapshot + top-issues content
 
 ### Step 2. Daily view layout audit
 - [x] `src/templates/report/view/report_view_daily.html`
@@ -39,6 +44,10 @@ For each audited surface/section, check:
 - [x] `src/templates/report/view/sections/kpi.html`
 - [x] `src/templates/report/view/sections/footer.html`
 - [x] Checkpoint closed after residual polish
+- Durable summary:
+  - electricity and utility chart/card spacing was tightened for the daily view family
+  - daily KPI empty-state treatment was promoted into the view template
+  - remaining sparse panels were compacted so low-activity days still read intentionally
 
 ### Step 3. Weekly PDF layout audit
 - [ ] `src/templates/report/pdf/report_pdf_periodic.html`
@@ -47,6 +56,12 @@ For each audited surface/section, check:
 - [ ] `src/templates/report/pdf/sections/utility.html`
 - [ ] `src/templates/report/pdf/sections/kpi.html`
 - [ ] `src/templates/report/pdf/sections/footer.html`
+- Progress to date:
+  - P1: utility distribution donut label crowding reduced to acceptable PDF quality
+  - P2: lone trailing weekly sensor trend card now spans full width
+  - P3: utility deviation readability improved by simplifying PDF axis labeling
+  - P4: periodic detail-table underline artifacts were reduced
+  - P5+: periodic detail date/meter crowding and daily-vs-period visual semantics were improved without changing matrix structure
 
 ### Step 4. Weekly view layout audit
 - [ ] `src/templates/report/view/report_view_periodic.html`

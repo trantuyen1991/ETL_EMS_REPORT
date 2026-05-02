@@ -160,8 +160,7 @@
         "tableStripe": "#f8fbfd",
         "tableHeader": "#f3f7fb",
         "brandSoft": "#e4eff8",
-        "brandTint": "#f2f7fb",
-        "chartShell": "#fbfdff"
+        "brandTint": "#f2f7fb"
       },
       "text": {
         "primary": "#223548",
@@ -220,7 +219,6 @@
           "#5ca7a4",
           "#7a6da8"
         ],
-        "background": "rgba(255,255,255,0)",
         "title": "#0f2d45",
         "subtitle": "#5f7387",
         "legendText": "#556b7d",
@@ -1426,6 +1424,27 @@
                   "top": 12,
                   "bottom": 18,
                   "containLabel": false
+                },
+                "valueLabel": {
+                  "positivePosition": "left",
+                  "negativePosition": "right"
+                },
+                "xAxis": {
+                  "axisLabel": {
+                    "show": true,
+                    "fontSize": 10,
+                    "margin": 8
+                  },
+                  "splitLine": {
+                    "show": true
+                  }
+                },
+                "yAxis": {
+                  "axisLabel": {
+                    "fontSize": 10,
+                    "lineHeight": 11,
+                    "fontWeight": 600
+                  }
                 }
               },
               "theme": {
@@ -1558,7 +1577,6 @@
         "#5ca7a4",
         "#7a6da8"
       ],
-      "backgroundColor": "rgba(255,255,255,0)",
       "titleColor": "#0f2d45",
       "subtitleColor": "#5f7387",
       "legendTextColor": "#556b7d",

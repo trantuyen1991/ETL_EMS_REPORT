@@ -75,6 +75,10 @@
   - monthly page 2 showed no obvious regression in readability or column separation
   - automated regression status remained `43 passed`
 
+## Documentation status
+- This file is now the durable record for the completed periodic wording + periodic detail presentation cleanup chain.
+- The temporary per-slice checklist files used during implementation were retired after consolidation.
+
 ## Next workstream
 - Next planned workstream: template layout audit by surface/page, starting with the daily PDF output.
 - See `docs/workflows/template_layout_audit_master_checklist.md` for the audit order and checks.

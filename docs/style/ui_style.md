@@ -419,6 +419,13 @@ Use:
 - clean gridlines
 - restrained axis styling
 
+### 11.1A Canonical Chart Background Token
+Chart surface color must be controlled from one canonical config token:
+- `reportStyle.components.chartCard.background`
+
+Do not tune visible chart-shell background through multiple parallel branches.
+For compatibility, runtime may mirror this value into legacy chart-theme/background branches, but manual edits should target only the canonical token above.
+
 ### 11.2 Chart Color Rules
 - use limited semantic palette
 - keep series count visually manageable
@@ -434,7 +441,20 @@ Avoid:
 - glossy visual styles
 - unnecessary animation
 
-### 11.4 PDF Rules
+### 11.4 KPI Daily Deviation Config Path
+The daily `ENERGY KPI` deviation chart must stay style-driven through:
+- `reportStyle.components.report.section.kpi.chart.variance`
+
+That branch should own at least:
+- `grid.*`
+- `xAxis.axisLabel.*`
+- `xAxis.splitLine.show`
+- `yAxis.axisLabel.*`
+
+Shared horizontal-delta defaults such as series shape and value-label behavior are inherited through:
+- `reportStyle.components.report.section.kpi.chart.variance.familyRef = "delta.horizontal"`
+
+### 11.5 PDF Rules
 For PDF mode:
 - prioritize stability
 - disable or minimize animation when needed

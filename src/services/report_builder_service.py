@@ -5907,6 +5907,17 @@ class ReportBuilderService:
             "kpi",
             "variance",
         )
+        variance_x_axis_cfg = self._get_chart_config_branch("xAxis", "kpi", "variance")
+        variance_y_axis_cfg = self._get_chart_config_branch("yAxis", "kpi", "variance")
+        variance_x_axis_label_cfg = (
+            variance_x_axis_cfg.get("axisLabel", {}) if isinstance(variance_x_axis_cfg.get("axisLabel"), dict) else {}
+        )
+        variance_x_axis_split_cfg = (
+            variance_x_axis_cfg.get("splitLine", {}) if isinstance(variance_x_axis_cfg.get("splitLine"), dict) else {}
+        )
+        variance_y_axis_label_cfg = (
+            variance_y_axis_cfg.get("axisLabel", {}) if isinstance(variance_y_axis_cfg.get("axisLabel"), dict) else {}
+        )
         values: list[float] = []
         chart_data = []
 
@@ -5993,17 +6004,26 @@ class ReportBuilderService:
                 "type": "value",
                 "min": round(axis_min, 2),
                 "max": round(axis_max, 2),
-                "axisLabel": {"color": muted_text_color, "formatter": "{value}%"},
-                "splitLine": {"lineStyle": {"color": split_line_color}},
+                "axisLabel": {
+                    "show": variance_x_axis_label_cfg.get("show", True),
+                    "color": muted_text_color,
+                    "formatter": "{value}%",
+                    "fontSize": variance_x_axis_label_cfg.get("fontSize", 10),
+                    "margin": variance_x_axis_label_cfg.get("margin", 8),
+                },
+                "splitLine": {
+                    "show": variance_x_axis_split_cfg.get("show", True),
+                    "lineStyle": {"color": split_line_color},
+                },
             },
             "yAxis": {
                 "type": "category",
                 "data": [item.get("name") or "-" for item in items],
                 "axisLabel": {
                     "color": primary_text_color,
-                    "fontWeight": 600,
-                    "fontSize": 10,
-                    "lineHeight": 11,
+                    "fontWeight": variance_y_axis_label_cfg.get("fontWeight", 600),
+                    "fontSize": variance_y_axis_label_cfg.get("fontSize", 10),
+                    "lineHeight": variance_y_axis_label_cfg.get("lineHeight", 11),
                 },
                 "axisTick": {"show": False},
                 "axisLine": {"show": False},

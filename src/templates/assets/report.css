@@ -1478,14 +1478,10 @@
         }
 
         .electricity-section-shell .electricity-chart-card,
-        .utility-section-shell .electricity-chart-card {
-            border-color: var(--report-components-report-section-common-header-border-color, var(--report-color-border-soft));
-            background: linear-gradient(180deg, var(--report-color-surface-brand-soft, rgba(228, 239, 248, 0.65)) 0%, var(--report-color-surface-chart-shell, rgba(255, 255, 255, 0.98)) 100%);
-        }
-
+        .utility-section-shell .electricity-chart-card,
         .kpi-section-shell .electricity-chart-card {
             border-color: var(--report-components-report-section-common-header-border-color, var(--report-color-border-soft));
-            background: linear-gradient(180deg, rgba(228, 239, 248, 0.52) 0%, var(--report-color-surface-chart-shell, rgba(255, 255, 255, 0.98)) 100%);
+            background: var(--report-components-chart-card-background, var(--report-components-card-background, var(--report-color-card-background)));
         }
 
         .electricity-chart-card-title {

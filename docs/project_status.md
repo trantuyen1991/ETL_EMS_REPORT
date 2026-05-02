@@ -186,6 +186,40 @@ Current anomaly rules:
 - `Peak-dominant`
 - `Latest drift` (ready for future use)
 
+### 3.5 Presentation cleanup and durable doc consolidation
+- Canonical report wording is now stabilized across the primary rendered surfaces:
+  - daily: `Today / Yesterday`
+  - weekly: `This Week / Last Week`
+  - monthly: `This Month / Last Month`
+- Daily PDF layout audit is closed for the current sparse sample baseline:
+  - utility page 4-5 pagination was rebalanced
+  - empty electricity Top 10 shell was removed from PDF output
+  - KPI zero-data pages now use explicit empty-state handling
+  - daily sensor overview was enriched with meaningful health/issue content instead of only compression
+- Daily view spacing cleanup is closed for the current baseline:
+  - electricity, utility, and KPI chart footprints were tightened
+  - sparse daily panels now read as intentional rather than malformed
+- Weekly PDF audit remains the active layout workstream, but the first narrow fixes are already landed:
+  - utility distribution donut label crowding improved
+  - trailing weekly sensor trend card rebalanced
+  - utility deviation readability improved in PDF
+  - periodic detail highlight artifacts/date crowding were reduced
+- Periodic `Daily Energy Detail` presentation now aligns more closely with the daily family without changing backend sorting or matrix structure:
+  - calmer daily-like heat hierarchy
+  - stronger area identity in DIODE / ICO / SAKARI blocks
+  - clearer separation of missing, zero, and small nonzero states
+- Chart-style externalization status now includes:
+  - utility sensor dual-axis tuning under `reportStyle.components.report.section.utility.chart.sensorCluster.dualAxis`
+  - canonical visible chart background token under `reportStyle.components.chartCard.background`
+  - daily KPI deviation chart config under `reportStyle.components.report.section.kpi.chart.variance`
+  - KPI deviation label positions now match Utility (`positivePosition: left`, `negativePosition: right`)
+- Completed temporary implementation checklists were retired from `docs/workflows/` after consolidation.
+  Durable references are now:
+  - `docs/project_status.md`
+  - `docs/style/ui_style.md`
+  - `docs/workflows/ui_polish_periodic_phase_summary.md`
+  - `docs/workflows/template_layout_audit_master_checklist.md`
+
 ---
 
 ## 4. In Progress

@@ -1379,6 +1379,7 @@ class ReportStyleService:
         self._sync_palette_tokens(style_config)
         self._apply_chart_preset_refs(style_config)
         self._apply_theme_refs(style_config)
+        self._sync_chart_background_tokens(style_config)
         self._sync_legacy_color_tokens(style_config)
 
     def _validate_minimum_shape(self, style_config: dict[str, Any]) -> None:
@@ -2043,6 +2044,51 @@ class ReportStyleService:
                     _walk(value)
 
         _walk(components)
+
+    def _sync_chart_background_tokens(self, style_config: dict[str, Any]) -> None:
+        """Keep all chart background branches aligned to one canonical chart-card token."""
+        components = style_config.get("components")
+        if not isinstance(components, dict):
+            return
+
+        chart_card_cfg = components.get("chartCard")
+        if not isinstance(chart_card_cfg, dict):
+            chart_card_cfg = {}
+            components["chartCard"] = chart_card_cfg
+
+        color_cfg = style_config.get("color")
+        if not isinstance(color_cfg, dict):
+            color_cfg = {}
+            style_config["color"] = color_cfg
+
+        surface_cfg = color_cfg.get("surface")
+        if not isinstance(surface_cfg, dict):
+            surface_cfg = {}
+            color_cfg["surface"] = surface_cfg
+
+        chart_cfg = color_cfg.get("chart")
+        if not isinstance(chart_cfg, dict):
+            chart_cfg = {}
+            color_cfg["chart"] = chart_cfg
+
+        echarts_cfg = style_config.get("echartsTheme")
+        if not isinstance(echarts_cfg, dict):
+            echarts_cfg = {}
+            style_config["echartsTheme"] = echarts_cfg
+
+        chart_background = (
+            chart_card_cfg.get("background")
+            or surface_cfg.get("chartShell")
+            or chart_cfg.get("background")
+            or echarts_cfg.get("backgroundColor")
+        )
+        if chart_background is None:
+            return
+
+        chart_card_cfg["background"] = deepcopy(chart_background)
+        surface_cfg["chartShell"] = deepcopy(chart_background)
+        chart_cfg["background"] = deepcopy(chart_background)
+        echarts_cfg["backgroundColor"] = deepcopy(chart_background)
 
     def _sync_legacy_color_tokens(self, style_config: dict[str, Any]) -> None:
         """Keep flat legacy color keys aligned with semantic palette branches."""
