@@ -204,6 +204,13 @@ def test_daily_view_electric_template_marks_area_chart_for_compact_layout() -> N
     assert 'electricity-chart-card-area-compact' in view_template
 
 
+def test_weekly_pdf_electric_detail_highlight_disables_border_artifact() -> None:
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+
+    assert '.electricity-periodic-detail-table .value-max' in pdf_css
+    assert 'border-bottom: none !important;' in pdf_css
+
+
 def test_periodic_electric_area_top10_subtitles_use_period_aware_wording() -> None:
     service = ReportBuilderService()
     service._style_config = {}

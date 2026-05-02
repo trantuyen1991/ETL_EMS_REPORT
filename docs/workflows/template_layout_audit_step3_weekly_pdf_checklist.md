@@ -38,6 +38,10 @@
   - weekly PDF page 7 `Consumption delta (%)` readability improved materially after removing crowded PDF x-axis tick labels
   - the chart now relies on direct bar-end percentage labels for numeric reading, which is cleaner in PDF
   - slight left-side category-label tightness remains, but no longer dominates the page
+- Step 3 fix P4 result:
+  - weekly PDF page 2 periodic electricity detail-table highlight artifacts were materially reduced
+  - the fix removed the PDF-only `value-max` bottom border accent that was rendering as dark underline noise in Chrome PDF
+  - remaining highlight remnants are faint and not visually disruptive
 - No-finding pages for this pass:
   - Page 10: sensor anomaly card grid looks balanced
   - Page 13: KPI continuation/footer page is sparse but visually stable

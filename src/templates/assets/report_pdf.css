@@ -1941,6 +1941,13 @@
         font-weight: 600 !important;
     }
 
+    .electricity-periodic-detail-table .value-max {
+        border-bottom: none !important;
+        box-shadow: none !important;
+        text-decoration: none !important;
+        font-weight: 700 !important;
+    }
+
     .electricity-daily-vertical-index {
         padding: 8px 4px !important;
     }
