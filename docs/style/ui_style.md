@@ -383,6 +383,20 @@ Preferred structure:
 - daily table
 - future chart blocks in the same visual system
 
+Daily dual-axis sensor trend charts should be style-driven through `config/report_style.json`, not hard-coded ad hoc in Python.
+
+Canonical config path:
+- `reportStyle.components.report.section.utility.chart.sensorCluster`
+- `reportStyle.components.report.section.utility.chart.sensorCluster.dualAxis`
+
+The dual-axis config must cover at least:
+- legend placement
+- grid insets on all four sides
+- left/right axis label spacing and axis-name padding
+- inner chart padding through grid control
+- dual-axis line/area/mark-point presentation tokens
+- chart container height through `sensorCluster.height.view` and `sensorCluster.height.pdf`
+
 ### 10.3 Avg / Max Presentation
 Average and maximum values should be clearly distinguished but still belong to the same table family.
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from src.services.report_builder_service import ReportBuilderService
@@ -184,3 +185,99 @@ def test_utility_pdf_deviation_chart_uses_compact_axis_spacing() -> None:
     assert option["xAxis"]["axisLabel"]["show"] is False
     assert option["yAxis"]["axisLabel"]["fontSize"] == 8
     assert option["series"][0]["barWidth"] == 10
+
+
+def test_daily_sensor_dual_axis_chart_uses_style_config_tokens() -> None:
+    service = ReportBuilderService()
+    service._render_mode = "html"
+    service._style_config = {
+        "components": {
+            "report": {
+                "section": {
+                    "utility": {
+                        "chart": {
+                            "sensorCluster": {
+                                "height": {"view": "310px", "pdf": "150px"},
+                                "dualAxis": {
+                                    "legend": {"top": 4, "right": 10, "itemGap": 18},
+                                    "grid": {"left": 44, "right": 18, "top": 32, "bottom": 26, "containLabel": False},
+                                    "leftAxis": {"nameGap": 16, "labelMargin": 11, "nameTextPadding": [20, 0, 0, 0]},
+                                    "rightAxis": {"offset": 3, "nameGap": 5, "labelMargin": 2, "nameTextPadding": [0, 2, 0, 0]},
+                                    "xAxis": {"axisLabel": {"fontSize": 11, "margin": 6, "interval": 0}},
+                                    "axisLine": {"show": True},
+                                    "splitLine": {"primaryOnly": False},
+                                    "series": {"lineWidth": 3.4, "areaOpacity": 0.15, "symbolSize": 7, "showSymbol": True},
+                                    "markPoint": {"symbolSize": 12, "label": {"fontSize": 11, "distance": 10, "padding": [3, 6], "borderRadius": 5, "backgroundColor": "rgba(255,255,255,0.88)"}},
+                                },
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    option = service._build_v3_sensor_intraday_option(
+        {
+            "series": [
+                {
+                    "sensor_key": "flow_1",
+                    "label": "Flow",
+                    "color": "#005496",
+                    "points": [
+                        {"ts": "2025-06-25 08:00", "value": 10.0},
+                        {"ts": "2025-06-25 09:00", "value": 12.0},
+                    ],
+                },
+                {
+                    "sensor_key": "pressure_1",
+                    "label": "Pressure",
+                    "color": "#6f9a6d",
+                    "points": [
+                        {"ts": "2025-06-25 08:00", "value": 3.0},
+                        {"ts": "2025-06-25 09:00", "value": 2.0},
+                    ],
+                },
+            ]
+        },
+        y_axes=[
+            {"name": "m³/h", "series_keys": ["flow_1"]},
+            {"name": "bar", "series_keys": ["pressure_1"]},
+        ],
+    )
+
+    assert option["legend"]["top"] == 4
+    assert option["legend"]["right"] == 10
+    assert option["legend"]["itemGap"] == 18
+    assert option["grid"] == {"left": 44, "right": 18, "top": 32, "bottom": 26, "containLabel": False}
+    assert option["yAxis"][0]["nameGap"] == 16
+    assert option["yAxis"][0]["axisLabel"]["margin"] == 11
+    assert option["yAxis"][0]["nameTextStyle"]["padding"] == [20, 0, 0, 0]
+    assert option["yAxis"][1]["offset"] == 3
+    assert option["yAxis"][1]["nameGap"] == 5
+    assert option["yAxis"][1]["axisLabel"]["margin"] == 2
+    assert option["yAxis"][1]["splitLine"]["show"] is True
+    assert option["xAxis"]["axisLabel"]["fontSize"] == 11
+    assert option["xAxis"]["axisLabel"]["margin"] == 6
+    assert option["xAxis"]["axisLabel"]["interval"] == 0
+    assert option["series"][0]["showSymbol"] is True
+    assert option["series"][0]["symbolSize"] == 7
+    assert option["series"][0]["lineStyle"]["width"] == 3.4
+    assert option["series"][0]["markPoint"]["symbolSize"] == 12
+    assert option["series"][0]["markPoint"]["data"][0]["label"]["fontSize"] == 11
+    assert option["series"][0]["markPoint"]["data"][0]["label"]["distance"] == 10
+
+
+def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens() -> None:
+    style_cfg = json.loads((PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8"))
+    sensor_cluster = style_cfg["reportStyle"]["components"]["report"]["section"]["utility"]["chart"]["sensorCluster"]
+    dual_axis = sensor_cluster["dualAxis"]
+
+    assert sensor_cluster["height"]["view"] == "280px"
+    assert sensor_cluster["height"]["pdf"] == "140px"
+    assert dual_axis["grid"] == {"left": 38, "right": 14, "top": 38, "bottom": 28, "containLabel": False}
+    assert dual_axis["legend"]["bottom"] == "center"
+    assert dual_axis["leftAxis"]["nameGap"] == 12
+    assert dual_axis["rightAxis"]["nameGap"] == 2
+    assert dual_axis["series"]["lineWidth"] == 2.2
+    assert dual_axis["markPoint"]["label"]["fontSize"] == 9

@@ -4793,6 +4793,34 @@ class ReportBuilderService:
                 for series in series_items
             ],
         }]
+        dual_axis_enabled = len(axis_list) > 1
+        dual_axis_path = ("utility", "sensorCluster", "dualAxis")
+        dual_axis_left_axis = self._get_chart_config_branch("leftAxis", *dual_axis_path) if dual_axis_enabled else {}
+        dual_axis_right_axis = self._get_chart_config_branch("rightAxis", *dual_axis_path) if dual_axis_enabled else {}
+        dual_axis_x_axis = self._get_chart_config_branch("xAxis", *dual_axis_path) if dual_axis_enabled else {}
+        dual_axis_x_axis_label = dict(dual_axis_x_axis.get("axisLabel") or {}) if isinstance(dual_axis_x_axis, dict) else {}
+        dual_axis_axis_line = self._get_chart_config_branch("axisLine", *dual_axis_path) if dual_axis_enabled else {}
+        dual_axis_split_line = self._get_chart_config_branch("splitLine", *dual_axis_path) if dual_axis_enabled else {}
+        dual_axis_series = self._get_chart_config_branch("series", *dual_axis_path) if dual_axis_enabled else {}
+        dual_axis_mark_point = self._get_chart_config_branch("markPoint", *dual_axis_path) if dual_axis_enabled else {}
+        dual_axis_mark_point_label = (
+            dict(dual_axis_mark_point.get("label") or {})
+            if isinstance(dual_axis_mark_point, dict)
+            else {}
+        )
+        point_label_font_size = int(dual_axis_mark_point_label.get("fontSize") or 9)
+        point_label_distance = int(dual_axis_mark_point_label.get("distance") or 8)
+        point_label_padding = dual_axis_mark_point_label.get("padding") or [2, 5]
+        point_label_border_radius = int(dual_axis_mark_point_label.get("borderRadius") or 4)
+        point_label_background = str(
+            dual_axis_mark_point_label.get("backgroundColor") or "rgba(255,255,255,0.92)"
+        )
+        line_width = float(dual_axis_series.get("lineWidth") or 2.2)
+        area_opacity = float(dual_axis_series.get("areaOpacity") or 0.08)
+        symbol_size = int(dual_axis_series.get("symbolSize") or 5)
+        show_symbol = bool(dual_axis_series.get("showSymbol")) if dual_axis_enabled and dual_axis_series.get("showSymbol") is not None else False
+        mark_point_symbol_size = int(dual_axis_mark_point.get("symbolSize") or 10)
+
         series_axis_map: dict[str, int] = {}
         for axis_index, axis in enumerate(axis_list):
             for sensor_key in axis.get("series_keys") or []:
@@ -4834,14 +4862,14 @@ class ReportBuilderService:
                         "label": {
                             "show": True,
                             "position": "top",
-                            "distance": 8,
+                            "distance": point_label_distance,
                             "formatter": f"Min/Max {self._fmt_chart_callout(min_value)}",
                             "color": series_color,
-                            "fontSize": 9,
+                            "fontSize": point_label_font_size,
                             "fontWeight": 700,
-                            "backgroundColor": "rgba(255,255,255,0.92)",
-                            "padding": [2, 5],
-                            "borderRadius": 4,
+                            "backgroundColor": point_label_background,
+                            "padding": point_label_padding,
+                            "borderRadius": point_label_border_radius,
                         },
                     })
                 else:
@@ -4857,14 +4885,14 @@ class ReportBuilderService:
                             "label": {
                                 "show": True,
                                 "position": "top",
-                                "distance": 8,
+                                "distance": point_label_distance,
                                 "formatter": f"{marker_name} {self._fmt_chart_callout(marker_value)}",
                                 "color": series_color,
-                                "fontSize": 9,
+                                "fontSize": point_label_font_size,
                                 "fontWeight": 700,
-                                "backgroundColor": "rgba(255,255,255,0.92)",
-                                "padding": [2, 5],
-                                "borderRadius": 4,
+                                "backgroundColor": point_label_background,
+                                "padding": point_label_padding,
+                                "borderRadius": point_label_border_radius,
                             },
                         })
 
@@ -4872,18 +4900,18 @@ class ReportBuilderService:
                 "name": series.get("label") or series.get("sensor_key") or "-",
                 "type": "line",
                 "smooth": False,
-                "showSymbol": False,
+                "showSymbol": show_symbol,
                 "symbol": "circle",
-                "symbolSize": 5,
+                "symbolSize": symbol_size,
                 "lineStyle": {
-                    "width": 2.2,
+                    "width": line_width,
                     "color": series_color,
                 },
                 "itemStyle": {
                     "color": series_color,
                 },
                 "areaStyle": {
-                    "color": self._hex_to_rgba(series_color, 0.08),
+                    "color": self._hex_to_rgba(series_color, area_opacity),
                 },
                 "emphasis": {
                     "focus": "series",
@@ -4893,34 +4921,42 @@ class ReportBuilderService:
                 "data": series_data,
                 "markPoint": {
                     "symbol": "circle",
-                    "symbolSize": 10,
+                    "symbolSize": mark_point_symbol_size,
                     "data": mark_points,
                 },
             })
 
         option_y_axes = []
+        dual_axis_split_line_primary_only = bool(dual_axis_split_line.get("primaryOnly")) if dual_axis_enabled and dual_axis_split_line.get("primaryOnly") is not None else True
+        dual_axis_axis_line_show = bool(dual_axis_axis_line.get("show")) if dual_axis_enabled and dual_axis_axis_line.get("show") is not None else len(axis_list) > 1
+
         for axis_index, axis in enumerate(axis_list):
             is_right_axis = axis_index > 0
+            axis_cfg = dual_axis_right_axis if (dual_axis_enabled and is_right_axis) else dual_axis_left_axis if dual_axis_enabled else {}
+            default_name_gap = 2 if is_right_axis else 12
+            default_label_margin = 0 if is_right_axis else 8
+            default_padding = [0, 0, 0, 0] if is_right_axis else [16, 0, 0, 0]
+            split_line_show = axis_index == 0 if dual_axis_split_line_primary_only else True
             option_y_axes.append({
                 "type": "value",
                 "name": axis.get("name") or "",
-                "position": "left" if axis_index == 0 else "right",
-                "offset": 0,
-                "alignTicks": True if len(axis_list) > 1 else False,
+                "position": str(axis_cfg.get("position") or ("right" if is_right_axis else "left")),
+                "offset": int(axis_cfg.get("offset") or 0),
+                "alignTicks": True if dual_axis_enabled else False,
                 "nameLocation": "end",
-                "nameGap": 2 if is_right_axis else 12,
+                "nameGap": int(axis_cfg.get("nameGap") or default_name_gap),
                 "nameTextStyle": {
                     "color": muted_text_color,
                     "fontSize": 9,
-                    "padding": [0, 0, 0, 0] if is_right_axis else [16, 0, 0, 0],
+                    "padding": axis_cfg.get("nameTextPadding") or default_padding,
                 },
                 "axisLabel": {
                     "color": muted_text_color,
-                    "fontSize": 9,
-                    "margin": 0 if is_right_axis else 8,
+                    "fontSize": int(axis_cfg.get("fontSize") or 9),
+                    "margin": int(axis_cfg.get("labelMargin") or default_label_margin),
                 },
-                "axisLine": {"show": len(axis_list) > 1, "lineStyle": {"color": axis_line_color}},
-                "splitLine": {"show": axis_index == 0, "lineStyle": {"color": split_line_color}},
+                "axisLine": {"show": dual_axis_axis_line_show, "lineStyle": {"color": axis_line_color}},
+                "splitLine": {"show": split_line_show, "lineStyle": {"color": split_line_color}},
             })
 
         grid_option = self._resolve_chart_grid(
@@ -4931,40 +4967,42 @@ class ReportBuilderService:
                 "bottom": 28,
                 "containLabel": True,
             },
-            "utility",
-            "sensorCluster",
+            *(dual_axis_path if dual_axis_enabled else ("utility", "sensorCluster")),
         )
-        if len(axis_list) > 1 and isinstance(grid_option, dict):
-            grid_option = dict(grid_option)
-            grid_option["right"] = 14
-            grid_option["containLabel"] = False
+
+        legend_option = self._resolve_chart_legend(
+            {
+                "top": 6,
+                "left": 8,
+                "itemWidth": 12,
+                "itemHeight": 8,
+                "textStyle": {"color": primary_text_color, "fontSize": 10},
+            },
+            *(dual_axis_path if dual_axis_enabled else ("utility", "sensorCluster")),
+        )
+
+        x_axis_label_option = {
+            "color": muted_text_color,
+            "fontSize": int(dual_axis_x_axis_label.get("fontSize") or 9),
+            "interval": dual_axis_x_axis_label.get("interval") if dual_axis_x_axis_label.get("interval") is not None else "auto",
+        }
+        if dual_axis_x_axis_label.get("margin") is not None:
+            x_axis_label_option["margin"] = int(dual_axis_x_axis_label.get("margin"))
+        if dual_axis_x_axis_label.get("padding") is not None:
+            x_axis_label_option["padding"] = dual_axis_x_axis_label.get("padding")
 
         return {
             "tooltip": {
                 "trigger": "axis",
                 "axisPointer": {"type": "line"},
             },
-            "legend": self._resolve_chart_legend(
-                {
-                    "top": 6,
-                    "left": 8,
-                    "itemWidth": 12,
-                    "itemHeight": 8,
-                    "textStyle": {"color": primary_text_color, "fontSize": 10},
-                },
-                "utility",
-                "sensorCluster",
-            ),
+            "legend": legend_option,
             "grid": grid_option,
             "xAxis": {
                 "type": "category",
                 "data": formatted_labels,
                 "boundaryGap": False,
-                "axisLabel": {
-                    "color": muted_text_color,
-                    "fontSize": 9,
-                    "interval": "auto",
-                },
+                "axisLabel": x_axis_label_option,
                 "axisLine": {"lineStyle": {"color": axis_line_color}},
             },
             "yAxis": option_y_axes,

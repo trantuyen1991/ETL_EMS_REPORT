@@ -1053,12 +1053,12 @@
               },
               "periodSensorTrend": {
                 "legend": {
-                  "top": "left"
+                  "bottom": "bottom"
                 },
                 "grid": {
                   "left": 20,
                   "right": 16,
-                  "top": 54,
+                  "top": 20,
                   "bottom": 30,
                   "containLabel": true
                 },
@@ -1080,6 +1080,59 @@
                   "top": 25,
                   "bottom": 20,
                   "containLabel": true
+                },
+                "dualAxis": {
+                  "legend": {
+                    "bottom": "center"
+                  },
+                  "grid": {
+                    "left": 38,
+                    "right": 14,
+                    "top": 38,
+                    "bottom": 28,
+                    "containLabel": false
+                  },
+                  "leftAxis": {
+                    "offset": 0,
+                    "nameGap": 12,
+                    "labelMargin": 8,
+                    "nameTextPadding": [16, 0, 0, 0]
+                  },
+                  "rightAxis": {
+                    "offset": 0,
+                    "nameGap": 2,
+                    "labelMargin": 0,
+                    "nameTextPadding": [0, 0, 0, 0]
+                  },
+                  "xAxis": {
+                    "axisLabel": {
+                      "fontSize": 9,
+                      "margin": 8,
+                      "interval": "auto"
+                    }
+                  },
+                  "axisLine": {
+                    "show": true
+                  },
+                  "splitLine": {
+                    "primaryOnly": true
+                  },
+                  "series": {
+                    "lineWidth": 2.2,
+                    "areaOpacity": 0.08,
+                    "symbolSize": 5,
+                    "showSymbol": false
+                  },
+                  "markPoint": {
+                    "symbolSize": 10,
+                    "label": {
+                      "fontSize": 9,
+                      "distance": 8,
+                      "padding": [2, 5],
+                      "borderRadius": 4,
+                      "backgroundColor": "rgba(255,255,255,0.92)"
+                    }
+                  }
                 },
                 "height": {
                   "view": "280px",
