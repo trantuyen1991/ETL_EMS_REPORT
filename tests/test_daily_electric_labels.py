@@ -198,6 +198,12 @@ def test_daily_pdf_electric_template_skips_empty_top10_block() -> None:
     assert '{% if sections.electricity.top10.grouped_rows %}' in pdf_template
 
 
+def test_daily_view_electric_template_marks_area_chart_for_compact_layout() -> None:
+    view_template = (PROJECT_ROOT / "src/templates/report/view/sections/electricity.html").read_text(encoding="utf-8")
+
+    assert 'electricity-chart-card-area-compact' in view_template
+
+
 def test_periodic_electric_area_top10_subtitles_use_period_aware_wording() -> None:
     service = ReportBuilderService()
     service._style_config = {}

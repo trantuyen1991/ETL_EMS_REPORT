@@ -1688,6 +1688,18 @@
             height: 268px;
         }
 
+        .report-family-daily .electricity-chart-card-area-compact {
+            padding-bottom: 8px;
+        }
+
+        .report-family-daily .electricity-chart-card-area-compact .electricity-chart-card-subtitle {
+            margin-bottom: 6px;
+        }
+
+        .report-family-daily .electricity-chart-card-area-compact .electricity-chart {
+            height: 224px;
+        }
+
         .report-family-daily .electricity-detail-block {
             margin-top: 10px;
         }
@@ -2725,6 +2737,19 @@
         .utility-comparison-chart-wide,
         .utility-comparison-chart-narrow {
             height: var(--report-components-report-section-utility-chart-comparison-height-view, 272px);
+        }
+
+        .report-family-daily .utility-chart-card-compare-compact {
+            padding-bottom: 8px;
+        }
+
+        .report-family-daily .utility-chart-card-compare-compact .electricity-chart-card-subtitle {
+            margin-bottom: 6px;
+        }
+
+        .report-family-daily .utility-chart-card-compare-compact .utility-comparison-chart-wide,
+        .report-family-daily .utility-chart-card-compare-compact .utility-comparison-chart-narrow {
+            height: 188px;
         }
 
         .utility-total-table {
@@ -4050,16 +4075,35 @@
         .kpi-daily-empty-state {
             min-height: 118px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 12px 14px;
-            border: 1px dashed var(--report-color-border-strong, #b9c8d6);
-            border-radius: 10px;
-            background: var(--report-color-surface-muted, #f8fafc);
-            color: var(--report-color-text-muted, #5f7387);
+            gap: 8px;
+            padding: 14px 16px;
+            border: 1px dashed var(--report-color-border-strong, #98afc3);
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(241, 247, 252, 0.96) 0%, rgba(248, 250, 252, 0.98) 100%);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.82);
+            color: var(--report-color-text-muted, #52667a);
             font-size: 12px;
+            font-weight: 600;
             line-height: 1.45;
+        }
+
+        .kpi-daily-empty-state::before {
+            content: "LOW ACTIVITY DAY";
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 22px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: rgba(0, 84, 150, 0.10);
+            color: var(--report-color-brand-primary, #005496);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
         }
 
         .kpi-daily-empty-state-wide {

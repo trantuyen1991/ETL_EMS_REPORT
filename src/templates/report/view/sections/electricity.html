@@ -253,7 +253,7 @@
                     <div id="electricity-daily-trend-chart" class="electricity-chart"></div>
                 </div>
 
-                <div class="electricity-chart-card electricity-chart-card-area">
+                <div class="electricity-chart-card electricity-chart-card-area {% if flags.is_daily_report %}electricity-chart-card-area-compact{% endif %}">
                     <h3 class="electricity-chart-card-title">
                         {{ sections.electricity.charts.area_comparison.title }}
                     </h3>

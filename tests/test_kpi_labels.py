@@ -166,3 +166,10 @@ def test_daily_kpi_view_template_renders_empty_state_blocks() -> None:
     assert "sections.kpi.charts.daily_dashboard.charts.waterfall.empty_message" in view_template
     assert "sections.kpi.charts.daily_dashboard.charts.variance.empty_message" in view_template
     assert "kpi-daily-empty-state" in view_template
+
+
+def test_daily_kpi_view_uses_empty_state_label_treatment() -> None:
+    css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+
+    assert '.kpi-daily-empty-state::before' in css
+    assert 'LOW ACTIVITY DAY' in css

@@ -122,3 +122,9 @@ def test_utility_templates_use_last_period_fallback_copy() -> None:
     assert expected_note in pdf_template
     assert 'previous period' not in view_template
     assert 'previous period' not in pdf_template
+
+
+def test_daily_view_utility_template_marks_comparison_cards_for_compact_layout() -> None:
+    view_template = (PROJECT_ROOT / "src/templates/report/view/sections/utility.html").read_text(encoding="utf-8")
+
+    assert 'utility-chart-card-compare-compact' in view_template
