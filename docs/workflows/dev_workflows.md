@@ -39,10 +39,14 @@ The goal is to:
 
 ### 2.6 Large-Context Change Control
 - When a requested change would create a large or messy context, split it into smaller sequential steps automatically.
-- Create or update a checklist document under `docs/` for that task slice.
+- Create or update one active checklist document under `docs/` for the current implementation slice.
+- At any one time, prefer a single active checklist for the workstream that is currently in progress.
 - Mark each checklist step complete as soon as the step is verified.
 - Do not send fragmented mini-summaries after every step unless the user needs a decision.
-- After the checklist is finished, send one consolidated summary of the completed slice.
+- After the active checklist is finished:
+  - write a concise durable summary into the appropriate long-lived doc
+  - then remove the temporary checklist file so `docs/workflows/` does not accumulate stale in-progress checklists
+- Keep durable summaries, not piles of obsolete temporary checklists.
 
 ---
 
