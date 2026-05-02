@@ -34,6 +34,10 @@
   - weekly PDF page 9 trailing `Sensor daily average trend` card now spans full width
   - page balance improved materially without changing data or section order
   - remaining sparseness is acceptable and comes from low data density
+- Step 3 fix P3 result:
+  - weekly PDF page 7 `Consumption delta (%)` readability improved materially after removing crowded PDF x-axis tick labels
+  - the chart now relies on direct bar-end percentage labels for numeric reading, which is cleaner in PDF
+  - slight left-side category-label tightness remains, but no longer dominates the page
 - No-finding pages for this pass:
   - Page 10: sensor anomaly card grid looks balanced
   - Page 13: KPI continuation/footer page is sparse but visually stable

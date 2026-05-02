@@ -167,3 +167,20 @@ def test_utility_pdf_distribution_chart_uses_compact_donut_geometry() -> None:
     assert series["radius"] == ["48%", "72%"]
     assert series["center"] == ["42%", "54%"]
     assert series["label"]["fontSize"] == 7
+
+
+def test_utility_pdf_deviation_chart_uses_compact_axis_spacing() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "pdf"
+
+    option = service._build_v3_utility_deviation_option([
+        {"display_name": "Sakari Water", "unit": "m³", "current": 696.0, "previous": 37.0},
+        {"display_name": "Steam", "unit": "m³", "current": 0.0, "previous": 0.0},
+        {"display_name": "ICO Air", "unit": "m³", "current": 1.0, "previous": 23073.0},
+    ])
+
+    assert option["grid"]["bottom"] == 36
+    assert option["xAxis"]["axisLabel"]["show"] is False
+    assert option["yAxis"]["axisLabel"]["fontSize"] == 8
+    assert option["series"][0]["barWidth"] == 10

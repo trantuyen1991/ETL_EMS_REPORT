@@ -3469,9 +3469,10 @@ class ReportBuilderService:
             for value in values
         ]
 
+        is_pdf_mode = self._render_mode == "pdf"
         series_cfg = self._resolve_chart_series_config(
             {
-                "barWidth": 12,
+                "barWidth": 10 if is_pdf_mode else 12,
                 "positiveBorderRadius": [0, 4, 4, 0],
                 "negativeBorderRadius": [4, 0, 0, 4],
                 "neutralBorderRadius": [0, 4, 4, 0],
@@ -3479,7 +3480,6 @@ class ReportBuilderService:
             "utility",
             "deviation",
         )
-        is_pdf_mode = self._render_mode == "pdf"
         label_config = self._resolve_chart_value_label(
             {
                 "positivePosition": "right",
@@ -3507,10 +3507,10 @@ class ReportBuilderService:
             },
             "grid": self._resolve_chart_grid(
                 {
-                    "left": 110 if is_pdf_mode else 118,
-                    "right": 30 if is_pdf_mode else 24,
+                    "left": 108 if is_pdf_mode else 118,
+                    "right": 32 if is_pdf_mode else 24,
                     "top": 18,
-                    "bottom": 28,
+                    "bottom": 36 if is_pdf_mode else 28,
                 },
                 "utility",
                 "deviation",
@@ -3520,9 +3520,13 @@ class ReportBuilderService:
                 "min": round(axis_min, 2),
                 "max": round(axis_max, 2),
                 "axisLabel": {
+                    "show": False if is_pdf_mode else True,
                     "color": axis_label_color,
+                    "fontSize": 8 if is_pdf_mode else 10,
+                    "margin": 10 if is_pdf_mode else 8,
                     "formatter": "{value}%",
                 },
+                "axisTick": {"show": False if is_pdf_mode else True},
                 "splitLine": {
                     "lineStyle": {"color": split_line_color},
                 },
@@ -3534,8 +3538,8 @@ class ReportBuilderService:
                 "axisLine": {"show": False},
                 "axisLabel": {
                     "color": y_axis_label_color,
-                    "fontSize": 9 if is_pdf_mode else 10,
-                    "lineHeight": 10 if is_pdf_mode else 11,
+                    "fontSize": 8 if is_pdf_mode else 10,
+                    "lineHeight": 9 if is_pdf_mode else 11,
                     "fontWeight": 600,
                 },
             },

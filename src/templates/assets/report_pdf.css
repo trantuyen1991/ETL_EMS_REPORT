@@ -753,6 +753,10 @@
         height: var(--report-components-report-section-utility-chart-deviation-height-pdf, 204px) !important;
     }
 
+    .utility-periodic-chart-grid .utility-comparison-chart-daily {
+        height: var(--report-components-report-section-utility-chart-deviation-periodic-height-pdf, 220px) !important;
+    }
+
     .utility-chart-block-deviation .utility-chart-card {
         padding-right: 10px !important;
     }
