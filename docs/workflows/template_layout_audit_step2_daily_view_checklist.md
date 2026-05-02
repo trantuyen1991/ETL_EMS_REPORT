@@ -25,4 +25,10 @@
   - tightened spacing before Top 10 and Daily Energy Summary blocks
 - Remaining electricity issue:
   - `Area comparison` still feels too empty when near-zero values dominate
-- Utility and KPI daily view audits remain pending as the next slices.
+- Utility slice P2 completed:
+  - tightened utility block spacing
+  - reduced daily utility chart heights
+  - tightened overview/detail spacing in the lower half
+- Remaining utility issue:
+  - the two `Utility comparison` charts still feel visually sparse when one dominant bar drives the scale
+- KPI daily view audit remains pending as the next slice.
