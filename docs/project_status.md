@@ -212,7 +212,9 @@ Current anomaly rules:
   - utility sensor dual-axis tuning under `reportStyle.components.report.section.utility.chart.sensorCluster.dualAxis`
   - canonical visible chart background token under `reportStyle.components.chartCard.background`
   - daily KPI deviation chart config under `reportStyle.components.report.section.kpi.chart.variance`
+  - Utility deviation config under `reportStyle.components.report.section.utility.chart.deviation`
   - KPI deviation label positions now match Utility (`positivePosition: left`, `negativePosition: right`)
+  - both KPI and Utility horizontal deviation charts now support near-zero label fallback spacing so tiny bars can move away from the 0% axis without changing the main left/right policy
 - Completed temporary implementation checklists were retired from `docs/workflows/` after consolidation.
   Durable references are now:
   - `docs/project_status.md`

@@ -321,7 +321,7 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
 
     assert sensor_cluster["height"]["view"] == "280px"
     assert sensor_cluster["height"]["pdf"] == "140px"
-    assert dual_axis["grid"] == {"left": 38, "right": 14, "top": 38, "bottom": 28, "containLabel": False}
+    assert dual_axis["grid"] == {"left": 38, "right": 14, "top": 25, "bottom": 35, "containLabel": False}
     assert dual_axis["legend"]["bottom"] == "center"
     assert dual_axis["leftAxis"]["nameGap"] == 12
     assert dual_axis["rightAxis"]["nameGap"] == 2

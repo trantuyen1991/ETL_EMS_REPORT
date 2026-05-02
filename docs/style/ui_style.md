@@ -460,6 +460,23 @@ For the current PDF/readability pass:
 - allow `valueLabel.nearZero*` to move tiny bars away from the 0% axis
 - prefer slightly stronger PDF axis/split-line contrast via `variance.pdf.*` instead of hardcoding render-only colors elsewhere
 
+### 11.4A Utility Deviation Config Path
+The Utility horizontal deviation chart must stay style-driven through:
+- `reportStyle.components.report.section.utility.chart.deviation`
+
+That branch should own at least:
+- `grid.*`
+- `height.*`
+- `valueLabel.*`, including near-zero fallback placement and distance for tiny bars around the center axis
+
+Shared horizontal-delta defaults are still inherited through:
+- `reportStyle.components.report.section.utility.chart.deviation.familyRef = "delta.horizontal"`
+
+For the current readability baseline:
+- keep the main Utility label rule unchanged for normal bars
+- allow `valueLabel.nearZero*` to push tiny labels away from the 0% axis when they would crowd the center region
+- keep the white chart background policy inherited from `reportStyle.components.chartCard.background`
+
 ### 11.5 PDF Rules
 For PDF mode:
 - prioritize stability
