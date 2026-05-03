@@ -160,6 +160,26 @@ def test_kpi_waterfall_option_uses_compact_daily_axis_labels() -> None:
     assert option["xAxis"]["data"] == ["Yesterday", "Energy", "Prod.", "Today"]
 
 
+def test_kpi_waterfall_option_can_reverse_weekly_endpoint_order() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    option = service._build_v3_kpi_waterfall_option(
+        previous_kpi=516.6,
+        energy_impact=19.0,
+        production_impact=9.0,
+        current_kpi=695.0,
+        previous_label="Last Week",
+        current_label="This Week",
+        reverse_total_order=True,
+    )
+
+    assert option["xAxis"]["data"] == ["This Week", "Energy", "Prod.", "Last Week"]
+    assert option["series"][1]["data"][0]["value"] == 695.0
+    assert option["series"][1]["data"][3]["value"] == 516.6
+
+
 def test_kpi_variance_option_hides_zero_value_labels() -> None:
     service = ReportBuilderService()
     service._style_config = {}
@@ -374,10 +394,18 @@ def test_weekly_kpi_dashboard_adds_period_trend_chart() -> None:
     assert period_trend["option"]["xAxis"]["data"][0] == "May 12 (Mon)"
     assert [series["name"] for series in period_trend["option"]["series"]] == ["Total", "DIODE", "ICO", "SAKARI"]
     assert period_trend["option"]["legend"]["left"] == "center"
+    compare_bar = dashboard["charts"]["compare_bar"]
+    waterfall = dashboard["charts"]["waterfall"]
+
     assert period_trend["option"]["grid"]["top"] == 20
     assert period_trend["option"]["grid"]["bottom"] == 25
     assert variance["option"]["xAxis"]["min"] == -variance["option"]["xAxis"]["max"]
     assert variance["option"]["series"][0]["barWidth"] == 22
+    assert "\n" in variance["option"]["series"][0]["data"][0]["label"]["formatter"]
+    assert compare_bar["option"]["series"][0]["name"] == "This Week"
+    assert compare_bar["option"]["series"][1]["name"] == "Last Week"
+    assert waterfall["option"]["xAxis"]["data"][0] == "This Week"
+    assert waterfall["option"]["xAxis"]["data"][3] == "Last Week"
 
 
 def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:

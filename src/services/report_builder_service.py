@@ -5747,7 +5747,14 @@ class ReportBuilderService:
         is_daily_comparison = current_label == "Today" and previous_label == "Yesterday"
         compare_title = "Energy KPI: Today vs yesterday" if is_daily_comparison else "Energy KPI comparison"
         compare_subtitle = "KPI comparison by Total and workshop" if is_daily_comparison else f"{current_label} vs {previous_label.lower()} by Total and workshop"
-        waterfall_subtitle = "Decomposition of the Total KPI movement" if is_daily_comparison else f"Decomposition of KPI movement from {previous_label.lower()} to {current_label.lower()}"
+        reverse_kpi_order = normalized_period_type == "weekly"
+        waterfall_subtitle = (
+            "Decomposition of the Total KPI movement"
+            if is_daily_comparison else
+            f"Decomposition of KPI movement from {current_label.lower()} to {previous_label.lower()}"
+            if reverse_kpi_order else
+            f"Decomposition of KPI movement from {previous_label.lower()} to {current_label.lower()}"
+        )
         variance_title = "Deviation vs yesterday" if is_daily_comparison else f"Deviation vs {previous_label.lower()}"
         compare_chart_empty = all((value in (None, 0.0) for value in [*today_values, *yesterday_values]))
         waterfall_chart_empty = all(abs(value) < 0.005 for value in [prev_total_kpi, energy_impact, production_impact, curr_total_kpi])
@@ -5784,6 +5791,7 @@ class ReportBuilderService:
                         today_values=today_values,
                         previous_series_name=previous_label,
                         current_series_name=current_label,
+                        current_first=reverse_kpi_order,
                     ),
                 },
                 "waterfall": {
@@ -5797,6 +5805,7 @@ class ReportBuilderService:
                         current_kpi=curr_total_kpi,
                         previous_label=previous_label,
                         current_label=current_label,
+                        reverse_total_order=reverse_kpi_order,
                     ),
                 },
                 "variance": {
@@ -5977,6 +5986,7 @@ class ReportBuilderService:
         today_values: list[float | None],
         previous_series_name: str = "Yesterday",
         current_series_name: str = "Today",
+        current_first: bool = False,
     ) -> Dict[str, Any]:
         """Build the daily KPI compare bar option."""
         series_palette = self._get_kpi_chart_series_palette()
@@ -5990,8 +6000,15 @@ class ReportBuilderService:
         )
         bar_max_width = int(series_cfg.get("barMaxWidth") or 22)
         hide_overlap = bool(series_cfg.get("labelLayoutHideOverlap", False))
+        series_defs = [
+            (current_series_name, today_values, series_palette["current"]),
+            (previous_series_name, yesterday_values, series_palette["previous"]),
+        ] if current_first else [
+            (previous_series_name, yesterday_values, series_palette["previous"]),
+            (current_series_name, today_values, series_palette["current"]),
+        ]
         return {
-            "color": [series_palette["previous"], series_palette["current"]],
+            "color": [series_def[2] for series_def in series_defs],
             "tooltip": {
                 "trigger": "axis",
                 "axisPointer": {"type": "shadow"},
@@ -6030,35 +6047,21 @@ class ReportBuilderService:
             },
             "series": [
                 {
-                    "name": previous_series_name,
+                    "name": series_name,
                     "type": "bar",
                     "barMaxWidth": bar_max_width,
                     "labelLayout": {"hideOverlap": hide_overlap},
                     "data": [
                         self._build_chart_bar_point(
                             value,
-                            color=series_palette["previous"],
+                            color=series_color,
                             formatter=self._fmt_chart_compact(value),
                             chart_path=("kpi", "compareBar"),
                         )
-                        for value in yesterday_values
+                        for value in series_values
                     ],
-                },
-                {
-                    "name": current_series_name,
-                    "type": "bar",
-                    "barMaxWidth": bar_max_width,
-                    "labelLayout": {"hideOverlap": hide_overlap},
-                    "data": [
-                        self._build_chart_bar_point(
-                            value,
-                            color=series_palette["current"],
-                            formatter=self._fmt_chart_compact(value),
-                            chart_path=("kpi", "compareBar"),
-                        )
-                        for value in today_values
-                    ],
-                },
+                }
+                for series_name, series_values, series_color in series_defs
             ],
         }
 
@@ -6071,11 +6074,27 @@ class ReportBuilderService:
         current_kpi: float,
         previous_label: str = "Yesterday",
         current_label: str = "Today",
+        reverse_total_order: bool = False,
     ) -> Dict[str, Any]:
         """Build a waterfall-like chart for total KPI movement."""
-        energy_base = previous_kpi if energy_impact >= 0 else previous_kpi + energy_impact
-        after_energy = previous_kpi + energy_impact
-        production_base = after_energy if production_impact >= 0 else after_energy + production_impact
+        if reverse_total_order:
+            first_label = current_label
+            last_label = previous_label
+            first_total = current_kpi
+            last_total = previous_kpi
+            energy_delta = -float(energy_impact)
+            production_delta = -float(production_impact)
+        else:
+            first_label = previous_label
+            last_label = current_label
+            first_total = previous_kpi
+            last_total = current_kpi
+            energy_delta = float(energy_impact)
+            production_delta = float(production_impact)
+
+        energy_base = first_total if energy_delta >= 0 else first_total + energy_delta
+        after_energy = first_total + energy_delta
+        production_base = after_energy if production_delta >= 0 else after_energy + production_delta
         series_palette = self._get_kpi_chart_series_palette()
         trend_up_color = str(self._get_style_color_value("#0b7a43", "trend", "up"))
         trend_down_color = str(self._get_style_color_value("#c04b39", "trend", "down"))
@@ -6100,10 +6119,10 @@ class ReportBuilderService:
             "xAxis": {
                 "type": "category",
                 "data": [
-                    previous_label,
+                    first_label,
                     "Energy",
                     "Prod.",
-                    current_label,
+                    last_label,
                 ],
                 "axisLabel": {"color": axis_label_color, "fontSize": 10, "interval": 0, "lineHeight": 10},
                 "axisLine": {"lineStyle": {"color": axis_line_color}},
@@ -6128,42 +6147,42 @@ class ReportBuilderService:
                     "barMaxWidth": 22,
                     "data": [
                         {
-                            "value": round(previous_kpi, 4),
-                            "itemStyle": {"color": series_palette["previous"], "borderRadius": [6, 6, 0, 0]},
-                            "label": {"show": True, "position": "top", "formatter": self._fmt_chart_compact(previous_kpi), "color": value_label_color, "fontSize": 10},
+                            "value": round(first_total, 4),
+                            "itemStyle": {"color": series_palette["current"] if reverse_total_order else series_palette["previous"], "borderRadius": [6, 6, 0, 0]},
+                            "label": {"show": True, "position": "top", "formatter": self._fmt_chart_compact(first_total), "color": value_label_color, "fontSize": 10},
                         },
                         {
-                            "value": round(abs(energy_impact), 4),
+                            "value": round(abs(energy_delta), 4),
                             "itemStyle": {
-                                "color": trend_down_color if energy_impact >= 0 else trend_up_color,
+                                "color": trend_down_color if energy_delta >= 0 else trend_up_color,
                                 "borderRadius": [6, 6, 0, 0],
                             },
                             "label": {
                                 "show": True,
                                 "position": "top",
-                                "formatter": self._fmt_chart_compact(energy_impact),
+                                "formatter": self._fmt_chart_compact(energy_delta),
                                 "color": value_label_color,
                                 "fontSize": 10,
                             },
                         },
                         {
-                            "value": round(abs(production_impact), 4),
+                            "value": round(abs(production_delta), 4),
                             "itemStyle": {
-                                "color": trend_down_color if production_impact >= 0 else trend_up_color,
+                                "color": trend_down_color if production_delta >= 0 else trend_up_color,
                                 "borderRadius": [6, 6, 0, 0],
                             },
                             "label": {
                                 "show": True,
                                 "position": "top",
-                                "formatter": self._fmt_chart_compact(production_impact),
+                                "formatter": self._fmt_chart_compact(production_delta),
                                 "color": value_label_color,
                                 "fontSize": 10,
                             },
                         },
                         {
-                            "value": round(current_kpi, 4),
-                            "itemStyle": {"color": series_palette["current"], "borderRadius": [6, 6, 0, 0]},
-                            "label": {"show": True, "position": "top", "formatter": self._fmt_chart_compact(current_kpi), "color": value_label_color, "fontSize": 10},
+                            "value": round(last_total, 4),
+                            "itemStyle": {"color": series_palette["previous"] if reverse_total_order else series_palette["current"], "borderRadius": [6, 6, 0, 0]},
+                            "label": {"show": True, "position": "top", "formatter": self._fmt_chart_compact(last_total), "color": value_label_color, "fontSize": 10},
                         },
                     ],
                 },
@@ -6296,13 +6315,14 @@ class ReportBuilderService:
                     "distance": label_distance,
                     "color": label_config.get("color", primary_text_color),
                     "fontSize": label_config.get("fontSize", 10),
-                    "lineHeight": max(int(label_config.get("fontSize", 10)) + 2, 12),
+                    "lineHeight": max(int(label_config.get("fontSize", 10)) + 5, 15),
                     "fontWeight": label_config.get("fontWeight", 700),
                     "formatter": self._format_delta_compact_label(
                         numeric_value,
                         current_value - previous_value,
                         unit,
                         signed_pct=True,
+                        multiline=True,
                     ),
                 },
             })
@@ -6867,12 +6887,16 @@ class ReportBuilderService:
         unit: str = "",
         *,
         signed_pct: bool = False,
+        multiline: bool = False,
     ) -> str:
-        """Return a single-line delta label like `-10.00% (18.4k m³)`."""
+        """Return a compact delta label, optionally split across two lines."""
         pct_display = f"{float(pct_value):+.2f}%" if signed_pct else f"{float(pct_value):.2f}%"
         delta_display = self._fmt_chart_compact(abs(float(delta_value or 0.0)))
         unit_text = str(unit or "").strip()
-        return f"{pct_display} ({delta_display}{f' {unit_text}' if unit_text else ''})"
+        value_line = f"{delta_display}{f' {unit_text}' if unit_text else ''}"
+        if multiline:
+            return f"{pct_display}\n{value_line}"
+        return f"{pct_display} ({value_line})"
 
     def _hex_to_rgba(self, value: str, opacity: float) -> str:
         """Convert a hex color to rgba text, falling back to a blue tint."""
