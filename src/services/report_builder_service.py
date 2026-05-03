@@ -1969,8 +1969,19 @@ class ReportBuilderService:
             energy_object.get("previous", {}).get("summary", {}).get("plant", {}).get("total_energy", 0.0) or 0.0
         )
 
-        total_area_cfg = self._get_style_color_node("area", "total")
-        total_delta_color = str(total_area_cfg.get("barColor") or self._get_style_color_value("#005496", "brand", "primary"))
+        delta_theme_cfg = self._get_section_chart_node("electricity", "theme", "delta")
+        positive_delta_color = str(
+            delta_theme_cfg.get("positive")
+            or self._get_style_color_value("#c04b39", "trend", "down")
+        )
+        negative_delta_color = str(
+            delta_theme_cfg.get("negative")
+            or self._get_style_color_value("#0b7a43", "trend", "up")
+        )
+        neutral_delta_color = str(
+            delta_theme_cfg.get("neutral")
+            or self._get_style_color_value("#6c7f91", "trend", "neutral")
+        )
         primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
         muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
@@ -1990,75 +2001,124 @@ class ReportBuilderService:
             {
                 "positivePosition": "right",
                 "negativePosition": "left",
+                "nearZeroPositivePosition": "right",
+                "nearZeroNegativePosition": "left",
                 "distance": 6,
+                "nearZeroDistance": 12,
+                "nearZeroThreshold": 0,
                 "fontSize": 8,
                 "fontWeight": 700,
                 "color": primary_text_color,
-                "axisPaddingLeft": 0,
-                "axisPaddingRight": 0,
+                "axisPaddingLeft": 30,
+                "axisPaddingRight": 30,
             },
             "electricity",
             "periodAreaDelta",
         )
+
+        if period_type == "weekly":
+            label_config["positivePosition"] = "left"
+            label_config["negativePosition"] = "right"
+            label_config["nearZeroPositivePosition"] = "left"
+            label_config["nearZeroNegativePosition"] = "right"
+            label_config["nearZeroDistance"] = max(float(label_config.get("distance", 6) or 6) + 4, 10)
 
         delta_source_rows = [
             {
                 "area_name": "TOTAL",
                 "current_value": total_current_value,
                 "previous_value": total_previous_value,
-                "color": total_delta_color,
             },
             *area_rows,
         ]
 
-        delta_items: list[dict[str, Any]] = []
+        delta_rows: list[dict[str, Any]] = []
         for row in delta_source_rows:
             current_value = float(row.get("current_value") or 0.0)
             previous_value = float(row.get("previous_value") or 0.0)
             delta_value = round(current_value - previous_value, 4)
             delta_pct = (delta_value / previous_value) if previous_value not in (0, 0.0) else None
-            base_color = row.get("color") or total_delta_color
             label_text = self._fmt_chart_compact(delta_value)
             if delta_pct is not None:
                 label_text = f"{label_text} ({self._fmt_pct(delta_pct)})"
 
-            delta_items.append({
+            delta_rows.append({
                 "name": row.get("area_name") or "-",
                 "value": delta_value,
+                "label_text": label_text,
+            })
+
+        values = [float(item.get("value") or 0.0) for item in delta_rows]
+        max_abs = max([abs(value) for value in values], default=0.0)
+        axis_padding_left = abs(float(label_config.get("axisPaddingLeft", 30) or 0.0))
+        axis_padding_right = abs(float(label_config.get("axisPaddingRight", 30) or 0.0))
+        near_zero_threshold = abs(float(label_config.get("nearZeroThreshold", 0) or 0.0))
+        if near_zero_threshold <= 0.0 and max_abs > 0.0:
+            near_zero_threshold = max(1.0, round(max_abs * 0.08, 2))
+        near_zero_distance = float(label_config.get("nearZeroDistance", label_config.get("distance", 6)) or 0.0)
+        axis_padding = max(axis_padding_left, axis_padding_right)
+        axis_limit = round(max(10.0, max_abs + axis_padding), 2)
+        axis_min = -axis_limit
+        axis_max = axis_limit
+
+        delta_items: list[dict[str, Any]] = []
+        for row in delta_rows:
+            delta_value = float(row.get("value") or 0.0)
+            is_near_zero = 0.0 < abs(delta_value) <= near_zero_threshold
+            label_position = (
+                (
+                    label_config.get("nearZeroPositivePosition", "right")
+                    if delta_value >= 0 else label_config.get("nearZeroNegativePosition", "left")
+                )
+                if is_near_zero else (
+                    label_config.get("positivePosition", "right")
+                    if delta_value >= 0 else label_config.get("negativePosition", "left")
+                )
+            )
+            label_distance = near_zero_distance if is_near_zero else float(label_config.get("distance", 6) or 0.0)
+
+            delta_color = (
+                positive_delta_color
+                if delta_value > 0 else negative_delta_color
+                if delta_value < 0 else neutral_delta_color
+            )
+            delta_border_radius = (
+                series_cfg.get("positiveBorderRadius", [0, 7, 7, 0])
+                if delta_value > 0 else series_cfg.get("negativeBorderRadius", [7, 0, 0, 7])
+                if delta_value < 0 else series_cfg.get("neutralBorderRadius", [0, 7, 7, 0])
+            )
+
+            delta_items.append({
+                "name": row.get("name") or "-",
+                "value": delta_value,
                 "itemStyle": {
-                    "color": base_color,
-                    "opacity": 0.95 if delta_value >= 0 else 0.55,
-                    "borderRadius": (
-                        series_cfg.get("positiveBorderRadius", [0, 7, 7, 0])
-                        if delta_value >= 0 else series_cfg.get("negativeBorderRadius", [7, 0, 0, 7])
-                    ),
+                    "color": delta_color,
+                    "opacity": 0.95,
+                    "borderRadius": delta_border_radius,
                 },
                 "label": {
                     "show": bool(label_config.get("show", True)),
-                    "position": (
-                        label_config.get("positivePosition", "right")
-                        if delta_value >= 0 else label_config.get("negativePosition", "left")
-                    ),
-                    "distance": label_config.get("distance", 6),
-                    "formatter": label_text,
+                    "position": label_position,
+                    "distance": label_distance,
+                    "formatter": row.get("label_text") or "-",
                     "fontSize": label_config.get("fontSize", 8),
                     "fontWeight": label_config.get("fontWeight", 700),
                     "color": label_config.get("color", primary_text_color),
                 },
             })
 
-        max_abs = max([abs(float(item.get("value") or 0.0)) for item in delta_items], default=0.0)
-        axis_limit = max(1.0, round(max_abs * 1.35, 2))
-
         if period_type == "monthly":
+            title = "Deviation vs Last Month"
             subtitle = "This Month vs last month change by total and workshop"
         elif period_type == "weekly":
+            title = "Deviation vs Last Week"
             subtitle = "This Week vs last week change by total and workshop"
         else:
+            title = "Deviation vs Previous Period"
             subtitle = "Total and workshop change vs previous period"
 
         return {
-            "title": "Consumption delta",
+            "title": title,
             "subtitle": subtitle,
             "option": {
                 "tooltip": {
@@ -2078,8 +2138,8 @@ class ReportBuilderService:
                 ),
                 "xAxis": {
                     "type": "value",
-                    "min": -axis_limit,
-                    "max": axis_limit,
+                    "min": axis_min,
+                    "max": axis_max,
                     "axisLabel": {
                         "color": muted_text_color,
                         "fontSize": 8,
@@ -2179,8 +2239,9 @@ class ReportBuilderService:
         if not any(any(value is not None for value in row_values) for row_values in row_value_map):
             return {}
 
-        bottom_gap = 44 if len(x_labels) <= 8 else 62
-        label_rotate = 0 if len(x_labels) <= 8 else 28
+        is_weekly_period = period_type == "weekly"
+        bottom_gap = 62 if is_weekly_period or len(x_labels) > 8 else 44
+        label_rotate = 28 if is_weekly_period or len(x_labels) > 8 else 0
         label_font_size = 9 if len(x_labels) <= 8 else 8
 
         area_visual_map = self._get_v3_area_visual_map()

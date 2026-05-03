@@ -841,7 +841,10 @@
                   "themeRef": "chart.default"
                 },
                 "delta": {
-                  "themeRef": "chart.deltaDefault"
+                  "themeRef": "chart.deltaDefault",
+                  "positive": "#c04b39",
+                  "negative": "#0b7a43",
+                  "neutral": "#6c7f91"
                 }
               }
             },

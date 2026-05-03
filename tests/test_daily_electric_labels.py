@@ -152,6 +152,7 @@ def test_periodic_electric_charts_use_period_aware_labels() -> None:
     assert weekly_charts["area_comparison"]["subtitle"] == "This Week vs last week total by workshop"
     assert weekly_charts["area_comparison"]["option"]["series"][0]["name"] == "This Week"
     assert weekly_charts["area_comparison"]["option"]["series"][1]["name"] == "Last Week"
+    assert weekly_charts["period_area_delta"]["title"] == "Deviation vs Last Week"
     assert weekly_charts["period_area_delta"]["subtitle"] == "This Week vs last week change by total and workshop"
 
     assert monthly_charts["daily_trend"]["subtitle"] == "This Month vs last month"
@@ -160,7 +161,43 @@ def test_periodic_electric_charts_use_period_aware_labels() -> None:
     assert monthly_charts["area_comparison"]["subtitle"] == "This Month vs last month total by workshop"
     assert monthly_charts["area_comparison"]["option"]["series"][0]["name"] == "This Month"
     assert monthly_charts["area_comparison"]["option"]["series"][1]["name"] == "Last Month"
+    assert monthly_charts["period_area_delta"]["title"] == "Deviation vs Last Month"
     assert monthly_charts["period_area_delta"]["subtitle"] == "This Month vs last month change by total and workshop"
+
+
+def test_weekly_electric_heatmap_rotates_day_labels_like_daily_trend() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    weekly_charts = service._build_v3_electricity_charts(
+        energy_object=_build_periodic_energy_object(date(2025, 4, 14), date(2025, 4, 7)),
+        period_type="weekly",
+    )
+
+    heatmap_axis = weekly_charts["period_heatmap"]["option"]["xAxis"]["axisLabel"]
+
+    assert heatmap_axis["rotate"] == 28
+
+
+def test_weekly_electric_delta_chart_uses_inset_labels_and_trend_colors() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    weekly_charts = service._build_v3_electricity_charts(
+        energy_object=_build_periodic_energy_object(date(2025, 4, 14), date(2025, 4, 7)),
+        period_type="weekly",
+    )
+
+    delta_option = weekly_charts["period_area_delta"]["option"]
+    delta_items = delta_option["series"][0]["data"]
+    total_item = delta_items[0]
+
+    assert total_item["label"]["position"] == "left"
+    assert total_item["itemStyle"]["color"] == "#c04b39"
+    assert delta_option["xAxis"]["min"] == -40.0
+    assert delta_option["xAxis"]["max"] == 40.0
 
 
 def test_period_block_uses_last_week_and_last_month_labels() -> None:
