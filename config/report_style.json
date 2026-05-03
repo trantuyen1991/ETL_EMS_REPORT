@@ -1027,6 +1027,20 @@
                   "sliceBorderRadius": 8
                 }
               },
+              "energyDistribution": {
+                "height": {
+                  "view": "276px",
+                  "pdf": "208px"
+                },
+                "legend": {
+                  "bottom": "center"
+                },
+                "pie": {
+                  "radius": ["42%", "78%"],
+                  "center": ["50%", "42%"],
+                  "sliceBorderRadius": 8
+                }
+              },
               "energyTrend": {
                 "legend": {
                   "bottom": "center"

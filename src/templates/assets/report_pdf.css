@@ -838,6 +838,17 @@
         height: var(--report-components-report-section-utility-chart-energy-heatmap-height-pdf, 192px) !important;
     }
 
+    .utility-energy-distribution-card.is-mix-style {
+        min-height: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .utility-energy-distribution-card.is-mix-style .utility-energy-distribution-chart {
+        height: var(--report-components-report-section-utility-chart-energy-distribution-height-pdf, var(--report-components-report-section-utility-chart-period-insight-mix-height-pdf, 208px)) !important;
+    }
+
     .utility-energy-distribution-layout {
         grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr) !important;
         gap: 8px !important;

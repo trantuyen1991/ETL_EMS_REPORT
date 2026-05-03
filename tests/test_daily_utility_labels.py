@@ -62,6 +62,84 @@ def _build_utility_period_object() -> dict:
     }
 
 
+def _build_utility_energy_object() -> dict:
+    return {
+        "current": {
+            "daily_tables": [
+                {
+                    "area_key": "plant",
+                    "rows": [
+                        {
+                            "date": "2025-05-12",
+                            "cells": [
+                                {"key": "AIR-M1", "meter_role": "meter", "raw_value": 120.0},
+                                {"key": "CHW-M1", "meter_role": "meter", "raw_value": 80.0},
+                                {"key": "STM-M1", "meter_role": "meter", "raw_value": 50.0},
+                            ],
+                        },
+                        {
+                            "date": "2025-05-13",
+                            "cells": [
+                                {"key": "AIR-M1", "meter_role": "meter", "raw_value": 118.0},
+                                {"key": "CHW-M1", "meter_role": "meter", "raw_value": 82.0},
+                                {"key": "STM-M1", "meter_role": "meter", "raw_value": 48.0},
+                            ],
+                        },
+                    ],
+                }
+            ]
+        },
+        "previous": {
+            "daily_tables": [
+                {
+                    "area_key": "plant",
+                    "rows": [
+                        {
+                            "date": "2025-05-05",
+                            "cells": [
+                                {"key": "AIR-M1", "meter_role": "meter", "raw_value": 110.0},
+                                {"key": "CHW-M1", "meter_role": "meter", "raw_value": 78.0},
+                                {"key": "STM-M1", "meter_role": "meter", "raw_value": 44.0},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        },
+    }
+
+
+def _build_utility_energy_period_object() -> dict:
+    utility_object = _build_utility_period_object()
+    utility_object["current"]["metadata"].update({
+        "chw": {
+            "display_name": "Chilled Water",
+            "unit": "RT",
+            "category": "chilled_water",
+            "energy_area": "plant",
+            "energy_meters": ["CHW-M1"],
+        },
+        "steam": {
+            "display_name": "Plant Steam",
+            "unit": "kg",
+            "category": "steam",
+            "energy_area": "plant",
+            "energy_meters": ["STM-M1"],
+        },
+        "air": {
+            "display_name": "Compressed Air",
+            "unit": "Nm³",
+            "category": "compressed_air",
+            "energy_area": "plant",
+            "energy_meters": ["AIR-M1"],
+        },
+    })
+    utility_object["comparison"].update({
+        "chw": {"current": 92.0, "previous": 88.0},
+    })
+    return utility_object
+
+
 def test_daily_utility_trend_subtitle_uses_today_wording() -> None:
     service = ReportBuilderService()
     service._style_config = {}
@@ -144,11 +222,15 @@ def test_utility_templates_use_last_period_fallback_copy() -> None:
 
 def test_daily_view_utility_template_marks_comparison_cards_for_compact_layout() -> None:
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/utility.html").read_text(encoding="utf-8")
+    report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
 
     assert 'utility-chart-card-compare-compact' in view_template
     assert 'utility-period-insight-grid' in view_template
     assert 'utility-period-insight-heatmap-chart' in view_template
     assert 'utility-period-mix-chart' in view_template
+    utility_blocks_macro = (PROJECT_ROOT / 'src/templates/report/macros/utility_blocks.html').read_text(encoding='utf-8')
+    assert "block.visual_variant == 'mix-card'" in utility_blocks_macro
+    assert 'utility-energy-distribution-card.is-mix-style .utility-energy-distribution-chart' in report_css
 
 
 def test_daily_view_sensor_monitoring_uses_metric_table_layout() -> None:
@@ -243,7 +325,8 @@ def test_utility_pdf_distribution_chart_uses_compact_donut_geometry() -> None:
             {"name": "Steam", "value": 40.0, "itemStyle": {"color": "#8844cc"}},
         ],
         total_value=100.0,
-        period_badge="This Week",
+        period_badge="This Month",
+        period_type="monthly",
     )
 
     series = option["series"][0]
@@ -251,6 +334,32 @@ def test_utility_pdf_distribution_chart_uses_compact_donut_geometry() -> None:
     assert series["radius"] == ["48%", "72%"]
     assert series["center"] == ["42%", "54%"]
     assert series["label"]["fontSize"] == 7
+
+
+def test_weekly_utility_energy_distribution_uses_mix_style_layout() -> None:
+    service = ReportBuilderService()
+    service._style_config = json.loads((PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8"))["reportStyle"]
+    service._render_mode = "html"
+
+    context = service._build_v3_utility_energy_context(
+        utility_object=_build_utility_energy_period_object(),
+        energy_object=_build_utility_energy_object(),
+        period={"type": "weekly"},
+    )
+
+    distribution = context["charts"]["distribution"]
+    block = next(item for item in context["layout"]["blocks"] if item["kind"] == "distribution")
+    series = distribution["option"]["series"][0]
+
+    assert distribution["visual_variant"] == "mix-card"
+    assert block["visual_variant"] == "mix-card"
+    assert "is-mix-style" in block["card_classes"]
+    assert distribution["option"]["legend"]["left"] == "center"
+    assert distribution["option"]["legend"]["bottom"] == 0
+    assert distribution["option"]["title"][1]["text"] == "Total"
+    assert series["radius"] == ["42%", "78%"]
+    assert series["center"] == ["50%", "42%"]
+    assert series["label"]["formatter"] == "{b}\n{d}%"
 
 
 def test_weekly_utility_deviation_chart_centers_zero_and_inverts_label_direction() -> None:
@@ -442,6 +551,7 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
     deviation_value_label = utility_chart_cfg["deviation"]["valueLabel"]
     period_insight_heatmap = utility_chart_cfg["periodInsightHeatmap"]
     period_insight_mix = utility_chart_cfg["periodInsightMix"]
+    energy_distribution = utility_chart_cfg["energyDistribution"]
 
     assert sensor_cluster["height"]["view"] == "280px"
     assert sensor_cluster["height"]["pdf"] == "140px"
@@ -456,6 +566,9 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
     assert period_insight_mix["height"]["view"] == "276px"
     assert period_insight_mix["pie"]["radius"] == ["42%", "78%"]
     assert period_insight_mix["pie"]["sliceBorderRadius"] == 8
+    assert energy_distribution["height"]["view"] == "276px"
+    assert energy_distribution["legend"]["bottom"] == "center"
+    assert energy_distribution["pie"]["center"] == ["50%", "42%"]
     assert deviation_value_label["nearZeroPositivePosition"] == "right"
     assert deviation_value_label["nearZeroNegativePosition"] == "left"
     assert deviation_value_label["nearZeroThreshold"] == 4

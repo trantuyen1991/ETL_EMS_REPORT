@@ -43,6 +43,9 @@
             <h3 class="electricity-chart-card-title">{{ block.title }}</h3>
             <p class="electricity-chart-card-subtitle">{{ block.subtitle }}</p>
             {% if block.kind == 'distribution' %}
+            {% if block.visual_variant == 'mix-card' %}
+            <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
+            {% else %}
             <div class="utility-energy-distribution-layout">
                 <div class="utility-energy-distribution-chart-wrap">
                     <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
@@ -68,6 +71,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
             {% elif block.kind == 'heatmap' %}
             <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
             <div class="electricity-heatmap-legend" aria-hidden="true">

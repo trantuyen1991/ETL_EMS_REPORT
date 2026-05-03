@@ -2835,6 +2835,17 @@
             height: var(--report-components-report-section-utility-chart-period-insight-mix-height-view, 252px);
         }
 
+        .utility-energy-distribution-card.is-mix-style {
+            min-height: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .utility-energy-distribution-card.is-mix-style .utility-energy-distribution-chart {
+            height: var(--report-components-report-section-utility-chart-energy-distribution-height-view, var(--report-components-report-section-utility-chart-period-insight-mix-height-view, 276px));
+        }
+
         .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {
             height: var(--report-components-report-section-utility-chart-energy-heatmap-height-view, 192px);
         }

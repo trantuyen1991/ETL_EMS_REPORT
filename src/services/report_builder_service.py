@@ -279,7 +279,7 @@ class ReportBuilderService:
                 'kind': 'distribution',
                 'enabled': bool((charts.get('distribution') or {}).get('option')),
                 'block_classes': 'utility-chart-block utility-chart-block-narrow utility-chart-block-energy-distribution',
-                'card_classes': 'electricity-chart-card utility-chart-card utility-energy-chart-card utility-energy-distribution-card',
+                'card_classes': 'electricity-chart-card utility-chart-card utility-energy-chart-card utility-energy-distribution-card' + (' is-mix-style' if str(((charts.get('distribution') or {}).get('visual_variant')) or '') == 'mix-card' else ''),
                 'title': str(((charts.get('distribution') or {}).get('title')) or ''),
                 'subtitle': str(((charts.get('distribution') or {}).get('subtitle')) or ''),
                 'chart_id': 'utility-energy-distribution-chart',
@@ -288,6 +288,7 @@ class ReportBuilderService:
                 'total_display': str(((charts.get('distribution') or {}).get('total_display')) or ''),
                 'total_unit': str(((charts.get('distribution') or {}).get('total_unit')) or 'kWh'),
                 'legend_items': list((charts.get('distribution') or {}).get('legend_items') or []),
+                'visual_variant': str(((charts.get('distribution') or {}).get('visual_variant')) or ''),
                 'pdf_keep_together': True,
             },
             'heatmap': {
@@ -4203,10 +4204,12 @@ class ReportBuilderService:
                 "total_display": self._fmt(total_current),
                 "total_unit": "kWh",
                 "legend_items": distribution_items,
+                "visual_variant": "mix-card" if period_type == "weekly" else "distribution-layout",
                 "option": self._build_v3_utility_energy_distribution_option(
                     items=distribution_items,
                     total_value=total_current,
                     period_badge=period_badge,
+                    period_type=period_type,
                 ),
             },
             "heatmap": energy_heatmap,
@@ -4458,9 +4461,89 @@ class ReportBuilderService:
         items: list[dict[str, Any]],
         total_value: float,
         period_badge: str,
+        period_type: str = "",
     ) -> Dict[str, Any]:
         """Build periodic utility-energy distribution doughnut option."""
         is_pdf_mode = self._render_mode == "pdf"
+        normalized_period_type = str(period_type or "").strip().lower()
+
+        if normalized_period_type == "weekly":
+            primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+            heading_text_color = str(self._get_style_color_value("#0f2d45", "text", "heading"))
+            muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+            pie_cfg = self._resolve_chart_pie(
+                {
+                    "radius": ("42%", "78%"),
+                    "center": ("50%", "42%"),
+                    "sliceBorderRadius": 8,
+                },
+                "utility",
+                "energyDistribution",
+            )
+            return {
+                "tooltip": {"trigger": "item", "formatter": "{b}: {c} kWh ({d}%)"},
+                "legend": self._resolve_chart_legend(
+                    {
+                        "bottom": 0,
+                        "left": "center",
+                        "itemWidth": 11,
+                        "itemHeight": 8,
+                        "textStyle": {
+                            "fontSize": 9,
+                            "color": muted_text_color,
+                        },
+                    },
+                    "utility",
+                    "energyDistribution",
+                ),
+                "title": [
+                    {
+                        "text": self._fmt_chart_compact(total_value),
+                        "left": "center",
+                        "top": "40%",
+                        "textStyle": {
+                            "fontSize": 18,
+                            "fontWeight": 800,
+                            "color": heading_text_color,
+                        },
+                    },
+                    {
+                        "text": "Total",
+                        "left": "center",
+                        "top": "55%",
+                        "textStyle": {
+                            "fontSize": 9,
+                            "fontWeight": 700,
+                            "color": muted_text_color,
+                        },
+                    },
+                ],
+                "series": [
+                    {
+                        "type": "pie",
+                        "radius": list(pie_cfg.get("radius", ("42%", "78%"))),
+                        "center": list(pie_cfg.get("center", ("50%", "42%"))),
+                        "avoidLabelOverlap": True,
+                        "itemStyle": {
+                            "borderColor": str(self._get_style_color_value("#ffffff", "text", "inverse")),
+                            "borderWidth": 2,
+                            "borderRadius": pie_cfg.get("sliceBorderRadius", 8),
+                        },
+                        "label": {
+                            "show": True,
+                            "formatter": "{b}\n{d}%",
+                            "fontSize": 8,
+                            "color": primary_text_color,
+                        },
+                        "labelLine": {
+                            "length": 8,
+                            "length2": 8,
+                        },
+                        "data": items,
+                    }
+                ],
+            }
+
         return {
             "tooltip": {"trigger": "item", "formatter": "{b}: {c} kWh ({d}%)"},
             "series": [
