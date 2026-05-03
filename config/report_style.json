@@ -1444,7 +1444,7 @@
                 },
                 "height": {
                   "view": "288px",
-                  "pdf": "196px"
+                  "pdf": "220px"
                 }
               },
               "periodHeatmap": {
@@ -1457,7 +1457,7 @@
                 },
                 "height": {
                   "view": "244px",
-                  "pdf": "154px"
+                  "pdf": "180px"
                 }
               },
               "waterfall": {
@@ -1483,7 +1483,7 @@
                 },
                 "height": {
                   "view": "288px",
-                  "pdf": "196px"
+                  "pdf": "220px"
                 },
                 "valueLabel": {
                   "positivePosition": "left",

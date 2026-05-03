@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date
 from pathlib import Path
 
 from src.services.report_builder_service import ReportBuilderService
@@ -413,6 +414,52 @@ def test_weekly_kpi_dashboard_adds_period_trend_chart() -> None:
     assert waterfall["option"]["xAxis"]["data"][3] == "Last Week"
 
 
+def test_kpi_daily_rows_include_index_for_periodic_detail() -> None:
+    service = ReportBuilderService()
+    kpi_object = _build_minimal_kpi_object()
+    kpi_object["current"]["daily_rows"] = [
+        {
+            "dt": date(2025, 5, 12),
+            "coverage_status": "covered",
+            "time_frame_source": "Day",
+            "prod": 100.0,
+            "ico_prod": 30.0,
+            "diode_prod": 40.0,
+            "sakari_prod": 30.0,
+            "energy": 1000.0,
+            "ico_energy": 300.0,
+            "diode_energy": 400.0,
+            "sakari_energy": 300.0,
+            "kpi": 10.0,
+            "ico_kpi": 10.0,
+            "diode_kpi": 10.0,
+            "sakari_kpi": 10.0,
+        },
+        {
+            "dt": date(2025, 5, 13),
+            "coverage_status": "missing",
+            "time_frame_source": None,
+            "prod": None,
+            "ico_prod": None,
+            "diode_prod": None,
+            "sakari_prod": None,
+            "energy": None,
+            "ico_energy": None,
+            "diode_energy": None,
+            "sakari_energy": None,
+            "kpi": None,
+            "ico_kpi": None,
+            "diode_kpi": None,
+            "sakari_kpi": None,
+        },
+    ]
+
+    rows = service._build_kpi_daily_rows(kpi_object)
+
+    assert rows[0]["index"] == 1
+    assert rows[-1]["index"] == len(rows)
+
+
 def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/kpi.html").read_text(encoding="utf-8")
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/kpi.html").read_text(encoding="utf-8")
@@ -425,6 +472,9 @@ def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
     assert "kpi-weekly-dashboard-page" in view_template
     assert "kpi-weekly-compare-grid" in view_template
     assert "kpi-weekly-waterfall-tile" in view_template
+    assert '<th class="col-index">#</th>' in view_template
+    assert 'class="col-index" rowspan="4">{{ row.index }}</td>' in view_template
+    assert 'row-area-plant' in view_template
     assert "kpi-periodic-insight-grid" in pdf_template
     assert "kpi-period-trend-chart" in pdf_template
     assert "kpi-periodic-variance-chart" in pdf_template
@@ -432,6 +482,9 @@ def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
     assert "kpi-weekly-dashboard-page" in pdf_template
     assert "kpi-weekly-compare-grid" in pdf_template
     assert "kpi-weekly-waterfall-tile" in pdf_template
+    assert '<th class="col-index">#</th>' in pdf_template
+    assert 'class="col-index" rowspan="4">{{ row.index }}</td>' in pdf_template
+    assert 'row-area-plant' in pdf_template
 
 
 def test_weekly_kpi_css_and_config_define_periodic_trend_row() -> None:
@@ -451,18 +504,22 @@ def test_weekly_kpi_css_and_config_define_periodic_trend_row() -> None:
     assert '.kpi-weekly-compare-grid {' in pdf_css
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;' in pdf_css
     assert 'height: var(--report-components-report-section-kpi-chart-period-variance-height-pdf, 196px) !important;' in pdf_css
-    assert 'height: var(--report-components-report-section-kpi-chart-period-heatmap-height-pdf, 154px) !important;' in pdf_css
+    assert 'height: var(--report-components-report-section-kpi-chart-period-heatmap-height-pdf, 180px) !important;' in pdf_css
     assert '.report-period-weekly .kpi-weekly-dashboard-page {' in pdf_css
     assert kpi_chart_cfg["periodTrend"]["legend"]["bottom"] == "center"
     assert kpi_chart_cfg["periodTrend"]["grid"]["top"] == 20
     assert kpi_chart_cfg["periodTrend"]["grid"]["bottom"] == 25
     assert kpi_chart_cfg["periodTrend"]["height"]["view"] == "288px"
+    assert '.kpi-periodic-detail-table .col-index {' in report_css
+    assert '.kpi-periodic-detail-table tr.row-area-plant {' in report_css
     assert '.kpi-periodic-detail-table th.col-area,' in report_css
     assert '.kpi-periodic-detail-table td.col-kpi,' in report_css
+    assert '.kpi-periodic-detail-table .col-index {' in pdf_css
+    assert '.kpi-periodic-detail-table tr.row-area-plant {' in pdf_css
     assert '.kpi-periodic-detail-table th.col-area,' in pdf_css
     assert '.kpi-periodic-detail-table td.col-kpi,' in pdf_css
     assert kpi_chart_cfg["periodHeatmap"]["height"]["view"] == "244px"
-    assert kpi_chart_cfg["periodHeatmap"]["height"]["pdf"] == "154px"
+    assert kpi_chart_cfg["periodHeatmap"]["height"]["pdf"] == "180px"
     assert kpi_table_cfg["dailyDetail"]["metricFontSize"]["view"] == "11.5px"
     assert kpi_table_cfg["dailyDetail"]["metricFontSize"]["pdf"] == "8px"
     assert kpi_chart_cfg["variance"]["height"]["view"] == "288px"

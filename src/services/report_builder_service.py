@@ -6997,7 +6997,7 @@ class ReportBuilderService:
 
         current_daily_rows = kpi_object["current"].get("daily_rows", [])
 
-        for row in current_daily_rows:
+        for row_index, row in enumerate(current_daily_rows, start=1):
             coverage_status = row.get("coverage_status")
 
             if coverage_status == "covered":
@@ -7014,6 +7014,7 @@ class ReportBuilderService:
                 row_class = "row-missing"
 
             rows.append({
+                "index": row_index,
                 "date": row.get("dt"),
                 "date_display": self._format_date_with_weekday(row.get("dt")),
                 "time_frame_source": row.get("time_frame_source"),

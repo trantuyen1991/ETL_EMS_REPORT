@@ -5098,6 +5098,15 @@
             color: var(--report-color-text-primary);
         }
 
+        .kpi-periodic-detail-table .col-index {
+            width: 42px;
+            min-width: 42px;
+            text-align: center;
+            font-weight: 800;
+            color: #64748b;
+            background: rgba(255, 255, 255, 0.92);
+        }
+
         .kpi-periodic-detail-table .col-date {
             width: var(--report-components-report-section-kpi-table-daily-detail-date-column-width-view, 108px);
             min-width: var(--report-components-report-section-kpi-table-daily-detail-date-column-width-view, 108px);
@@ -5109,12 +5118,52 @@
             min-width: var(--report-components-report-section-kpi-table-daily-detail-source-column-width-view, 56px);
         }
 
+        .kpi-periodic-detail-table td.col-index,
+        .kpi-periodic-detail-table td.col-date,
+        .kpi-periodic-detail-table td.col-source,
+        .kpi-periodic-detail-table td[rowspan="4"] {
+            background: linear-gradient(180deg, rgba(248, 251, 255, 0.98) 0%, rgba(241, 247, 255, 0.92) 100%);
+            font-weight: 700;
+            vertical-align: top;
+            padding-top: 11px;
+        }
+
+        .kpi-periodic-detail-table td.col-source,
+        .kpi-periodic-detail-table td.col-index {
+            text-align: center;
+        }
+
+        .kpi-periodic-detail-table td.col-date {
+            color: var(--report-color-text-primary);
+        }
+
         .kpi-periodic-detail-table .col-area {
             width: var(--report-components-report-section-kpi-table-daily-detail-area-column-width-view, 74px);
             min-width: var(--report-components-report-section-kpi-table-daily-detail-area-column-width-view, 74px);
             font-weight: 700;
             color: var(--report-color-text-primary);
             background: var(--report-components-report-section-kpi-table-daily-detail-area-background, #f8fbff);
+            border-left: 3px solid transparent;
+        }
+
+        .kpi-periodic-detail-table tr.row-area-plant {
+            --kpi-area-accent: #005496;
+            --kpi-area-bg: rgba(0, 84, 150, 0.08);
+        }
+
+        .kpi-periodic-detail-table tr.row-area-ico {
+            --kpi-area-accent: #4f7750;
+            --kpi-area-bg: rgba(111, 154, 109, 0.12);
+        }
+
+        .kpi-periodic-detail-table tr.row-area-diode {
+            --kpi-area-accent: #2160df;
+            --kpi-area-bg: rgba(33, 96, 223, 0.10);
+        }
+
+        .kpi-periodic-detail-table tr.row-area-sakari {
+            --kpi-area-accent: #b7791f;
+            --kpi-area-bg: rgba(208, 154, 69, 0.14);
         }
 
         .kpi-periodic-detail-table th.col-area,
@@ -5124,6 +5173,9 @@
 
         .kpi-periodic-detail-table td.col-area {
             padding-left: 12px;
+            color: var(--kpi-area-accent, var(--report-color-text-primary));
+            background: linear-gradient(90deg, var(--kpi-area-bg, rgba(248, 251, 255, 0.9)) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border-left-color: var(--kpi-area-accent, transparent);
         }
 
         .kpi-periodic-detail-table td.col-kpi,
@@ -5132,6 +5184,7 @@
             font-size: var(--report-components-report-section-kpi-table-daily-detail-metric-font-size-view, 11.5px);
             font-weight: 600;
             text-align: right;
+            font-variant-numeric: tabular-nums;
         }
 
         .kpi-periodic-detail-table .row-submetric td {
