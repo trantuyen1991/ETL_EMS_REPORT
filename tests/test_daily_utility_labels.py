@@ -67,8 +67,11 @@ def test_daily_utility_trend_subtitle_uses_today_wording() -> None:
         utility_object={
             "current": {
                 "metadata": {
-                    "water": {"display_name": "RO Water", "unit": "m³"},
-                }
+                    "water": {"display_name": "RO Water", "unit": "m³", "category": "water"},
+                },
+                "timeseries": [
+                    {"dt": "2025-05-18", "water": 120.0},
+                ],
             },
             "comparison": {
                 "water": {"current": 120.0, "previous": 100.0},
@@ -78,6 +81,9 @@ def test_daily_utility_trend_subtitle_uses_today_wording() -> None:
     )
 
     assert charts["period_type_trend"]["subtitle"] == "Today total by utility group"
+    legend = charts["period_type_trend"]["option"]["legend"]
+    assert legend["bottom"] == 0
+    assert legend["left"] == "center"
 
 
 def test_periodic_utility_charts_use_period_aware_wording() -> None:
@@ -179,6 +185,21 @@ def test_daily_pdf_sensor_monitoring_uses_metric_table_layout() -> None:
     assert '.report-period-daily .utility-sensor-anomaly-table .col-group' in pdf_css
     assert '.report-period-daily .utility-sensor-anomaly-table .col-reason' in pdf_css
     assert 'page-break-before: auto !important;' in pdf_css
+
+
+def test_utility_deviation_chart_uses_compact_delta_value_labels() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    option = service._build_v3_utility_deviation_option([
+        {"display_name": "DIODE Air", "unit": "m³", "current": 9750.0, "previous": 1000.0},
+    ])
+
+    label = option["series"][0]["data"][0]["label"]["formatter"]
+
+    assert "8.8k m³" in label
+    assert "8,750.00" not in label
 
 
 def test_utility_pdf_deviation_chart_uses_shorter_value_labels() -> None:
@@ -413,6 +434,7 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
     assert dual_axis["rightAxis"]["nameGap"] == 2
     assert dual_axis["series"]["lineWidth"] == 2.2
     assert dual_axis["markPoint"]["label"]["fontSize"] == 9
+    assert utility_chart_cfg["typeTrend"]["legend"]["bottom"] == "center"
     assert deviation_value_label["nearZeroPositivePosition"] == "right"
     assert deviation_value_label["nearZeroNegativePosition"] == "left"
     assert deviation_value_label["nearZeroThreshold"] == 4

@@ -3094,8 +3094,8 @@ class ReportBuilderService:
             },
             "legend": self._resolve_chart_legend(
                 {
-                    "top": 6,
-                    "left": 8,
+                    "bottom": 0,
+                    "left": "center",
                     "itemWidth": 12,
                     "itemHeight": 8,
                 },
@@ -6667,9 +6667,9 @@ class ReportBuilderService:
         *,
         signed_pct: bool = False,
     ) -> str:
-        """Return a single-line delta label like `-10.00% (18.41 m³)`."""
+        """Return a single-line delta label like `-10.00% (18.4k m³)`."""
         pct_display = f"{float(pct_value):+.2f}%" if signed_pct else f"{float(pct_value):.2f}%"
-        delta_display = self._fmt(abs(float(delta_value or 0.0)))
+        delta_display = self._fmt_chart_compact(abs(float(delta_value or 0.0)))
         unit_text = str(unit or "").strip()
         return f"{pct_display} ({delta_display}{f' {unit_text}' if unit_text else ''})"
 

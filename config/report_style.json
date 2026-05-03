@@ -991,7 +991,7 @@
               },
               "typeTrend": {
                 "legend": {
-                  "top": "left"
+                  "bottom": "center"
                 },
                 "grid": {
                   "left": 32,
