@@ -4818,6 +4818,10 @@
             flex-direction: column;
         }
 
+        .kpi-weekly-compare-grid {
+            grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
+        }
+
         .report-family-daily .kpi-chart-card {
             padding: 12px 14px 10px;
         }
@@ -4848,6 +4852,11 @@
 
         .kpi-periodic-variance-chart {
             height: var(--report-components-report-section-kpi-chart-period-variance-height-view, 288px);
+        }
+
+        .kpi-weekly-compare-tile .kpi-daily-dashboard-chart,
+        .kpi-weekly-waterfall-tile .kpi-daily-dashboard-chart {
+            height: var(--report-components-report-section-kpi-chart-dashboard-height-view, 288px);
         }
 
         .report-family-daily .kpi-daily-dashboard-chart {

@@ -129,8 +129,8 @@
                     </div>
                     {% endif %}
 
-                    <div class="kpi-daily-dashboard-grid">
-                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile pdf-keep-together">
+                    <div class="kpi-daily-dashboard-grid{% if not flags.is_daily_report and period.type == 'weekly' %} kpi-weekly-compare-grid{% endif %}">
+                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile{% if not flags.is_daily_report and period.type == 'weekly' %} kpi-weekly-compare-tile{% endif %} pdf-keep-together">
                             <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.compare_bar.title }}</h3>
                             <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.compare_bar.subtitle }}</p>
                             {% if sections.kpi.charts.daily_dashboard.charts.compare_bar.empty_message %}
@@ -140,7 +140,7 @@
                             {% endif %}
                         </div>
 
-                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile pdf-keep-together">
+                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile{% if not flags.is_daily_report and period.type == 'weekly' %} kpi-weekly-waterfall-tile{% endif %} pdf-keep-together">
                             <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.waterfall.title }}</h3>
                             <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.waterfall.subtitle }}</p>
                             {% if sections.kpi.charts.daily_dashboard.charts.waterfall.empty_message %}

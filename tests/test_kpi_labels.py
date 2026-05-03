@@ -182,6 +182,7 @@ def test_kpi_variance_option_hides_zero_value_labels() -> None:
     assert point["label"]["show"] is False
     assert option["grid"]["left"] == 84
     assert option["grid"]["right"] == 18
+    assert option["series"][0]["barWidth"] == 22
 
 
 def test_report_style_json_sets_kpi_variance_label_positions_like_utility() -> None:
@@ -366,12 +367,17 @@ def test_weekly_kpi_dashboard_adds_period_trend_chart() -> None:
 
     dashboard = service._build_v3_kpi_charts(_build_weekly_kpi_object(), period_type="weekly")["daily_dashboard"]
     period_trend = dashboard["charts"]["period_trend"]
+    variance = dashboard["charts"]["variance"]
 
     assert period_trend["title"] == "Energy KPI daily trend"
     assert period_trend["subtitle"] == "Daily KPI for this week by Total and workshop"
     assert period_trend["option"]["xAxis"]["data"][0] == "May 12 (Mon)"
     assert [series["name"] for series in period_trend["option"]["series"]] == ["Total", "DIODE", "ICO", "SAKARI"]
     assert period_trend["option"]["legend"]["left"] == "center"
+    assert period_trend["option"]["grid"]["top"] == 20
+    assert period_trend["option"]["grid"]["bottom"] == 25
+    assert variance["option"]["xAxis"]["min"] == -variance["option"]["xAxis"]["max"]
+    assert variance["option"]["series"][0]["barWidth"] == 22
 
 
 def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
@@ -382,9 +388,13 @@ def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
     assert "kpi-period-trend-chart" in view_template
     assert "period.type == 'weekly'" in view_template
     assert "kpi-periodic-variance-chart" in view_template
+    assert "kpi-weekly-compare-grid" in view_template
+    assert "kpi-weekly-waterfall-tile" in view_template
     assert "kpi-periodic-insight-grid" in pdf_template
     assert "kpi-period-trend-chart" in pdf_template
     assert "kpi-periodic-variance-chart" in pdf_template
+    assert "kpi-weekly-compare-grid" in pdf_template
+    assert "kpi-weekly-waterfall-tile" in pdf_template
 
 
 def test_weekly_kpi_css_and_config_define_periodic_trend_row() -> None:
@@ -394,11 +404,16 @@ def test_weekly_kpi_css_and_config_define_periodic_trend_row() -> None:
     kpi_chart_cfg = style_cfg["reportStyle"]["components"]["report"]["section"]["kpi"]["chart"]
 
     assert '.kpi-periodic-insight-grid {' in report_css
+    assert '.kpi-weekly-compare-grid {' in report_css
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);' in report_css
     assert 'height: var(--report-components-report-section-kpi-chart-period-trend-height-view, 288px);' in report_css
     assert '.kpi-periodic-insight-grid {' in pdf_css
+    assert '.kpi-weekly-compare-grid {' in pdf_css
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;' in pdf_css
     assert 'height: var(--report-components-report-section-kpi-chart-period-variance-height-pdf, 196px) !important;' in pdf_css
     assert kpi_chart_cfg["periodTrend"]["legend"]["bottom"] == "center"
+    assert kpi_chart_cfg["periodTrend"]["grid"]["top"] == 20
+    assert kpi_chart_cfg["periodTrend"]["grid"]["bottom"] == 25
     assert kpi_chart_cfg["periodTrend"]["height"]["view"] == "288px"
     assert kpi_chart_cfg["variance"]["height"]["view"] == "288px"
+    assert kpi_chart_cfg["variance"]["series"]["barWidth"] == 22

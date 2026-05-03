@@ -1438,8 +1438,8 @@
                 "grid": {
                   "left": 32,
                   "right": 10,
-                  "top": 36,
-                  "bottom": 46,
+                  "top": 20,
+                  "bottom": 25,
                   "containLabel": true
                 },
                 "height": {
@@ -1464,6 +1464,9 @@
                   "top": 12,
                   "bottom": 18,
                   "containLabel": false
+                },
+                "series": {
+                  "barWidth": 22
                 },
                 "height": {
                   "view": "288px",

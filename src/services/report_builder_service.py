@@ -5803,7 +5803,10 @@ class ReportBuilderService:
                     "title": variance_title,
                     "subtitle": "Positive KPI change means higher energy intensity",
                     "empty_message": "No KPI deviation detected for this day." if variance_chart_empty else "",
-                    "option": self._build_v3_kpi_variance_option(variance_items),
+                    "option": self._build_v3_kpi_variance_option(
+                        variance_items,
+                        period_type=normalized_period_type,
+                    ),
                 },
             },
         }
@@ -5898,8 +5901,8 @@ class ReportBuilderService:
                 {
                     "left": 32,
                     "right": 10,
-                    "top": 36,
-                    "bottom": 46,
+                    "top": 20,
+                    "bottom": 25,
                     "containLabel": True,
                 },
                 "kpi",
@@ -6122,7 +6125,7 @@ class ReportBuilderService:
                 {
                     "type": "bar",
                     "stack": "waterfall",
-                    "barMaxWidth": 28,
+                    "barMaxWidth": 22,
                     "data": [
                         {
                             "value": round(previous_kpi, 4),
@@ -6170,6 +6173,8 @@ class ReportBuilderService:
     def _build_v3_kpi_variance_option(
         self,
         items: list[dict[str, Any]],
+        *,
+        period_type: str = "",
     ) -> Dict[str, Any]:
         """Build a horizontal variance chart for KPI change vs yesterday."""
         trend_up_color = str(self._get_style_color_value("#0b7a43", "trend", "up"))
@@ -6179,9 +6184,10 @@ class ReportBuilderService:
         primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
         border_row_color = str(self._get_style_color_value("#e6edf3", "border", "row"))
+        normalized_period_type = str(period_type or "").strip().lower()
         series_cfg = self._resolve_chart_series_config(
             {
-                "barWidth": 12,
+                "barWidth": 22,
                 "positiveBorderRadius": [0, 4, 4, 0],
                 "negativeBorderRadius": [4, 0, 0, 4],
                 "neutralBorderRadius": [0, 4, 4, 0],
@@ -6303,8 +6309,16 @@ class ReportBuilderService:
 
         min_value = min(values, default=0.0)
         max_value = max(values, default=0.0)
-        axis_min = min(-10.0, float(min_value)) - float(label_config.get("axisPaddingLeft", 22) or 0.0)
-        axis_max = max(10.0, float(max_value)) + float(label_config.get("axisPaddingRight", 22) or 0.0)
+        axis_padding_left = float(label_config.get("axisPaddingLeft", 22) or 0.0)
+        axis_padding_right = float(label_config.get("axisPaddingRight", 22) or 0.0)
+        if normalized_period_type == "weekly":
+            axis_padding = max(axis_padding_left, axis_padding_right)
+            axis_limit = round(max(10.0, max(abs(float(min_value)), abs(float(max_value))) + axis_padding), 2)
+            axis_min = -axis_limit
+            axis_max = axis_limit
+        else:
+            axis_min = min(-10.0, float(min_value)) - axis_padding_left
+            axis_max = max(10.0, float(max_value)) + axis_padding_right
 
         return {
             "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
