@@ -153,7 +153,11 @@ Backend already available:
 
 UI already implemented:
 - Daily sensor monitoring overview cards by group: ✅
-- Daily sensor range cards using `min / avg / max`: ✅
+- Daily HTML now uses grouped metric-table cards with icon-rich headers and compact `Metric / Min / Avg / Max / Status` rows: ✅
+- Daily PDF now mirrors the grouped metric-table card family instead of the old compressed range-card port: ✅
+- Daily overview cards now merge `Domestic Water + Sakari Water`, while the detail cards keep a merged water card and the anomaly scan keeps split water group labels for readability: ✅
+- Context-aware short sensor labels now remove repeated group prefixes in daily cards/anomaly scan (`Flow`, `Pressure`, `Cooling Capacity`, `Sakari Flow`, ...): ✅
+- Daily anomaly scan table now places `Group` before `Sensor`, compresses numeric columns, and widens the final `Reason` column: ✅
 - Anomaly scan table with alert highlighting: ✅
 - Alert reason helper text on sensor cards: ✅
 - `Reason` column in anomaly scan table with operator-friendly wording: ✅
@@ -195,10 +199,12 @@ Current anomaly rules:
   - utility page 4-5 pagination was rebalanced
   - empty electricity Top 10 shell was removed from PDF output
   - KPI zero-data pages now use explicit empty-state handling
-  - daily sensor overview was enriched with meaningful health/issue content instead of only compression
+  - daily Sensor Monitoring PDF was reworked into grouped metric-table cards with all detail cards placed before the anomaly scan
+  - daily anomaly scan was compacted onto the same page as the cards and now uses split water group labels for readability
 - Daily view spacing cleanup is closed for the current baseline:
   - electricity, utility, and KPI chart footprints were tightened
   - sparse daily panels now read as intentional rather than malformed
+  - daily Sensor Monitoring HTML now uses compact grouped cards with clearer icons, calmer spacing, and context-shortened metric labels
 - Weekly PDF audit remains the active layout workstream, but the first narrow fixes are already landed:
   - utility distribution donut label crowding improved
   - trailing weekly sensor trend card rebalanced

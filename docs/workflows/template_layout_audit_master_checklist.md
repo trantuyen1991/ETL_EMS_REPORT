@@ -34,7 +34,10 @@ For each audited surface/section, check:
   - utility page 4-5 pagination was rebalanced
   - empty electricity Top 10 shell was removed from PDF output
   - KPI zero-data pages now use explicit empty-state panels
-  - daily sensor overview page was enriched with health snapshot + top-issues content
+  - daily Sensor Monitoring PDF was reworked target-first into grouped metric-table cards
+  - all daily sensor detail cards now fit before the anomaly scan block
+  - overview cards now merge `Domestic Water + Sakari Water`, while the anomaly scan keeps split water group labels for readability
+  - the daily anomaly scan now uses `Group -> Sensor -> Type -> Latest -> Min -> Avg -> Max -> Reason` with compact numeric columns and a wider final reason column
 
 ### Step 2. Daily view layout audit
 - [x] `src/templates/report/view/report_view_daily.html`
@@ -48,6 +51,7 @@ For each audited surface/section, check:
   - electricity and utility chart/card spacing was tightened for the daily view family
   - daily KPI empty-state treatment was promoted into the view template
   - remaining sparse panels were compacted so low-activity days still read intentionally
+  - daily Sensor Monitoring now uses compact grouped metric-table cards with icon-rich headers and context-shortened sensor labels
 
 ### Step 3. Weekly PDF layout audit
 - [ ] `src/templates/report/pdf/report_pdf_periodic.html`
