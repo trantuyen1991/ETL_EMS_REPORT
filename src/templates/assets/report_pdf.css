@@ -766,9 +766,19 @@
         height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;
     }
 
-    .utility-period-insight-grid .utility-period-insight-heatmap-chart,
+    .utility-period-insight-grid .utility-chart-card {
+        min-height: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .utility-period-insight-grid .utility-period-insight-heatmap-chart {
+        height: var(--report-components-report-section-utility-chart-period-insight-heatmap-height-pdf, 184px) !important;
+    }
+
     .utility-period-insight-grid .utility-period-mix-chart {
-        height: var(--report-components-report-section-utility-chart-period-heatmap-height-pdf, 184px) !important;
+        height: var(--report-components-report-section-utility-chart-period-insight-mix-height-pdf, 184px) !important;
     }
 
     .utility-chart-block-deviation .utility-chart-card {

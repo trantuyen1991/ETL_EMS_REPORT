@@ -114,6 +114,7 @@ def test_periodic_utility_charts_use_period_aware_wording() -> None:
     assert weekly_charts["period_type_trend"]["subtitle"] == "Daily totals for this week by utility group"
     assert weekly_charts["period_mix"]["title"] == "This Week mix"
     assert weekly_charts["period_insight_split"]["wide"]["title"] == "Utility daily total heatmap"
+    assert weekly_charts["period_insight_split"]["wide"]["option"]["xAxis"]["data"][0] == "May 12 (Mon)"
     assert weekly_charts["period_insight_split"]["narrow"]["title"] == "This Week mix"
 
     assert monthly_charts["comparison_bar"]["subtitle"] == "This Month vs last month total by load type"
@@ -284,8 +285,11 @@ def test_utility_periodic_layout_css_matches_weekly_delta_width_and_height_targe
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);' in report_css
     assert '.utility-periodic-chart-grid .utility-comparison-chart-daily {' in report_css
     assert 'height: var(--report-components-report-section-utility-chart-period-trend-height-view, 326px);' in report_css
+    assert '.utility-period-insight-grid .utility-chart-card {' in report_css
+    assert 'height: var(--report-components-report-section-utility-chart-period-insight-mix-height-view, 252px);' in report_css
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;' in pdf_css
     assert 'height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;' in pdf_css
+    assert 'height: var(--report-components-report-section-utility-chart-period-insight-mix-height-pdf, 184px) !important;' in pdf_css
 
 
 def test_utility_pdf_deviation_chart_uses_compact_axis_spacing() -> None:
@@ -436,6 +440,8 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
     sensor_cluster = utility_chart_cfg["sensorCluster"]
     dual_axis = sensor_cluster["dualAxis"]
     deviation_value_label = utility_chart_cfg["deviation"]["valueLabel"]
+    period_insight_heatmap = utility_chart_cfg["periodInsightHeatmap"]
+    period_insight_mix = utility_chart_cfg["periodInsightMix"]
 
     assert sensor_cluster["height"]["view"] == "280px"
     assert sensor_cluster["height"]["pdf"] == "140px"
@@ -446,6 +452,10 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
     assert dual_axis["series"]["lineWidth"] == 2.2
     assert dual_axis["markPoint"]["label"]["fontSize"] == 9
     assert utility_chart_cfg["typeTrend"]["legend"]["bottom"] == "center"
+    assert period_insight_heatmap["height"]["view"] == "252px"
+    assert period_insight_mix["height"]["view"] == "276px"
+    assert period_insight_mix["pie"]["radius"] == ["42%", "78%"]
+    assert period_insight_mix["pie"]["sliceBorderRadius"] == 8
     assert deviation_value_label["nearZeroPositivePosition"] == "right"
     assert deviation_value_label["nearZeroNegativePosition"] == "left"
     assert deviation_value_label["nearZeroThreshold"] == 4

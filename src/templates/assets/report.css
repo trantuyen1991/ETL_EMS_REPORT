@@ -2820,9 +2820,19 @@
             height: var(--report-components-report-section-utility-chart-period-heatmap-height-view, var(--report-components-report-section-utility-chart-deviation-height-view, 326px));
         }
 
-        .utility-period-insight-grid .utility-period-insight-heatmap-chart,
+        .utility-period-insight-grid .utility-chart-card {
+            min-height: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .utility-period-insight-grid .utility-period-insight-heatmap-chart {
+            height: var(--report-components-report-section-utility-chart-period-insight-heatmap-height-view, 252px);
+        }
+
         .utility-period-insight-grid .utility-period-mix-chart {
-            height: var(--report-components-report-section-utility-chart-period-heatmap-height-view, 252px);
+            height: var(--report-components-report-section-utility-chart-period-insight-mix-height-view, 252px);
         }
 
         .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {

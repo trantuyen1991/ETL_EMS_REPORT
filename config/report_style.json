@@ -1010,6 +1010,23 @@
                   "bottom": "center"
                 }
               },
+              "periodInsightHeatmap": {
+                "height": {
+                  "view": "252px",
+                  "pdf": "184px"
+                }
+              },
+              "periodInsightMix": {
+                "height": {
+                  "view": "276px",
+                  "pdf": "208px"
+                },
+                "pie": {
+                  "radius": ["42%", "78%"],
+                  "center": ["50%", "42%"],
+                  "sliceBorderRadius": 8
+                }
+              },
               "energyTrend": {
                 "legend": {
                   "bottom": "center"

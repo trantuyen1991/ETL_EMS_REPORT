@@ -3199,7 +3199,7 @@ class ReportBuilderService:
                 x_labels = [
                     (
                         self._format_periodic_axis_date_label(value, period_type)
-                        if period_type == "monthly"
+                        if period_type in {"weekly", "monthly"}
                         else self._format_heatmap_column_label(value, period_type)
                     )
                     for value in dates
@@ -3440,11 +3440,23 @@ class ReportBuilderService:
             else:
                 grouped_totals["water"] += current_value
 
+        pie_cfg = self._resolve_chart_pie(
+            {
+                "radius": ("42%", "78%"),
+                "center": ("50%", "42%"),
+                "sliceBorderRadius": 8,
+            },
+            "utility",
+            "periodInsightMix",
+        )
         pie_data = [
             {
                 "name": label,
                 "value": round(grouped_totals[key], 4),
-                "itemStyle": {"color": color},
+                "itemStyle": {
+                    "color": color,
+                    "borderRadius": pie_cfg.get("sliceBorderRadius", 8),
+                },
             }
             for key, label, color in category_defs
             if grouped_totals[key] > 0
@@ -3495,8 +3507,8 @@ class ReportBuilderService:
             "series": [
                 {
                     "type": "pie",
-                    "radius": ["48%", "70%"],
-                    "center": ["50%", "42%"],
+                    "radius": list(pie_cfg.get("radius", ("42%", "78%"))),
+                    "center": list(pie_cfg.get("center", ("50%", "42%"))),
                     "avoidLabelOverlap": True,
                     "label": {
                         "show": True,
