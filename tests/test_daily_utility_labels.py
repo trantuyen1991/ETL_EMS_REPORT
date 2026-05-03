@@ -131,6 +131,42 @@ def test_daily_view_utility_template_marks_comparison_cards_for_compact_layout()
     assert 'utility-chart-card-compare-compact' in view_template
 
 
+def test_daily_view_sensor_monitoring_uses_metric_table_layout() -> None:
+    view_template = (PROJECT_ROOT / "src/templates/report/view/sections/utility.html").read_text(encoding="utf-8")
+    report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+    sensor_macro = (PROJECT_ROOT / "src/templates/report/macros/sensor_monitoring.html").read_text(encoding="utf-8")
+
+    assert '{% if flags.is_daily_report %}' in view_template
+    assert 'utility-sensor-metric-table' in view_template
+    assert 'utility-sensor-metric-row' in view_template
+    assert 'utility-sensor-group-icon' in view_template
+    assert 'sensor_ui.group_icon(group.key)' in view_template
+    assert 'sensor_ui.metric_icon(sensor)' in view_template
+    assert 'sensor_ui.status_icon(sensor)' in view_template
+    assert 'sensor_monitoring_view.overview_cards and not flags.is_daily_report' in view_template
+    assert '.report-family-daily .utility-sensor-metric-table' in report_css
+    assert '.report-family-daily .utility-sensor-group-card.is-daily-metric-card::before' in report_css
+    assert '.report-family-daily .utility-sensor-group-card.group-key-sakari_water' in report_css
+    assert '.report-family-daily .utility-sensor-metric-status-main' in report_css
+    assert 'macro metric_icon(sensor)' in sensor_macro
+    assert 'macro status_icon(sensor)' in sensor_macro
+
+
+def test_daily_pdf_sensor_monitoring_uses_metric_table_layout() -> None:
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/utility.html").read_text(encoding="utf-8")
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+
+    assert 'utility-sensor-metric-table utility-sensor-metric-table-pdf' in pdf_template
+    assert 'utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% endif %} group-key-{{ group.key }}' in pdf_template
+    assert 'sensor_ui.group_icon(group.key)' in pdf_template
+    assert 'sensor_ui.metric_icon(sensor)' in pdf_template
+    assert 'sensor_ui.status_icon(sensor)' in pdf_template
+    assert '.report-period-daily .utility-sensor-group-grid' in pdf_css
+    assert '.report-period-daily .utility-sensor-group-card.group-key-sakari_water' in pdf_css
+    assert '.report-period-daily .utility-sensor-metric-table-head' in pdf_css
+    assert '.report-period-daily .utility-sensor-metric-status-main' in pdf_css
+
+
 def test_utility_pdf_deviation_chart_uses_shorter_value_labels() -> None:
     service = ReportBuilderService()
     service._style_config = {}

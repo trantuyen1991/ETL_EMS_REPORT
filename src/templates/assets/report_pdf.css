@@ -1683,8 +1683,8 @@
     }
 
     .report-period-daily .utility-sensor-group-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 5px !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 6px !important;
     }
 
     .report-period-daily .utility-sensor-group-grid-preview {
@@ -1704,6 +1704,10 @@
         padding: 6px !important;
     }
 
+    .report-period-daily .utility-sensor-group-card.group-key-sakari_water {
+        grid-column: 1 / -1 !important;
+    }
+
     .utility-sensor-group-head {
         margin-bottom: 7px !important;
     }
@@ -1713,14 +1717,42 @@
         gap: 6px !important;
     }
 
+    .report-period-daily .utility-sensor-group-heading-copy {
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+        min-width: 0 !important;
+    }
+
+    .report-period-daily .utility-sensor-group-icon {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 16px !important;
+        height: 16px !important;
+        color: var(--sensor-accent, #64748b) !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        flex: 0 0 auto !important;
+    }
+
+    .report-period-daily .utility-sensor-group-icon svg {
+        width: 14px !important;
+        height: 14px !important;
+        stroke-width: 1.9 !important;
+    }
+
     .utility-sensor-group-title,
     .utility-sensor-anomaly-title {
         font-size: 9px !important;
     }
 
     .report-period-daily .utility-sensor-group-title {
-        font-size: 8.2px !important;
+        font-size: 7.9px !important;
         line-height: 1.15 !important;
+        letter-spacing: 0.02em !important;
     }
 
     .utility-sensor-group-meta,
@@ -1729,7 +1761,7 @@
     }
 
     .report-period-daily .utility-sensor-group-meta {
-        font-size: 6.5px !important;
+        font-size: 6.1px !important;
         line-height: 1.15 !important;
     }
 
@@ -1742,6 +1774,81 @@
     .report-period-daily .utility-sensor-group-badge {
         min-width: 0 !important;
         padding: 2px 4px !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-table {
+        border-radius: 8px !important;
+        border-width: 1px !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-table-head,
+    .report-period-daily .utility-sensor-metric-row {
+        grid-template-columns: minmax(0, 2.45fr) minmax(38px, 0.62fr) minmax(38px, 0.62fr) minmax(38px, 0.62fr) minmax(54px, 0.8fr) !important;
+        gap: 7px !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-table-head {
+        padding: 5px 6px !important;
+        font-size: 5.8px !important;
+        letter-spacing: 0.015em !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-row {
+        padding: 6px !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-title-row {
+        gap: 5px !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-icon {
+        width: 12px !important;
+        height: 12px !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-icon svg {
+        width: 11px !important;
+        height: 11px !important;
+        stroke-width: 1.8 !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-name {
+        font-size: 6.6px !important;
+        line-height: 1.15 !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-submeta {
+        margin-top: 1px !important;
+        font-size: 5.6px !important;
+        line-height: 1.15 !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-note {
+        margin-top: 2px !important;
+        font-size: 5.7px !important;
+        line-height: 1.15 !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-value strong {
+        font-size: 6.8px !important;
+        line-height: 1.1 !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-status-main {
+        gap: 4px !important;
+        font-size: 5.8px !important;
+        line-height: 1.1 !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-status-icon {
+        width: 10px !important;
+        height: 10px !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-status-icon svg {
+        width: 10px !important;
+        height: 10px !important;
+        stroke-width: 2 !important;
     }
 
     .utility-sensor-range-list {

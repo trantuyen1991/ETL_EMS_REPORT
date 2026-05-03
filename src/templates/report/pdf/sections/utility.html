@@ -711,17 +711,68 @@
                 <div class="utility-sensor-group-preview-block pdf-keep-together">
                     <div class="utility-sensor-group-grid utility-sensor-group-grid-preview">
                         {% for group in sensor_group_preview %}
-                        <div class="utility-sensor-group-card" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
+                        <div class="utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% endif %} group-key-{{ group.key }}" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
                             <div class="utility-sensor-group-head">
-                                <div>
-                                    <h4 class="utility-sensor-group-title">{{ group.label }}</h4>
-                                    <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data{% if not flags.is_daily_report %} in period{% endif %}</p>
+                                <div class="utility-sensor-group-heading-copy">
+                                    <span class="utility-sensor-group-icon" aria-hidden="true">{{ sensor_ui.group_icon(group.key) }}</span>
+                                    <div>
+                                        <h4 class="utility-sensor-group-title">{{ group.label }}</h4>
+                                        <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data{% if not flags.is_daily_report %} in period{% endif %}</p>
+                                    </div>
                                 </div>
-                                <span class="utility-sensor-group-badge {% if group.anomaly_count > 0 %}has-alert{% endif %}">
+                                <span class="utility-sensor-group-badge {% if group.anomaly_count > 0 %}has-alert{% else %}is-clear{% endif %}">
                                     {{ group.anomaly_count }} alert{% if group.anomaly_count != 1 %}s{% endif %}
                                 </span>
                             </div>
 
+                            {% if flags.is_daily_report %}
+                            <div class="utility-sensor-metric-table utility-sensor-metric-table-pdf">
+                                <div class="utility-sensor-metric-table-head">
+                                    <span class="col-metric">Metric</span>
+                                    <span class="col-value">Min</span>
+                                    <span class="col-value">Avg</span>
+                                    <span class="col-value">Max</span>
+                                    <span class="col-status">Status</span>
+                                </div>
+
+                                <div class="utility-sensor-metric-table-body">
+                                    {% for sensor in group.sensors %}
+                                    <div class="utility-sensor-metric-row {{ sensor.severity_class }}">
+                                        <div class="utility-sensor-metric-main">
+                                            <div class="utility-sensor-metric-title-row">
+                                                <span class="utility-sensor-metric-icon {{ sensor.severity_class }}" aria-hidden="true">{{ sensor_ui.metric_icon(sensor) }}</span>
+                                                <span class="utility-sensor-metric-name">{{ sensor.display_name }}</span>
+                                            </div>
+                                            <div class="utility-sensor-metric-submeta">{{ sensor.measurement_type_label }}{% if sensor.unit %} ({{ sensor.unit }}){% endif %}</div>
+                                            <div class="utility-sensor-metric-note {{ sensor.severity_class }}">
+                                                {% if sensor.has_alert and sensor.flag_summary %}
+                                                {{ sensor.flag_summary }}
+                                                {% else %}
+                                                Normal
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="utility-sensor-metric-value col-min">
+                                            <strong>{{ sensor.min_display }}</strong>
+                                        </div>
+                                        <div class="utility-sensor-metric-value col-avg">
+                                            <strong>{{ sensor.avg_display }}</strong>
+                                        </div>
+                                        <div class="utility-sensor-metric-value col-max">
+                                            <strong>{{ sensor.max_display }}</strong>
+                                        </div>
+                                        <div class="utility-sensor-metric-status {{ sensor.severity_class }}">
+                                            <span class="utility-sensor-metric-status-main">
+                                                <span class="utility-sensor-metric-status-icon" aria-hidden="true">{{ sensor_ui.status_icon(sensor) }}</span>
+                                                <span class="utility-sensor-metric-status-label">{% if sensor.has_alert %}Alert{% else %}Normal{% endif %}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
                             <div class="utility-sensor-range-list">
                                 {% for sensor in group.sensors %}
                                 <div class="utility-sensor-range-row {{ sensor.severity_class }}{% if flags.is_daily_report and not sensor.has_data %} is-empty-compact{% endif %}">
@@ -766,6 +817,7 @@
                                 </div>
                                 {% endfor %}
                             </div>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     </div>
@@ -775,17 +827,68 @@
                 {% if sensor_group_remaining %}
                 <div class="utility-sensor-group-grid utility-sensor-group-grid-remaining">
                     {% for group in sensor_group_remaining %}
-                    <div class="utility-sensor-group-card" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
+                    <div class="utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% endif %} group-key-{{ group.key }}" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
                         <div class="utility-sensor-group-head">
-                            <div>
-                                <h4 class="utility-sensor-group-title">{{ group.label }}</h4>
-                                <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data{% if not flags.is_daily_report %} in period{% endif %}</p>
+                            <div class="utility-sensor-group-heading-copy">
+                                <span class="utility-sensor-group-icon" aria-hidden="true">{{ sensor_ui.group_icon(group.key) }}</span>
+                                <div>
+                                    <h4 class="utility-sensor-group-title">{{ group.label }}</h4>
+                                    <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data{% if not flags.is_daily_report %} in period{% endif %}</p>
+                                </div>
                             </div>
-                            <span class="utility-sensor-group-badge {% if group.anomaly_count > 0 %}has-alert{% endif %}">
+                            <span class="utility-sensor-group-badge {% if group.anomaly_count > 0 %}has-alert{% else %}is-clear{% endif %}">
                                 {{ group.anomaly_count }} alert{% if group.anomaly_count != 1 %}s{% endif %}
                             </span>
                         </div>
 
+                        {% if flags.is_daily_report %}
+                        <div class="utility-sensor-metric-table utility-sensor-metric-table-pdf">
+                            <div class="utility-sensor-metric-table-head">
+                                <span class="col-metric">Metric</span>
+                                <span class="col-value">Min</span>
+                                <span class="col-value">Avg</span>
+                                <span class="col-value">Max</span>
+                                <span class="col-status">Status</span>
+                            </div>
+
+                            <div class="utility-sensor-metric-table-body">
+                                {% for sensor in group.sensors %}
+                                <div class="utility-sensor-metric-row {{ sensor.severity_class }}">
+                                    <div class="utility-sensor-metric-main">
+                                        <div class="utility-sensor-metric-title-row">
+                                            <span class="utility-sensor-metric-icon {{ sensor.severity_class }}" aria-hidden="true">{{ sensor_ui.metric_icon(sensor) }}</span>
+                                            <span class="utility-sensor-metric-name">{{ sensor.display_name }}</span>
+                                        </div>
+                                        <div class="utility-sensor-metric-submeta">{{ sensor.measurement_type_label }}{% if sensor.unit %} ({{ sensor.unit }}){% endif %}</div>
+                                        <div class="utility-sensor-metric-note {{ sensor.severity_class }}">
+                                            {% if sensor.has_alert and sensor.flag_summary %}
+                                            {{ sensor.flag_summary }}
+                                            {% else %}
+                                            Normal
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="utility-sensor-metric-value col-min">
+                                        <strong>{{ sensor.min_display }}</strong>
+                                    </div>
+                                    <div class="utility-sensor-metric-value col-avg">
+                                        <strong>{{ sensor.avg_display }}</strong>
+                                    </div>
+                                    <div class="utility-sensor-metric-value col-max">
+                                        <strong>{{ sensor.max_display }}</strong>
+                                    </div>
+                                    <div class="utility-sensor-metric-status {{ sensor.severity_class }}">
+                                        <span class="utility-sensor-metric-status-main">
+                                            <span class="utility-sensor-metric-status-icon" aria-hidden="true">{{ sensor_ui.status_icon(sensor) }}</span>
+                                            <span class="utility-sensor-metric-status-label">{% if sensor.has_alert %}Alert{% else %}Normal{% endif %}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
                         <div class="utility-sensor-range-list">
                             {% for sensor in group.sensors %}
                             <div class="utility-sensor-range-row {{ sensor.severity_class }}{% if flags.is_daily_report and not sensor.has_data %} is-empty-compact{% endif %}">
@@ -830,6 +933,7 @@
                             </div>
                             {% endfor %}
                         </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>

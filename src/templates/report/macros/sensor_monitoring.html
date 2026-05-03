@@ -19,3 +19,31 @@
 {% macro alert_icon() -%}
     {% include "assets/icon/outline/bell.svg" %}
 {%- endmacro %}
+
+{% macro metric_icon(sensor) -%}
+    {%- if sensor.measurement_type == 'capacity' -%}
+        {% include "assets/icon/outline/snowflake.svg" %}
+    {%- elif sensor.measurement_type == 'pressure' -%}
+        {% include "assets/icon/outline/gauge.svg" %}
+    {%- elif sensor.measurement_type == 'temperature' -%}
+        {% include "assets/icon/outline/thermometer.svg" %}
+    {%- elif sensor.measurement_type == 'flow' and sensor.group in ['ico_air', 'diode_air'] -%}
+        {% include "assets/icon/outline/wind.svg" %}
+    {%- elif sensor.measurement_type == 'flow' and sensor.group == 'boiler' -%}
+        {% include "assets/icon/outline/flame.svg" %}
+    {%- elif sensor.measurement_type == 'flow' and sensor.group in ['domestic_water', 'sakari_water'] -%}
+        {% include "assets/icon/outline/droplet.svg" %}
+    {%- elif sensor.measurement_type == 'flow' -%}
+        {% include "assets/icon/outline/activity.svg" %}
+    {%- else -%}
+        {% include "assets/icon/outline/activity.svg" %}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro status_icon(sensor) -%}
+    {%- if sensor.severity_class == 'is-critical' or sensor.severity_class == 'is-warning' -%}
+        {% include "assets/icon/outline/alert-circle.svg" %}
+    {%- else -%}
+        {% include "assets/icon/outline/circle-check.svg" %}
+    {%- endif -%}
+{%- endmacro %}

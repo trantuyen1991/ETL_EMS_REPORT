@@ -89,6 +89,7 @@ UTILITY_SENSOR_GROUP_ORDER: List[str] = [
     "diode_air",
     "boiler",
     "domestic_water",
+    "sakari_water",
 ]
 
 
@@ -99,6 +100,7 @@ UTILITY_SENSOR_GROUP_LABELS: Dict[str, str] = {
     "diode_air": "DIODE Air",
     "boiler": "Boiler",
     "domestic_water": "Domestic Water",
+    "sakari_water": "Sakari Water",
 }
 
 
@@ -247,7 +249,7 @@ UTILITY_SENSOR_METADATA: Dict[str, Dict[str, Any]] = {
     "sak_waterflow": {
         "display_name": "Sakari Water Flow",
         "unit": "m³/h",
-        "group": "domestic_water",
+        "group": "sakari_water",
         "measurement_type": "flow",
         "description": "Water flow for Sakari area.",
         "source_column": "sak_waterflow",

@@ -1323,8 +1323,12 @@ class UtilityService:
                 "accent_tint": "rgba(239, 68, 68, 0.14)",
             },
             "domestic_water": {
+                "accent_color": "#2563eb",
+                "accent_tint": "rgba(37, 99, 235, 0.12)",
+            },
+            "sakari_water": {
                 "accent_color": "#f59e0b",
-                "accent_tint": "rgba(245, 158, 11, 0.14)",
+                "accent_tint": "rgba(245, 158, 11, 0.12)",
             },
             "default": {
                 "accent_color": "#64748b",

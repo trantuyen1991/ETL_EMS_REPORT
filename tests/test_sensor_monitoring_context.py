@@ -27,6 +27,17 @@ def test_daily_sensor_monitoring_context_builds_health_snapshot_and_top_issues()
     assert len(context["top_issues_preview"]) <= 5
     assert context["top_issues_preview"][0]["flag_summary"] == "Missing data"
 
+    group_keys = [group["key"] for group in context["groups"]]
+    assert group_keys[-2:] == ["domestic_water", "sakari_water"]
+
+    sakari_group = next(group for group in context["groups"] if group["key"] == "sakari_water")
+    domestic_group = next(group for group in context["groups"] if group["key"] == "domestic_water")
+
+    assert len(sakari_group["sensors"]) == 1
+    assert sakari_group["sensors"][0]["key"] == "sak_waterflow"
+    assert len(domestic_group["sensors"]) == 1
+    assert domestic_group["sensors"][0]["key"] == "dom_waterflow"
+
 
 def test_daily_pdf_utility_template_contains_sensor_health_and_top_issues_blocks() -> None:
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/utility.html").read_text(encoding="utf-8")
