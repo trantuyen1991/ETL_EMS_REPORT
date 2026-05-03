@@ -98,6 +98,10 @@ Stable baseline:
 - Daily KPI grouped bar chart: ✅
 - Daily KPI cards now include `Today / Yesterday` comparison: ✅
 - Period KPI dashboard now reuses the daily chart family with period labels: ✅
+- Weekly KPI top insight row now renders `Energy KPI daily trend` + `Deviation vs Last Week` in a 6:4 layout: ✅
+- Weekly KPI lower comparison row now uses a 6:4 layout for `Energy KPI comparison` + `Total KPI change explanation`: ✅
+- Weekly KPI deviation chart now uses a centered symmetric zero axis, thicker bars, and two-line labels (`delta%` above `delta value + unit`): ✅
+- Weekly KPI compare / waterfall charts now render `This Week` before `Last Week`: ✅
 - Daily KPI detail (with coverage status): ✅
 - Period KPI detail now uses a vertical area-stacked layout for A4/PDF width control: ✅
 - KPI daily header now uses the same boxed highlight style as Electricity: ✅
@@ -205,10 +209,15 @@ Current anomaly rules:
   - electricity, utility, and KPI chart footprints were tightened
   - sparse daily panels now read as intentional rather than malformed
   - daily Sensor Monitoring HTML now uses compact grouped cards with clearer icons, calmer spacing, and context-shortened metric labels
-- Weekly PDF audit remains the active layout workstream, but the first narrow fixes are already landed:
+- Weekly PDF audit remains the active layout workstream, but multiple KPI / Utility follow-up fixes are now landed:
   - utility distribution donut label crowding improved
   - trailing weekly sensor trend card rebalanced
   - utility deviation readability improved in PDF
+  - utility weekly comparison row now uses a 6:4 layout with centered-zero deviation behavior
+  - utility weekly insight row now adds `Utility daily total heatmap` + `This Week mix`
+  - utility weekly heatmap / mix geometry is now style-configurable under dedicated config nodes
+  - weekly KPI now adds a top insight row (`trend + deviation`) and a tuned lower 6:4 compare/waterfall row
+  - weekly KPI deviation labels now split across two lines and the compare / waterfall order now starts from `This Week`
   - periodic detail highlight artifacts/date crowding were reduced
 - Periodic `Daily Energy Detail` presentation now aligns more closely with the daily family without changing backend sorting or matrix structure:
   - calmer daily-like heat hierarchy

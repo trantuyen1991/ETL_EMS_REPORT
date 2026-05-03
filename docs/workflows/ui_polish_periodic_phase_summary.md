@@ -79,6 +79,22 @@
 - This file is now the durable record for the completed periodic wording + periodic detail presentation cleanup chain.
 - The temporary per-slice checklist files used during implementation were retired after consolidation.
 
+## Weekly KPI / Utility extension follow-up (2026-05-03)
+- Weekly Utility comparison polish was extended beyond wording-only normalization:
+  - weekly deviation chart now mirrors Electricity with centered zero axis and reversed label direction
+  - weekly comparison row now uses a 6:4 layout
+  - a third weekly insight row now adds `Utility daily total heatmap` + `This Week mix`
+  - the new weekly Utility heatmap / mix row is style-configurable from `report_style.json`
+- Weekly KPI periodic dashboard was expanded materially:
+  - added a weekly-only top insight row with `Energy KPI daily trend` on the left and `Deviation vs Last Week` on the right
+  - tuned both weekly KPI rows to a 6:4 layout pattern for visual consistency with Utility
+  - tightened trend-chart grid spacing, centered the deviation zero axis, and widened weekly KPI bars
+  - weekly KPI deviation labels now split into 2 lines (`delta%` above `delta value + unit`)
+  - weekly compare + waterfall order now renders `This Week` before `Last Week`
+- Verification status for the KPI/Utility follow-up chain:
+  - regression tests remained green after each slice
+  - periodic sample renders were regenerated and cropped section screenshots were reviewed in chat
+
 ## Next workstream
 - Next planned workstream: template layout audit by surface/page, starting with the daily PDF output.
 - See `docs/workflows/template_layout_audit_master_checklist.md` for the audit order and checks.
