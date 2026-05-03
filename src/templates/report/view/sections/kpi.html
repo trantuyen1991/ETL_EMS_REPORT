@@ -104,6 +104,30 @@
                     {% endfor %}
                 </div>
 
+                {% if not flags.is_daily_report and period.type == 'weekly' %}
+                <div class="kpi-periodic-insight-grid">
+                    <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile">
+                        <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.period_trend.title }}</h3>
+                        <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.period_trend.subtitle }}</p>
+                        {% if sections.kpi.charts.daily_dashboard.charts.period_trend.empty_message %}
+                        <div class="kpi-daily-empty-state">{{ sections.kpi.charts.daily_dashboard.charts.period_trend.empty_message }}</div>
+                        {% else %}
+                        <div id="kpi-period-trend-chart" class="electricity-chart kpi-periodic-trend-chart"></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile">
+                        <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.variance.title }}</h3>
+                        <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.variance.subtitle }}</p>
+                        {% if sections.kpi.charts.daily_dashboard.charts.variance.empty_message %}
+                        <div class="kpi-daily-empty-state">{{ sections.kpi.charts.daily_dashboard.charts.variance.empty_message }}</div>
+                        {% else %}
+                        <div id="kpi-daily-variance-chart" class="electricity-chart kpi-periodic-variance-chart"></div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
                 <div class="kpi-daily-dashboard-grid">
                     <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile">
                         <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.compare_bar.title }}</h3>
@@ -125,6 +149,7 @@
                         {% endif %}
                     </div>
 
+                    {% if flags.is_daily_report or period.type != 'weekly' %}
                     <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile kpi-daily-chart-tile-wide">
                         <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.variance.title }}</h3>
                         <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.variance.subtitle }}</p>
@@ -134,6 +159,7 @@
                         <div id="kpi-daily-variance-chart" class="electricity-chart kpi-daily-dashboard-chart"></div>
                         {% endif %}
                     </div>
+                    {% endif %}
                 </div>
 
                 <p class="kpi-daily-dashboard-note">Note: {{ sections.kpi.charts.daily_dashboard.note }}</p>
@@ -246,6 +272,10 @@
                         }
 
                         const chartConfigs = [
+                            {
+                                id: "kpi-period-trend-chart",
+                                option: {{ sections.kpi.charts.daily_dashboard.charts.period_trend.option | tojson }},
+                            },
                             {
                                 id: "kpi-daily-compare-chart",
                                 option: {{ sections.kpi.charts.daily_dashboard.charts.compare_bar.option | tojson }},

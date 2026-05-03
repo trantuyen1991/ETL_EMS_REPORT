@@ -5625,6 +5625,7 @@ class ReportBuilderService:
                 kpi_object,
                 current_label=current_label,
                 previous_label=previous_label,
+                period_type=normalized_period_type,
             ),
         }
 
@@ -5634,6 +5635,7 @@ class ReportBuilderService:
         *,
         current_label: str = "Today",
         previous_label: str = "Yesterday",
+        period_type: str = "",
     ) -> Dict[str, Any]:
         """Build the daily KPI dashboard cards and charts shown in daily reports."""
         if not kpi_object:
@@ -5643,6 +5645,7 @@ class ReportBuilderService:
                 "note": "Energy KPI = Energy (kWh) / Production (Ton)",
             }
 
+        normalized_period_type = str(period_type or "").strip().lower()
         current_summary = kpi_object.get("current", {}).get("summary", {})
         previous_summary = kpi_object.get("previous", {}).get("summary", {})
         area_visual_map = self._get_v3_area_visual_map()
@@ -5749,11 +5752,28 @@ class ReportBuilderService:
         compare_chart_empty = all((value in (None, 0.0) for value in [*today_values, *yesterday_values]))
         waterfall_chart_empty = all(abs(value) < 0.005 for value in [prev_total_kpi, energy_impact, production_impact, curr_total_kpi])
         variance_chart_empty = all((item.get("value") in (None, 0.0) for item in variance_items))
+        period_trend_option = self._build_v3_kpi_period_trend_option(
+            kpi_object,
+            period_type=normalized_period_type,
+        )
+        period_trend_empty = not bool(period_trend_option)
 
         return {
             "cards": cards,
             "note": "Energy KPI = Energy (kWh) / Production (Ton)",
             "charts": {
+                "period_trend": {
+                    "title": "Energy KPI daily trend",
+                    "subtitle": (
+                        "Daily KPI for this week by Total and workshop"
+                        if normalized_period_type == "weekly"
+                        else "Daily KPI for this month by Total and workshop"
+                        if normalized_period_type == "monthly"
+                        else "Daily KPI by Total and workshop"
+                    ),
+                    "empty_message": "No daily KPI values recorded for this period." if period_trend_empty else "",
+                    "option": period_trend_option,
+                },
                 "compare_bar": {
                     "title": compare_title,
                     "subtitle": compare_subtitle,
@@ -5799,6 +5819,152 @@ class ReportBuilderService:
         if delta_value <= 0.0:
             return {"label": "GOOD", "class": "kpi-badge-good"}
         return {"label": "STABLE", "class": "kpi-badge-stable"}
+
+    def _build_v3_kpi_period_trend_option(
+        self,
+        kpi_object: Optional[Dict[str, Any]],
+        *,
+        period_type: str,
+    ) -> Dict[str, Any]:
+        """Build periodic KPI daily trend lines for Total and workshop KPI values."""
+        normalized_period_type = str(period_type or "").strip().lower()
+        if normalized_period_type not in {"weekly", "monthly"} or not kpi_object:
+            return {}
+
+        current_daily_rows = sorted(
+            kpi_object.get("current", {}).get("daily_rows", []) or [],
+            key=lambda row: str(row.get("dt") or ""),
+        )
+        if not current_daily_rows:
+            return {}
+
+        labels: list[str] = []
+        series_values = {
+            "Total": [],
+            "DIODE": [],
+            "ICO": [],
+            "SAKARI": [],
+        }
+        has_numeric_value = False
+
+        for row in current_daily_rows:
+            dt_value = row.get("dt")
+            labels.append(self._format_periodic_axis_date_label(dt_value, normalized_period_type))
+
+            value_map = {
+                "Total": row.get("kpi"),
+                "DIODE": row.get("diode_kpi"),
+                "ICO": row.get("ico_kpi"),
+                "SAKARI": row.get("sakari_kpi"),
+            }
+            for key, raw_value in value_map.items():
+                if isinstance(raw_value, (int, float)):
+                    series_values[key].append(round(float(raw_value), 4))
+                    has_numeric_value = True
+                else:
+                    series_values[key].append(None)
+
+        if not has_numeric_value:
+            return {}
+
+        series_palette = self._get_kpi_chart_series_palette()
+        area_visual_map = self._get_v3_area_visual_map()
+        axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b8cada", "border", "strong"))
+        split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
+        series_defs = [
+            ("Total", series_palette["current"], series_palette["current_tint"]),
+            ("DIODE", area_visual_map["diode"]["bar_color"], area_visual_map["diode"]["bar_tint"]),
+            ("ICO", area_visual_map["ico"]["bar_color"], area_visual_map["ico"]["bar_tint"]),
+            ("SAKARI", area_visual_map["sakari"]["bar_color"], area_visual_map["sakari"]["bar_tint"]),
+        ]
+
+        return {
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {"type": "line"},
+            },
+            "legend": self._resolve_chart_legend(
+                {
+                    "bottom": 0,
+                    "left": "center",
+                    "itemWidth": 12,
+                    "itemHeight": 8,
+                },
+                "kpi",
+                "periodTrend",
+            ),
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 32,
+                    "right": 10,
+                    "top": 36,
+                    "bottom": 46,
+                    "containLabel": True,
+                },
+                "kpi",
+                "periodTrend",
+            ),
+            "xAxis": {
+                "type": "category",
+                "boundaryGap": False,
+                "data": labels,
+                "axisLabel": {
+                    "color": axis_label_color,
+                    "interval": 0,
+                    "rotate": 28,
+                    "fontSize": 9,
+                    "margin": 12,
+                },
+                "axisLine": {"lineStyle": {"color": axis_line_color}},
+                "axisTick": {"alignWithLabel": True},
+            },
+            "yAxis": {
+                "type": "value",
+                "name": "kWh/Ton",
+                "nameLocation": "end",
+                "nameGap": 10,
+                "nameTextStyle": {
+                    "fontSize": 9,
+                    "fontWeight": 700,
+                    "color": axis_label_color,
+                },
+                "axisLabel": {
+                    "color": axis_label_color,
+                    "margin": 12,
+                },
+                "splitLine": {"lineStyle": {"color": split_line_color}},
+            },
+            "series": [
+                {
+                    "name": label,
+                    "type": "line",
+                    "smooth": False,
+                    "symbol": "circle",
+                    "symbolSize": 7,
+                    "showSymbol": True,
+                    "lineStyle": {"width": 2.5, "color": color},
+                    "itemStyle": {"color": color},
+                    "areaStyle": {"color": tint},
+                    "label": {
+                        "show": normalized_period_type == "weekly",
+                        "position": "top",
+                        "fontSize": 8,
+                        "color": color,
+                        "backgroundColor": "rgba(255,255,255,0.92)",
+                        "padding": [2, 4],
+                        "borderRadius": 4,
+                    },
+                    "data": self._build_chart_line_points(
+                        series_values[label],
+                        color=color,
+                        label_formatter=(lambda value: f"{float(value):.2f}"),
+                        show_only_min_max=normalized_period_type == "monthly",
+                    ),
+                }
+                for label, color, tint in series_defs
+            ],
+        }
 
     def _build_v3_kpi_compare_bar_option(
         self,

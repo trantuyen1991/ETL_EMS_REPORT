@@ -1431,6 +1431,22 @@
                   "containLabel": true
                 }
               },
+              "periodTrend": {
+                "legend": {
+                  "bottom": "center"
+                },
+                "grid": {
+                  "left": 32,
+                  "right": 10,
+                  "top": 36,
+                  "bottom": 46,
+                  "containLabel": true
+                },
+                "height": {
+                  "view": "288px",
+                  "pdf": "196px"
+                }
+              },
               "waterfall": {
                 "grid": {
                   "left": 32,
@@ -1448,6 +1464,10 @@
                   "top": 12,
                   "bottom": 18,
                   "containLabel": false
+                },
+                "height": {
+                  "view": "288px",
+                  "pdf": "196px"
                 },
                 "valueLabel": {
                   "positivePosition": "left",

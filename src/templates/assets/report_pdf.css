@@ -1008,6 +1008,20 @@
         gap: 8px !important;
     }
 
+    .kpi-periodic-insight-grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;
+        gap: 8px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .kpi-periodic-insight-grid .kpi-chart-card {
+        min-height: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
     .report-period-daily .kpi-daily-dashboard {
         margin-bottom: 10px !important;
     }
@@ -1022,6 +1036,14 @@
 
     .kpi-daily-dashboard-chart {
         height: var(--report-components-report-section-kpi-chart-dashboard-height-pdf, 196px) !important;
+    }
+
+    .kpi-periodic-trend-chart {
+        height: var(--report-components-report-section-kpi-chart-period-trend-height-pdf, 196px) !important;
+    }
+
+    .kpi-periodic-variance-chart {
+        height: var(--report-components-report-section-kpi-chart-period-variance-height-pdf, 196px) !important;
     }
 
     .report-period-daily .kpi-daily-dashboard-chart {

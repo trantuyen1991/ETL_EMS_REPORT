@@ -69,6 +69,46 @@ def test_kpi_summary_matrix_populated_title_uses_neutral_wording() -> None:
     assert matrix["title"] == "KPI Summary Matrix"
 
 
+def _build_weekly_kpi_object() -> dict:
+    return {
+        "current": {
+            "summary": {
+                "plant": {"total_energy": 700.0, "total_prod": 70.0, "total_kpi": 10.0},
+                "areas": {
+                    "ico": {"energy": 210.0, "prod": 21.0, "kpi": 10.0},
+                    "diode": {"energy": 280.0, "prod": 28.0, "kpi": 10.0},
+                    "sakari": {"energy": 210.0, "prod": 21.0, "kpi": 10.0},
+                },
+            },
+            "daily_rows": [
+                {"dt": "2025-05-12", "kpi": 9.8, "ico_kpi": 9.5, "diode_kpi": 10.2, "sakari_kpi": 9.7},
+                {"dt": "2025-05-13", "kpi": 10.1, "ico_kpi": 9.7, "diode_kpi": 10.4, "sakari_kpi": 10.0},
+                {"dt": "2025-05-14", "kpi": 10.3, "ico_kpi": 9.9, "diode_kpi": 10.6, "sakari_kpi": 10.1},
+            ],
+            "coverage": {},
+        },
+        "previous": {
+            "summary": {
+                "plant": {"total_energy": 680.0, "total_prod": 70.0, "total_kpi": 9.7},
+                "areas": {
+                    "ico": {"energy": 204.0, "prod": 21.0, "kpi": 9.7},
+                    "diode": {"energy": 272.0, "prod": 28.0, "kpi": 9.8},
+                    "sakari": {"energy": 204.0, "prod": 21.0, "kpi": 9.6},
+                },
+            },
+            "daily_rows": [],
+        },
+        "comparison": {
+            "plant": {"current": 10.0, "previous": 9.7, "delta": 0.3, "delta_pct": 0.3 / 9.7},
+            "areas": {
+                "ico": {"current": 10.0, "previous": 9.7, "delta": 0.3, "delta_pct": 0.3 / 9.7},
+                "diode": {"current": 10.0, "previous": 9.8, "delta": 0.2, "delta_pct": 0.2 / 9.8},
+                "sakari": {"current": 10.0, "previous": 9.6, "delta": 0.4, "delta_pct": 0.4 / 9.6},
+            },
+        },
+    }
+
+
 def _build_zero_kpi_object() -> dict:
     return {
         "current": {
@@ -317,3 +357,48 @@ def test_daily_kpi_view_uses_empty_state_label_treatment() -> None:
 
     assert '.kpi-daily-empty-state::before' in css
     assert 'LOW ACTIVITY DAY' in css
+
+
+def test_weekly_kpi_dashboard_adds_period_trend_chart() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    dashboard = service._build_v3_kpi_charts(_build_weekly_kpi_object(), period_type="weekly")["daily_dashboard"]
+    period_trend = dashboard["charts"]["period_trend"]
+
+    assert period_trend["title"] == "Energy KPI daily trend"
+    assert period_trend["subtitle"] == "Daily KPI for this week by Total and workshop"
+    assert period_trend["option"]["xAxis"]["data"][0] == "May 12 (Mon)"
+    assert [series["name"] for series in period_trend["option"]["series"]] == ["Total", "DIODE", "ICO", "SAKARI"]
+    assert period_trend["option"]["legend"]["left"] == "center"
+
+
+def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
+    view_template = (PROJECT_ROOT / "src/templates/report/view/sections/kpi.html").read_text(encoding="utf-8")
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/kpi.html").read_text(encoding="utf-8")
+
+    assert "kpi-periodic-insight-grid" in view_template
+    assert "kpi-period-trend-chart" in view_template
+    assert "period.type == 'weekly'" in view_template
+    assert "kpi-periodic-variance-chart" in view_template
+    assert "kpi-periodic-insight-grid" in pdf_template
+    assert "kpi-period-trend-chart" in pdf_template
+    assert "kpi-periodic-variance-chart" in pdf_template
+
+
+def test_weekly_kpi_css_and_config_define_periodic_trend_row() -> None:
+    report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+    style_cfg = json.loads((PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8"))
+    kpi_chart_cfg = style_cfg["reportStyle"]["components"]["report"]["section"]["kpi"]["chart"]
+
+    assert '.kpi-periodic-insight-grid {' in report_css
+    assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);' in report_css
+    assert 'height: var(--report-components-report-section-kpi-chart-period-trend-height-view, 288px);' in report_css
+    assert '.kpi-periodic-insight-grid {' in pdf_css
+    assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;' in pdf_css
+    assert 'height: var(--report-components-report-section-kpi-chart-period-variance-height-pdf, 196px) !important;' in pdf_css
+    assert kpi_chart_cfg["periodTrend"]["legend"]["bottom"] == "center"
+    assert kpi_chart_cfg["periodTrend"]["height"]["view"] == "288px"
+    assert kpi_chart_cfg["variance"]["height"]["view"] == "288px"
