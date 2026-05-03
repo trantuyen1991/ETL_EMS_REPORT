@@ -71,6 +71,59 @@ BUILD → CHANGE → BUILD → REVIEW → CHECKLIST UPDATE → COMMIT → MINE
 
 ---
 
+## 3.1 Standard Workflow for a Large User Task
+
+Use this workflow when the user gives a large request, a multi-part UI polish pass, or a change that could create long chat/context history.
+
+### Required response pattern at the start
+Before implementation, always do these three things:
+
+1. Restate understanding
+   - explain what the user is asking for
+   - explain the intended outcome and priority
+
+2. Define scope clearly
+   - list what will be changed now
+   - state what is intentionally out of scope for this slice
+
+3. Start implementation directly if the request is already clear
+   - ask follow-up questions only when ambiguity is real
+   - do not stop at planning if the next action is obvious
+
+### Execution checklist
+1. Restate understanding briefly
+2. Define the exact scope for the current slice
+3. Inspect the relevant files only
+4. Establish a baseline when the change is meaningful
+5. Split the work into small checkpoints
+6. Complete one checkpoint at a time
+7. Verify after each checkpoint
+8. Send one concise review summary when a checkpoint is ready
+9. Commit only stable checkpoints
+10. Re-mine MemPalace after meaningful approved code/docs changes
+
+### Context control rules
+To avoid context bloat and keep execution fast:
+- keep only the active goal, constraints, decisions, touched files, latest checkpoint, and next step in working context
+- avoid replaying full conversation history when a compact task summary is enough
+- prefer one active checklist for the current workstream, not many overlapping notes
+- retire temporary checklist files after durable documentation is updated
+
+### Default format to follow in chat
+```text
+Understanding
+- ...
+
+Scope for this slice
+- ...
+- ...
+
+Implementation
+- proceed directly unless a real blocker or ambiguity appears
+```
+
+---
+
 ## 4. Workflow: Refactor a Single File
 
 This workflow is intended for cleanup and refactor work on one file at a time.
