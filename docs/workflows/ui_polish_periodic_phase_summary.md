@@ -79,7 +79,7 @@
 - This file is now the durable record for the completed periodic wording + periodic detail presentation cleanup chain.
 - The temporary per-slice checklist files used during implementation were retired after consolidation.
 
-## Weekly KPI / Utility extension follow-up (2026-05-03)
+## Weekly KPI / Utility extension follow-up (2026-05-03 to 2026-05-04)
 - Weekly Utility comparison polish was extended beyond wording-only normalization:
   - weekly deviation chart now mirrors Electricity with centered zero axis and reversed label direction
   - weekly comparison row now uses a 6:4 layout
@@ -91,9 +91,16 @@
   - tightened trend-chart grid spacing, centered the deviation zero axis, and widened weekly KPI bars
   - weekly KPI deviation labels now split into 2 lines (`delta%` above `delta value + unit`)
   - weekly compare + waterfall order now renders `This Week` before `Last Week`
+- Weekly `Daily KPI Detail` readability polish was then extended in two follow-up slices:
+  - first pass improved scanability with a dedicated leading `Index` column, stronger grouped identity on the left, and clearer area tinting per day block
+  - second pass aligned the weekly table closer to `Daily Energy Detail` semantics by reordering rows to `Plant -> DIODE -> ICO -> SAKARI`
+  - `KPI`, `Product`, and `Energy` now use per-column heat fills, each normalized against that metric column's own maximum across the visible weekly table
+  - metric text now stays in a neutral dark tone instead of inheriting the old accent colors directly
+  - missing (`-`) KPI/Product/Energy cells are forced back to neutral so they do not look like valid heatmap intensity
 - Verification status for the KPI/Utility follow-up chain:
   - regression tests remained green after each slice
   - periodic sample renders were regenerated and cropped section screenshots were reviewed in chat
+  - the latest `Daily KPI Detail` review checkpoint was accepted by the user before docs consolidation
 
 ## Next workstream
 - Next planned workstream: template layout audit by surface/page, starting with the daily PDF output.

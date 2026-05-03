@@ -104,6 +104,8 @@ Stable baseline:
 - Weekly KPI compare / waterfall charts now render `This Week` before `Last Week`: ✅
 - Daily KPI detail (with coverage status): ✅
 - Period KPI detail now uses a vertical area-stacked layout for A4/PDF width control: ✅
+- Weekly/periodic KPI detail now adds a leading `Index` column, reorders each day to `Plant -> DIODE -> ICO -> SAKARI`, and uses per-column heat-fill for `KPI / Product / Energy`: ✅
+- Weekly/periodic KPI metric cells now use neutral dark text, column-local max-based fill intensity, and neutral missing-value cells to avoid false heat cues: ✅
 - KPI daily header now uses the same boxed highlight style as Electricity: ✅
 
 KPI logic:
@@ -219,6 +221,8 @@ Current anomaly rules:
   - weekly KPI now adds a top insight row (`trend + deviation`) and a tuned lower 6:4 compare/waterfall row
   - weekly KPI deviation labels now split across two lines and the compare / waterfall order now starts from `This Week`
   - periodic detail highlight artifacts/date crowding were reduced
+  - periodic `Daily KPI Detail` now scans closer to `Daily Energy Detail`, with a wider index column, stronger day-group anchors, Plant-first row ordering, and metric-column heat fills normalized by each column's own max
+  - periodic KPI missing metric cells are now visually neutral so `-` rows do not read as real heat intensity
 - Periodic `Daily Energy Detail` presentation now aligns more closely with the daily family without changing backend sorting or matrix structure:
   - calmer daily-like heat hierarchy
   - stronger area identity in DIODE / ICO / SAKARI blocks
