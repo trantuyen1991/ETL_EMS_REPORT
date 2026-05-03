@@ -47,7 +47,7 @@ def test_daily_sensor_monitoring_context_merges_water_in_overview_and_detail_gro
 
     anomaly_rows = context["anomaly_rows"]
     water_anomaly = next(row for row in anomaly_rows if row["sensor_key"] == "sak_waterflow")
-    assert water_anomaly["group_label"] == "Domestic + Sakari Water"
+    assert water_anomaly["group_label"] == "Sakari Water"
     assert water_anomaly["display_name"] == "Sakari Flow"
 
     ico_air_group = next(group for group in context["groups"] if group["key"] == "ico_air")

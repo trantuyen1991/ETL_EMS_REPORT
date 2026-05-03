@@ -465,10 +465,7 @@ class UtilityService:
                             group_key=group_key,
                         ),
                         "group_key": group_key,
-                        "group_label": self._build_daily_anomaly_group_label(
-                            group_key=group_key,
-                            fallback_label=group_label,
-                        ),
+                        "group_label": group_label,
                         "measurement_type": row["measurement_type_label"],
                         "flag_summary": row["flag_summary"],
                         "flag_detail_summary": row["flag_detail_summary"],
@@ -1130,17 +1127,6 @@ class UtilityService:
                     return trimmed
 
         return normalized_display
-
-    def _build_daily_anomaly_group_label(
-        self,
-        *,
-        group_key: str,
-        fallback_label: str,
-    ) -> str:
-        """Keep daily anomaly labels aligned with merged detail cards."""
-        if group_key in {"domestic_water", "sakari_water"}:
-            return "Domestic + Sakari Water"
-        return fallback_label
 
     def _build_daily_anomaly_sensor_name(
         self,
