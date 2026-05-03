@@ -535,8 +535,8 @@
     }
 
     .report-period-daily .utility-overview-card {
-        min-height: 70px !important;
-        padding: 6px 7px !important;
+        min-height: 64px !important;
+        padding: 5px 6px !important;
     }
 
     .report-period-daily .utility-energy-card {
@@ -688,12 +688,12 @@
     }
 
     .utility-chart-split-grid-daily {
-        gap: 6px !important;
-        margin-top: 4px !important;
+        gap: 5px !important;
+        margin-top: 2px !important;
     }
 
     .utility-chart-detail-stack {
-        gap: 4px !important;
+        gap: 3px !important;
     }
 
     .utility-periodic-chart-grid {
@@ -750,7 +750,7 @@
     }
 
     .utility-comparison-chart-daily {
-        height: var(--report-components-report-section-utility-chart-deviation-height-pdf, 204px) !important;
+        height: var(--report-components-report-section-utility-chart-deviation-height-pdf, 164px) !important;
     }
 
     .utility-periodic-chart-grid .utility-comparison-chart-daily {
@@ -763,7 +763,7 @@
 
     .utility-chart-split-grid-daily .utility-comparison-chart-wide,
     .utility-chart-split-grid-daily .utility-comparison-chart-narrow {
-        height: var(--report-components-report-section-utility-chart-comparison-height-pdf, 152px) !important;
+        height: var(--report-components-report-section-utility-chart-comparison-height-pdf, 132px) !important;
     }
 
     .utility-comparison-chart-wide,
