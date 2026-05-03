@@ -2709,7 +2709,12 @@ class ReportBuilderService:
                     "blocks": self._build_utility_periodic_overview_blocks(
                         charts={
                             "deviation_vs_yesterday": {
-                                "title": "Deviation vs Yesterday" if is_daily_report else "Consumption delta (%)",
+                                "title": (
+                                    "Deviation vs Yesterday"
+                                    if is_daily_report else "Deviation vs Last Month"
+                                    if period_type == "monthly" else "Deviation vs Last Week"
+                                    if period_type == "weekly" else "Deviation vs Previous Period"
+                                ),
                                 "subtitle": "Positive value means higher consumption" if is_daily_report else f"{current_period_label} versus {previous_period_label.lower()}",
                             },
                             "period_type_trend": {
@@ -2732,9 +2737,14 @@ class ReportBuilderService:
                 ),
             },
             "deviation_vs_yesterday": {
-                "title": "Deviation vs Yesterday" if is_daily_report else "Consumption delta (%)",
+                "title": (
+                    "Deviation vs Yesterday"
+                    if is_daily_report else "Deviation vs Last Month"
+                    if period_type == "monthly" else "Deviation vs Last Week"
+                    if period_type == "weekly" else "Deviation vs Previous Period"
+                ),
                 "subtitle": "Positive value means higher consumption" if is_daily_report else f"{current_period_label} versus {previous_period_label.lower()}",
-                "option": self._build_v3_utility_deviation_option(utility_items),
+                "option": self._build_v3_utility_deviation_option(utility_items, period_type=period_type),
             },
             "period_type_trend": {
                 "title": "Utility daily trend",
@@ -3497,6 +3507,7 @@ class ReportBuilderService:
     def _build_v3_utility_deviation_option(
         self,
         items: list[dict[str, Any]],
+        period_type: str = "daily",
     ) -> Dict[str, Any]:
         """Build a horizontal deviation chart for utility delta vs yesterday."""
         deviation_items: list[dict[str, Any]] = []
@@ -3534,6 +3545,8 @@ class ReportBuilderService:
             for value in values
         ]
 
+        period_type = str(period_type or "daily").strip().lower() or "daily"
+        is_weekly_period = period_type == "weekly"
         is_pdf_mode = self._render_mode == "pdf"
         series_cfg = self._resolve_chart_series_config(
             {
@@ -3563,13 +3576,29 @@ class ReportBuilderService:
             "utility",
             "deviation",
         )
+        if is_weekly_period:
+            label_config["positivePosition"] = "left"
+            label_config["negativePosition"] = "right"
+            label_config["nearZeroPositivePosition"] = "left"
+            label_config["nearZeroNegativePosition"] = "right"
+            label_config["nearZeroDistance"] = max(float(label_config.get("distance", 4) or 4) + 4, 8)
+
         near_zero_threshold = abs(float(label_config.get("nearZeroThreshold", 0) or 0.0))
         near_zero_distance = label_config.get("nearZeroDistance", label_config.get("distance", 4))
 
         min_value = min(values, default=0.0)
         max_value = max(values, default=0.0)
-        axis_min = min(-10.0, float(min_value)) - float(label_config.get("axisPaddingLeft", 2) or 0.0)
-        axis_max = max(10.0, float(max_value)) + float(label_config.get("axisPaddingRight", 2) or 0.0)
+        if is_weekly_period:
+            max_abs = max([abs(float(value or 0.0)) for value in values], default=0.0)
+            axis_padding_left = abs(float(label_config.get("axisPaddingLeft", 2) or 0.0))
+            axis_padding_right = abs(float(label_config.get("axisPaddingRight", 2) or 0.0))
+            axis_padding = max(axis_padding_left, axis_padding_right)
+            axis_limit = round(max(10.0, max_abs + axis_padding), 2)
+            axis_min = -axis_limit
+            axis_max = axis_limit
+        else:
+            axis_min = min(-10.0, float(min_value)) - float(label_config.get("axisPaddingLeft", 2) or 0.0)
+            axis_max = max(10.0, float(max_value)) + float(label_config.get("axisPaddingRight", 2) or 0.0)
 
         return {
             "tooltip": {

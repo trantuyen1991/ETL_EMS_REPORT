@@ -697,7 +697,7 @@
     }
 
     .utility-periodic-chart-grid {
-        grid-template-columns: minmax(0, 1.34fr) minmax(0, 1.06fr) !important;
+        grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;
         gap: 8px !important;
         margin-bottom: 8px !important;
     }
@@ -754,7 +754,7 @@
     }
 
     .utility-periodic-chart-grid .utility-comparison-chart-daily {
-        height: var(--report-components-report-section-utility-chart-deviation-periodic-height-pdf, 220px) !important;
+        height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;
     }
 
     .utility-chart-block-deviation .utility-chart-card {

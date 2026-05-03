@@ -99,6 +99,7 @@ def test_periodic_utility_charts_use_period_aware_wording() -> None:
     assert weekly_charts["comparison_bar"]["option"]["series"][1]["name"] == "Last Week"
     assert weekly_charts["comparison_split"]["wide"]["option"]["series"][0]["name"] == "This Week"
     assert weekly_charts["comparison_split"]["wide"]["option"]["series"][1]["name"] == "Last Week"
+    assert weekly_charts["deviation_vs_yesterday"]["title"] == "Deviation vs Last Week"
     assert weekly_charts["deviation_vs_yesterday"]["subtitle"] == "This Week versus last week"
     assert weekly_charts["period_type_trend"]["subtitle"] == "Daily totals for this week by utility group"
     assert weekly_charts["period_mix"]["title"] == "This Week mix"
@@ -108,6 +109,7 @@ def test_periodic_utility_charts_use_period_aware_wording() -> None:
     assert monthly_charts["comparison_bar"]["option"]["series"][1]["name"] == "Last Month"
     assert monthly_charts["comparison_split"]["wide"]["option"]["series"][0]["name"] == "This Month"
     assert monthly_charts["comparison_split"]["wide"]["option"]["series"][1]["name"] == "Last Month"
+    assert monthly_charts["deviation_vs_yesterday"]["title"] == "Deviation vs Last Month"
     assert monthly_charts["deviation_vs_yesterday"]["subtitle"] == "This Month versus last month"
     assert monthly_charts["period_type_trend"]["subtitle"] == "Daily totals for this month by utility group"
     assert monthly_charts["period_mix"]["title"] == "This Month mix"
@@ -216,6 +218,42 @@ def test_utility_pdf_distribution_chart_uses_compact_donut_geometry() -> None:
     assert series["radius"] == ["48%", "72%"]
     assert series["center"] == ["42%", "54%"]
     assert series["label"]["fontSize"] == 7
+
+
+def test_weekly_utility_deviation_chart_centers_zero_and_inverts_label_direction() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    option = service._build_v3_utility_deviation_option(
+        [
+            {"display_name": "ICO Air", "unit": "m³", "current": 100.0, "previous": 50.0},
+            {"display_name": "Steam", "unit": "m³", "current": 25.0, "previous": 50.0},
+        ],
+        period_type="weekly",
+    )
+
+    items = option["series"][0]["data"]
+    positive_item = items[0]
+    negative_item = items[1]
+
+    assert option["xAxis"]["min"] == -option["xAxis"]["max"]
+    assert option["xAxis"]["max"] > 100.0
+    assert positive_item["value"] == 100.0
+    assert positive_item["label"]["position"] == "left"
+    assert negative_item["value"] == -50.0
+    assert negative_item["label"]["position"] == "right"
+
+
+def test_utility_periodic_layout_css_matches_weekly_delta_width_and_height_targets() -> None:
+    report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+
+    assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);' in report_css
+    assert '.utility-periodic-chart-grid .utility-comparison-chart-daily {' in report_css
+    assert 'height: var(--report-components-report-section-utility-chart-period-trend-height-view, 326px);' in report_css
+    assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;' in pdf_css
+    assert 'height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;' in pdf_css
 
 
 def test_utility_pdf_deviation_chart_uses_compact_axis_spacing() -> None:

@@ -2637,7 +2637,7 @@
 
         .utility-periodic-chart-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.42fr) minmax(0, 0.98fr);
+            grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
             gap: 12px;
             align-items: stretch;
             margin-bottom: 10px;
@@ -2724,6 +2724,10 @@
 
         .utility-comparison-chart-daily {
             height: var(--report-components-report-section-utility-chart-deviation-height-view, 326px);
+        }
+
+        .utility-periodic-chart-grid .utility-comparison-chart-daily {
+            height: var(--report-components-report-section-utility-chart-period-trend-height-view, 326px);
         }
 
         .report-family-daily .utility-comparison-chart-daily {
