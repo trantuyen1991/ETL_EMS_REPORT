@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 from src.services.report_builder_service import ReportBuilderService
@@ -61,6 +61,38 @@ def test_daily_pdf_utility_template_removes_insight_blocks_and_brings_metric_car
     assert "Top issues today" not in pdf_template
     assert "sensor_monitoring_view.health_snapshot" not in pdf_template
     assert "sensor_monitoring_view.top_issues_preview" not in pdf_template
+
+
+def test_daily_sensor_monitoring_trend_clusters_merge_domestic_and_sakari_water() -> None:
+    service = UtilityService()
+
+    context = service.build_sensor_monitoring_context(
+        daily_stats={},
+        report_start=date(2025, 5, 31),
+        report_end=date(2025, 5, 31),
+        raw_rows=[
+            {
+                "dt": datetime(2025, 5, 31, 0, 0),
+                "dom_waterflow": 1.0,
+                "sak_waterflow": 2.0,
+            },
+            {
+                "dt": datetime(2025, 5, 31, 1, 0),
+                "dom_waterflow": 1.5,
+                "sak_waterflow": 2.5,
+            },
+        ],
+    )
+
+    trend_clusters = context["trend_clusters"]
+    water_cluster = next(cluster for cluster in trend_clusters if cluster["cluster_key"] == "domestic_water")
+
+    assert water_cluster["cluster_label"] == "Domestic + Sakari Water"
+    assert water_cluster["sensor_count"] == 2
+    assert water_cluster["chart_count"] == 1
+    flow_chart = water_cluster["charts"][0]
+    assert flow_chart["title"] == "Flow trend"
+    assert [series["label"] for series in flow_chart["series"]] == ["Domestic Flow", "Sakari Flow"]
 
 
 def test_daily_pdf_utility_template_keeps_all_daily_sensor_cards_with_overview_before_anomaly_scan() -> None:

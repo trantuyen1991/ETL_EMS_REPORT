@@ -1520,17 +1520,41 @@ class UtilityService:
         }
 
         clusters: list[dict[str, Any]] = []
+        trend_group_specs: list[dict[str, Any]] = []
 
         for group_key in group_order:
+            if group_key == "sakari_water":
+                continue
+
+            if group_key == "domestic_water":
+                trend_group_specs.append({
+                    "cluster_key": "domestic_water",
+                    "cluster_label": "Domestic + Sakari Water",
+                    "group_keys": ["domestic_water", "sakari_water"],
+                    "visual": group_visuals.get("domestic_water", group_visuals["default"]),
+                })
+                continue
+
+            trend_group_specs.append({
+                "cluster_key": group_key,
+                "cluster_label": group_labels.get(group_key, group_key.replace("_", " ").title()),
+                "group_keys": [group_key],
+                "visual": group_visuals.get(group_key, group_visuals["default"]),
+            })
+
+        for trend_group in trend_group_specs:
+            cluster_key = str(trend_group.get("cluster_key") or "")
+            cluster_label = str(trend_group.get("cluster_label") or cluster_key.replace("_", " ").title())
+            grouped_keys = trend_group.get("group_keys") or [cluster_key]
             group_sensors = [
                 (sensor_key, meta)
                 for sensor_key, meta in sensor_metadata.items()
-                if meta.get("group") == group_key
+                if meta.get("group") in grouped_keys
             ]
             if not group_sensors:
                 continue
 
-            visual = group_visuals.get(group_key, group_visuals["default"])
+            visual = trend_group.get("visual") or group_visuals["default"]
             charts: list[dict[str, Any]] = []
 
             for measurement_type in measurement_order:
@@ -1561,9 +1585,17 @@ class UtilityService:
                         })
 
                     sensor_row = sensor_rows_by_key.get(sensor_key, {})
+                    series_label = meta.get("display_name") or sensor_key
+                    sensor_group_key = str(meta.get("group") or "")
+                    if sensor_group_key in {"domestic_water", "sakari_water"}:
+                        series_label = self._build_daily_anomaly_sensor_name(
+                            sensor_row=sensor_row,
+                            group_key=sensor_group_key,
+                        )
+
                     series_items.append({
                         "sensor_key": sensor_key,
-                        "label": meta.get("display_name") or sensor_key,
+                        "label": series_label,
                         "unit": meta.get("unit") or "",
                         "measurement_type": measurement_type,
                         "measurement_type_label": self._format_measurement_type_label(measurement_type),
@@ -1578,7 +1610,7 @@ class UtilityService:
 
                 first_unit = str(measurement_sensors[0][1].get("unit") or "")
                 charts.append({
-                    "chart_key": f"{group_key}_{measurement_type}",
+                    "chart_key": f"{cluster_key}_{measurement_type}",
                     "title": measurement_titles.get(measurement_type, "Sensor trend"),
                     "measurement_type": measurement_type,
                     "measurement_type_label": self._format_measurement_type_label(measurement_type),
@@ -1592,8 +1624,8 @@ class UtilityService:
                 for sensor_key, _meta in group_sensors
             ]
             clusters.append({
-                "cluster_key": group_key,
-                "cluster_label": group_labels.get(group_key, group_key.replace("_", " ").title()),
+                "cluster_key": cluster_key,
+                "cluster_label": cluster_label,
                 "focus_date": focus_date.isoformat(),
                 "accent_color": visual["accent_color"],
                 "accent_tint": visual["accent_tint"],
