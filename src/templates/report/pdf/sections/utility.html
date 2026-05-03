@@ -899,34 +899,34 @@
                         <table class="utility-sensor-anomaly-table report-table-ui">
                             <thead>
                                 <tr>
-                                    <th>Sensor</th>
-                                    <th>Group</th>
-                                    <th>Type</th>
+                                    <th class="col-group">Group</th>
+                                    <th class="col-sensor">Sensor</th>
+                                    <th class="col-type">Type</th>
                                     {% if flags.is_daily_report %}
-                                    <th>Latest</th>
+                                    <th class="col-latest">Latest</th>
                                     {% else %}
-                                    <th>Data days</th>
+                                    <th class="col-days">Data days</th>
                                     {% endif %}
-                                    <th>Min</th>
-                                    <th>Avg</th>
-                                    <th>Max</th>
+                                    <th class="col-min">Min</th>
+                                    <th class="col-avg">Avg</th>
+                                    <th class="col-max">Max</th>
                                     <th class="col-reason">Reason</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for row in sensor_monitoring_view.anomaly_rows %}
                                 <tr class="{{ row.severity_class }}">
-                                    <td>{{ row.display_name }}</td>
-                                    <td>{{ row.group_label }}</td>
-                                    <td>{{ row.measurement_type }}</td>
+                                    <td class="col-group">{{ row.group_label }}</td>
+                                    <td class="col-sensor">{{ row.display_name }}</td>
+                                    <td class="col-type">{{ row.measurement_type }}</td>
                                     {% if flags.is_daily_report %}
-                                    <td>{{ row.latest_display }}</td>
+                                    <td class="col-latest">{{ row.latest_display }}</td>
                                     {% else %}
-                                    <td>{{ row.days_with_data_display }}</td>
+                                    <td class="col-days">{{ row.days_with_data_display }}</td>
                                     {% endif %}
-                                    <td>{{ row.min_display }}</td>
-                                    <td>{{ row.avg_display }}</td>
-                                    <td>{{ row.max_display }}</td>
+                                    <td class="col-min">{{ row.min_display }}</td>
+                                    <td class="col-avg">{{ row.avg_display }}</td>
+                                    <td class="col-max">{{ row.max_display }}</td>
                                     <td class="col-reason">
                                         <div class="utility-sensor-anomaly-reason">
                                             <span class="utility-sensor-range-flag {{ row.severity_class }}">{{ row.flag_summary }}</span>

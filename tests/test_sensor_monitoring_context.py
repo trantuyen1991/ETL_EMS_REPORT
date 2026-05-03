@@ -45,6 +45,11 @@ def test_daily_sensor_monitoring_context_merges_water_in_overview_and_detail_gro
     assert [sensor["key"] for sensor in domestic_group["sensors"]] == ["dom_waterflow", "sak_waterflow"]
     assert [sensor["short_display_name"] for sensor in domestic_group["sensors"]] == ["Domestic Flow", "Sakari Flow"]
 
+    anomaly_rows = context["anomaly_rows"]
+    water_anomaly = next(row for row in anomaly_rows if row["sensor_key"] == "sak_waterflow")
+    assert water_anomaly["group_label"] == "Domestic + Sakari Water"
+    assert water_anomaly["display_name"] == "Sakari Flow"
+
     ico_air_group = next(group for group in context["groups"] if group["key"] == "ico_air")
     assert [sensor["short_display_name"] for sensor in ico_air_group["sensors"]] == ["Flow", "Pressure"]
 
@@ -65,6 +70,8 @@ def test_daily_pdf_utility_template_keeps_all_daily_sensor_cards_with_overview_b
     assert "sensor_group_remaining = [] if flags.is_daily_report else sensor_monitoring_view.groups" in pdf_template
     assert 'utility-sensor-group-preview-block{% if not flags.is_daily_report %} pdf-keep-together{% endif %}' in pdf_template
     assert 'utility-sensor-anomaly-block{% if flags.is_daily_report %} page-break-before{% endif %}' in pdf_template
+    assert '<th class="col-group">Group</th>' in pdf_template
+    assert '<th class="col-sensor">Sensor</th>' in pdf_template
 
 
 def test_period_sensor_trend_builder_marks_lone_tail_chart_for_full_width_pdf_layout() -> None:

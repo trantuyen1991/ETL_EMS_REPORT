@@ -174,6 +174,9 @@ def test_daily_pdf_sensor_monitoring_uses_metric_table_layout() -> None:
     assert '.report-period-daily .utility-sensor-metric-title-row' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-value' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-status-main' in pdf_css
+    assert '.report-period-daily .utility-sensor-anomaly-table .col-group' in pdf_css
+    assert '.report-period-daily .utility-sensor-anomaly-table .col-reason' in pdf_css
+    assert 'page-break-before: auto !important;' in pdf_css
 
 
 def test_utility_pdf_deviation_chart_uses_shorter_value_labels() -> None:

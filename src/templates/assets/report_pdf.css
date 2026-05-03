@@ -2030,12 +2030,13 @@
     }
 
     .report-period-daily .utility-sensor-anomaly-block {
-        margin-top: 8px !important;
+        margin-top: 6px !important;
+        padding: 6px !important;
     }
 
     .report-period-daily .utility-sensor-anomaly-block.page-break-before {
-        break-before: page !important;
-        page-break-before: always !important;
+        break-before: auto !important;
+        page-break-before: auto !important;
     }
 
     .utility-sensor-anomaly-table {
@@ -2046,13 +2047,59 @@
 
     .utility-sensor-anomaly-table th,
     .utility-sensor-anomaly-table td {
-        padding: 3px 4px !important;
-        font-size: 7px !important;
+        padding: 2px 3px !important;
+        font-size: 6.3px !important;
+        line-height: 1.08 !important;
+        vertical-align: top !important;
+    }
+
+    .report-period-daily .utility-sensor-anomaly-table th,
+    .report-period-daily .utility-sensor-anomaly-table td {
+        white-space: nowrap !important;
+    }
+
+    .report-period-daily .utility-sensor-anomaly-table .col-reason {
+        white-space: normal !important;
+        width: 180px !important;
+    }
+
+    .report-period-daily .utility-sensor-anomaly-table .col-group {
+        width: 68px !important;
+    }
+
+    .report-period-daily .utility-sensor-anomaly-table .col-sensor {
+        width: 76px !important;
+    }
+
+    .report-period-daily .utility-sensor-anomaly-table .col-type {
+        width: 44px !important;
+    }
+
+    .report-period-daily .utility-sensor-anomaly-table .col-latest,
+    .report-period-daily .utility-sensor-anomaly-table .col-days,
+    .report-period-daily .utility-sensor-anomaly-table .col-min,
+    .report-period-daily .utility-sensor-anomaly-table .col-avg,
+    .report-period-daily .utility-sensor-anomaly-table .col-max {
+        width: 40px !important;
+        text-align: right !important;
+    }
+
+    .report-period-daily .utility-sensor-anomaly-table .col-latest,
+    .report-period-daily .utility-sensor-anomaly-table .col-days,
+    .report-period-daily .utility-sensor-anomaly-table .col-min,
+    .report-period-daily .utility-sensor-anomaly-table .col-avg,
+    .report-period-daily .utility-sensor-anomaly-table .col-max,
+    .report-period-daily .utility-sensor-anomaly-table th.col-latest,
+    .report-period-daily .utility-sensor-anomaly-table th.col-days,
+    .report-period-daily .utility-sensor-anomaly-table th.col-min,
+    .report-period-daily .utility-sensor-anomaly-table th.col-avg,
+    .report-period-daily .utility-sensor-anomaly-table th.col-max {
+        font-variant-numeric: tabular-nums !important;
     }
 
     .utility-sensor-anomaly-reason-text {
-        font-size: 5.8px !important;
-        line-height: 1.1 !important;
+        font-size: 5.2px !important;
+        line-height: 1.05 !important;
     }
 
     .utility-sensor-anomaly-table .col-reason {

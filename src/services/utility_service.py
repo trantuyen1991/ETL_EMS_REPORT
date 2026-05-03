@@ -460,9 +460,15 @@ class UtilityService:
                 if row["has_alert"]:
                     anomaly_rows.append({
                         "sensor_key": sensor_key,
-                        "display_name": row["display_name"],
+                        "display_name": self._build_daily_anomaly_sensor_name(
+                            sensor_row=row,
+                            group_key=group_key,
+                        ),
                         "group_key": group_key,
-                        "group_label": group_label,
+                        "group_label": self._build_daily_anomaly_group_label(
+                            group_key=group_key,
+                            fallback_label=group_label,
+                        ),
                         "measurement_type": row["measurement_type_label"],
                         "flag_summary": row["flag_summary"],
                         "flag_detail_summary": row["flag_detail_summary"],
@@ -1124,6 +1130,31 @@ class UtilityService:
                     return trimmed
 
         return normalized_display
+
+    def _build_daily_anomaly_group_label(
+        self,
+        *,
+        group_key: str,
+        fallback_label: str,
+    ) -> str:
+        """Keep daily anomaly labels aligned with merged detail cards."""
+        if group_key in {"domestic_water", "sakari_water"}:
+            return "Domestic + Sakari Water"
+        return fallback_label
+
+    def _build_daily_anomaly_sensor_name(
+        self,
+        *,
+        sensor_row: dict[str, Any],
+        group_key: str,
+    ) -> str:
+        """Shorten daily anomaly sensor names using the same context-aware labels as cards."""
+        base_label = str(sensor_row.get("short_display_name") or sensor_row.get("display_name") or "").strip()
+        if group_key == "domestic_water":
+            return f"Domestic {base_label}".strip()
+        if group_key == "sakari_water":
+            return f"Sakari {base_label}".strip()
+        return base_label
 
     def _build_sensor_flags(
         self,
