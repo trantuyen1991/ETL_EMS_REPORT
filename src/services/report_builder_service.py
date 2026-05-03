@@ -6996,6 +6996,64 @@ class ReportBuilderService:
         rows: list[dict[str, Any]] = []
 
         current_daily_rows = kpi_object["current"].get("daily_rows", [])
+        area_specs = [
+            (
+                "plant",
+                "Plant",
+                {"kpi": "kpi", "product": "prod", "energy": "energy"},
+            ),
+            (
+                "diode",
+                "DIODE",
+                {"kpi": "diode_kpi", "product": "diode_prod", "energy": "diode_energy"},
+            ),
+            (
+                "ico",
+                "ICO",
+                {"kpi": "ico_kpi", "product": "ico_prod", "energy": "ico_energy"},
+            ),
+            (
+                "sakari",
+                "SAKARI",
+                {"kpi": "sakari_kpi", "product": "sakari_prod", "energy": "sakari_energy"},
+            ),
+        ]
+        metric_max_map: dict[str, float] = {"kpi": 0.0, "product": 0.0, "energy": 0.0}
+
+        def _to_numeric(value: Any) -> Optional[float]:
+            if not isinstance(value, (int, float)):
+                return None
+            return float(value)
+
+        def _resolve_heat_class(value: Any, column_max: float) -> tuple[str, bool, bool]:
+            numeric_value = _to_numeric(value)
+            if numeric_value is None:
+                return "", False, False
+
+            is_zero = numeric_value == 0
+            is_column_max = column_max > 0 and numeric_value == column_max and numeric_value > 0
+            if column_max <= 0 or numeric_value <= 0:
+                return "", is_zero, is_column_max
+
+            ratio = numeric_value / column_max
+            if ratio >= 0.85:
+                return "metric-heat-4", is_zero, is_column_max
+            if ratio >= 0.60:
+                return "metric-heat-3", is_zero, is_column_max
+            if ratio >= 0.35:
+                return "metric-heat-2", is_zero, is_column_max
+            if ratio >= 0.15:
+                return "metric-heat-1", is_zero, is_column_max
+            return "", is_zero, is_column_max
+
+        for metric_key in metric_max_map:
+            metric_values: list[float] = []
+            for daily_row in current_daily_rows:
+                for _, _, field_map in area_specs:
+                    numeric_value = _to_numeric(daily_row.get(field_map[metric_key]))
+                    if numeric_value is not None and numeric_value > 0:
+                        metric_values.append(numeric_value)
+            metric_max_map[metric_key] = max(metric_values, default=0.0)
 
         for row_index, row in enumerate(current_daily_rows, start=1):
             coverage_status = row.get("coverage_status")
@@ -7013,27 +7071,54 @@ class ReportBuilderService:
                 status_class = "status-missing"
                 row_class = "row-missing"
 
+            area_rows: list[dict[str, Any]] = []
+            for area_key, area_label, field_map in area_specs:
+                kpi_heat_class, kpi_is_zero, kpi_is_max = _resolve_heat_class(
+                    row.get(field_map["kpi"]),
+                    metric_max_map["kpi"],
+                )
+                product_heat_class, product_is_zero, product_is_max = _resolve_heat_class(
+                    row.get(field_map["product"]),
+                    metric_max_map["product"],
+                )
+                energy_heat_class, energy_is_zero, energy_is_max = _resolve_heat_class(
+                    row.get(field_map["energy"]),
+                    metric_max_map["energy"],
+                )
+
+                area_rows.append({
+                    "area_key": area_key,
+                    "area_label": area_label,
+                    "row_class": f"row-area-{area_key}",
+                    "kpi": {
+                        "display": self._fmt_or_dash(row.get(field_map["kpi"])),
+                        "heat_class": kpi_heat_class,
+                        "is_zero": kpi_is_zero,
+                        "is_max": kpi_is_max,
+                        "is_missing": row.get(field_map["kpi"]) is None,
+                    },
+                    "product": {
+                        "display": self._fmt_or_dash(row.get(field_map["product"])),
+                        "heat_class": product_heat_class,
+                        "is_zero": product_is_zero,
+                        "is_max": product_is_max,
+                        "is_missing": row.get(field_map["product"]) is None,
+                    },
+                    "energy": {
+                        "display": self._fmt_or_dash(row.get(field_map["energy"])),
+                        "heat_class": energy_heat_class,
+                        "is_zero": energy_is_zero,
+                        "is_max": energy_is_max,
+                        "is_missing": row.get(field_map["energy"]) is None,
+                    },
+                })
+
             rows.append({
                 "index": row_index,
                 "date": row.get("dt"),
                 "date_display": self._format_date_with_weekday(row.get("dt")),
                 "time_frame_source": row.get("time_frame_source"),
-
-                "plant_prod_display": self._fmt_or_dash(row.get("prod")),
-                "ico_prod_display": self._fmt_or_dash(row.get("ico_prod")),
-                "diode_prod_display": self._fmt_or_dash(row.get("diode_prod")),
-                "sakari_prod_display": self._fmt_or_dash(row.get("sakari_prod")),
-
-                "plant_energy_display": self._fmt_or_dash(row.get("energy")),
-                "ico_energy_display": self._fmt_or_dash(row.get("ico_energy")),
-                "diode_energy_display": self._fmt_or_dash(row.get("diode_energy")),
-                "sakari_energy_display": self._fmt_or_dash(row.get("sakari_energy")),
-
-                "plant_kpi_display": self._fmt_or_dash(row.get("kpi")),
-                "ico_kpi_display": self._fmt_or_dash(row.get("ico_kpi")),
-                "diode_kpi_display": self._fmt_or_dash(row.get("diode_kpi")),
-                "sakari_kpi_display": self._fmt_or_dash(row.get("sakari_kpi")),
-
+                "area_rows": area_rows,
                 "status": status,
                 "status_class": status_class,
                 "row_class": row_class,

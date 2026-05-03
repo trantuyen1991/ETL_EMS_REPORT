@@ -1564,6 +1564,10 @@
                   "view": "11px",
                   "pdf": "7.5px"
                 },
+                "indexColumnWidth": {
+                  "view": "56px",
+                  "pdf": "38px"
+                },
                 "dateColumnWidth": {
                   "view": "108px",
                   "pdf": "78px"

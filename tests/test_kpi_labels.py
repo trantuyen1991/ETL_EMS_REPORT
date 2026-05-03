@@ -431,9 +431,9 @@ def test_kpi_daily_rows_include_index_for_periodic_detail() -> None:
             "diode_energy": 400.0,
             "sakari_energy": 300.0,
             "kpi": 10.0,
-            "ico_kpi": 10.0,
-            "diode_kpi": 10.0,
-            "sakari_kpi": 10.0,
+            "ico_kpi": 8.0,
+            "diode_kpi": 12.0,
+            "sakari_kpi": 0.0,
         },
         {
             "dt": date(2025, 5, 13),
@@ -458,6 +458,10 @@ def test_kpi_daily_rows_include_index_for_periodic_detail() -> None:
 
     assert rows[0]["index"] == 1
     assert rows[-1]["index"] == len(rows)
+    assert [item["area_key"] for item in rows[0]["area_rows"]] == ["plant", "diode", "ico", "sakari"]
+    assert rows[0]["area_rows"][1]["kpi"]["heat_class"] == "metric-heat-4"
+    assert rows[0]["area_rows"][3]["kpi"]["is_zero"] is True
+    assert rows[1]["area_rows"][0]["kpi"]["is_missing"] is True
 
 
 def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
@@ -472,9 +476,11 @@ def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
     assert "kpi-weekly-dashboard-page" in view_template
     assert "kpi-weekly-compare-grid" in view_template
     assert "kpi-weekly-waterfall-tile" in view_template
-    assert '<th class="col-index">#</th>' in view_template
-    assert 'class="col-index" rowspan="4">{{ row.index }}</td>' in view_template
-    assert 'row-area-plant' in view_template
+    assert '<th class="col-index">Index</th>' in view_template
+    assert 'class="col-index" rowspan="{{ row.area_rows | length }}">{{ row.index }}</td>' in view_template
+    assert 'for area_row in row.area_rows' in view_template
+    assert 'value-missing' in view_template
+    assert '{{ area_row.row_class }}' in view_template
     assert "kpi-periodic-insight-grid" in pdf_template
     assert "kpi-period-trend-chart" in pdf_template
     assert "kpi-periodic-variance-chart" in pdf_template
@@ -482,9 +488,11 @@ def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
     assert "kpi-weekly-dashboard-page" in pdf_template
     assert "kpi-weekly-compare-grid" in pdf_template
     assert "kpi-weekly-waterfall-tile" in pdf_template
-    assert '<th class="col-index">#</th>' in pdf_template
-    assert 'class="col-index" rowspan="4">{{ row.index }}</td>' in pdf_template
-    assert 'row-area-plant' in pdf_template
+    assert '<th class="col-index">Index</th>' in pdf_template
+    assert 'class="col-index" rowspan="{{ row.area_rows | length }}">{{ row.index }}</td>' in pdf_template
+    assert 'for area_row in row.area_rows' in pdf_template
+    assert 'value-missing' in pdf_template
+    assert '{{ area_row.row_class }}' in pdf_template
 
 
 def test_weekly_kpi_css_and_config_define_periodic_trend_row() -> None:
@@ -511,15 +519,25 @@ def test_weekly_kpi_css_and_config_define_periodic_trend_row() -> None:
     assert kpi_chart_cfg["periodTrend"]["grid"]["bottom"] == 25
     assert kpi_chart_cfg["periodTrend"]["height"]["view"] == "288px"
     assert '.kpi-periodic-detail-table .col-index {' in report_css
+    assert 'index-column-width-view, 56px' in report_css
     assert '.kpi-periodic-detail-table tr.row-area-plant {' in report_css
-    assert '.kpi-periodic-detail-table th.col-area,' in report_css
+    assert '.kpi-periodic-detail-table td.col-kpi.metric-heat-4 {' in report_css
+    assert '.kpi-periodic-detail-table td.col-production.metric-heat-4 {' in report_css
+    assert '.kpi-periodic-detail-table td.col-energy.metric-heat-4 {' in report_css
+    assert '.kpi-periodic-detail-table td.col-kpi.value-missing,' in report_css
     assert '.kpi-periodic-detail-table td.col-kpi,' in report_css
     assert '.kpi-periodic-detail-table .col-index {' in pdf_css
+    assert 'index-column-width-pdf, 38px' in pdf_css
     assert '.kpi-periodic-detail-table tr.row-area-plant {' in pdf_css
-    assert '.kpi-periodic-detail-table th.col-area,' in pdf_css
+    assert '.kpi-periodic-detail-table td.col-kpi.metric-heat-4 {' in pdf_css
+    assert '.kpi-periodic-detail-table td.col-production.metric-heat-4 {' in pdf_css
+    assert '.kpi-periodic-detail-table td.col-energy.metric-heat-4 {' in pdf_css
+    assert '.kpi-periodic-detail-table td.col-kpi.value-missing,' in pdf_css
     assert '.kpi-periodic-detail-table td.col-kpi,' in pdf_css
     assert kpi_chart_cfg["periodHeatmap"]["height"]["view"] == "244px"
     assert kpi_chart_cfg["periodHeatmap"]["height"]["pdf"] == "180px"
+    assert kpi_table_cfg["dailyDetail"]["indexColumnWidth"]["view"] == "56px"
+    assert kpi_table_cfg["dailyDetail"]["indexColumnWidth"]["pdf"] == "38px"
     assert kpi_table_cfg["dailyDetail"]["metricFontSize"]["view"] == "11.5px"
     assert kpi_table_cfg["dailyDetail"]["metricFontSize"]["pdf"] == "8px"
     assert kpi_chart_cfg["variance"]["height"]["view"] == "288px"

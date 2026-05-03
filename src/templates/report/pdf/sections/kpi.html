@@ -229,7 +229,7 @@
                     <table class="kpi-daily-detail-table kpi-periodic-detail-table report-table-ui">
                         <thead>
                             <tr>
-                                <th class="col-index">#</th>
+                                <th class="col-index">Index</th>
                                 <th class="col-date">Date</th>
                                 <th>Status</th>
                                 <th class="col-source">Source</th>
@@ -241,38 +241,24 @@
                         </thead>
                         <tbody>
                             {% for row in sections.kpi.daily_detail.rows %}
-                            <tr class="{{ row.row_class }} row-area-plant">
-                                <td class="col-index" rowspan="4">{{ row.index }}</td>
-                                <td class="col-date" rowspan="4">{{ row.date_display }}</td>
-                                <td rowspan="4">
+                            {% for area_row in row.area_rows %}
+                            <tr class="{{ row.row_class }} {% if loop.index0 > 0 %}row-submetric {% endif %}{% if loop.last %}row-group-end {% endif %}{{ area_row.row_class }}">
+                                {% if loop.first %}
+                                <td class="col-index" rowspan="{{ row.area_rows | length }}">{{ row.index }}</td>
+                                <td class="col-date" rowspan="{{ row.area_rows | length }}">{{ row.date_display }}</td>
+                                <td rowspan="{{ row.area_rows | length }}">
                                     <span class="status-pill {{ row.status_class }}">
                                         {{ row.status }}
                                     </span>
                                 </td>
-                                <td class="col-source" rowspan="4">{{ row.time_frame_source or "-" }}</td>
-                                <td class="col-area">Plant</td>
-                                <td class="col-kpi">{{ row.plant_kpi_display }}</td>
-                                <td class="col-production">{{ row.plant_prod_display }}</td>
-                                <td class="col-energy">{{ row.plant_energy_display }}</td>
+                                <td class="col-source" rowspan="{{ row.area_rows | length }}">{{ row.time_frame_source or "-" }}</td>
+                                {% endif %}
+                                <td class="col-area">{{ area_row.area_label }}</td>
+                                <td class="col-kpi {{ area_row.kpi.heat_class }} {% if area_row.kpi.is_missing %}value-missing{% endif %} {% if area_row.kpi.is_zero %}value-zero{% endif %} {% if area_row.kpi.is_max %}value-max{% endif %}">{{ area_row.kpi.display }}</td>
+                                <td class="col-production {{ area_row.product.heat_class }} {% if area_row.product.is_missing %}value-missing{% endif %} {% if area_row.product.is_zero %}value-zero{% endif %} {% if area_row.product.is_max %}value-max{% endif %}">{{ area_row.product.display }}</td>
+                                <td class="col-energy {{ area_row.energy.heat_class }} {% if area_row.energy.is_missing %}value-missing{% endif %} {% if area_row.energy.is_zero %}value-zero{% endif %} {% if area_row.energy.is_max %}value-max{% endif %}">{{ area_row.energy.display }}</td>
                             </tr>
-                            <tr class="{{ row.row_class }} row-submetric row-area-ico">
-                                <td class="col-area">ICO</td>
-                                <td class="col-kpi">{{ row.ico_kpi_display }}</td>
-                                <td class="col-production">{{ row.ico_prod_display }}</td>
-                                <td class="col-energy">{{ row.ico_energy_display }}</td>
-                            </tr>
-                            <tr class="{{ row.row_class }} row-submetric row-area-diode">
-                                <td class="col-area">DIODE</td>
-                                <td class="col-kpi">{{ row.diode_kpi_display }}</td>
-                                <td class="col-production">{{ row.diode_prod_display }}</td>
-                                <td class="col-energy">{{ row.diode_energy_display }}</td>
-                            </tr>
-                            <tr class="{{ row.row_class }} row-submetric row-group-end row-area-sakari">
-                                <td class="col-area">SAKARI</td>
-                                <td class="col-kpi">{{ row.sakari_kpi_display }}</td>
-                                <td class="col-production">{{ row.sakari_prod_display }}</td>
-                                <td class="col-energy">{{ row.sakari_energy_display }}</td>
-                            </tr>
+                            {% endfor %}
                             {% endfor %}
                         </tbody>
                     </table>

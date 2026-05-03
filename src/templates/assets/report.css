@@ -5099,8 +5099,8 @@
         }
 
         .kpi-periodic-detail-table .col-index {
-            width: 42px;
-            min-width: 42px;
+            width: var(--report-components-report-section-kpi-table-daily-detail-index-column-width-view, 56px);
+            min-width: var(--report-components-report-section-kpi-table-daily-detail-index-column-width-view, 56px);
             text-align: center;
             font-weight: 800;
             color: #64748b;
@@ -5185,6 +5185,74 @@
             font-weight: 600;
             text-align: right;
             font-variant-numeric: tabular-nums;
+            color: rgba(15, 23, 42, 0.84);
+        }
+
+        .kpi-periodic-detail-table td.col-kpi.value-zero,
+        .kpi-periodic-detail-table td.col-production.value-zero,
+        .kpi-periodic-detail-table td.col-energy.value-zero {
+            color: rgba(15, 23, 42, 0.72);
+        }
+
+        .kpi-periodic-detail-table td.col-kpi.value-missing,
+        .kpi-periodic-detail-table td.col-production.value-missing,
+        .kpi-periodic-detail-table td.col-energy.value-missing {
+            background: rgba(255, 255, 255, 0.84);
+            color: rgba(15, 23, 42, 0.58);
+        }
+
+        .kpi-periodic-detail-table td.col-kpi.value-max,
+        .kpi-periodic-detail-table td.col-production.value-max,
+        .kpi-periodic-detail-table td.col-energy.value-max {
+            font-weight: 700;
+        }
+
+        .kpi-periodic-detail-table td.col-kpi.metric-heat-1 {
+            background: linear-gradient(90deg, rgba(0, 84, 150, 0.08) 0%, rgba(255, 255, 255, 0.92) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-kpi.metric-heat-2 {
+            background: linear-gradient(90deg, rgba(0, 84, 150, 0.14) 0%, rgba(255, 255, 255, 0.92) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-kpi.metric-heat-3 {
+            background: linear-gradient(90deg, rgba(0, 84, 150, 0.20) 0%, rgba(255, 255, 255, 0.94) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-kpi.metric-heat-4 {
+            background: linear-gradient(90deg, rgba(0, 84, 150, 0.28) 0%, rgba(255, 255, 255, 0.96) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-production.metric-heat-1 {
+            background: linear-gradient(90deg, rgba(109, 40, 217, 0.08) 0%, rgba(255, 255, 255, 0.92) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-production.metric-heat-2 {
+            background: linear-gradient(90deg, rgba(109, 40, 217, 0.14) 0%, rgba(255, 255, 255, 0.92) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-production.metric-heat-3 {
+            background: linear-gradient(90deg, rgba(109, 40, 217, 0.20) 0%, rgba(255, 255, 255, 0.94) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-production.metric-heat-4 {
+            background: linear-gradient(90deg, rgba(109, 40, 217, 0.28) 0%, rgba(255, 255, 255, 0.96) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-energy.metric-heat-1 {
+            background: linear-gradient(90deg, rgba(15, 118, 110, 0.08) 0%, rgba(255, 255, 255, 0.92) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-energy.metric-heat-2 {
+            background: linear-gradient(90deg, rgba(15, 118, 110, 0.14) 0%, rgba(255, 255, 255, 0.92) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-energy.metric-heat-3 {
+            background: linear-gradient(90deg, rgba(15, 118, 110, 0.20) 0%, rgba(255, 255, 255, 0.94) 100%);
+        }
+
+        .kpi-periodic-detail-table td.col-energy.metric-heat-4 {
+            background: linear-gradient(90deg, rgba(15, 118, 110, 0.28) 0%, rgba(255, 255, 255, 0.96) 100%);
         }
 
         .kpi-periodic-detail-table .row-submetric td {
