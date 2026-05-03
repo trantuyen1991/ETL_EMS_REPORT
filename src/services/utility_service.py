@@ -621,7 +621,11 @@ class UtilityService:
                     for group in sensor_groups
                 ]
             ),
-            "groups": sensor_groups,
+            "groups": (
+                self._build_daily_detail_groups(sensor_groups)
+                if not is_period_report
+                else sensor_groups
+            ),
             "anomaly_rows": anomaly_rows,
             "metric_columns": metric_columns,
             "daily_rows": daily_rows,
@@ -673,6 +677,59 @@ class UtilityService:
             })
 
         return overview_cards
+
+    def _build_daily_detail_groups(
+        self,
+        sensor_groups: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Build daily detail groups, merging Domestic and Sakari water into one card."""
+        detail_groups: list[dict[str, Any]] = []
+        sakari_group = next(
+            (group for group in sensor_groups if group.get("key") == "sakari_water"),
+            None,
+        )
+
+        for group in sensor_groups:
+            group_key = group.get("key")
+            if group_key == "sakari_water":
+                continue
+
+            if group_key == "domestic_water" and sakari_group:
+                detail_groups.append({
+                    "key": "domestic_water",
+                    "label": "Domestic + Sakari Water",
+                    "accent_color": group["accent_color"],
+                    "accent_tint": group["accent_tint"],
+                    "sensor_count": int(group.get("sensor_count") or 0) + int(sakari_group.get("sensor_count") or 0),
+                    "active_sensor_count": int(group.get("active_sensor_count") or 0) + int(sakari_group.get("active_sensor_count") or 0),
+                    "anomaly_count": int(group.get("anomaly_count") or 0) + int(sakari_group.get("anomaly_count") or 0),
+                    "critical_count": int(group.get("critical_count") or 0) + int(sakari_group.get("critical_count") or 0),
+                    "warning_count": int(group.get("warning_count") or 0) + int(sakari_group.get("warning_count") or 0),
+                    "sensors": [
+                        *self._build_merged_water_sensors(group.get("sensors") or [], prefix="Domestic"),
+                        *self._build_merged_water_sensors(sakari_group.get("sensors") or [], prefix="Sakari"),
+                    ],
+                })
+                continue
+
+            detail_groups.append(group)
+
+        return detail_groups
+
+    def _build_merged_water_sensors(
+        self,
+        sensors: list[dict[str, Any]],
+        *,
+        prefix: str,
+    ) -> list[dict[str, Any]]:
+        """Keep water sensor labels distinct inside the merged daily detail card."""
+        merged_rows: list[dict[str, Any]] = []
+        for sensor in sensors:
+            sensor_copy = dict(sensor)
+            base_label = str(sensor_copy.get("short_display_name") or sensor_copy.get("display_name") or "").strip()
+            sensor_copy["short_display_name"] = f"{prefix} {base_label}".strip()
+            merged_rows.append(sensor_copy)
+        return merged_rows
 
     def _build_period_sensor_rollup(
         self,

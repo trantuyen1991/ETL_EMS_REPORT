@@ -10,7 +10,7 @@ from src.services.utility_service import UtilityService
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_daily_sensor_monitoring_context_combines_water_overview_but_keeps_detail_groups_split() -> None:
+def test_daily_sensor_monitoring_context_merges_water_in_overview_and_detail_groups() -> None:
     service = UtilityService()
 
     context = service.build_sensor_monitoring_context(
@@ -24,7 +24,8 @@ def test_daily_sensor_monitoring_context_combines_water_overview_but_keeps_detai
     assert context["missing_sensor_count"] == context["sensor_count"] - context["active_sensor_count"]
 
     group_keys = [group["key"] for group in context["groups"]]
-    assert group_keys[-2:] == ["domestic_water", "sakari_water"]
+    assert group_keys[-1] == "domestic_water"
+    assert "sakari_water" not in group_keys
 
     overview_cards = context["overview_cards"]
     overview_keys = [card["key"] for card in overview_cards]
@@ -37,15 +38,12 @@ def test_daily_sensor_monitoring_context_combines_water_overview_but_keeps_detai
     assert water_card["active_sensor_count"] == 0
     assert water_card["anomaly_count"] == 2
 
-    sakari_group = next(group for group in context["groups"] if group["key"] == "sakari_water")
     domestic_group = next(group for group in context["groups"] if group["key"] == "domestic_water")
 
-    assert len(sakari_group["sensors"]) == 1
-    assert sakari_group["sensors"][0]["key"] == "sak_waterflow"
-    assert sakari_group["sensors"][0]["short_display_name"] == "Flow"
-    assert len(domestic_group["sensors"]) == 1
-    assert domestic_group["sensors"][0]["key"] == "dom_waterflow"
-    assert domestic_group["sensors"][0]["short_display_name"] == "Flow"
+    assert domestic_group["label"] == "Domestic + Sakari Water"
+    assert domestic_group["sensor_count"] == 2
+    assert [sensor["key"] for sensor in domestic_group["sensors"]] == ["dom_waterflow", "sak_waterflow"]
+    assert [sensor["short_display_name"] for sensor in domestic_group["sensors"]] == ["Domestic Flow", "Sakari Flow"]
 
     ico_air_group = next(group for group in context["groups"] if group["key"] == "ico_air")
     assert [sensor["short_display_name"] for sensor in ico_air_group["sensors"]] == ["Flow", "Pressure"]
