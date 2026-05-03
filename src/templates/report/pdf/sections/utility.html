@@ -405,6 +405,45 @@
                     </div>
                 </div>
 
+                {% if sections.utility.charts.period_insight_split.wide.option or sections.utility.charts.period_insight_split.narrow.option %}
+                <div class="utility-period-insight-grid pdf-keep-together">
+                    {% if sections.utility.charts.period_insight_split.wide.option %}
+                    <div class="utility-chart-block utility-chart-block-wide pdf-keep-together">
+                        <div class="electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap">
+                            <h3 class="electricity-chart-card-title">
+                                {{ sections.utility.charts.period_insight_split.wide.title }}
+                            </h3>
+                            <p class="electricity-chart-card-subtitle">
+                                {{ sections.utility.charts.period_insight_split.wide.subtitle }}
+                            </p>
+                            <div id="utility-period-insight-heatmap-chart" class="electricity-heatmap-chart utility-heatmap-chart utility-period-insight-heatmap-chart"></div>
+                            <div class="electricity-heatmap-legend" aria-hidden="true">
+                                <span class="legend-label">Low</span>
+                                <span class="legend-bar"></span>
+                                <span class="legend-unit">{{ sections.utility.charts.period_insight_split.wide.legend_unit or 'Scaled' }}</span>
+                                <span class="legend-bar legend-bar-strong"></span>
+                                <span class="legend-label">High</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if sections.utility.charts.period_insight_split.narrow.option %}
+                    <div class="utility-chart-block utility-chart-block-narrow pdf-keep-together">
+                        <div class="electricity-chart-card utility-chart-card">
+                            <h3 class="electricity-chart-card-title">
+                                {{ sections.utility.charts.period_insight_split.narrow.title }}
+                            </h3>
+                            <p class="electricity-chart-card-subtitle">
+                                {{ sections.utility.charts.period_insight_split.narrow.subtitle }}
+                            </p>
+                            <div id="utility-period-mix-chart" class="electricity-chart utility-period-mix-chart"></div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
                 {% if sections.utility.energy.enabled %}
                 <div class="utility-energy-block pdf-keep-together">
                     <div class="utility-overview-heading">
@@ -1061,6 +1100,14 @@
                             {
                                 id: "utility-period-heatmap-chart",
                                 option: {{ sections.utility.charts.period_heatmap.option | tojson if sections.utility.charts.period_heatmap else {} }},
+                            },
+                            {
+                                id: "utility-period-insight-heatmap-chart",
+                                option: {{ sections.utility.charts.period_insight_split.wide.option | tojson if sections.utility.charts.period_insight_split.wide else {} }},
+                            },
+                            {
+                                id: "utility-period-mix-chart",
+                                option: {{ sections.utility.charts.period_insight_split.narrow.option | tojson if sections.utility.charts.period_insight_split.narrow else {} }},
                             },
                             {
                                 id: "utility-energy-trend-chart",

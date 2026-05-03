@@ -45,10 +45,14 @@ def _build_utility_period_object() -> dict:
     return {
         "current": {
             "metadata": {
-                "water": {"display_name": "RO Water", "unit": "m³"},
-                "steam": {"display_name": "Plant Steam", "unit": "kg"},
-                "air": {"display_name": "Compressed Air", "unit": "Nm³"},
-            }
+                "water": {"display_name": "RO Water", "unit": "m³", "category": "water"},
+                "steam": {"display_name": "Plant Steam", "unit": "kg", "category": "steam"},
+                "air": {"display_name": "Compressed Air", "unit": "Nm³", "category": "compressed_air"},
+            },
+            "timeseries": [
+                {"dt": "2025-05-12", "water": 100.0, "steam": 80.0, "air": 60.0},
+                {"dt": "2025-05-13", "water": 120.0, "steam": 70.0, "air": 55.0},
+            ],
         },
         "comparison": {
             "water": {"current": 120.0, "previous": 100.0},
@@ -109,6 +113,8 @@ def test_periodic_utility_charts_use_period_aware_wording() -> None:
     assert weekly_charts["deviation_vs_yesterday"]["subtitle"] == "This Week versus last week"
     assert weekly_charts["period_type_trend"]["subtitle"] == "Daily totals for this week by utility group"
     assert weekly_charts["period_mix"]["title"] == "This Week mix"
+    assert weekly_charts["period_insight_split"]["wide"]["title"] == "Utility daily total heatmap"
+    assert weekly_charts["period_insight_split"]["narrow"]["title"] == "This Week mix"
 
     assert monthly_charts["comparison_bar"]["subtitle"] == "This Month vs last month total by load type"
     assert monthly_charts["comparison_bar"]["option"]["series"][0]["name"] == "This Month"
@@ -119,6 +125,8 @@ def test_periodic_utility_charts_use_period_aware_wording() -> None:
     assert monthly_charts["deviation_vs_yesterday"]["subtitle"] == "This Month versus last month"
     assert monthly_charts["period_type_trend"]["subtitle"] == "Daily totals for this month by utility group"
     assert monthly_charts["period_mix"]["title"] == "This Month mix"
+    assert monthly_charts["period_insight_split"]["wide"] == {}
+    assert monthly_charts["period_insight_split"]["narrow"] == {}
 
 
 def test_utility_templates_use_last_period_fallback_copy() -> None:
@@ -137,6 +145,9 @@ def test_daily_view_utility_template_marks_comparison_cards_for_compact_layout()
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/utility.html").read_text(encoding="utf-8")
 
     assert 'utility-chart-card-compare-compact' in view_template
+    assert 'utility-period-insight-grid' in view_template
+    assert 'utility-period-insight-heatmap-chart' in view_template
+    assert 'utility-period-mix-chart' in view_template
 
 
 def test_daily_view_sensor_monitoring_uses_metric_table_layout() -> None:

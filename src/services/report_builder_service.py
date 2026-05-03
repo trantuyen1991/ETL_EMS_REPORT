@@ -2648,6 +2648,10 @@ class ReportBuilderService:
                 "period_type_trend": {},
                 "period_heatmap": {},
                 "period_mix": {},
+                "period_insight_split": {
+                    "wide": {},
+                    "narrow": {},
+                },
                 "comparison_split": {
                     "wide": {},
                     "narrow": {},
@@ -2693,13 +2697,17 @@ class ReportBuilderService:
             previous_period_label = "Yesterday"
         current_series_name = current_period_label
         previous_series_name = previous_period_label
-        period_heatmap = (
-            self._build_v3_utility_period_heatmap_chart(
-                utility_object=utility_object,
-                period_type=period_type,
-            )
-            if period_type == "monthly" else {}
+        period_heatmap_chart = self._build_v3_utility_period_heatmap_chart(
+            utility_object=utility_object,
+            period_type=period_type,
         )
+        period_heatmap = period_heatmap_chart if period_type == "monthly" else {}
+        period_insight_heatmap = period_heatmap_chart if period_type == "weekly" else {}
+        period_mix = {
+            "title": "Current period mix" if is_daily_report else f"{current_period_label} mix",
+            "subtitle": "Share of total utility consumption by group",
+            "option": self._build_v3_utility_mix_option(utility_items),
+        }
         periodic_layout = self._resolve_utility_chart_layout("periodicOverview", period_type)
 
         return {
@@ -2755,10 +2763,10 @@ class ReportBuilderService:
                 ),
             },
             "period_heatmap": period_heatmap,
-            "period_mix": {
-                "title": "Current period mix" if is_daily_report else f"{current_period_label} mix",
-                "subtitle": "Share of total utility consumption by group",
-                "option": self._build_v3_utility_mix_option(utility_items),
+            "period_mix": period_mix,
+            "period_insight_split": {
+                "wide": period_insight_heatmap,
+                "narrow": period_mix if period_type == "weekly" else {},
             },
             "comparison_split": {
                 "wide": {
@@ -3222,8 +3230,9 @@ class ReportBuilderService:
             return {}
 
         y_labels = [str(row_def.get("label") or "-") for row_def in row_defs]
-        bottom_gap = 44 if len(x_labels) <= 8 else 62
-        label_rotate = 0 if len(x_labels) <= 8 else 28
+        is_weekly_period = period_type == "weekly"
+        bottom_gap = 62 if is_weekly_period or len(x_labels) > 8 else 44
+        label_rotate = 28 if is_weekly_period or len(x_labels) > 8 else 0
         label_font_size = 9 if len(x_labels) <= 8 else 8
         primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
         muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
@@ -3337,8 +3346,8 @@ class ReportBuilderService:
         utility_object: Optional[Dict[str, Any]],
         period_type: str,
     ) -> Dict[str, Any]:
-        """Build monthly heatmap for physical utility quantities by group."""
-        if period_type != "monthly" or not utility_object:
+        """Build weekly/monthly heatmap for physical utility quantities by group."""
+        if period_type not in {"weekly", "monthly"} or not utility_object:
             return {}
 
         metadata = utility_object.get("current", {}).get("metadata", {}) or {}

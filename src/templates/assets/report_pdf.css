@@ -720,6 +720,15 @@
         margin-top: 6px !important;
     }
 
+    .utility-period-insight-grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+        margin-top: 6px !important;
+        margin-bottom: 8px !important;
+    }
+
     .utility-chart-card {
         padding-bottom: 6px !important;
     }
@@ -755,6 +764,11 @@
 
     .utility-periodic-chart-grid .utility-comparison-chart-daily {
         height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;
+    }
+
+    .utility-period-insight-grid .utility-period-insight-heatmap-chart,
+    .utility-period-insight-grid .utility-period-mix-chart {
+        height: var(--report-components-report-section-utility-chart-period-heatmap-height-pdf, 184px) !important;
     }
 
     .utility-chart-block-deviation .utility-chart-card {

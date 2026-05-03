@@ -2670,6 +2670,15 @@
             margin-top: 6px;
         }
 
+        .utility-period-insight-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
+            gap: 10px;
+            align-items: stretch;
+            margin-top: 6px;
+            margin-bottom: 10px;
+        }
+
         .utility-chart-split-grid-daily {
             margin-top: 8px;
         }
@@ -2809,6 +2818,11 @@
 
         .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {
             height: var(--report-components-report-section-utility-chart-period-heatmap-height-view, var(--report-components-report-section-utility-chart-deviation-height-view, 326px));
+        }
+
+        .utility-period-insight-grid .utility-period-insight-heatmap-chart,
+        .utility-period-insight-grid .utility-period-mix-chart {
+            height: var(--report-components-report-section-utility-chart-period-heatmap-height-view, 252px);
         }
 
         .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {
