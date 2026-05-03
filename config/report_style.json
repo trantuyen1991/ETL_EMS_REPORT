@@ -1456,8 +1456,8 @@
                   "containLabel": false
                 },
                 "height": {
-                  "view": "188px",
-                  "pdf": "118px"
+                  "view": "244px",
+                  "pdf": "154px"
                 }
               },
               "waterfall": {
@@ -1577,8 +1577,8 @@
                   "pdf": "52px"
                 },
                 "metricFontSize": {
-                  "view": "10.75px",
-                  "pdf": "7.25px"
+                  "view": "11.5px",
+                  "pdf": "8px"
                 },
                 "areaBackground": "#f8fbff",
                 "submetricBorderColor": "#eef4fa",

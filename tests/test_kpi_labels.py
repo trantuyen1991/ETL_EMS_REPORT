@@ -438,24 +438,32 @@ def test_weekly_kpi_css_and_config_define_periodic_trend_row() -> None:
     report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
     pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
     style_cfg = json.loads((PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8"))
-    kpi_chart_cfg = style_cfg["reportStyle"]["components"]["report"]["section"]["kpi"]["chart"]
+    kpi_section_cfg = style_cfg["reportStyle"]["components"]["report"]["section"]["kpi"]
+    kpi_chart_cfg = kpi_section_cfg["chart"]
+    kpi_table_cfg = kpi_section_cfg["table"]
 
     assert '.kpi-periodic-insight-grid {' in report_css
     assert '.kpi-weekly-compare-grid {' in report_css
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);' in report_css
     assert 'height: var(--report-components-report-section-kpi-chart-period-trend-height-view, 288px);' in report_css
-    assert 'height: var(--report-components-report-section-kpi-chart-period-heatmap-height-view, 188px);' in report_css
+    assert 'height: var(--report-components-report-section-kpi-chart-period-heatmap-height-view, 244px);' in report_css
     assert '.kpi-periodic-insight-grid {' in pdf_css
     assert '.kpi-weekly-compare-grid {' in pdf_css
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;' in pdf_css
     assert 'height: var(--report-components-report-section-kpi-chart-period-variance-height-pdf, 196px) !important;' in pdf_css
-    assert 'height: var(--report-components-report-section-kpi-chart-period-heatmap-height-pdf, 118px) !important;' in pdf_css
+    assert 'height: var(--report-components-report-section-kpi-chart-period-heatmap-height-pdf, 154px) !important;' in pdf_css
     assert '.report-period-weekly .kpi-weekly-dashboard-page {' in pdf_css
     assert kpi_chart_cfg["periodTrend"]["legend"]["bottom"] == "center"
     assert kpi_chart_cfg["periodTrend"]["grid"]["top"] == 20
     assert kpi_chart_cfg["periodTrend"]["grid"]["bottom"] == 25
     assert kpi_chart_cfg["periodTrend"]["height"]["view"] == "288px"
-    assert kpi_chart_cfg["periodHeatmap"]["height"]["view"] == "188px"
-    assert kpi_chart_cfg["periodHeatmap"]["height"]["pdf"] == "118px"
+    assert '.kpi-periodic-detail-table th.col-area,' in report_css
+    assert '.kpi-periodic-detail-table td.col-kpi,' in report_css
+    assert '.kpi-periodic-detail-table th.col-area,' in pdf_css
+    assert '.kpi-periodic-detail-table td.col-kpi,' in pdf_css
+    assert kpi_chart_cfg["periodHeatmap"]["height"]["view"] == "244px"
+    assert kpi_chart_cfg["periodHeatmap"]["height"]["pdf"] == "154px"
+    assert kpi_table_cfg["dailyDetail"]["metricFontSize"]["view"] == "11.5px"
+    assert kpi_table_cfg["dailyDetail"]["metricFontSize"]["pdf"] == "8px"
     assert kpi_chart_cfg["variance"]["height"]["view"] == "288px"
     assert kpi_chart_cfg["variance"]["series"]["barWidth"] == 22

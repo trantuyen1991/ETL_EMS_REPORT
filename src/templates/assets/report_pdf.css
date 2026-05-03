@@ -1055,7 +1055,7 @@
     }
 
     .kpi-periodic-heatmap-chart {
-        height: var(--report-components-report-section-kpi-chart-period-heatmap-height-pdf, 118px) !important;
+        height: var(--report-components-report-section-kpi-chart-period-heatmap-height-pdf, 154px) !important;
     }
 
     .kpi-weekly-compare-tile .kpi-daily-dashboard-chart,
@@ -1426,6 +1426,12 @@
         white-space: nowrap !important;
     }
 
+    .kpi-periodic-detail-table th {
+        font-weight: 700 !important;
+        font-size: var(--report-components-report-section-kpi-table-daily-detail-cell-font-size-pdf, 7.5px) !important;
+        color: var(--report-color-text-primary) !important;
+    }
+
     .kpi-periodic-detail-table .col-date {
         width: var(--report-components-report-section-kpi-table-daily-detail-date-column-width-pdf, 78px) !important;
         min-width: var(--report-components-report-section-kpi-table-daily-detail-date-column-width-pdf, 78px) !important;
@@ -1443,10 +1449,21 @@
         background: var(--report-components-report-section-kpi-table-daily-detail-area-background, #f8fbff) !important;
     }
 
-    .kpi-periodic-detail-table .col-kpi,
-    .kpi-periodic-detail-table .col-production,
-    .kpi-periodic-detail-table .col-energy {
-        font-size: var(--report-components-report-section-kpi-table-daily-detail-metric-font-size-pdf, 7.25px) !important;
+    .kpi-periodic-detail-table th.col-area,
+    .kpi-periodic-detail-table td.col-area {
+        text-align: left !important;
+    }
+
+    .kpi-periodic-detail-table td.col-area {
+        padding-left: 8px !important;
+    }
+
+    .kpi-periodic-detail-table td.col-kpi,
+    .kpi-periodic-detail-table td.col-production,
+    .kpi-periodic-detail-table td.col-energy {
+        font-size: var(--report-components-report-section-kpi-table-daily-detail-metric-font-size-pdf, 8px) !important;
+        font-weight: 600 !important;
+        text-align: right !important;
     }
 
     .kpi-periodic-detail-table .row-group-end td {
