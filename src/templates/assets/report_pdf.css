@@ -1050,6 +1050,14 @@
         height: var(--report-components-report-section-kpi-chart-period-variance-height-pdf, 196px) !important;
     }
 
+    .kpi-periodic-heatmap-tile {
+        margin-top: 8px !important;
+    }
+
+    .kpi-periodic-heatmap-chart {
+        height: var(--report-components-report-section-kpi-chart-period-heatmap-height-pdf, 118px) !important;
+    }
+
     .kpi-weekly-compare-tile .kpi-daily-dashboard-chart,
     .kpi-weekly-waterfall-tile .kpi-daily-dashboard-chart {
         height: var(--report-components-report-section-kpi-chart-dashboard-height-pdf, 196px) !important;
@@ -1072,6 +1080,11 @@
     .report-period-daily .kpi-daily-dashboard-note {
         margin-top: 4px !important;
         font-size: 7.4px !important;
+    }
+
+    .report-period-weekly .kpi-weekly-dashboard-page {
+        break-after: page !important;
+        page-break-after: always !important;
     }
 
     .kpi-daily-empty-state {

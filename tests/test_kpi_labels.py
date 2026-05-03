@@ -387,6 +387,7 @@ def test_weekly_kpi_dashboard_adds_period_trend_chart() -> None:
 
     dashboard = service._build_v3_kpi_charts(_build_weekly_kpi_object(), period_type="weekly")["daily_dashboard"]
     period_trend = dashboard["charts"]["period_trend"]
+    period_heatmap = dashboard["charts"]["period_heatmap"]
     variance = dashboard["charts"]["variance"]
 
     assert period_trend["title"] == "Energy KPI daily trend"
@@ -399,6 +400,10 @@ def test_weekly_kpi_dashboard_adds_period_trend_chart() -> None:
 
     assert period_trend["option"]["grid"]["top"] == 20
     assert period_trend["option"]["grid"]["bottom"] == 25
+    assert period_heatmap["title"] == "Energy KPI heatmap"
+    assert period_heatmap["option"]["xAxis"]["data"][0] == "May 12 (Mon)"
+    assert period_heatmap["option"]["xAxis"]["data"][-1] == "Avg"
+    assert period_heatmap["option"]["yAxis"]["data"] == ["Total", "DIODE", "ICO", "SAKARI"]
     assert variance["option"]["xAxis"]["min"] == -variance["option"]["xAxis"]["max"]
     assert variance["option"]["series"][0]["barWidth"] == 22
     assert "\n" in variance["option"]["series"][0]["data"][0]["label"]["formatter"]
@@ -416,11 +421,15 @@ def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
     assert "kpi-period-trend-chart" in view_template
     assert "period.type == 'weekly'" in view_template
     assert "kpi-periodic-variance-chart" in view_template
+    assert "kpi-period-heatmap-chart" in view_template
+    assert "kpi-weekly-dashboard-page" in view_template
     assert "kpi-weekly-compare-grid" in view_template
     assert "kpi-weekly-waterfall-tile" in view_template
     assert "kpi-periodic-insight-grid" in pdf_template
     assert "kpi-period-trend-chart" in pdf_template
     assert "kpi-periodic-variance-chart" in pdf_template
+    assert "kpi-period-heatmap-chart" in pdf_template
+    assert "kpi-weekly-dashboard-page" in pdf_template
     assert "kpi-weekly-compare-grid" in pdf_template
     assert "kpi-weekly-waterfall-tile" in pdf_template
 
@@ -435,13 +444,18 @@ def test_weekly_kpi_css_and_config_define_periodic_trend_row() -> None:
     assert '.kpi-weekly-compare-grid {' in report_css
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);' in report_css
     assert 'height: var(--report-components-report-section-kpi-chart-period-trend-height-view, 288px);' in report_css
+    assert 'height: var(--report-components-report-section-kpi-chart-period-heatmap-height-view, 188px);' in report_css
     assert '.kpi-periodic-insight-grid {' in pdf_css
     assert '.kpi-weekly-compare-grid {' in pdf_css
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;' in pdf_css
     assert 'height: var(--report-components-report-section-kpi-chart-period-variance-height-pdf, 196px) !important;' in pdf_css
+    assert 'height: var(--report-components-report-section-kpi-chart-period-heatmap-height-pdf, 118px) !important;' in pdf_css
+    assert '.report-period-weekly .kpi-weekly-dashboard-page {' in pdf_css
     assert kpi_chart_cfg["periodTrend"]["legend"]["bottom"] == "center"
     assert kpi_chart_cfg["periodTrend"]["grid"]["top"] == 20
     assert kpi_chart_cfg["periodTrend"]["grid"]["bottom"] == 25
     assert kpi_chart_cfg["periodTrend"]["height"]["view"] == "288px"
+    assert kpi_chart_cfg["periodHeatmap"]["height"]["view"] == "188px"
+    assert kpi_chart_cfg["periodHeatmap"]["height"]["pdf"] == "118px"
     assert kpi_chart_cfg["variance"]["height"]["view"] == "288px"
     assert kpi_chart_cfg["variance"]["series"]["barWidth"] == 22

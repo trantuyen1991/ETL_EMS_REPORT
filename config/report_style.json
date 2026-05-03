@@ -1447,6 +1447,19 @@
                   "pdf": "196px"
                 }
               },
+              "periodHeatmap": {
+                "grid": {
+                  "left": 58,
+                  "right": 18,
+                  "top": 10,
+                  "bottom": 62,
+                  "containLabel": false
+                },
+                "height": {
+                  "view": "188px",
+                  "pdf": "118px"
+                }
+              },
               "waterfall": {
                 "grid": {
                   "left": 32,

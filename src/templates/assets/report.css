@@ -4854,6 +4854,14 @@
             height: var(--report-components-report-section-kpi-chart-period-variance-height-view, 288px);
         }
 
+        .kpi-periodic-heatmap-tile {
+            margin-top: 14px;
+        }
+
+        .kpi-periodic-heatmap-chart {
+            height: var(--report-components-report-section-kpi-chart-period-heatmap-height-view, 188px);
+        }
+
         .kpi-weekly-compare-tile .kpi-daily-dashboard-chart,
         .kpi-weekly-waterfall-tile .kpi-daily-dashboard-chart {
             height: var(--report-components-report-section-kpi-chart-dashboard-height-view, 288px);

@@ -54,7 +54,7 @@
                     </div>
                 </div>
 
-                <div class="kpi-daily-dashboard pdf-keep-together{% if not flags.is_daily_report %} kpi-periodic-dashboard{% endif %}">
+                <div class="kpi-daily-dashboard pdf-keep-together{% if not flags.is_daily_report %} kpi-periodic-dashboard{% endif %}{% if not flags.is_daily_report and period.type == 'weekly' %} kpi-weekly-dashboard-page{% endif %}">
                     <div class="kpi-daily-card-grid">
                         {% for card in sections.kpi.charts.daily_dashboard.cards %}
                         <div class="kpi-daily-card kpi-daily-card-{{ card.key }} {% if card.is_total %}is-total{% endif %}">
@@ -162,6 +162,18 @@
                         </div>
                         {% endif %}
                     </div>
+
+                    {% if not flags.is_daily_report and period.type == 'weekly' %}
+                    <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile kpi-periodic-heatmap-tile pdf-keep-together">
+                        <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.period_heatmap.title }}</h3>
+                        <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.period_heatmap.subtitle }}</p>
+                        {% if sections.kpi.charts.daily_dashboard.charts.period_heatmap.empty_message %}
+                        <div class="kpi-daily-empty-state kpi-daily-empty-state-wide">{{ sections.kpi.charts.daily_dashboard.charts.period_heatmap.empty_message }}</div>
+                        {% else %}
+                        <div id="kpi-period-heatmap-chart" class="electricity-chart kpi-periodic-heatmap-chart"></div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
 
                     <p class="kpi-daily-dashboard-note">Note: {{ sections.kpi.charts.daily_dashboard.note }}</p>
                 </div>
@@ -281,6 +293,10 @@
                             {
                                 id: "kpi-daily-compare-chart",
                                 option: {{ sections.kpi.charts.daily_dashboard.charts.compare_bar.option | tojson }},
+                            },
+                            {
+                                id: "kpi-period-heatmap-chart",
+                                option: {{ sections.kpi.charts.daily_dashboard.charts.period_heatmap.option | tojson }},
                             },
                             {
                                 id: "kpi-daily-waterfall-chart",

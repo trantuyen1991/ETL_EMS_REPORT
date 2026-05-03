@@ -5764,6 +5764,11 @@ class ReportBuilderService:
             period_type=normalized_period_type,
         )
         period_trend_empty = not bool(period_trend_option)
+        period_heatmap_option = self._build_v3_kpi_period_heatmap_option(
+            kpi_object,
+            period_type=normalized_period_type,
+        )
+        period_heatmap_empty = not bool(period_heatmap_option)
 
         return {
             "cards": cards,
@@ -5780,6 +5785,16 @@ class ReportBuilderService:
                     ),
                     "empty_message": "No daily KPI values recorded for this period." if period_trend_empty else "",
                     "option": period_trend_option,
+                },
+                "period_heatmap": {
+                    "title": "Energy KPI heatmap",
+                    "subtitle": (
+                        "Daily KPI intensity by Total and workshop"
+                        if normalized_period_type == "weekly"
+                        else "Daily KPI intensity for this period"
+                    ),
+                    "empty_message": "No daily KPI heatmap values recorded for this period." if period_heatmap_empty else "",
+                    "option": period_heatmap_option,
                 },
                 "compare_bar": {
                     "title": compare_title,
@@ -5975,6 +5990,158 @@ class ReportBuilderService:
                     ),
                 }
                 for label, color, tint in series_defs
+            ],
+        }
+
+    def _build_v3_kpi_period_heatmap_option(
+        self,
+        kpi_object: Optional[Dict[str, Any]],
+        *,
+        period_type: str,
+    ) -> Dict[str, Any]:
+        """Build a weekly/monthly KPI heatmap for Total and workshop KPI values."""
+        normalized_period_type = str(period_type or "").strip().lower()
+        if normalized_period_type not in {"weekly", "monthly"} or not kpi_object:
+            return {}
+
+        current_daily_rows = sorted(
+            kpi_object.get("current", {}).get("daily_rows", []) or [],
+            key=lambda row: str(row.get("dt") or ""),
+        )
+        if not current_daily_rows:
+            return {}
+
+        x_labels = [
+            self._format_periodic_axis_date_label(row.get("dt"), normalized_period_type)
+            for row in current_daily_rows
+        ]
+        x_labels.append("Avg")
+
+        series_palette = self._get_kpi_chart_series_palette()
+        area_visual_map = self._get_v3_area_visual_map()
+        row_defs = [
+            ("Total", "kpi", series_palette["current"]),
+            ("DIODE", "diode_kpi", area_visual_map["diode"]["bar_color"]),
+            ("ICO", "ico_kpi", area_visual_map["ico"]["bar_color"]),
+            ("SAKARI", "sakari_kpi", area_visual_map["sakari"]["bar_color"]),
+        ]
+        row_value_map: list[list[float | None]] = []
+        any_numeric_value = False
+
+        for _label, field_name, _color in row_defs:
+            values: list[float | None] = []
+            for row in current_daily_rows:
+                raw_value = row.get(field_name)
+                if isinstance(raw_value, (int, float)):
+                    values.append(round(float(raw_value), 4))
+                    any_numeric_value = True
+                else:
+                    values.append(None)
+
+            numeric_values = [value for value in values if value is not None]
+            avg_value = round(sum(numeric_values) / len(numeric_values), 2) if numeric_values else None
+            values.append(avg_value)
+            row_value_map.append(values)
+
+        if not any_numeric_value:
+            return {}
+
+        is_weekly_period = normalized_period_type == "weekly"
+        bottom_gap = 62 if is_weekly_period or len(x_labels) > 8 else 44
+        label_rotate = 28 if is_weekly_period or len(x_labels) > 8 else 0
+        label_font_size = 9 if len(x_labels) <= 8 else 8
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
+        axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
+        chart_text_color = str(self._get_style_color_value("#0f172a", "chart", "text"))
+
+        heatmap_data = []
+        for row_index, row_values in enumerate(row_value_map):
+            base_color = row_defs[row_index][2]
+            numeric_row_values = [value for value in row_values if value is not None]
+            row_min = min(numeric_row_values) if numeric_row_values else 0.0
+            row_max = max(numeric_row_values) if numeric_row_values else 0.0
+            row_span = row_max - row_min
+
+            for col_index, raw_value in enumerate(row_values):
+                if raw_value is None:
+                    continue
+
+                is_avg_col = col_index == len(row_values) - 1
+                display_value = (
+                    self._fmt_chart_compact(raw_value)
+                    if normalized_period_type == "monthly"
+                    else (f"{raw_value:.2f}" if is_avg_col else f"{raw_value:.1f}")
+                )
+                intensity = 0.45
+                if row_span > 0:
+                    intensity = 0.28 + (0.68 * ((float(raw_value) - row_min) / row_span))
+
+                heatmap_data.append({
+                    "value": [col_index, row_index, round(float(raw_value), 4)],
+                    "label": {"formatter": display_value},
+                    "itemStyle": {
+                        "color": self._blend_hex_with_white(base_color, intensity),
+                        "borderColor": "rgba(255,255,255,0.78)",
+                        "borderWidth": 1,
+                    },
+                })
+
+        return {
+            "tooltip": {"position": "top"},
+            "grid": self._resolve_chart_grid(
+                {
+                    "left": 58,
+                    "right": 18,
+                    "top": 10,
+                    "bottom": bottom_gap,
+                    "containLabel": False,
+                },
+                "kpi",
+                "periodHeatmap",
+                "dense" if len(x_labels) > 8 else "default",
+            ),
+            "xAxis": {
+                "type": "category",
+                "data": x_labels,
+                "splitArea": {"show": False},
+                "axisLabel": {
+                    "interval": 0,
+                    "rotate": label_rotate,
+                    "fontSize": label_font_size,
+                    "color": muted_text_color,
+                },
+                "axisLine": {"lineStyle": {"color": axis_line_color}},
+                "axisTick": {"show": False},
+            },
+            "yAxis": {
+                "type": "category",
+                "data": [row_def[0] for row_def in row_defs],
+                "axisLine": {"show": False},
+                "axisTick": {"show": False},
+                "axisLabel": {
+                    "fontWeight": 700,
+                    "color": primary_text_color,
+                },
+            },
+            "series": [
+                {
+                    "name": "KPI intensity",
+                    "type": "heatmap",
+                    "data": heatmap_data,
+                    "label": {
+                        "show": True,
+                        "fontSize": 8,
+                        "fontWeight": 700,
+                        "color": chart_text_color,
+                    },
+                    "emphasis": {
+                        "itemStyle": {
+                            "shadowBlur": 8,
+                            "shadowColor": "rgba(15, 23, 42, 0.15)",
+                        },
+                    },
+                }
             ],
         }
 
