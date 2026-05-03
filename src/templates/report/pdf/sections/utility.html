@@ -631,55 +631,6 @@
                 </div>
                 {% endif %}
 
-                {% if flags.is_daily_report and (sensor_monitoring_view.health_snapshot or sensor_monitoring_view.top_issues_preview) %}
-                <div class="utility-sensor-insight-grid">
-                    {% if sensor_monitoring_view.health_snapshot %}
-                    <div class="utility-sensor-insight-card utility-sensor-health-card">
-                        <div class="utility-sensor-insight-head">
-                            <h4 class="utility-sensor-anomaly-title">Sensor health snapshot</h4>
-                            <p class="utility-sensor-subtitle">Quick health read for today across all monitored sensors</p>
-                        </div>
-                        <div class="utility-sensor-health-grid">
-                            {% for item in sensor_monitoring_view.health_snapshot %}
-                            <div class="utility-sensor-health-item {{ item.tone }}">
-                                <div class="utility-sensor-health-label">{{ item.label }}</div>
-                                <div class="utility-sensor-health-value">{{ item.value_display }}</div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if sensor_monitoring_view.top_issues_preview %}
-                    <div class="utility-sensor-insight-card utility-sensor-top-issues-card">
-                        <div class="utility-sensor-insight-head">
-                            <h4 class="utility-sensor-anomaly-title">Top issues today</h4>
-                            <p class="utility-sensor-subtitle">Highest-priority sensor checks before the detailed anomaly scan</p>
-                        </div>
-                        <div class="utility-sensor-top-issues-list">
-                            {% for item in sensor_monitoring_view.top_issues_preview %}
-                            <div class="utility-sensor-top-issue {{ item.severity_class }}">
-                                <div class="utility-sensor-top-issue-main">
-                                    <div class="utility-sensor-top-issue-title-row">
-                                        <span class="utility-sensor-top-issue-rank">#{{ item.rank }}</span>
-                                        <span class="utility-sensor-top-issue-name">{{ item.display_name }}</span>
-                                    </div>
-                                    <div class="utility-sensor-top-issue-meta">{{ item.group_label }} · {{ item.measurement_type }}</div>
-                                </div>
-                                <div class="utility-sensor-top-issue-side">
-                                    <span class="utility-sensor-range-flag {{ item.severity_class }}">{{ item.flag_summary }}</span>
-                                    {% if item.latest_display and item.latest_display != '-' %}
-                                    <span class="utility-sensor-top-issue-latest">Latest {{ item.latest_display }}</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
                 {% if not flags.is_daily_report and sensor_monitoring.period_trend_charts_render %}
                 <div class="utility-sensor-trend-preview-block pdf-keep-together">
                     <div class="utility-sensor-trend-preview-head">
@@ -704,11 +655,11 @@
                 {% endif %}
 
 
-                {% set sensor_group_preview = sensor_monitoring_view.groups[:3] if flags.is_daily_report else [] %}
-                {% set sensor_group_remaining = sensor_monitoring_view.groups[3:] if flags.is_daily_report else sensor_monitoring_view.groups %}
+                {% set sensor_group_preview = sensor_monitoring_view.groups if flags.is_daily_report else [] %}
+                {% set sensor_group_remaining = [] if flags.is_daily_report else sensor_monitoring_view.groups %}
 
                 {% if sensor_group_preview %}
-                <div class="utility-sensor-group-preview-block pdf-keep-together">
+                <div class="utility-sensor-group-preview-block{% if not flags.is_daily_report %} pdf-keep-together{% endif %}">
                     <div class="utility-sensor-group-grid utility-sensor-group-grid-preview">
                         {% for group in sensor_group_preview %}
                         <div class="utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% endif %} group-key-{{ group.key }}" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
@@ -717,7 +668,9 @@
                                     <span class="utility-sensor-group-icon" aria-hidden="true">{{ sensor_ui.group_icon(group.key) }}</span>
                                     <div>
                                         <h4 class="utility-sensor-group-title">{{ group.label }}</h4>
-                                        <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data{% if not flags.is_daily_report %} in period{% endif %}</p>
+                                        {% if not flags.is_daily_report %}
+                                        <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data in period</p>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <span class="utility-sensor-group-badge {% if group.anomaly_count > 0 %}has-alert{% else %}is-clear{% endif %}">
@@ -741,9 +694,8 @@
                                         <div class="utility-sensor-metric-main">
                                             <div class="utility-sensor-metric-title-row">
                                                 <span class="utility-sensor-metric-icon {{ sensor.severity_class }}" aria-hidden="true">{{ sensor_ui.metric_icon(sensor) }}</span>
-                                                <span class="utility-sensor-metric-name">{{ sensor.display_name }}</span>
+                                                <span class="utility-sensor-metric-name">{{ sensor.short_display_name or sensor.display_name }}{% if sensor.unit %} ({{ sensor.unit }}){% endif %}</span>
                                             </div>
-                                            <div class="utility-sensor-metric-submeta">{{ sensor.measurement_type_label }}{% if sensor.unit %} ({{ sensor.unit }}){% endif %}</div>
                                             <div class="utility-sensor-metric-note {{ sensor.severity_class }}">
                                                 {% if sensor.has_alert and sensor.flag_summary %}
                                                 {{ sensor.flag_summary }}
@@ -825,7 +777,7 @@
                 {% endif %}
 
                 {% if sensor_group_remaining %}
-                <div class="utility-sensor-group-grid utility-sensor-group-grid-remaining">
+                <div class="utility-sensor-group-grid utility-sensor-group-grid-remaining{% if flags.is_daily_report %} page-break-before{% endif %}">
                     {% for group in sensor_group_remaining %}
                     <div class="utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% endif %} group-key-{{ group.key }}" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
                         <div class="utility-sensor-group-head">
@@ -833,7 +785,9 @@
                                 <span class="utility-sensor-group-icon" aria-hidden="true">{{ sensor_ui.group_icon(group.key) }}</span>
                                 <div>
                                     <h4 class="utility-sensor-group-title">{{ group.label }}</h4>
-                                    <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data{% if not flags.is_daily_report %} in period{% endif %}</p>
+                                    {% if not flags.is_daily_report %}
+                                    <p class="utility-sensor-group-meta">{{ group.active_sensor_count }}/{{ group.sensor_count }} sensors with data in period</p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <span class="utility-sensor-group-badge {% if group.anomaly_count > 0 %}has-alert{% else %}is-clear{% endif %}">
@@ -857,9 +811,8 @@
                                     <div class="utility-sensor-metric-main">
                                         <div class="utility-sensor-metric-title-row">
                                             <span class="utility-sensor-metric-icon {{ sensor.severity_class }}" aria-hidden="true">{{ sensor_ui.metric_icon(sensor) }}</span>
-                                            <span class="utility-sensor-metric-name">{{ sensor.display_name }}</span>
+                                            <span class="utility-sensor-metric-name">{{ sensor.short_display_name or sensor.display_name }}{% if sensor.unit %} ({{ sensor.unit }}){% endif %}</span>
                                         </div>
-                                        <div class="utility-sensor-metric-submeta">{{ sensor.measurement_type_label }}{% if sensor.unit %} ({{ sensor.unit }}){% endif %}</div>
                                         <div class="utility-sensor-metric-note {{ sensor.severity_class }}">
                                             {% if sensor.has_alert and sensor.flag_summary %}
                                             {{ sensor.flag_summary }}
@@ -940,7 +893,7 @@
                 {% endif %}
 
                 {% if sensor_monitoring_view.anomaly_rows %}
-                <div class="utility-sensor-anomaly-block">
+                <div class="utility-sensor-anomaly-block{% if flags.is_daily_report %} page-break-before{% endif %}">
                     <h4 class="utility-sensor-anomaly-title">{% if flags.is_daily_report %}Sensor anomaly scan{% else %}Period anomaly scan{% endif %}</h4>
                     <div class="utility-sensor-anomaly-wrap report-table-wrap">
                         <table class="utility-sensor-anomaly-table report-table-ui">

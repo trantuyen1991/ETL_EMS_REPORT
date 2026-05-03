@@ -10,7 +10,7 @@ from src.services.utility_service import UtilityService
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_daily_sensor_monitoring_context_builds_health_snapshot_and_top_issues() -> None:
+def test_daily_sensor_monitoring_context_combines_water_overview_but_keeps_detail_groups_split() -> None:
     service = UtilityService()
 
     context = service.build_sensor_monitoring_context(
@@ -20,41 +20,53 @@ def test_daily_sensor_monitoring_context_builds_health_snapshot_and_top_issues()
     )
 
     assert context["health_snapshot"]
-    assert [item["key"] for item in context["health_snapshot"]] == ["active", "missing", "critical", "warning"]
-    assert context["health_snapshot"][0]["value_display"].endswith(f"/{context['sensor_count']}")
-    assert context["missing_sensor_count"] == context["sensor_count"] - context["active_sensor_count"]
     assert context["top_issues_preview"]
-    assert len(context["top_issues_preview"]) <= 5
-    assert context["top_issues_preview"][0]["flag_summary"] == "Missing data"
+    assert context["missing_sensor_count"] == context["sensor_count"] - context["active_sensor_count"]
 
     group_keys = [group["key"] for group in context["groups"]]
     assert group_keys[-2:] == ["domestic_water", "sakari_water"]
+
+    overview_cards = context["overview_cards"]
+    overview_keys = [card["key"] for card in overview_cards]
+    assert overview_keys[-1] == "domestic_water"
+    assert "sakari_water" not in overview_keys
+
+    water_card = overview_cards[-1]
+    assert water_card["label"] == "Domestic + Sakari Water"
+    assert water_card["sensor_count"] == 2
+    assert water_card["active_sensor_count"] == 0
+    assert water_card["anomaly_count"] == 2
 
     sakari_group = next(group for group in context["groups"] if group["key"] == "sakari_water")
     domestic_group = next(group for group in context["groups"] if group["key"] == "domestic_water")
 
     assert len(sakari_group["sensors"]) == 1
     assert sakari_group["sensors"][0]["key"] == "sak_waterflow"
+    assert sakari_group["sensors"][0]["short_display_name"] == "Flow"
     assert len(domestic_group["sensors"]) == 1
     assert domestic_group["sensors"][0]["key"] == "dom_waterflow"
+    assert domestic_group["sensors"][0]["short_display_name"] == "Flow"
+
+    ico_air_group = next(group for group in context["groups"] if group["key"] == "ico_air")
+    assert [sensor["short_display_name"] for sensor in ico_air_group["sensors"]] == ["Flow", "Pressure"]
 
 
-def test_daily_pdf_utility_template_contains_sensor_health_and_top_issues_blocks() -> None:
+def test_daily_pdf_utility_template_removes_insight_blocks_and_brings_metric_cards_up() -> None:
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/utility.html").read_text(encoding="utf-8")
 
-    assert "Sensor health snapshot" in pdf_template
-    assert "Top issues today" in pdf_template
-    assert "sensor_monitoring_view.health_snapshot" in pdf_template
-    assert "sensor_monitoring_view.top_issues_preview" in pdf_template
+    assert "Sensor health snapshot" not in pdf_template
+    assert "Top issues today" not in pdf_template
+    assert "sensor_monitoring_view.health_snapshot" not in pdf_template
+    assert "sensor_monitoring_view.top_issues_preview" not in pdf_template
 
 
-def test_daily_pdf_utility_template_splits_sensor_groups_for_page_5_preview() -> None:
+def test_daily_pdf_utility_template_keeps_all_daily_sensor_cards_with_overview_before_anomaly_scan() -> None:
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/utility.html").read_text(encoding="utf-8")
 
-    assert "sensor_group_preview = sensor_monitoring_view.groups[:3]" in pdf_template
-    assert "sensor_group_remaining = sensor_monitoring_view.groups[3:]" in pdf_template
-    assert "utility-sensor-group-grid-preview" in pdf_template
-    assert "utility-sensor-group-grid-remaining" in pdf_template
+    assert "sensor_group_preview = sensor_monitoring_view.groups if flags.is_daily_report else []" in pdf_template
+    assert "sensor_group_remaining = [] if flags.is_daily_report else sensor_monitoring_view.groups" in pdf_template
+    assert 'utility-sensor-group-preview-block{% if not flags.is_daily_report %} pdf-keep-together{% endif %}' in pdf_template
+    assert 'utility-sensor-anomaly-block{% if flags.is_daily_report %} page-break-before{% endif %}' in pdf_template
 
 
 def test_period_sensor_trend_builder_marks_lone_tail_chart_for_full_width_pdf_layout() -> None:

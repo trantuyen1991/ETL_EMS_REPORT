@@ -603,20 +603,24 @@ class UtilityService:
             "warning_alert_count": warning_alert_count,
             "health_snapshot": health_snapshot,
             "top_issues_preview": top_issues_preview,
-            "overview_cards": [
-                {
-                    "key": group["key"],
-                    "label": group["label"],
-                    "accent_color": group["accent_color"],
-                    "accent_tint": group["accent_tint"],
-                    "sensor_count": group["sensor_count"],
-                    "active_sensor_count": group["active_sensor_count"],
-                    "anomaly_count": group["anomaly_count"],
-                    "critical_count": group["critical_count"],
-                    "warning_count": group["warning_count"],
-                }
-                for group in sensor_groups
-            ],
+            "overview_cards": (
+                self._build_daily_overview_cards(sensor_groups)
+                if not is_period_report
+                else [
+                    {
+                        "key": group["key"],
+                        "label": group["label"],
+                        "accent_color": group["accent_color"],
+                        "accent_tint": group["accent_tint"],
+                        "sensor_count": group["sensor_count"],
+                        "active_sensor_count": group["active_sensor_count"],
+                        "anomaly_count": group["anomaly_count"],
+                        "critical_count": group["critical_count"],
+                        "warning_count": group["warning_count"],
+                    }
+                    for group in sensor_groups
+                ]
+            ),
             "groups": sensor_groups,
             "anomaly_rows": anomaly_rows,
             "metric_columns": metric_columns,
@@ -625,6 +629,50 @@ class UtilityService:
             "trend_clusters": trend_clusters,
             "period_rollup": period_rollup,
         }
+
+    def _build_daily_overview_cards(
+        self,
+        sensor_groups: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Build daily overview cards, merging the two water groups into one card."""
+        overview_cards: list[dict[str, Any]] = []
+        sakari_group = next(
+            (group for group in sensor_groups if group.get("key") == "sakari_water"),
+            None,
+        )
+
+        for group in sensor_groups:
+            group_key = group.get("key")
+            if group_key == "sakari_water":
+                continue
+
+            if group_key == "domestic_water" and sakari_group:
+                overview_cards.append({
+                    "key": "domestic_water",
+                    "label": "Domestic + Sakari Water",
+                    "accent_color": group["accent_color"],
+                    "accent_tint": group["accent_tint"],
+                    "sensor_count": int(group.get("sensor_count") or 0) + int(sakari_group.get("sensor_count") or 0),
+                    "active_sensor_count": int(group.get("active_sensor_count") or 0) + int(sakari_group.get("active_sensor_count") or 0),
+                    "anomaly_count": int(group.get("anomaly_count") or 0) + int(sakari_group.get("anomaly_count") or 0),
+                    "critical_count": int(group.get("critical_count") or 0) + int(sakari_group.get("critical_count") or 0),
+                    "warning_count": int(group.get("warning_count") or 0) + int(sakari_group.get("warning_count") or 0),
+                })
+                continue
+
+            overview_cards.append({
+                "key": group["key"],
+                "label": group["label"],
+                "accent_color": group["accent_color"],
+                "accent_tint": group["accent_tint"],
+                "sensor_count": group["sensor_count"],
+                "active_sensor_count": group["active_sensor_count"],
+                "anomaly_count": group["anomaly_count"],
+                "critical_count": group["critical_count"],
+                "warning_count": group["warning_count"],
+            })
+
+        return overview_cards
 
     def _build_period_sensor_rollup(
         self,
@@ -941,12 +989,20 @@ class UtilityService:
 
         anomaly_score = self._score_sensor_flags(flags)
 
+        display_name = meta.get("display_name") or sensor_key
+        unit = meta.get("unit") or ""
+        group_key = meta.get("group") or ""
+
         return {
             "key": sensor_key,
-            "display_name": meta.get("display_name") or sensor_key,
+            "display_name": display_name,
+            "short_display_name": self._build_sensor_short_display_name(
+                display_name=str(display_name),
+                group_key=str(group_key),
+            ),
             "description": meta.get("description") or "",
-            "unit": meta.get("unit") or "",
-            "group": meta.get("group") or "",
+            "unit": unit,
+            "group": group_key,
             "measurement_type": meta.get("measurement_type") or "unknown",
             "measurement_type_label": self._format_measurement_type_label(meta.get("measurement_type")),
             "has_data": has_data,
@@ -991,6 +1047,26 @@ class UtilityService:
             "avg_position_pct": round(avg_position_pct, 2),
             "context_scope": context_scope,
         }
+
+    def _build_sensor_short_display_name(
+        self,
+        *,
+        display_name: str,
+        group_key: str,
+    ) -> str:
+        """Trim repeated group prefixes from sensor labels for compact card rows."""
+        group_label = get_utility_sensor_group_labels().get(group_key, "")
+        normalized_display = (display_name or "").strip()
+        normalized_group = (group_label or "").strip()
+
+        if normalized_display and normalized_group:
+            prefix = f"{normalized_group} "
+            if normalized_display.startswith(prefix):
+                trimmed = normalized_display[len(prefix):].strip()
+                if trimmed:
+                    return trimmed
+
+        return normalized_display
 
     def _build_sensor_flags(
         self,

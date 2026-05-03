@@ -144,6 +144,8 @@ def test_daily_view_sensor_monitoring_uses_metric_table_layout() -> None:
     assert 'sensor_ui.metric_icon(sensor)' in view_template
     assert 'sensor_ui.status_icon(sensor)' in view_template
     assert 'sensor_monitoring_view.overview_cards and not flags.is_daily_report' in view_template
+    assert 'sensor.short_display_name or sensor.display_name' in view_template
+    assert 'utility-sensor-metric-submeta' not in view_template
     assert '.report-family-daily .utility-sensor-metric-table' in report_css
     assert '.report-family-daily .utility-sensor-group-card.is-daily-metric-card::before' in report_css
     assert '.report-family-daily .utility-sensor-group-card.group-key-sakari_water' in report_css
@@ -161,9 +163,16 @@ def test_daily_pdf_sensor_monitoring_uses_metric_table_layout() -> None:
     assert 'sensor_ui.group_icon(group.key)' in pdf_template
     assert 'sensor_ui.metric_icon(sensor)' in pdf_template
     assert 'sensor_ui.status_icon(sensor)' in pdf_template
+    assert '{{ sensor.short_display_name or sensor.display_name }}{% if sensor.unit %} ({{ sensor.unit }}){% endif %}' in pdf_template
+    assert 'utility-sensor-metric-submeta' not in pdf_template
     assert '.report-period-daily .utility-sensor-group-grid' in pdf_css
     assert '.report-period-daily .utility-sensor-group-card.group-key-sakari_water' in pdf_css
+    assert 'grid-column: auto !important;' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-table-head' in pdf_css
+    assert 'display: grid !important;' in pdf_css
+    assert '.report-period-daily .utility-sensor-metric-table-body' in pdf_css
+    assert '.report-period-daily .utility-sensor-metric-title-row' in pdf_css
+    assert '.report-period-daily .utility-sensor-metric-value' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-status-main' in pdf_css
 
 

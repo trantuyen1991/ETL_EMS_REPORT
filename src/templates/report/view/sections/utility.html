@@ -681,9 +681,8 @@
                                     <div class="utility-sensor-metric-main">
                                         <div class="utility-sensor-metric-title-row">
                                             <span class="utility-sensor-metric-icon {{ sensor.severity_class }}" aria-hidden="true">{{ sensor_ui.metric_icon(sensor) }}</span>
-                                            <span class="utility-sensor-metric-name">{{ sensor.display_name }}</span>
+                                            <span class="utility-sensor-metric-name">{{ sensor.short_display_name or sensor.display_name }}{% if sensor.unit %} ({{ sensor.unit }}){% endif %}</span>
                                         </div>
-                                        <div class="utility-sensor-metric-submeta">{{ sensor.measurement_type_label }}{% if sensor.unit %} ({{ sensor.unit }}){% endif %}</div>
                                         <div class="utility-sensor-metric-note {{ sensor.severity_class }}">
                                             {% if sensor.has_alert and sensor.flag_summary %}
                                             {{ sensor.flag_summary }}
