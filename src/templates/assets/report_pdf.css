@@ -1863,6 +1863,12 @@
         height: 14px !important;
     }
 
+    .utility-sensor-group-icon svg *,
+    .utility-sensor-overview-icon svg * {
+        stroke: currentColor !important;
+        fill: none !important;
+    }
+
     .utility-sensor-overview-title {
         margin-bottom: 0 !important;
         font-size: 9px !important;
@@ -2275,6 +2281,31 @@
         box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
         position: relative !important;
         overflow: hidden !important;
+    }
+
+    .report-family-periodic .utility-sensor-group-heading-copy {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        min-width: 0 !important;
+    }
+
+    .report-family-periodic .utility-sensor-group-heading-copy > div {
+        min-width: 0 !important;
+    }
+
+    .report-family-periodic .utility-sensor-group-icon {
+        color: var(--sensor-accent, #1e3a8a) !important;
+    }
+
+    .report-family-periodic .utility-sensor-group-title {
+        margin: 0 !important;
+        font-size: 9.2px !important;
+        font-weight: 900 !important;
+        line-height: 1.15 !important;
+        letter-spacing: 0.02em !important;
+        text-transform: uppercase !important;
+        color: var(--sensor-accent, #1e3a8a) !important;
     }
 
     .report-family-periodic .utility-sensor-group-card.is-reference-metric-card::before {

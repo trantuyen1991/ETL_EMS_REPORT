@@ -272,6 +272,13 @@ def test_daily_view_sensor_monitoring_uses_metric_table_layout() -> None:
     assert 'letter-spacing: 0.02em;' in report_css
     assert 'color: var(--sensor-accent, #183153);' in report_css
     assert '.report-family-periodic .utility-sensor-group-card.is-reference-metric-card' in report_css
+    assert '.report-family-periodic .utility-sensor-group-heading-copy {' in report_css
+    assert 'align-items: center;' in report_css
+    assert '.report-family-periodic .utility-sensor-group-title {' in report_css
+    assert 'font-size: 13px;' in report_css
+    assert 'font-weight: 900;' in report_css
+    assert 'color: var(--sensor-accent, #183153);' in report_css
+    assert '.utility-sensor-group-icon svg *,' in report_css
     assert '.report-family-periodic .utility-sensor-anomaly-table thead th' in report_css
     assert 'macro metric_icon(sensor)' in sensor_macro
     assert 'macro status_icon(sensor)' in sensor_macro
@@ -311,6 +318,13 @@ def test_daily_pdf_sensor_monitoring_uses_metric_table_layout() -> None:
     assert 'letter-spacing: 0.02em !important;' in pdf_css
     assert 'color: var(--sensor-accent, #1e3a8a) !important;' in pdf_css
     assert '.report-family-periodic .utility-sensor-group-card.is-reference-metric-card' in pdf_css
+    assert '.report-family-periodic .utility-sensor-group-heading-copy {' in pdf_css
+    assert 'align-items: center !important;' in pdf_css
+    assert '.report-family-periodic .utility-sensor-group-title {' in pdf_css
+    assert 'font-size: 9.2px !important;' in pdf_css
+    assert 'font-weight: 900 !important;' in pdf_css
+    assert 'color: var(--sensor-accent, #1e3a8a) !important;' in pdf_css
+    assert '.utility-sensor-group-icon svg *,' in pdf_css
     assert '.report-family-periodic .utility-sensor-anomaly-table .col-reason' in pdf_css
     assert 'display: grid !important;' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-table-body' in pdf_css
