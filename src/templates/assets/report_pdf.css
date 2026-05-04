@@ -1864,8 +1864,12 @@
     }
 
     .utility-sensor-overview-title {
-        font-size: 8.2px !important;
         margin-bottom: 0 !important;
+        font-size: 9px !important;
+        font-weight: 900 !important;
+        line-height: 1.15 !important;
+        letter-spacing: 0.02em !important;
+        text-transform: uppercase !important;
     }
 
     .utility-sensor-overview-divider {
@@ -2163,9 +2167,12 @@
     }
 
     .report-family-daily .utility-sensor-overview-title {
-        color: var(--sensor-accent, #223548) !important;
+        font-size: 9.2px !important;
+        font-weight: 900 !important;
+        line-height: 1.15 !important;
+        color: var(--sensor-accent, #1e3a8a) !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.06em !important;
+        letter-spacing: 0.02em !important;
     }
 
     .report-family-periodic .utility-sensor-overview-card.is-reference-card {
@@ -2191,9 +2198,12 @@
     }
 
     .report-family-periodic .utility-sensor-overview-title {
-        color: var(--sensor-accent, #223548) !important;
+        font-size: 9.2px !important;
+        font-weight: 900 !important;
+        line-height: 1.15 !important;
+        color: var(--sensor-accent, #1e3a8a) !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.06em !important;
+        letter-spacing: 0.02em !important;
     }
 
     .report-family-periodic .utility-sensor-overview-badge {

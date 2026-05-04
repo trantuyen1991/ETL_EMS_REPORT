@@ -35,9 +35,12 @@
         }
 
         .report-family-daily .utility-sensor-overview-title {
-            color: var(--sensor-accent, var(--report-color-text-heading));
+            font-size: 13px;
+            font-weight: 900;
+            line-height: 1.3;
+            color: var(--sensor-accent, #183153);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.02em;
         }
 
         .report-family-daily .electricity-chart-card,
@@ -3554,10 +3557,13 @@
 
         .utility-sensor-overview-title {
             min-width: 0;
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--report-color-text-heading);
-            letter-spacing: 0.1px;
+            margin: 0;
+            font-size: 13px;
+            font-weight: 900;
+            line-height: 1.3;
+            color: var(--sensor-accent, #183153);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
         }
 
         .utility-sensor-overview-divider {
@@ -3938,9 +3944,12 @@
         }
 
         .report-family-periodic .utility-sensor-overview-title {
-            color: var(--sensor-accent, var(--report-color-text-heading));
+            font-size: 13px;
+            font-weight: 900;
+            line-height: 1.3;
+            color: var(--sensor-accent, #183153);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.02em;
         }
 
         .report-family-periodic .utility-sensor-overview-badge {
