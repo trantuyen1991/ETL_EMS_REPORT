@@ -2162,6 +2162,12 @@
         stroke-width: 2 !important;
     }
 
+    .report-family-daily .utility-sensor-overview-title {
+        color: var(--sensor-accent, #223548) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.06em !important;
+    }
+
     .report-family-periodic .utility-sensor-overview-card.is-reference-card {
         padding: 7px 8px 8px !important;
         background: #ffffff !important;

@@ -34,6 +34,12 @@
             box-shadow: var(--report-components-card-shadow, var(--report-shadow-card));
         }
 
+        .report-family-daily .utility-sensor-overview-title {
+            color: var(--sensor-accent, var(--report-color-text-heading));
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
         .report-family-daily .electricity-chart-card,
         .report-family-daily .utility-chart-card,
         .report-family-daily .kpi-chart-card,
