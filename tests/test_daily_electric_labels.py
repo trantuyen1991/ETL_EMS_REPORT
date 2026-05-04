@@ -200,6 +200,95 @@ def test_weekly_electric_delta_chart_uses_inset_labels_and_trend_colors() -> Non
     assert delta_option["xAxis"]["max"] == 40.0
 
 
+def test_periodic_electric_area_summary_uses_semantic_fill_for_total_and_previous_fill_for_avg() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    rows = service._build_v3_area_daily_summary_rows(
+        plant_daily_summary_rows=[
+            {
+                "date": date(2025, 5, 12),
+                "total_energy": 150.0,
+                "total_energy_display": "150.00",
+                "active_meter_count": 3,
+                "total_meter_count": 3,
+                "avg_per_active": 50.0,
+                "avg_per_active_display": "50.00",
+            },
+            {
+                "date": date(2025, 5, 13),
+                "total_energy": 90.0,
+                "total_energy_display": "90.00",
+                "active_meter_count": 3,
+                "total_meter_count": 3,
+                "avg_per_active": 30.0,
+                "avg_per_active_display": "30.00",
+            },
+        ],
+        daily_tables=[
+            {
+                "area_key": "diode",
+                "rows": [
+                    {
+                        "date": date(2025, 5, 12),
+                        "official_daily_total": 120.0,
+                        "cells": [{"raw_value": 60.0}, {"raw_value": 40.0}, {"raw_value": 20.0}],
+                    },
+                    {
+                        "date": date(2025, 5, 13),
+                        "official_daily_total": 45.0,
+                        "cells": [{"raw_value": 25.0}, {"raw_value": 20.0}],
+                    },
+                ],
+            },
+            {
+                "area_key": "ico",
+                "rows": [
+                    {
+                        "date": date(2025, 5, 12),
+                        "official_daily_total": 60.0,
+                        "cells": [{"raw_value": 35.0}, {"raw_value": 25.0}],
+                    },
+                    {
+                        "date": date(2025, 5, 13),
+                        "official_daily_total": 0.0,
+                        "cells": [{"raw_value": 0.0}, {"raw_value": 0.0}],
+                    },
+                ],
+            },
+            {
+                "area_key": "sakari",
+                "rows": [
+                    {
+                        "date": date(2025, 5, 12),
+                        "official_daily_total": 30.0,
+                        "cells": [{"raw_value": 30.0}],
+                    },
+                ],
+            },
+        ],
+        area_display_order=[
+            ("diode", "DIODE Workshop"),
+            ("ico", "ICO Workshop"),
+            ("sakari", "SAKARI Workshop"),
+        ],
+    )
+
+    first_row = rows[0]["areas"]
+    second_row = rows[1]["areas"]
+
+    assert first_row["plant"]["total_state_class"] == "value-max"
+    assert first_row["plant"]["total_heat_class"] == "summary-heat-4"
+    assert "--summary-cell-accent: #005496;" in first_row["plant"]["total_cell_style"]
+    assert "--summary-cell-accent: #005496;" in first_row["ico"]["total_cell_style"]
+    assert "--summary-cell-accent: #005496;" in first_row["sakari"]["total_cell_style"]
+    assert first_row["diode"]["avg_heat_class"] == "summary-heat-3"
+    assert "--summary-cell-accent: #703cd9;" in first_row["diode"]["avg_cell_style"]
+    assert second_row["ico"]["total_state_class"] == "value-zero"
+    assert second_row["sakari"]["total_state_class"] == "value-missing"
+
+
 def test_period_block_uses_last_week_and_last_month_labels() -> None:
     service = ReportBuilderService()
 
@@ -235,6 +324,22 @@ def test_daily_pdf_electric_template_skips_empty_top10_block() -> None:
     assert '{% if sections.electricity.top10.grouped_rows %}' in pdf_template
 
 
+def test_periodic_electric_area_summary_templates_use_fill_classes_and_styles() -> None:
+    view_template = (PROJECT_ROOT / "src/templates/report/view/sections/electricity.html").read_text(encoding="utf-8")
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/electricity.html").read_text(encoding="utf-8")
+
+    expected_total = 'class="col-total-energy area-group-start summary-filled-cell area-{{ area_key }} {{ area_row.total_heat_class }} {{ area_row.total_state_class }}"'
+    expected_avg = 'class="col-avg-active area-group-end summary-filled-cell is-previous-tone {{ area_row.avg_heat_class }} {{ area_row.avg_state_class }}"'
+    expected_style = '{% if area_row.total_cell_style %} style="{{ area_row.total_cell_style }}"{% endif %}'
+
+    assert expected_total in view_template
+    assert expected_total in pdf_template
+    assert expected_avg in view_template
+    assert expected_avg in pdf_template
+    assert expected_style in view_template
+    assert expected_style in pdf_template
+
+
 def test_daily_view_electric_template_marks_area_chart_for_compact_layout() -> None:
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/electricity.html").read_text(encoding="utf-8")
 
@@ -246,6 +351,23 @@ def test_weekly_pdf_electric_detail_highlight_disables_border_artifact() -> None
 
     assert '.electricity-periodic-detail-table .value-max' in pdf_css
     assert 'border-bottom: none !important;' in pdf_css
+
+
+def test_periodic_electric_area_summary_css_supports_column_fill_states() -> None:
+    report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+
+    assert '.report-family-periodic .electricity-daily-summary-area-table .summary-filled-cell {' in report_css
+    assert 'background: var(--summary-cell-bg, transparent);' in report_css
+    assert '.summary-filled-cell.value-max {' in report_css
+    assert '.summary-filled-cell.value-zero {' in report_css
+    assert '.summary-filled-cell.value-missing {' in report_css
+
+    assert '.report-family-periodic .electricity-daily-summary-area-table .summary-filled-cell {' in pdf_css
+    assert 'background: var(--summary-cell-bg, transparent) !important;' in pdf_css
+    assert '.summary-filled-cell.value-max {' in pdf_css
+    assert '.summary-filled-cell.value-zero {' in pdf_css
+    assert '.summary-filled-cell.value-missing {' in pdf_css
 
 
 def test_weekly_pdf_electric_detail_template_has_meter_colgroup() -> None:

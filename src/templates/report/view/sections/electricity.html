@@ -25,8 +25,8 @@
                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                     {% for area_key, area_name in area_summary_order %}
                     {% set area_row = row.areas[area_key] %}
-                    <td class="col-total-energy area-group-start">{{ area_row.total_display }}</td>
-                    <td class="col-avg-active area-group-end">{{ area_row.avg_per_active_display }}</td>
+                    <td class="col-total-energy area-group-start summary-filled-cell area-{{ area_key }} {{ area_row.total_heat_class }} {{ area_row.total_state_class }}"{% if area_row.total_cell_style %} style="{{ area_row.total_cell_style }}"{% endif %}>{{ area_row.total_display }}</td>
+                    <td class="col-avg-active area-group-end summary-filled-cell is-previous-tone {{ area_row.avg_heat_class }} {{ area_row.avg_state_class }}"{% if area_row.avg_cell_style %} style="{{ area_row.avg_cell_style }}"{% endif %}>{{ area_row.avg_per_active_display }}</td>
                     {% endfor %}
                 </tr>
                 {% endfor %}

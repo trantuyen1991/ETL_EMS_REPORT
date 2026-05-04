@@ -102,6 +102,24 @@
   - periodic sample renders were regenerated and cropped section screenshots were reviewed in chat
   - the latest `Daily KPI Detail` review checkpoint was accepted by the user before docs consolidation
 
+## Periodic Electricity summary + Utility detail follow-up (2026-05-04)
+- `Daily Energy Summary` in the periodic Electricity section received one final readability pass after screenshot review:
+  - the exploratory per-area body-fill approach was retired
+  - the approved final direction now uses only 2 semantic color families
+  - all `Total` cells share one blue family
+  - all `Avg / meter active` cells share one purple family
+  - fill intensity is still value-based, but normalization is split into 2 independent pools (`all totals` vs `all avg/meter active`)
+- `Daily Utility Detail` then received its approved Option B treatment for weekly/monthly rendering:
+  - headers use a light tint by utility family
+  - body values use per-column heat fill instead of cross-utility comparison color
+  - `0` stays visually neutral
+  - missing values stay pale
+  - business logic and row ordering were intentionally left unchanged
+- Verification status for this follow-up:
+  - targeted Electricity + Utility regressions stayed green
+  - weekly and monthly PDFs were regenerated after each accepted UI slice
+  - exact cropped section screenshots were reviewed in chat before consolidation
+
 ## Next workstream
-- Next planned workstream: template layout audit by surface/page, starting with the daily PDF output.
-- See `docs/workflows/template_layout_audit_master_checklist.md` for the audit order and checks.
+- Next planned workstream: periodic Sensor Monitoring cleanup, focused on anomaly-table width usage and duplicate trend-chart removal.
+- See `docs/workflows/template_layout_audit_master_checklist.md` for the broader audit order and checks.

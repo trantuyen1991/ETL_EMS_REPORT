@@ -1247,27 +1247,113 @@ class ReportBuilderService:
             row_lookup[area_key] = rows
             all_dates.update(rows.keys())
 
+        total_area_cfg = self._get_style_color_node("area", "total")
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        total_color = str(
+            total_area_cfg.get("barColor")
+            or self._get_style_color_value("#005496", "brand", "primary")
+        )
+        previous_color = str(
+            self._get_style_color_value("#703cd9", "chart", "series", "previous")
+            or self._get_style_color_value("#703cd9", "brand", "accent")
+        )
+
+        def _to_numeric(value: Any) -> Optional[float]:
+            if not isinstance(value, (int, float)):
+                return None
+            return float(value)
+
+        def _resolve_summary_heat_meta(value: Any, max_value: float, base_color: str) -> dict[str, Any]:
+            numeric_value = _to_numeric(value)
+            if numeric_value is None:
+                return {
+                    "heat_class": "",
+                    "state_class": "value-missing",
+                    "is_max": False,
+                    "style": "",
+                }
+
+            if numeric_value <= 0 or max_value <= 0:
+                return {
+                    "heat_class": "",
+                    "state_class": "value-zero" if numeric_value == 0 else "value-low",
+                    "is_max": False,
+                    "style": "",
+                }
+
+            ratio = max(0.0, min(1.0, numeric_value / max_value))
+            if ratio >= 0.85:
+                heat_class = "summary-heat-4"
+                tint_ratio = 0.34
+            elif ratio >= 0.60:
+                heat_class = "summary-heat-3"
+                tint_ratio = 0.27
+            elif ratio >= 0.35:
+                heat_class = "summary-heat-2"
+                tint_ratio = 0.20
+            else:
+                heat_class = "summary-heat-1"
+                tint_ratio = 0.13
+
+            is_max = numeric_value == max_value and numeric_value > 0
+            if is_max:
+                tint_ratio = max(tint_ratio, 0.40)
+
+            fill_color = self._blend_hex_with_white(base_color, tint_ratio)
+            border_color = self._hex_to_rgba(base_color, 0.28 if not is_max else 0.42)
+            text_color = base_color if ratio >= 0.60 or is_max else primary_text_color
+
+            return {
+                "heat_class": heat_class,
+                "state_class": "value-max" if is_max else "",
+                "is_max": is_max,
+                "style": (
+                    f"--summary-cell-bg: {fill_color}; "
+                    f"--summary-cell-accent: {base_color}; "
+                    f"--summary-cell-border: {border_color}; "
+                    f"--summary-cell-text: {text_color};"
+                ),
+            }
+
         result: list[dict[str, Any]] = []
+        total_values: list[float] = []
+        avg_values: list[float] = []
 
         for dt_value in sorted(all_dates):
             area_values: dict[str, dict[str, Any]] = {}
 
             plant_row = plant_row_lookup.get(dt_value)
+            plant_total_value = _to_numeric(plant_row.get("total_energy")) if plant_row else None
+            if plant_total_value is None and plant_row:
+                plant_total_value = self._parse_display_number(plant_row.get("total_energy_display"))
+            plant_avg_value = _to_numeric(plant_row.get("avg_per_active")) if plant_row else None
+            if plant_avg_value is None and plant_row:
+                plant_avg_value = self._parse_display_number(plant_row.get("avg_per_active_display"))
+
+            if plant_total_value is not None and plant_total_value > 0:
+                total_values.append(plant_total_value)
+            if plant_avg_value is not None and plant_avg_value > 0:
+                avg_values.append(plant_avg_value)
+
             if plant_row:
                 area_values["plant"] = {
                     "area_key": "plant",
                     "area_name": "Plant",
                     "total_display": plant_row.get("total_energy_display", "-"),
+                    "total_value": plant_total_value,
                     "active_total_display": f"{plant_row.get('active_meter_count', '-')}/{plant_row.get('total_meter_count', '-')}",
                     "avg_per_active_display": plant_row.get("avg_per_active_display", "-"),
+                    "avg_per_active_value": plant_avg_value,
                 }
             else:
                 area_values["plant"] = {
                     "area_key": "plant",
                     "area_name": "Plant",
                     "total_display": "-",
+                    "total_value": None,
                     "active_total_display": "-",
                     "avg_per_active_display": "-",
+                    "avg_per_active_value": None,
                 }
 
             for area_key, area_name in area_display_order:
@@ -1278,8 +1364,10 @@ class ReportBuilderService:
                         "area_key": area_key,
                         "area_name": area_name,
                         "total_display": "-",
+                        "total_value": None,
                         "active_total_display": "-",
                         "avg_per_active_display": "-",
+                        "avg_per_active_value": None,
                     }
                     continue
 
@@ -1299,12 +1387,19 @@ class ReportBuilderService:
                         if active_meter_count > 0 else 0.0
                     )
 
+                if isinstance(total_energy, (int, float)) and float(total_energy) > 0:
+                    total_values.append(float(total_energy))
+                if isinstance(average_per_active, (int, float)) and float(average_per_active) > 0:
+                    avg_values.append(float(average_per_active))
+
                 area_values[area_key] = {
                     "area_key": area_key,
                     "area_name": area_name,
                     "total_display": self._fmt_or_dash(total_energy),
+                    "total_value": float(total_energy) if isinstance(total_energy, (int, float)) else None,
                     "active_total_display": f"{active_meter_count}/{total_meter_count}",
                     "avg_per_active_display": self._fmt_or_dash(average_per_active),
+                    "avg_per_active_value": float(average_per_active) if isinstance(average_per_active, (int, float)) else None,
                 }
 
             result.append({
@@ -1312,6 +1407,33 @@ class ReportBuilderService:
                 "date_display": self._format_date_with_weekday(dt_value),
                 "areas": area_values,
             })
+
+        max_total_value = max(total_values, default=0.0)
+        max_avg_value = max(avg_values, default=0.0)
+
+        for row in result:
+            for area_key, area_row in (row.get("areas") or {}).items():
+                total_meta = _resolve_summary_heat_meta(
+                    area_row.get("total_value"),
+                    max_total_value,
+                    total_color,
+                )
+                avg_meta = _resolve_summary_heat_meta(
+                    area_row.get("avg_per_active_value"),
+                    max_avg_value,
+                    previous_color,
+                )
+
+                area_row.update({
+                    "total_heat_class": total_meta["heat_class"],
+                    "total_state_class": total_meta["state_class"],
+                    "total_is_max": total_meta["is_max"],
+                    "total_cell_style": total_meta["style"],
+                    "avg_heat_class": avg_meta["heat_class"],
+                    "avg_state_class": avg_meta["state_class"],
+                    "avg_is_max": avg_meta["is_max"],
+                    "avg_cell_style": avg_meta["style"],
+                })
 
         return result
 
@@ -2603,7 +2725,11 @@ class ReportBuilderService:
             **(utility_object.get("current", {}).get("sensor_monitoring", {}) or {}),
         }
         sensor_monitoring["trend_clusters_render"] = self._build_v3_sensor_trend_clusters(sensor_monitoring)
-        sensor_monitoring["period_trend_charts_render"] = self._build_v3_period_sensor_trend_charts(sensor_monitoring)
+        sensor_monitoring["period_trend_charts_render"] = self._build_v3_period_sensor_trend_charts(
+            sensor_monitoring,
+            period_type=str((period or {}).get("type") or ""),
+        )
+        sensor_monitoring["period_trend_clusters_render"] = self._build_v3_period_sensor_trend_clusters(sensor_monitoring)
 
         return {
             "title": "UTILITY OVERVIEW",
@@ -4649,6 +4775,8 @@ class ReportBuilderService:
     def _build_v3_period_sensor_trend_charts(
         self,
         sensor_monitoring: Dict[str, Any],
+        *,
+        period_type: str = "",
     ) -> list[dict[str, Any]]:
         """Build daily aggregate line charts for periodic utility sensor monitoring."""
         trend_mode = str(sensor_monitoring.get("trend_mode") or "").strip().lower()
@@ -4664,7 +4792,7 @@ class ReportBuilderService:
             if isinstance(row_date, datetime):
                 row_date = row_date.date()
             if isinstance(row_date, date):
-                labels.append(row_date.strftime("%m/%d"))
+                labels.append(self._format_periodic_axis_date_label(row_date, period_type))
             else:
                 labels.append(str(row.get("date_display") or "-"))
 
@@ -4812,6 +4940,41 @@ class ReportBuilderService:
             rendered_charts[normal_chart_indexes[-1]]["is_tail_single"] = True
 
         return rendered_charts
+
+    def _build_v3_period_sensor_trend_clusters(
+        self,
+        sensor_monitoring: Dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Build rendered daily-average trend clusters for periodic utility UI."""
+        trend_mode = str(sensor_monitoring.get("trend_mode") or "").strip().lower()
+        trend_clusters = sensor_monitoring.get("period_trend_clusters") or []
+
+        if trend_mode == "intraday" or not trend_clusters:
+            return []
+
+        rendered_clusters: list[dict[str, Any]] = []
+        palette = self._get_chart_palette()
+        default_accent = palette[0]
+        default_accent_tint = self._hex_to_rgba(default_accent, 0.08)
+        for cluster in trend_clusters:
+            rendered_charts = self._build_v3_sensor_trend_cluster_charts(cluster)
+            if not rendered_charts:
+                continue
+
+            rendered_clusters.append({
+                "enabled": True,
+                "cluster_key": cluster.get("cluster_key") or "",
+                "cluster_label": cluster.get("cluster_label") or "",
+                "accent_color": cluster.get("accent_color") or default_accent,
+                "accent_tint": cluster.get("accent_tint") or default_accent_tint,
+                "sensor_count": int(cluster.get("sensor_count") or 0),
+                "active_sensor_count": int(cluster.get("active_sensor_count") or 0),
+                "alert_count": int(cluster.get("alert_count") or 0),
+                "chart_count": len(rendered_charts),
+                "charts": rendered_charts,
+            })
+
+        return rendered_clusters
 
     def _build_v3_sensor_trend_clusters(
         self,
@@ -5233,6 +5396,8 @@ class ReportBuilderService:
             return timestamp_text.split(" ", 1)[1][:5]
         if "T" in timestamp_text:
             return timestamp_text.split("T", 1)[1][:5]
+        if len(timestamp_text) == 10 and timestamp_text.count("-") == 2:
+            return timestamp_text[5:].replace("-", "/")
         return timestamp_text[-5:]
 
     def _build_v3_kpi_section(
@@ -6893,6 +7058,110 @@ class ReportBuilderService:
 
         return {"tone_class": "utility-tone-neutral"}
 
+    def _get_v3_utility_detail_visual(
+        self,
+        utility_key: str,
+        meta: dict[str, Any],
+    ) -> dict[str, str]:
+        """Return utility-family styling for detail table columns and cells."""
+        text = f"{utility_key} {meta.get('display_name', '')}".lower()
+        category = str(meta.get("category") or "").lower()
+
+        if "steam" in text or category == "steam":
+            return {
+                "family_class": "utility-detail-family-steam",
+                "accent_color": "#7a6da8",
+            }
+        if category == "compressed_air" or "air" in text:
+            return {
+                "family_class": "utility-detail-family-compressed-air",
+                "accent_color": "#6f9a6d",
+            }
+        if category == "chilled_water" or "chilled" in text:
+            return {
+                "family_class": "utility-detail-family-chilled-water",
+                "accent_color": "#5ca7a4",
+            }
+        if "water" in text or category == "water":
+            return {
+                "family_class": "utility-detail-family-water",
+                "accent_color": "#005496",
+            }
+
+        return {
+            "family_class": "utility-detail-family-neutral",
+            "accent_color": "#94a3b8",
+        }
+
+    def _resolve_utility_detail_heat_meta(
+        self,
+        value: Any,
+        *,
+        column_max: float,
+        accent_color: str,
+    ) -> dict[str, Any]:
+        """Resolve per-column heat and semantic states for utility detail cells."""
+        numeric_value = self._parse_display_number(value)
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+
+        if numeric_value is None:
+            return {
+                "heat_class": "",
+                "state_class": "value-missing",
+                "is_max": False,
+                "style": "",
+            }
+
+        if numeric_value == 0:
+            return {
+                "heat_class": "",
+                "state_class": "value-zero",
+                "is_max": False,
+                "style": "",
+            }
+
+        if column_max <= 0:
+            return {
+                "heat_class": "",
+                "state_class": "",
+                "is_max": False,
+                "style": "",
+            }
+
+        ratio = max(0.0, min(1.0, float(numeric_value) / float(column_max)))
+        if ratio >= 0.85:
+            heat_class = "detail-heat-4"
+            tint_ratio = 0.30
+        elif ratio >= 0.60:
+            heat_class = "detail-heat-3"
+            tint_ratio = 0.24
+        elif ratio >= 0.35:
+            heat_class = "detail-heat-2"
+            tint_ratio = 0.18
+        else:
+            heat_class = "detail-heat-1"
+            tint_ratio = 0.12
+
+        is_max = numeric_value == column_max and numeric_value > 0
+        if is_max:
+            tint_ratio = max(tint_ratio, 0.34)
+
+        fill_color = self._blend_hex_with_white(accent_color, tint_ratio)
+        border_color = self._hex_to_rgba(accent_color, 0.22 if not is_max else 0.38)
+        text_color = accent_color if ratio >= 0.60 or is_max else primary_text_color
+
+        return {
+            "heat_class": heat_class,
+            "state_class": "value-max" if is_max else "",
+            "is_max": is_max,
+            "style": (
+                f"--utility-detail-cell-bg: {fill_color}; "
+                f"--utility-detail-cell-border: {border_color}; "
+                f"--utility-detail-cell-text: {text_color}; "
+                f"--utility-detail-cell-accent: {accent_color};"
+            ),
+        }
+
     def _build_global_coverage(self, kpi_object) -> dict:
         """Build global coverage summary for the report banner."""
         cov = kpi_object["current"]["coverage"]
@@ -6911,15 +7180,49 @@ class ReportBuilderService:
 
     def _build_daily_columns(self, utility_object):
         metadata = utility_object["current"]["metadata"]
+        primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
+        result = []
 
-        return [
-            {"key": k, "display_name": v["display_name"]}
-            for k, v in metadata.items()
-        ]
+        for key, meta in metadata.items():
+            visual = self._get_v3_utility_detail_visual(key, meta)
+            accent_color = visual["accent_color"]
+            header_text = accent_color if visual["family_class"] != "utility-detail-family-neutral" else primary_text_color
+            header_bg = self._blend_hex_with_white(accent_color, 0.10)
+            header_border = self._hex_to_rgba(accent_color, 0.18)
+
+            result.append({
+                "key": key,
+                "display_name": meta["display_name"],
+                "family_class": visual["family_class"],
+                "header_style": (
+                    f"--utility-detail-header-bg: {header_bg}; "
+                    f"--utility-detail-header-border: {header_border}; "
+                    f"--utility-detail-header-text: {header_text}; "
+                    f"--utility-detail-header-accent: {accent_color};"
+                ),
+            })
+
+        return result
 
     def _build_daily_rows(self, utility_object):
         timeseries = utility_object["current"]["timeseries"]
-        metadata_keys = list(utility_object["current"]["metadata"].keys())
+        metadata = utility_object["current"]["metadata"]
+        metadata_keys = list(metadata.keys())
+        visual_map = {
+            key: self._get_v3_utility_detail_visual(key, meta)
+            for key, meta in metadata.items()
+        }
+        column_max_map: dict[str, float] = {}
+
+        for key in metadata_keys:
+            column_max_map[key] = max(
+                (
+                    float(row.get(key))
+                    for row in timeseries
+                    if isinstance(row.get(key), (int, float)) and float(row.get(key)) > 0
+                ),
+                default=0.0,
+            )
 
         rows = []
 
@@ -6930,12 +7233,27 @@ class ReportBuilderService:
 
             for key in metadata_keys:
                 val = row.get(key)
+                visual = visual_map.get(key, {
+                    "family_class": "utility-detail-family-neutral",
+                    "accent_color": "#94a3b8",
+                })
+                heat_meta = self._resolve_utility_detail_heat_meta(
+                    val,
+                    column_max=column_max_map.get(key, 0.0),
+                    accent_color=visual["accent_color"],
+                )
 
                 if val is None or val == 0:
                     missing_count += 1
 
                 values.append({
-                    "display": self._fmt(val)
+                    "key": key,
+                    "display": self._fmt(val),
+                    "family_class": visual["family_class"],
+                    "heat_class": heat_meta["heat_class"],
+                    "state_class": heat_meta["state_class"],
+                    "cell_style": heat_meta["style"],
+                    "is_max": heat_meta["is_max"],
                 })
 
             # ===== Determine status =====

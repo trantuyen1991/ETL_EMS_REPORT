@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date
 from pathlib import Path
 
 from src.services.report_builder_service import ReportBuilderService
@@ -208,6 +209,49 @@ def test_periodic_utility_charts_use_period_aware_wording() -> None:
     assert monthly_charts["period_insight_split"]["narrow"] == {}
 
 
+def test_utility_detail_rows_use_per_column_heat_and_family_tints() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    utility_object = {
+        "current": {
+            "metadata": {
+                "domestic_water": {"display_name": "Domestic Water", "category": "water"},
+                "ico_air": {"display_name": "ICO Air", "category": "compressed_air"},
+                "diode_chilled_water": {"display_name": "Diode Chilled Water", "category": "chilled_water"},
+                "steam": {"display_name": "Steam", "category": "steam"},
+            },
+            "timeseries": [
+                {"dt": date(2025, 5, 12), "domestic_water": 10.0, "ico_air": 100.0, "diode_chilled_water": 0.0, "steam": None},
+                {"dt": date(2025, 5, 13), "domestic_water": 20.0, "ico_air": 50.0, "diode_chilled_water": 25.0, "steam": None},
+            ],
+        }
+    }
+
+    columns = service._build_daily_columns(utility_object)
+    rows = service._build_daily_rows(utility_object)
+
+    assert columns[0]["family_class"] == "utility-detail-family-water"
+    assert "--utility-detail-header-text: #005496;" in columns[0]["header_style"]
+    assert columns[1]["family_class"] == "utility-detail-family-compressed-air"
+    assert columns[2]["family_class"] == "utility-detail-family-chilled-water"
+    assert columns[3]["family_class"] == "utility-detail-family-steam"
+
+    first_row = rows[0]["daily_values"]
+    second_row = rows[1]["daily_values"]
+
+    assert first_row[0]["heat_class"] == "detail-heat-2"
+    assert first_row[0]["family_class"] == "utility-detail-family-water"
+    assert second_row[0]["state_class"] == "value-max"
+    assert "--utility-detail-cell-accent: #005496;" in second_row[0]["cell_style"]
+    assert first_row[1]["state_class"] == "value-max"
+    assert "--utility-detail-cell-accent: #6f9a6d;" in first_row[1]["cell_style"]
+    assert first_row[2]["state_class"] == "value-zero"
+    assert second_row[2]["state_class"] == "value-max"
+    assert first_row[3]["state_class"] == "value-missing"
+
+
 def test_utility_templates_use_last_period_fallback_copy() -> None:
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/utility.html").read_text(encoding="utf-8")
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/utility.html").read_text(encoding="utf-8")
@@ -218,6 +262,30 @@ def test_utility_templates_use_last_period_fallback_copy() -> None:
     assert expected_note in pdf_template
     assert 'previous period' not in view_template
     assert 'previous period' not in pdf_template
+
+
+def test_utility_detail_templates_use_family_headers_and_heat_cells() -> None:
+    view_template = (PROJECT_ROOT / "src/templates/report/view/sections/utility.html").read_text(encoding="utf-8")
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/utility.html").read_text(encoding="utf-8")
+    report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+
+    assert 'class="utility-detail-col-head {{ column.family_class }}"' in view_template
+    assert 'class="utility-detail-col-head {{ column.family_class }}"' in pdf_template
+    assert 'class="col-value utility-detail-value-cell {{ cell.family_class }} {{ cell.heat_class }} {{ cell.state_class }}"' in view_template
+    assert 'class="col-value utility-detail-value-cell {{ cell.family_class }} {{ cell.heat_class }} {{ cell.state_class }}"' in pdf_template
+    assert '{% if cell.cell_style %} style="{{ cell.cell_style }}"{% endif %}' in view_template
+    assert '{% if cell.cell_style %} style="{{ cell.cell_style }}"{% endif %}' in pdf_template
+    assert '.utility-detail-table .utility-detail-col-head {' in report_css
+    assert '.utility-detail-table .utility-detail-value-cell {' in report_css
+    assert '.utility-detail-table .utility-detail-value-cell.value-zero {' in report_css
+    assert '.utility-detail-table .utility-detail-value-cell.value-missing {' in report_css
+    assert '.utility-detail-table .utility-detail-value-cell.value-max {' in report_css
+    assert '.utility-detail-table .utility-detail-col-head {' in pdf_css
+    assert '.utility-detail-table .utility-detail-value-cell {' in pdf_css
+    assert '.utility-detail-table .utility-detail-value-cell.value-zero {' in pdf_css
+    assert '.utility-detail-table .utility-detail-value-cell.value-missing {' in pdf_css
+    assert '.utility-detail-table .utility-detail-value-cell.value-max {' in pdf_css
 
 
 def test_daily_view_utility_template_marks_comparison_cards_for_compact_layout() -> None:

@@ -1147,6 +1147,42 @@
         min-width: 86px !important;
     }
 
+    .utility-detail-table .utility-detail-col-head {
+        background: var(--utility-detail-header-bg, rgba(241, 245, 249, 0.96)) !important;
+        color: var(--utility-detail-header-text, var(--report-color-text-primary)) !important;
+        box-shadow: inset 0 -1px 0 var(--utility-detail-header-accent, rgba(148, 163, 184, 0.45)) !important;
+        border-bottom-color: var(--utility-detail-header-border, rgba(203, 213, 225, 0.82)) !important;
+        font-weight: 700 !important;
+    }
+
+    .utility-detail-table .utility-detail-value-cell {
+        color: var(--utility-detail-cell-text, var(--report-color-text-primary)) !important;
+        background: var(--utility-detail-cell-bg, transparent) !important;
+        box-shadow: inset 0 0 0 1px var(--utility-detail-cell-border, transparent) !important;
+        font-weight: 600 !important;
+    }
+
+    .utility-detail-table .utility-detail-value-cell.value-max {
+        box-shadow:
+            inset 0 0 0 1px var(--utility-detail-cell-border, transparent) !important,
+            inset 0 -1px 0 var(--utility-detail-cell-accent, var(--report-color-brand-primary)) !important;
+        font-weight: 700 !important;
+    }
+
+    .utility-detail-table .utility-detail-value-cell.value-zero {
+        color: var(--report-color-text-muted, #64748b) !important;
+        background: rgba(255, 255, 255, 0.90) !important;
+        box-shadow: none !important;
+        font-weight: 500 !important;
+    }
+
+    .utility-detail-table .utility-detail-value-cell.value-missing {
+        color: #cbd5e1 !important;
+        background: rgba(255, 255, 255, 0.82) !important;
+        box-shadow: none !important;
+        font-weight: 500 !important;
+    }
+
     .utility-total-table .utility-bar-column {
         min-width: 0 !important;
     }
@@ -1258,6 +1294,40 @@
 
     .electricity-daily-summary-area-table .area-group-header {
         font-size: 8px !important;
+    }
+
+    .report-family-periodic .electricity-daily-summary-area-table .summary-filled-cell {
+        color: var(--summary-cell-text, var(--report-color-text-primary, #223548)) !important;
+        background: var(--summary-cell-bg, transparent) !important;
+        box-shadow: inset 0 -1px 0 var(--summary-cell-border, transparent) !important;
+        font-weight: 600 !important;
+        font-variant-numeric: tabular-nums !important;
+    }
+
+    .report-family-periodic .electricity-daily-summary-area-table .summary-filled-cell.summary-heat-2 {
+        font-weight: 650 !important;
+    }
+
+    .report-family-periodic .electricity-daily-summary-area-table .summary-filled-cell.summary-heat-3,
+    .report-family-periodic .electricity-daily-summary-area-table .summary-filled-cell.summary-heat-4 {
+        font-weight: 700 !important;
+    }
+
+    .report-family-periodic .electricity-daily-summary-area-table .summary-filled-cell.value-max {
+        box-shadow: inset 0 -2px 0 var(--summary-cell-accent, var(--report-color-brand-primary, #005496)) !important;
+    }
+
+    .report-family-periodic .electricity-daily-summary-area-table .summary-filled-cell.value-zero {
+        color: var(--report-color-text-muted, #64748b) !important;
+        background: rgba(255, 255, 255, 0.84) !important;
+        box-shadow: none !important;
+    }
+
+    .report-family-periodic .electricity-daily-summary-area-table .summary-filled-cell.value-missing {
+        color: #cbd5e1 !important;
+        background: rgba(255, 255, 255, 0.78) !important;
+        box-shadow: none !important;
+        font-weight: 500 !important;
     }
 
     .electricity-top10-grouped-table {

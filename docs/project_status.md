@@ -81,6 +81,7 @@ Stable baseline:
 - Top 10 by area (3 extra tables): ✅
 - PDF layout rule: keep plant Top 10 after charts on page 1: ✅
 - Daily section header style unified across Electricity / Utility / KPI: ✅
+- Periodic `Daily Energy Summary` now uses a 2-family semantic fill policy (`Total` in blue, `Avg / meter active` in purple), with each family normalized only against its own metric group: ✅
 - Periodic electricity heatmap using daily total kWh by area: ✅
 - Static HTML/CSS heatmap legend for PDF stability: ✅
 - Periodic area delta chart (`Current - Previous`) with delta kWh and delta % labels: ✅
@@ -132,6 +133,7 @@ KPI logic:
 - Missing handling ("-"): ✅
 - Utility daily header now uses the same boxed highlight style as Electricity: ✅
 - Utility energy detail table now uses a narrow visual divider between identity columns and grouped consumption metrics for better scanability: ✅
+- Periodic `Daily Utility Detail` now uses per-column heat fill with light utility-family header tint, while zero stays neutral and missing stays pale: ✅
 
 ---
 
@@ -170,6 +172,7 @@ UI already implemented:
 - Periodic compact table remains available as fallback view: ✅
 - Periodic full-period rollup semantics enabled in UI: ✅
 - Periodic line charts by unit using daily aggregate data: ✅
+- Periodic Utility anomaly/detail follow-up is now focused on table-width cleanup and duplicate-chart removal after the accepted Utility detail polish checkpoint
 
 Periodic rollout roadmap:
 - Step 1, document and lock scope to `periodic` -> `Utility` only: ✅
