@@ -2891,7 +2891,7 @@ class ReportBuilderService:
             "period_mix": period_mix,
             "period_insight_split": {
                 "wide": period_insight_heatmap,
-                "narrow": period_mix if period_type == "weekly" else {},
+                "narrow": {},
             },
             "comparison_split": {
                 "wide": {
@@ -4624,7 +4624,7 @@ class ReportBuilderService:
                     {
                         "text": self._fmt_chart_compact(total_value),
                         "left": "center",
-                        "top": "40%",
+                        "top": "34%",
                         "textStyle": {
                             "fontSize": 18,
                             "fontWeight": 800,
@@ -4634,7 +4634,7 @@ class ReportBuilderService:
                     {
                         "text": "Total",
                         "left": "center",
-                        "top": "55%",
+                        "top": "48%",
                         "textStyle": {
                             "fontSize": 9,
                             "fontWeight": 700,
@@ -4647,6 +4647,7 @@ class ReportBuilderService:
                         "type": "pie",
                         "radius": list(pie_cfg.get("radius", ("42%", "78%"))),
                         "center": list(pie_cfg.get("center", ("50%", "42%"))),
+                        "startAngle": 180,
                         "avoidLabelOverlap": True,
                         "itemStyle": {
                             "borderColor": str(self._get_style_color_value("#ffffff", "text", "inverse")),

@@ -399,8 +399,9 @@
                 </div>
             </div>
 
-            {% if sections.utility.charts.period_insight_split.wide.option or sections.utility.charts.period_insight_split.narrow.option %}
-            <div class="utility-period-insight-grid">
+            {% set period_insight_has_narrow = sections.utility.charts.period_insight_split.narrow.option if sections.utility.charts.period_insight_split.narrow is defined else {} %}
+            {% if sections.utility.charts.period_insight_split.wide.option or period_insight_has_narrow %}
+            <div class="utility-period-insight-grid{% if not period_insight_has_narrow %} is-single-wide{% endif %}">
                 {% if sections.utility.charts.period_insight_split.wide.option %}
                 <div class="utility-chart-block utility-chart-block-wide">
                     <div class="electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap">
@@ -422,7 +423,7 @@
                 </div>
                 {% endif %}
 
-                {% if sections.utility.charts.period_insight_split.narrow.option %}
+                {% if period_insight_has_narrow %}
                 <div class="utility-chart-block utility-chart-block-narrow">
                     <div class="electricity-chart-card utility-chart-card">
                         <h3 class="electricity-chart-card-title">

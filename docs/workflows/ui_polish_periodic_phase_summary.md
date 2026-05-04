@@ -120,6 +120,27 @@
   - weekly and monthly PDFs were regenerated after each accepted UI slice
   - exact cropped section screenshots were reviewed in chat before consolidation
 
+## Weekly PDF pagination + utility chart/layout checkpoint (2026-05-05)
+- Weekly periodic Electricity `Daily Energy Detail` received its final approved pagination/layout pass:
+  - `DIODE Daily Energy Detail (Part 1/7)` now stays on the same page as `Daily Energy Summary`
+  - the remaining detail blocks render across 3 follow-up pages at 5 tables per page
+  - lower weekly detail pages now use the same table scale as `Part 1/7`
+  - the 5-per-page fit is achieved through tighter inter-block/title spacing, not by shrinking the tables below the approved `Part 1/7` reference
+- Weekly Utility overview then received its approved layout cleanup:
+  - the duplicate `This Week mix` donut beside `Utility daily total heatmap` was removed
+  - `Utility daily total heatmap` now spans the full row width
+  - the retained `This Week mix` stays paired with `Utility Energy Trend (7 Days)`
+  - the retained weekly donut now uses the approved PDF geometry tweak (`startAngle: 180`, centered total shifted upward)
+- Weekly Sensor Monitoring PDF follow-up was also closed in the same approved batch:
+  - `Sensor anomaly scan` stays on its own page before the detail continuation
+  - period `Daily Max / Avg detail` now renders at 2 tables per page after the anomaly page
+  - weekly sensor-card head spacing was tightened to improve the anomaly-page balance without touching data/business logic
+- Verification status for this checkpoint:
+  - targeted regression batch remained green at `48 passed`
+  - weekly PDF was re-rendered after each accepted adjustment
+  - review switched from stitched long artifacts to native page PNGs when Telegram scaling created false size-perception drift
+  - the final native-page review was accepted by the user before consolidation
+
 ## Next workstream
-- Next planned workstream: periodic Sensor Monitoring cleanup, focused on anomaly-table width usage and duplicate trend-chart removal.
-- See `docs/workflows/template_layout_audit_master_checklist.md` for the broader audit order and checks.
+- No immediate weekly periodic PDF blocker remains for the approved slice.
+- Use `docs/workflows/template_layout_audit_master_checklist.md` for the next broader audit step when the user opens the next pass.

@@ -2,6 +2,7 @@
 {% import "report/macros/sensor_monitoring.html" as sensor_ui %}
 {% import "report/macros/utility_blocks.html" as utility_blocks %}
 {% if flags.show_utility_section %}
+        {% set is_weekly_period = period.type == 'weekly' %}
         <section class="report-section daily-highlight-header utility-section-shell{% if not flags.is_daily_report %} utility-periodic-section page-break-before{% endif %}">
             <div class="pdf-section-opening">
                 <div class="section-header">
@@ -405,8 +406,9 @@
                     </div>
                 </div>
 
-                {% if sections.utility.charts.period_insight_split.wide.option or sections.utility.charts.period_insight_split.narrow.option %}
-                <div class="utility-period-insight-grid pdf-keep-together">
+                {% set period_insight_has_narrow = sections.utility.charts.period_insight_split.narrow.option if sections.utility.charts.period_insight_split.narrow is defined else {} %}
+            {% if sections.utility.charts.period_insight_split.wide.option or period_insight_has_narrow %}
+                <div class="utility-period-insight-grid{% if not period_insight_has_narrow %} is-single-wide{% endif %} pdf-keep-together">
                     {% if sections.utility.charts.period_insight_split.wide.option %}
                     <div class="utility-chart-block utility-chart-block-wide pdf-keep-together">
                         <div class="electricity-chart-card utility-chart-card utility-heatmap-card electricity-chart-card-heatmap">
@@ -428,7 +430,7 @@
                     </div>
                     {% endif %}
 
-                    {% if sections.utility.charts.period_insight_split.narrow.option %}
+                    {% if period_insight_has_narrow %}
                     <div class="utility-chart-block utility-chart-block-narrow pdf-keep-together">
                         <div class="electricity-chart-card utility-chart-card">
                             <h3 class="electricity-chart-card-title">
@@ -1004,8 +1006,7 @@
 
                 {% if not flags.is_daily_report %}
                 {% if sensor_monitoring.period_detail_tables %}
-                <div class="utility-sensor-period-detail-stack">
-                    {% for table in sensor_monitoring.period_detail_tables %}
+                {% macro render_period_detail_card(table) -%}
                     <div class="utility-sensor-period-detail-card" style="--sensor-accent: {{ table.accent_color }}; --sensor-tint: {{ table.accent_tint }};">
                         <div class="utility-sensor-period-detail-head">
                             <div>
@@ -1070,8 +1071,27 @@
                             </table>
                         </div>
                     </div>
+                {%- endmacro %}
+                {% if is_weekly_period %}
+                {% set page_size = 2 %}
+                <div class="utility-sensor-period-detail-pages page-break-before">
+                    {% for page_start in range(0, sensor_monitoring.period_detail_tables|length, page_size) %}
+                    <div class="utility-sensor-period-detail-page pdf-keep-together{% if page_start > 0 %} page-break-before{% endif %}">
+                        <div class="utility-sensor-period-detail-stack is-weekly-paired">
+                            {% for table in sensor_monitoring.period_detail_tables[page_start:page_start + page_size] %}
+                                {{ render_period_detail_card(table) }}
+                            {% endfor %}
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
+                {% else %}
+                <div class="utility-sensor-period-detail-stack">
+                    {% for table in sensor_monitoring.period_detail_tables %}
+                        {{ render_period_detail_card(table) }}
+                    {% endfor %}
+                </div>
+                {% endif %}
                 {% else %}
                 <div class="utility-sensor-table-wrap report-table-wrap">
                     <table class="utility-sensor-table report-table-ui">

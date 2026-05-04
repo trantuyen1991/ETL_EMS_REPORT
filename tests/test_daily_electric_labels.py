@@ -379,6 +379,23 @@ def test_weekly_pdf_electric_detail_template_has_meter_colgroup() -> None:
     assert 'value-low' in pdf_template
 
 
+def test_weekly_pdf_electric_detail_groups_remaining_periodic_blocks_into_five_table_pages() -> None:
+    pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/electricity.html").read_text(encoding="utf-8")
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+
+    assert "electricity-weekly-periodic-detail-block page-break-before" not in pdf_template
+    assert "detail_blocks = namespace(items=[])" in pdf_template
+    assert "first_block = detail_blocks.items[0] if detail_blocks.items else none" in pdf_template
+    assert "page_size = 5" in pdf_template
+    assert "range(1, detail_blocks.items|length, page_size)" in pdf_template
+    assert "electricity-periodic-detail-pages electricity-periodic-detail-pages-weekly" in pdf_template
+    assert ".electricity-periodic-detail-pages {" in pdf_css
+    assert ".electricity-periodic-detail-page-weekly {" in pdf_css
+    assert "padding: 5px 4px !important;" in pdf_css
+    assert "font-size: 8px !important;" in pdf_css
+    assert "margin-bottom: 1px !important;" in pdf_css
+
+
 def test_weekly_pdf_electric_detail_uses_area_palette_and_state_hierarchy() -> None:
     pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
 

@@ -2726,6 +2726,14 @@
             margin-bottom: 10px;
         }
 
+        .utility-period-insight-grid.is-single-wide {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .utility-period-insight-grid.is-single-wide .utility-chart-block-wide {
+            grid-column: 1 / -1;
+        }
+
         .utility-chart-split-grid-daily {
             margin-top: 8px;
         }
@@ -3849,6 +3857,10 @@
             justify-content: space-between;
             gap: 12px;
             margin-bottom: 12px;
+        }
+
+        .report-period-weekly .utility-sensor-group-head {
+            margin-bottom: 0;
         }
 
         .utility-sensor-group-heading-copy {

@@ -729,6 +729,14 @@
         margin-bottom: 8px !important;
     }
 
+    .utility-period-insight-grid.is-single-wide {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .utility-period-insight-grid.is-single-wide .utility-chart-block-wide {
+        grid-column: 1 / -1 !important;
+    }
+
     .utility-chart-card {
         padding-bottom: 6px !important;
     }
@@ -2024,6 +2032,10 @@
         margin-bottom: 7px !important;
     }
 
+    .report-period-weekly .utility-sensor-group-head {
+        margin-bottom: 0 !important;
+    }
+
     .report-period-daily .utility-sensor-group-head {
         margin-bottom: 5px !important;
         gap: 8px !important;
@@ -2970,6 +2982,45 @@
         font-weight: 700 !important;
     }
 
+    .electricity-periodic-detail-pages {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+
+    .electricity-periodic-detail-page-weekly {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .report-period-weekly .electricity-periodic-detail-page-weekly .electricity-periodic-detail-table-block {
+        margin-bottom: 2px !important;
+    }
+
+    .report-period-weekly .electricity-periodic-detail-page-weekly .electricity-subsection-title {
+        margin-top: 0 !important;
+        margin-bottom: 1px !important;
+        line-height: 1.02 !important;
+    }
+
+    .report-period-weekly .electricity-periodic-detail-page-weekly .electricity-periodic-detail-table th,
+    .report-period-weekly .electricity-periodic-detail-page-weekly .electricity-periodic-detail-table td {
+        padding: 5px 4px !important;
+        font-size: 8px !important;
+    }
+
+    .report-period-weekly .electricity-periodic-detail-page-weekly .electricity-periodic-detail-table .col-date {
+        width: 82px !important;
+        min-width: 82px !important;
+        max-width: 82px !important;
+        font-size: 7.8px !important;
+    }
+
+    .report-period-weekly .electricity-periodic-detail-page-weekly .electricity-periodic-detail-table th.col-meter {
+        font-size: 7.6px !important;
+        letter-spacing: -0.01em !important;
+    }
+
     .electricity-daily-vertical-index {
         padding: 8px 4px !important;
     }
@@ -2986,6 +3037,49 @@
         flex-direction: column !important;
         gap: 10px !important;
         margin-top: 8px !important;
+    }
+
+    .utility-sensor-period-detail-pages {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+
+    .utility-sensor-period-detail-page {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .report-period-weekly .utility-sensor-period-detail-page .utility-sensor-period-detail-stack {
+        gap: 8px !important;
+        margin-top: 0 !important;
+    }
+
+    .report-period-weekly .utility-sensor-period-detail-page .utility-sensor-period-detail-card {
+        padding: 5px 6px 6px !important;
+    }
+
+    .report-period-weekly .utility-sensor-period-detail-page .utility-sensor-period-detail-head {
+        margin-bottom: 4px !important;
+    }
+
+    .report-period-weekly .utility-sensor-period-detail-page .utility-sensor-table th,
+    .report-period-weekly .utility-sensor-period-detail-page .utility-sensor-table td {
+        padding: 3px 3px !important;
+        font-size: 7.3px !important;
+    }
+
+    .report-period-weekly .utility-sensor-period-detail-page .utility-sensor-table .col-date {
+        width: 86px !important;
+        min-width: 86px !important;
+    }
+
+    .report-period-weekly .utility-sensor-period-detail-page .utility-sensor-col-name {
+        font-size: 7.9px !important;
+    }
+
+    .report-period-weekly .utility-sensor-period-detail-page .utility-sensor-col-unit {
+        font-size: 6.8px !important;
     }
 
     .utility-sensor-period-detail-card {

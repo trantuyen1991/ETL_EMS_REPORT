@@ -86,6 +86,8 @@ Stable baseline:
 - Static HTML/CSS heatmap legend for PDF stability: ✅
 - Periodic area delta chart (`Current - Previous`) with delta kWh and delta % labels: ✅
 - Periodic area comparison labels tuned for dense workshop names including `ICO`: ✅
+- Weekly periodic `Daily Energy Detail` now keeps `DIODE Part 1/7` on the same page as `Daily Energy Summary`, with the remaining detail blocks repaginated into 3 follow-up pages at 5 tables per page: ✅
+- Weekly lower `Daily Energy Detail` pages now use the same table scale as `DIODE Part 1/7`, while fitting through tighter inter-block spacing instead of smaller text/table sizing: ✅
 
 ### 3.2 Energy KPI Section
 - KPI summary matrix by area + total: ✅
@@ -127,6 +129,8 @@ KPI logic:
 - Periodic utility-energy trend line chart: ✅
 - Periodic utility distribution donut chart with right-side legend + total kWh: ✅
 - Utility section header now uses the shared `utilityheader.svg` icon in both HTML and PDF templates: ✅
+- Weekly `This Week mix` donut now uses corrected PDF geometry, with a 90° start rotation and upward-centered total/caption positioning: ✅
+- Weekly `Utility daily total heatmap` now renders full-width after removing the duplicate `This Week mix` donut from the same row: ✅
 
 #### Daily Utility Detail
 - Dense daily rows: ✅
@@ -173,6 +177,10 @@ UI already implemented:
 - Periodic full-period rollup semantics enabled in UI: ✅
 - Periodic line charts by unit using daily aggregate data: ✅
 - Periodic Utility anomaly/detail follow-up is now focused on table-width cleanup and duplicate-chart removal after the accepted Utility detail polish checkpoint
+- Weekly PDF sensor-monitoring follow-up is now closed for the approved slice:
+  - `Sensor anomaly scan` remains isolated before the detail pages
+  - period `Daily Max / Avg detail` now renders at 2 tables per page
+  - weekly sensor-card head spacing was tightened to pull the anomaly page upward without changing data semantics: ✅
 
 Periodic rollout roadmap:
 - Step 1, document and lock scope to `periodic` -> `Utility` only: ✅
@@ -214,10 +222,14 @@ Current anomaly rules:
   - electricity, utility, and KPI chart footprints were tightened
   - sparse daily panels now read as intentional rather than malformed
   - daily Sensor Monitoring HTML now uses compact grouped cards with clearer icons, calmer spacing, and context-shortened metric labels
-- Weekly PDF audit remains the active layout workstream, but multiple KPI / Utility follow-up fixes are now landed:
+- Weekly PDF audit is now closed for the approved current slice:
   - utility distribution donut label crowding improved
   - trailing weekly sensor trend card rebalanced
   - utility deviation readability improved in PDF
+  - weekly electricity `Daily Energy Detail` now uses explicit page control (`summary + DIODE Part 1/7`, then 3 pages at 5 tables/page)
+  - weekly utility heatmap/mix duplication was removed, leaving a full-width heatmap row and a single retained `This Week mix` beside `Utility Energy Trend (7 Days)`
+  - weekly utility sensor detail now begins only after the anomaly page and stays at 2 tables per page
+  - latest targeted regression batch remained green at `48 passed`
   - utility weekly comparison row now uses a 6:4 layout with centered-zero deviation behavior
   - utility weekly insight row now adds `Utility daily total heatmap` + `This Week mix`
   - utility weekly heatmap / mix geometry is now style-configurable under dedicated config nodes

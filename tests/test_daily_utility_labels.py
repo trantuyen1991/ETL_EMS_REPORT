@@ -194,7 +194,7 @@ def test_periodic_utility_charts_use_period_aware_wording() -> None:
     assert weekly_charts["period_mix"]["title"] == "This Week mix"
     assert weekly_charts["period_insight_split"]["wide"]["title"] == "Utility daily total heatmap"
     assert weekly_charts["period_insight_split"]["wide"]["option"]["xAxis"]["data"][0] == "May 12 (Mon)"
-    assert weekly_charts["period_insight_split"]["narrow"]["title"] == "This Week mix"
+    assert weekly_charts["period_insight_split"]["narrow"] == {}
 
     assert monthly_charts["comparison_bar"]["subtitle"] == "This Month vs last month total by load type"
     assert monthly_charts["comparison_bar"]["option"]["series"][0]["name"] == "This Month"
@@ -486,8 +486,11 @@ def test_weekly_utility_energy_distribution_uses_mix_style_layout() -> None:
     assert distribution["option"]["legend"]["left"] == "center"
     assert distribution["option"]["legend"]["bottom"] == 0
     assert distribution["option"]["title"][1]["text"] == "Total"
+    assert distribution["option"]["title"][0]["top"] == "34%"
+    assert distribution["option"]["title"][1]["top"] == "48%"
     assert series["radius"] == ["42%", "78%"]
     assert series["center"] == ["50%", "42%"]
+    assert series["startAngle"] == 180
     assert series["label"]["formatter"] == "{b}\n{d}%"
 
 

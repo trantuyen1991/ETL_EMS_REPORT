@@ -379,6 +379,9 @@ def test_period_sensor_templates_keep_cluster_trends_below_detail_table() -> Non
     assert 'utility-sensor-period-detail-legend-chip is-avg' in pdf_template
     assert 'cell.max_meta.line_class' in view_template
     assert 'row.row_class' in pdf_template
+    assert 'utility-sensor-period-detail-pages page-break-before' in pdf_template
+    assert 'utility-sensor-period-detail-page pdf-keep-together' in pdf_template
+    assert 'page_size = 2' in pdf_template
     assert '.utility-sensor-period-detail-card' in report_css
     assert '.utility-sensor-period-group-head' in report_css
     assert '.utility-sensor-line-badge' in report_css
@@ -387,6 +390,10 @@ def test_period_sensor_templates_keep_cluster_trends_below_detail_table() -> Non
     assert '.utility-sensor-period-group-head' in report_pdf_css
     assert '.utility-sensor-line-badge' in report_pdf_css
     assert '.utility-sensor-period-detail-table tbody tr.is-weekend td' in report_pdf_css
+    assert '.utility-sensor-period-detail-pages {' in report_pdf_css
+    assert '.utility-sensor-period-detail-page {' in report_pdf_css
+    assert '.report-period-weekly .utility-sensor-group-head {' in report_pdf_css
+    assert 'margin-bottom: 0 !important;' in report_pdf_css
     assert 'sensor_monitoring.period_trend_clusters_render or []' in view_template
     assert 'sensor_monitoring.period_trend_clusters_render or []' in pdf_template
 

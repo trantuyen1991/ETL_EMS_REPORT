@@ -404,7 +404,7 @@
             {{ render_periodic_area_summary(sections.electricity.daily_summary.area_rows, area_summary_order) }}
             {% endif %}
 
-            <div class="electricity-daily-detail-block">
+            <div class="electricity-daily-detail-block{% if not flags.is_daily_report and is_weekly_period %} electricity-weekly-periodic-detail-block{% endif %}">
                 <h3 class="electricity-subsection-title">Daily Energy Detail</h3>
 
                 {% if flags.is_daily_report %}
@@ -445,27 +445,42 @@
                 </div>
                 {% else %}
                 {% set chunk_size = 10 %}
+                {% set detail_blocks = namespace(items=[]) %}
                 {% for table in sections.electricity.daily_detail_tables %}
                     {% set detail_accent_color = table.accent_color %}
                     {% set detail_accent_tint = table.accent_tint %}
                     {% set detail_head_bg = table.accent_header_bg %}
                     {% set detail_soft_bg = table.accent_soft_bg %}
                     {% set detail_strong_bg = table.accent_strong_bg %}
-
                     {% set meter_columns = table.columns[1:] %}
                     {% set total_chunks = ((meter_columns|length + chunk_size - 1) // chunk_size) %}
-
                     {% for chunk_index in range(total_chunks) %}
                         {% set start = chunk_index * chunk_size %}
                         {% set end = start + chunk_size %}
                         {% set column_chunk = meter_columns[start:end] %}
+                        {% set _ = detail_blocks.items.append({
+                            'table': table,
+                            'detail_accent_color': detail_accent_color,
+                            'detail_accent_tint': detail_accent_tint,
+                            'detail_head_bg': detail_head_bg,
+                            'detail_soft_bg': detail_soft_bg,
+                            'detail_strong_bg': detail_strong_bg,
+                            'total_chunks': total_chunks,
+                            'chunk_index': chunk_index,
+                            'start': start,
+                            'end': end,
+                            'column_chunk': column_chunk,
+                        }) %}
+                    {% endfor %}
+                {% endfor %}
 
-                <div class="electricity-daily-vertical-table-block electricity-periodic-detail-table-block {% if not (loop.first and chunk_index == 0) %}pdf-keep-together{% endif %} area-{{ table.area_key }}"
-                    style="--detail-accent-color: {{ detail_accent_color }}; --detail-accent-tint: {{ detail_accent_tint }}; --detail-head-bg: {{ detail_head_bg }}; --detail-soft-bg: {{ detail_soft_bg }}; --detail-strong-bg: {{ detail_strong_bg }};">
+                {% macro render_periodic_detail_block(block) -%}
+                <div class="electricity-daily-vertical-table-block electricity-periodic-detail-table-block pdf-keep-together area-{{ block.table.area_key }}"
+                    style="--detail-accent-color: {{ block.detail_accent_color }}; --detail-accent-tint: {{ block.detail_accent_tint }}; --detail-head-bg: {{ block.detail_head_bg }}; --detail-soft-bg: {{ block.detail_soft_bg }}; --detail-strong-bg: {{ block.detail_strong_bg }};">
                     <h4 class="electricity-subsection-title">
-                        {{ table.title }}
-                        {% if total_chunks > 1 %}
-                            (Part {{ chunk_index + 1 }}/{{ total_chunks }})
+                        {{ block.table.title }}
+                        {% if block.total_chunks > 1 %}
+                            (Part {{ block.chunk_index + 1 }}/{{ block.total_chunks }})
                         {% endif %}
                     </h4>
 
@@ -474,7 +489,7 @@
                             <colgroup>
                                 <col class="col-index">
                                 <col class="col-date">
-                                {% for column in column_chunk %}
+                                {% for column in block.column_chunk %}
                                 <col class="col-meter">
                                 {% endfor %}
                             </colgroup>
@@ -482,17 +497,17 @@
                                 <tr>
                                     <th class="col-index">Index</th>
                                     <th class="col-date sticky-date-col">Date</th>
-                                    {% for column in column_chunk %}
+                                    {% for column in block.column_chunk %}
                                     <th class="col-meter">{{ column.display_name }}</th>
                                     {% endfor %}
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for row in table.rows %}
+                                {% for row in block.table.rows %}
                                 <tr>
                                     <td class="col-index">{{ loop.index }}</td>
                                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
-                                    {% for cell in row.cells[start:end] %}
+                                    {% for cell in row.cells[block.start:block.end] %}
                                     <td class="col-meter col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}{% if cell.raw_value is none %} value-missing{% elif cell.raw_value is number and cell.raw_value > 0 and not cell.heat_class %} value-low{% endif %}">
                                         {{ cell.display }}
                                     </td>
@@ -503,8 +518,30 @@
                         </table>
                     </div>
                 </div>
+                {%- endmacro %}
+
+                {% if is_weekly_period %}
+                {% set first_block = detail_blocks.items[0] if detail_blocks.items else none %}
+                {% if first_block %}
+                    {{ render_periodic_detail_block(first_block) }}
+                {% endif %}
+                {% if detail_blocks.items|length > 1 %}
+                {% set page_size = 5 %}
+                <div class="electricity-periodic-detail-pages electricity-periodic-detail-pages-weekly">
+                    {% for page_start in range(1, detail_blocks.items|length, page_size) %}
+                    <div class="electricity-periodic-detail-page electricity-periodic-detail-page-weekly pdf-keep-together page-break-before">
+                        {% for block in detail_blocks.items[page_start:page_start + page_size] %}
+                            {{ render_periodic_detail_block(block) }}
+                        {% endfor %}
+                    </div>
                     {% endfor %}
-                {% endfor %}
+                </div>
+                {% endif %}
+                {% else %}
+                    {% for block in detail_blocks.items %}
+                        {{ render_periodic_detail_block(block) }}
+                    {% endfor %}
+                {% endif %}
                 {% endif %}
             </div>
             <script>
