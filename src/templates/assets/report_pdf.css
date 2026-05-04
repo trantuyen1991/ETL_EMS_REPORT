@@ -2166,7 +2166,7 @@
         padding: 7px 8px 8px !important;
         background: #ffffff !important;
         border: 1px solid #e4ecf3 !important;
-        border-top: 2px solid var(--sensor-accent, #64748b) !important;
+        border-top: 4px solid var(--sensor-accent, #64748b) !important;
         box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
     }
 
@@ -2182,6 +2182,12 @@
         align-items: center !important;
         gap: 7px !important;
         min-width: 0 !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-title {
+        color: var(--sensor-accent, #223548) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.06em !important;
     }
 
     .report-family-periodic .utility-sensor-overview-badge {

@@ -257,6 +257,9 @@ def test_daily_view_sensor_monitoring_uses_metric_table_layout() -> None:
     assert '.report-family-daily .utility-sensor-metric-status-main' in report_css
     assert '.report-family-periodic .utility-sensor-overview-card.is-reference-card' in report_css
     assert 'border-top: 4px solid var(--sensor-accent, #64748b);' in report_css
+    assert '.report-family-periodic .utility-sensor-overview-title {' in report_css
+    assert 'text-transform: uppercase;' in report_css
+    assert 'color: var(--sensor-accent, var(--report-color-text-heading));' in report_css
     assert '.report-family-periodic .utility-sensor-group-card.is-reference-metric-card' in report_css
     assert '.report-family-periodic .utility-sensor-anomaly-table thead th' in report_css
     assert 'macro metric_icon(sensor)' in sensor_macro
@@ -281,7 +284,10 @@ def test_daily_pdf_sensor_monitoring_uses_metric_table_layout() -> None:
     assert 'grid-column: auto !important;' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-table-head' in pdf_css
     assert '.report-family-periodic .utility-sensor-overview-card.is-reference-card' in pdf_css
-    assert 'border-top: 2px solid var(--sensor-accent, #64748b) !important;' in pdf_css
+    assert 'border-top: 4px solid var(--sensor-accent, #64748b) !important;' in pdf_css
+    assert '.report-family-periodic .utility-sensor-overview-title {' in pdf_css
+    assert 'text-transform: uppercase !important;' in pdf_css
+    assert 'color: var(--sensor-accent, #223548) !important;' in pdf_css
     assert '.report-family-periodic .utility-sensor-group-card.is-reference-metric-card' in pdf_css
     assert '.report-family-periodic .utility-sensor-anomaly-table .col-reason' in pdf_css
     assert 'display: grid !important;' in pdf_css
