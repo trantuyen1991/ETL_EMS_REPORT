@@ -568,6 +568,16 @@ class UtilityService:
             enabled=is_intraday_period,
         )
 
+        period_trend_clusters = self._build_period_sensor_trend_clusters(
+            daily_stats=daily_stats,
+            period_days=period_days,
+            sensor_metadata=sensor_metadata,
+            group_order=group_order,
+            group_labels=group_labels,
+            group_visuals=group_visuals,
+            enabled=is_period_report,
+        )
+
         period_rollup = self._build_period_sensor_rollup(
             daily_stats=daily_stats,
             period_days=period_days,
@@ -587,6 +597,13 @@ class UtilityService:
             "groups": [],
             "anomaly_rows": [],
         }
+        period_detail_tables = self._build_period_detail_tables(
+            daily_stats=daily_stats,
+            period_days=period_days,
+            sensor_metadata=sensor_metadata,
+            group_visuals=group_visuals,
+            enabled=is_period_report,
+        )
 
         return {
             "enabled": True,
@@ -632,10 +649,349 @@ class UtilityService:
             "anomaly_rows": anomaly_rows,
             "metric_columns": metric_columns,
             "daily_rows": daily_rows,
+            "period_detail_tables": period_detail_tables,
             "trend_mode": "intraday" if is_intraday_period else "aggregate_only",
             "trend_clusters": trend_clusters,
+            "period_trend_clusters": period_trend_clusters,
             "period_rollup": period_rollup,
         }
+
+    def _build_period_detail_tables(
+        self,
+        *,
+        daily_stats: dict[date, dict[str, dict[str, float | None]]],
+        period_days: list[date],
+        sensor_metadata: dict[str, dict[str, Any]],
+        group_visuals: dict[str, dict[str, str]],
+        enabled: bool,
+    ) -> list[dict[str, Any]]:
+        """Build grouped periodic sensor detail tables that expose all sensors."""
+        if not enabled or not period_days:
+            return []
+
+        semantic_visuals = self._get_period_detail_semantic_visuals()
+        table_specs = [
+            {
+                "key": "ico_chiller",
+                "title": "ICO Chiller",
+                "groups": [
+                    {
+                        "key": "ico_chiller",
+                        "label": "ICO Chiller",
+                        "group_keys": ["ico_chiller"],
+                        "visual": group_visuals.get("ico_chiller", group_visuals["default"]),
+                    }
+                ],
+            },
+            {
+                "key": "diode_chiller",
+                "title": "DIODE Chiller",
+                "groups": [
+                    {
+                        "key": "diode_chiller",
+                        "label": "DIODE Chiller",
+                        "group_keys": ["diode_chiller"],
+                        "visual": group_visuals.get("diode_chiller", group_visuals["default"]),
+                    }
+                ],
+            },
+            {
+                "key": "air_split",
+                "title": "ICO Air + DIODE Air",
+                "groups": [
+                    {
+                        "key": "ico_air",
+                        "label": "ICO Air",
+                        "group_keys": ["ico_air"],
+                        "visual": group_visuals.get("ico_air", group_visuals["default"]),
+                    },
+                    {
+                        "key": "diode_air",
+                        "label": "DIODE Air",
+                        "group_keys": ["diode_air"],
+                        "visual": group_visuals.get("diode_air", group_visuals["default"]),
+                    },
+                ],
+            },
+            {
+                "key": "boiler_water_split",
+                "title": "Boiler + Domestic + Sakari Water",
+                "groups": [
+                    {
+                        "key": "boiler",
+                        "label": "Boiler",
+                        "group_keys": ["boiler"],
+                        "visual": group_visuals.get("boiler", group_visuals["default"]),
+                    },
+                    {
+                        "key": "domestic_water",
+                        "label": "Domestic + Sakari Water",
+                        "group_keys": ["domestic_water", "sakari_water"],
+                        "visual": group_visuals.get("domestic_water", group_visuals["default"]),
+                        "merge_water": True,
+                    },
+                ],
+            },
+        ]
+
+        tables: list[dict[str, Any]] = []
+        for table_spec in table_specs:
+            column_groups: list[dict[str, Any]] = []
+            sensor_scale_map: dict[str, dict[str, float]] = {}
+
+            for group_index, group_spec in enumerate(table_spec["groups"]):
+                columns: list[dict[str, Any]] = []
+                group_sensor_count = 0
+                for sensor_key, meta in sensor_metadata.items():
+                    if meta.get("group") not in group_spec["group_keys"]:
+                        continue
+
+                    if sensor_key not in sensor_scale_map:
+                        max_scale = 0.0
+                        avg_scale = 0.0
+                        for dt_value in period_days:
+                            sensor_stats = (daily_stats.get(dt_value, {}) or {}).get(sensor_key, {}) or {}
+                            max_scale = max(max_scale, abs(self._to_float(sensor_stats.get("max"))))
+                            avg_scale = max(avg_scale, abs(self._to_float(sensor_stats.get("avg"))))
+                        sensor_scale_map[sensor_key] = {
+                            "max_scale": max_scale,
+                            "avg_scale": avg_scale,
+                        }
+
+                    columns.append({
+                        "sensor_key": sensor_key,
+                        "display_name": self._build_period_detail_column_label(
+                            sensor_key=sensor_key,
+                            meta=meta,
+                            merge_water=bool(group_spec.get("merge_water")),
+                        ),
+                        "unit": str(meta.get("unit") or "").strip(),
+                        "header_class": "is-group-start" if group_index > 0 and group_sensor_count == 0 else "",
+                    })
+                    group_sensor_count += 1
+
+                visual = group_spec.get("visual") or group_visuals["default"]
+                column_groups.append({
+                    "key": group_spec["key"],
+                    "label": group_spec["label"],
+                    "accent_color": visual["accent_color"],
+                    "accent_tint": visual["accent_tint"],
+                    "column_count": len(columns),
+                    "group_class": "is-split-group" if group_index > 0 else "",
+                    "columns": columns,
+                })
+
+            rows: list[dict[str, Any]] = []
+            for row_index, dt_value in enumerate(period_days):
+                day_stats = daily_stats.get(dt_value, {}) or {}
+                row_groups: list[dict[str, Any]] = []
+                for group in column_groups:
+                    cells: list[dict[str, Any]] = []
+                    for column in group["columns"]:
+                        sensor_stats = day_stats.get(column["sensor_key"], {}) or {}
+                        scale_meta = sensor_scale_map.get(column["sensor_key"], {})
+                        cells.append({
+                            "sensor_key": column["sensor_key"],
+                            "cell_class": column.get("header_class", ""),
+                            "max_display": self._fmt_or_dash(sensor_stats.get("max")),
+                            "avg_display": self._fmt_or_dash(sensor_stats.get("avg")),
+                            "max_meta": self._resolve_period_detail_line_visual(
+                                value=sensor_stats.get("max"),
+                                scale_max=float(scale_meta.get("max_scale") or 0.0),
+                                base_color=str(semantic_visuals["max"]["color"]),
+                                tone_key="max",
+                            ),
+                            "avg_meta": self._resolve_period_detail_line_visual(
+                                value=sensor_stats.get("avg"),
+                                scale_max=float(scale_meta.get("avg_scale") or 0.0),
+                                base_color=str(semantic_visuals["avg"]["color"]),
+                                tone_key="avg",
+                            ),
+                        })
+                    row_groups.append({
+                        "key": group["key"],
+                        "cells": cells,
+                    })
+                rows.append({
+                    "date": dt_value,
+                    "date_display": self._format_date_with_weekday(dt_value),
+                    "row_class": "is-weekend" if dt_value.weekday() >= 5 else "",
+                    "row_index": row_index,
+                    "column_groups": row_groups,
+                })
+
+            visual = column_groups[0] if column_groups else group_visuals["default"]
+            tables.append({
+                "key": table_spec["key"],
+                "title": table_spec["title"],
+                "accent_color": visual.get("accent_color", group_visuals["default"]["accent_color"]),
+                "accent_tint": visual.get("accent_tint", group_visuals["default"]["accent_tint"]),
+                "column_count": sum(int(group.get("column_count") or 0) for group in column_groups),
+                "column_groups": column_groups,
+                "rows": rows,
+            })
+
+        return tables
+
+    def _build_period_detail_column_label(
+        self,
+        *,
+        sensor_key: str,
+        meta: dict[str, Any],
+        merge_water: bool = False,
+    ) -> str:
+        """Build compact per-column labels for periodic sensor detail tables."""
+        group_key = str(meta.get("group") or "")
+        base_label = self._build_sensor_short_display_name(
+            display_name=str(meta.get("display_name") or sensor_key),
+            group_key=group_key,
+        )
+        if merge_water:
+            if group_key == "domestic_water":
+                return f"Domestic {base_label}".strip()
+            if group_key == "sakari_water":
+                return f"Sakari {base_label}".strip()
+        return base_label
+
+    def _resolve_period_detail_line_visual(
+        self,
+        *,
+        value: Any,
+        scale_max: float,
+        base_color: str,
+        tone_key: str,
+    ) -> dict[str, Any]:
+        """Resolve semantic line-level visual metadata for periodic sensor detail cells."""
+        numeric_value = self._to_float_or_none(value)
+        label = "Max" if tone_key == "max" else "Avg"
+        if numeric_value is None:
+            return {
+                "line_class": "",
+                "state_class": "is-missing",
+                "style": "",
+                "is_peak": False,
+                "label": label,
+            }
+
+        if numeric_value == 0:
+            return {
+                "line_class": "",
+                "state_class": "is-zero",
+                "style": "",
+                "is_peak": False,
+                "label": label,
+            }
+
+        if scale_max <= 0:
+            return {
+                "line_class": "",
+                "state_class": "is-negative" if numeric_value < 0 else "",
+                "style": "",
+                "is_peak": False,
+                "label": label,
+            }
+
+        ratio = max(0.0, min(1.0, abs(float(numeric_value)) / float(scale_max)))
+        if ratio >= 0.85:
+            line_class = "sensor-line-heat-4"
+            tint_ratio = 0.30
+        elif ratio >= 0.60:
+            line_class = "sensor-line-heat-3"
+            tint_ratio = 0.24
+        elif ratio >= 0.35:
+            line_class = "sensor-line-heat-2"
+            tint_ratio = 0.18
+        else:
+            line_class = "sensor-line-heat-1"
+            tint_ratio = 0.12
+
+        is_peak = abs(float(numeric_value)) == scale_max and scale_max > 0
+        if is_peak:
+            tint_ratio = max(tint_ratio, 0.36)
+
+        fill_color = self._blend_hex_with_white(base_color, tint_ratio)
+        border_color = self._hex_to_rgba(base_color, 0.22 if not is_peak else 0.42)
+        badge_bg = self._hex_to_rgba(base_color, 0.14 if not is_peak else 0.22)
+        soft_shadow = self._hex_to_rgba(base_color, 0.10 if not is_peak else 0.16)
+        text_color = base_color if ratio >= 0.60 or is_peak else "#334155"
+        style = "; ".join([
+            f"--sensor-line-fill: {fill_color}",
+            f"--sensor-line-border: {border_color}",
+            f"--sensor-line-badge-bg: {badge_bg}",
+            f"--sensor-line-shadow: {soft_shadow}",
+            f"--sensor-line-text: {text_color}",
+        ])
+
+        state_classes = []
+        if numeric_value < 0:
+            state_classes.append("is-negative")
+        if is_peak:
+            state_classes.append("is-peak")
+
+        return {
+            "line_class": line_class,
+            "state_class": " ".join(state_classes),
+            "style": style,
+            "is_peak": is_peak,
+            "label": label,
+        }
+
+    def _get_period_detail_semantic_visuals(self) -> dict[str, dict[str, str]]:
+        """Return semantic colors used to distinguish Max and Avg lines."""
+        return {
+            "max": {
+                "color": "#c2410c",
+            },
+            "avg": {
+                "color": "#4338ca",
+            },
+        }
+
+    def _to_float_or_none(self, value: Any) -> float | None:
+        """Convert input value to float, returning None when not numeric."""
+        if value is None:
+            return None
+
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        try:
+            return float(value)
+        except Exception:
+            return None
+
+    def _to_float(self, value: Any) -> float:
+        """Convert input value to float safely."""
+        return self._to_float_or_none(value) or 0.0
+
+    def _blend_hex_with_white(self, hex_color: str, ratio: float) -> str:
+        """Blend a hex color with white by ratio."""
+        hex_value = str(hex_color or "").strip().lstrip("#")
+        if len(hex_value) != 6:
+            return "#ffffff"
+
+        ratio = max(0.0, min(1.0, ratio))
+        red = int(hex_value[0:2], 16)
+        green = int(hex_value[2:4], 16)
+        blue = int(hex_value[4:6], 16)
+
+        blended = [
+            int(channel * ratio + 255 * (1.0 - ratio))
+            for channel in (red, green, blue)
+        ]
+        return f"#{blended[0]:02x}{blended[1]:02x}{blended[2]:02x}"
+
+    def _hex_to_rgba(self, hex_color: str, alpha: float) -> str:
+        """Convert hex color to rgba string."""
+        hex_value = str(hex_color or "").strip().lstrip("#")
+        if len(hex_value) != 6:
+            return f"rgba(100, 116, 139, {alpha})"
+
+        red = int(hex_value[0:2], 16)
+        green = int(hex_value[2:4], 16)
+        blue = int(hex_value[4:6], 16)
+        alpha = max(0.0, min(1.0, alpha))
+        return f"rgba({red}, {green}, {blue}, {alpha:.3f})"
 
     def _build_daily_overview_cards(
         self,
@@ -791,7 +1147,7 @@ class UtilityService:
                 if row["has_alert"]:
                     anomaly_rows.append({
                         "sensor_key": sensor_key,
-                        "display_name": row["display_name"],
+                        "display_name": self._build_period_anomaly_sensor_name(sensor_row=row),
                         "group_key": group_key,
                         "group_label": group_label,
                         "measurement_type": row["measurement_type_label"],
@@ -841,6 +1197,9 @@ class UtilityService:
             )
         )
 
+        merged_overview_cards = self._build_daily_overview_cards(sensor_groups)
+        merged_detail_groups = self._build_daily_detail_groups(sensor_groups)
+
         return {
             "enabled": True,
             "mode": "period_rollup",
@@ -851,21 +1210,8 @@ class UtilityService:
             "sensor_count": total_sensor_count,
             "active_sensor_count": active_sensor_count,
             "anomaly_sensor_count": len(anomaly_rows),
-            "overview_cards": [
-                {
-                    "key": group["key"],
-                    "label": group["label"],
-                    "accent_color": group["accent_color"],
-                    "accent_tint": group["accent_tint"],
-                    "sensor_count": group["sensor_count"],
-                    "active_sensor_count": group["active_sensor_count"],
-                    "anomaly_count": group["anomaly_count"],
-                    "critical_count": group["critical_count"],
-                    "warning_count": group["warning_count"],
-                }
-                for group in sensor_groups
-            ],
-            "groups": sensor_groups,
+            "overview_cards": merged_overview_cards,
+            "groups": merged_detail_groups,
             "anomaly_rows": anomaly_rows,
         }
 
@@ -1141,6 +1487,17 @@ class UtilityService:
         if group_key == "sakari_water":
             return f"Sakari {base_label}".strip()
         return base_label
+
+    def _build_period_anomaly_sensor_name(
+        self,
+        *,
+        sensor_row: dict[str, Any],
+    ) -> str:
+        """Use compact sensor labels in period anomaly scan because Group already carries the source context."""
+        short_label = str(sensor_row.get("short_display_name") or "").strip()
+        if short_label:
+            return short_label
+        return str(sensor_row.get("display_name") or "").strip()
 
     def _build_sensor_flags(
         self,
@@ -1627,6 +1984,170 @@ class UtilityService:
                 "cluster_key": cluster_key,
                 "cluster_label": cluster_label,
                 "focus_date": focus_date.isoformat(),
+                "accent_color": visual["accent_color"],
+                "accent_tint": visual["accent_tint"],
+                "sensor_count": len(group_sensors),
+                "active_sensor_count": sum(1 for row in active_group_rows if row.get("has_data")),
+                "alert_count": sum(1 for row in active_group_rows if row.get("has_alert")),
+                "chart_count": len(charts),
+                "charts": charts,
+            })
+
+        return clusters
+
+    def _build_period_sensor_trend_clusters(
+        self,
+        *,
+        daily_stats: dict[date, dict[str, dict[str, float | None]]],
+        period_days: list[date],
+        sensor_metadata: dict[str, dict[str, Any]],
+        group_order: list[str],
+        group_labels: dict[str, str],
+        group_visuals: dict[str, dict[str, str]],
+        enabled: bool,
+    ) -> list[dict[str, Any]]:
+        """Build daily-average trend clusters for weekly/monthly sensor charts."""
+        if not enabled or not period_days:
+            return []
+
+        measurement_order = ["temperature", "pressure", "flow", "capacity"]
+        measurement_titles = {
+            "temperature": "Temperature trend",
+            "pressure": "Pressure trend",
+            "flow": "Flow trend",
+            "capacity": "Capacity trend",
+        }
+
+        clusters: list[dict[str, Any]] = []
+        trend_group_specs: list[dict[str, Any]] = []
+
+        for group_key in group_order:
+            if group_key == "sakari_water":
+                continue
+
+            if group_key == "domestic_water":
+                trend_group_specs.append({
+                    "cluster_key": "domestic_water",
+                    "cluster_label": "Domestic + Sakari Water",
+                    "group_keys": ["domestic_water", "sakari_water"],
+                    "visual": group_visuals.get("domestic_water", group_visuals["default"]),
+                })
+                continue
+
+            trend_group_specs.append({
+                "cluster_key": group_key,
+                "cluster_label": group_labels.get(group_key, group_key.replace("_", " ").title()),
+                "group_keys": [group_key],
+                "visual": group_visuals.get(group_key, group_visuals["default"]),
+            })
+
+        for trend_group in trend_group_specs:
+            cluster_key = str(trend_group.get("cluster_key") or "")
+            cluster_label = str(trend_group.get("cluster_label") or cluster_key.replace("_", " ").title())
+            grouped_keys = trend_group.get("group_keys") or [cluster_key]
+            group_sensors = [
+                (sensor_key, meta)
+                for sensor_key, meta in sensor_metadata.items()
+                if meta.get("group") in grouped_keys
+            ]
+            if not group_sensors:
+                continue
+
+            visual = trend_group.get("visual") or group_visuals["default"]
+            sensor_rows_by_key: dict[str, dict[str, Any]] = {}
+            for sensor_key, meta in group_sensors:
+                aggregated_stats = self._aggregate_period_sensor_stats(
+                    daily_stats=daily_stats,
+                    period_days=period_days,
+                    sensor_key=sensor_key,
+                )
+                sensor_rows_by_key[sensor_key] = self._build_sensor_detail_row(
+                    sensor_key=sensor_key,
+                    meta=meta,
+                    sensor_stats=aggregated_stats,
+                    context_scope="period",
+                )
+
+            charts: list[dict[str, Any]] = []
+            for measurement_type in measurement_order:
+                measurement_sensors = [
+                    (sensor_key, meta)
+                    for sensor_key, meta in group_sensors
+                    if str(meta.get("measurement_type") or "").strip().lower() == measurement_type
+                ]
+                if not measurement_sensors:
+                    continue
+
+                series_items: list[dict[str, Any]] = []
+                for index, (sensor_key, meta) in enumerate(measurement_sensors):
+                    points: list[dict[str, Any]] = []
+                    has_numeric_point = False
+
+                    for dt_value in period_days:
+                        sensor_stats = (daily_stats.get(dt_value, {}) or {}).get(sensor_key, {}) or {}
+                        avg_value = sensor_stats.get("avg")
+                        numeric_value = round(float(avg_value), 4) if isinstance(avg_value, (int, float)) else None
+                        if numeric_value is not None:
+                            has_numeric_point = True
+                        points.append({
+                            "ts": dt_value.isoformat(),
+                            "value": numeric_value,
+                            "is_negative": bool(numeric_value is not None and numeric_value < 0.0),
+                            "is_zero": bool(numeric_value is not None and numeric_value == 0.0),
+                        })
+
+                    if not has_numeric_point:
+                        continue
+
+                    sensor_row = sensor_rows_by_key.get(sensor_key, {})
+                    sensor_group_key = str(meta.get("group") or "")
+                    series_label = meta.get("display_name") or sensor_key
+                    if sensor_group_key in {"domestic_water", "sakari_water"}:
+                        series_label = self._build_daily_anomaly_sensor_name(
+                            sensor_row=sensor_row,
+                            group_key=sensor_group_key,
+                        )
+
+                    series_items.append({
+                        "sensor_key": sensor_key,
+                        "label": series_label,
+                        "unit": meta.get("unit") or "",
+                        "measurement_type": measurement_type,
+                        "measurement_type_label": self._format_measurement_type_label(measurement_type),
+                        "color": self._get_sensor_series_color(measurement_type, index),
+                        "point_count": len(points),
+                        "latest_ts": points[-1]["ts"] if points else "-",
+                        "has_alert": bool(sensor_row.get("has_alert")),
+                        "severity_class": sensor_row.get("severity_class") or "is-normal",
+                        "primary_flag": sensor_row.get("primary_flag") or "Normal",
+                        "points": points,
+                    })
+
+                if not series_items:
+                    continue
+
+                first_unit = str(measurement_sensors[0][1].get("unit") or "")
+                charts.append({
+                    "chart_key": f"{cluster_key}_{measurement_type}",
+                    "title": measurement_titles.get(measurement_type, "Sensor trend"),
+                    "measurement_type": measurement_type,
+                    "measurement_type_label": self._format_measurement_type_label(measurement_type),
+                    "unit": first_unit,
+                    "series_count": len(series_items),
+                    "series": series_items,
+                })
+
+            if not charts:
+                continue
+
+            active_group_rows = [
+                sensor_rows_by_key.get(sensor_key, {})
+                for sensor_key, _meta in group_sensors
+            ]
+            clusters.append({
+                "cluster_key": cluster_key,
+                "cluster_label": cluster_label,
+                "focus_date": period_days[-1].isoformat(),
                 "accent_color": visual["accent_color"],
                 "accent_tint": visual["accent_tint"],
                 "sensor_count": len(group_sensors),

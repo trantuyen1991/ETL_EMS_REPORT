@@ -904,8 +904,13 @@
                         <table class="utility-sensor-anomaly-table report-table-ui">
                             <thead>
                                 <tr>
+                                    {% if flags.is_daily_report %}
                                     <th class="col-sensor">Sensor</th>
                                     <th class="col-group">Group</th>
+                                    {% else %}
+                                    <th class="col-group">Group</th>
+                                    <th class="col-sensor">Sensor</th>
+                                    {% endif %}
                                     <th class="col-type">Type</th>
                                     {% if flags.is_daily_report %}
                                     <th class="col-latest">Latest</th>
@@ -921,8 +926,13 @@
                             <tbody>
                                 {% for row in sensor_monitoring_view.anomaly_rows %}
                                 <tr class="{{ row.severity_class }}">
+                                    {% if flags.is_daily_report %}
                                     <td class="col-sensor">{{ row.display_name }}</td>
                                     <td class="col-group">{{ row.group_label }}</td>
+                                    {% else %}
+                                    <td class="col-group">{{ row.group_label }}</td>
+                                    <td class="col-sensor">{{ row.display_name }}</td>
+                                    {% endif %}
                                     <td class="col-type">{{ row.measurement_type }}</td>
                                     {% if flags.is_daily_report %}
                                     <td class="col-latest">{{ row.latest_display }}</td>
@@ -993,6 +1003,76 @@
                 {% endif %}
 
                 {% if not flags.is_daily_report %}
+                {% if sensor_monitoring.period_detail_tables %}
+                <div class="utility-sensor-period-detail-stack">
+                    {% for table in sensor_monitoring.period_detail_tables %}
+                    <div class="utility-sensor-period-detail-card" style="--sensor-accent: {{ table.accent_color }}; --sensor-tint: {{ table.accent_tint }};">
+                        <div class="utility-sensor-period-detail-head">
+                            <div>
+                                <h4 class="utility-sensor-anomaly-title">{{ table.title }}</h4>
+                                <p class="utility-sensor-subtitle">Daily Max / Avg detail for {{ table.column_count }} monitored sensor{% if table.column_count != 1 %}s{% endif %}</p>
+                            </div>
+                            <div class="utility-sensor-period-detail-legend" aria-label="Value meaning">
+                                <span class="utility-sensor-period-detail-legend-chip is-max">Max</span>
+                                <span class="utility-sensor-period-detail-legend-chip is-avg">Avg</span>
+                            </div>
+                        </div>
+
+                        <div class="utility-sensor-table-wrap report-table-wrap">
+                            <table class="utility-sensor-table utility-sensor-period-detail-table report-table-ui">
+                                <thead>
+                                    <tr>
+                                        <th class="col-date sticky-date-col" rowspan="2">Date</th>
+                                        {% for group in table.column_groups %}
+                                        <th class="utility-sensor-period-group-head {{ group.group_class }}" colspan="{{ group.column_count }}" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">{{ group.label }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        {% for group in table.column_groups %}
+                                        {% for column in group.columns %}
+                                        <th class="utility-sensor-period-col-head {{ column.header_class }}" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
+                                            <span class="utility-sensor-header-cell">
+                                                <span class="utility-sensor-col-name">{{ column.display_name }}</span>
+                                                <span class="utility-sensor-col-unit">{{ column.unit }}</span>
+                                            </span>
+                                        </th>
+                                        {% endfor %}
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in table.rows %}
+                                    <tr class="{{ row.row_class }}">
+                                        <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                        {% for group in row.column_groups %}
+                                        {% for cell in group.cells %}
+                                        <td class="utility-sensor-cell {{ cell.cell_class }}">
+                                            <div class="utility-sensor-cell-stack">
+                                                <div class="utility-sensor-line utility-sensor-line-max {{ cell.max_meta.line_class }} {{ cell.max_meta.state_class }}"{% if cell.max_meta.style %} style="{{ cell.max_meta.style }}"{% endif %}>
+                                                    <span class="utility-sensor-line-badge utility-sensor-line-badge-max">{{ cell.max_meta.label }}</span>
+                                                    <span class="utility-sensor-line-value-shell">
+                                                        <span class="utility-sensor-line-value utility-sensor-line-value-max">{{ cell.max_display }}</span>
+                                                    </span>
+                                                </div>
+                                                <div class="utility-sensor-line utility-sensor-line-avg {{ cell.avg_meta.line_class }} {{ cell.avg_meta.state_class }}"{% if cell.avg_meta.style %} style="{{ cell.avg_meta.style }}"{% endif %}>
+                                                    <span class="utility-sensor-line-badge utility-sensor-line-badge-avg">{{ cell.avg_meta.label }}</span>
+                                                    <span class="utility-sensor-line-value-shell">
+                                                        <span class="utility-sensor-line-value utility-sensor-line-value-avg">{{ cell.avg_display }}</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        {% endfor %}
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
                 <div class="utility-sensor-table-wrap report-table-wrap">
                     <table class="utility-sensor-table report-table-ui">
                         <thead>
@@ -1033,6 +1113,7 @@
                         </tbody>
                     </table>
                 </div>
+                {% endif %}
 
                 {% if sensor_monitoring.period_trend_charts_render %}
                 <div class="utility-sensor-trend-preview-block pdf-keep-together">

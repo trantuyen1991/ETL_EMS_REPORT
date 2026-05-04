@@ -2707,6 +2707,7 @@ class ReportBuilderService:
                     "anomaly_rows": [],
                     "metric_columns": [],
                     "daily_rows": [],
+                    "period_detail_tables": [],
                 },
             }
 
@@ -2725,10 +2726,7 @@ class ReportBuilderService:
             **(utility_object.get("current", {}).get("sensor_monitoring", {}) or {}),
         }
         sensor_monitoring["trend_clusters_render"] = self._build_v3_sensor_trend_clusters(sensor_monitoring)
-        sensor_monitoring["period_trend_charts_render"] = self._build_v3_period_sensor_trend_charts(
-            sensor_monitoring,
-            period_type=str((period or {}).get("type") or ""),
-        )
+        sensor_monitoring["period_trend_charts_render"] = []
         sensor_monitoring["period_trend_clusters_render"] = self._build_v3_period_sensor_trend_clusters(sensor_monitoring)
 
         return {

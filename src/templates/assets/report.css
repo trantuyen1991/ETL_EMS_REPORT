@@ -3523,6 +3523,63 @@
             color: #1e3a8a;
         }
 
+        .utility-sensor-period-detail-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .utility-sensor-period-detail-card {
+            border: 1px solid rgba(203, 213, 225, 0.9);
+            border-top: 4px solid var(--sensor-accent, #64748b);
+            border-radius: 18px;
+            padding: 12px 12px 14px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 255, 255, 0.96) 72%, var(--sensor-tint, rgba(148, 163, 184, 0.1)) 100%);
+            box-shadow: var(--report-components-card-shadow, var(--report-shadow-card));
+        }
+
+        .utility-sensor-period-detail-head {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .utility-sensor-period-detail-legend {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .utility-sensor-period-detail-legend-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 46px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            border: 1px solid transparent;
+        }
+
+        .utility-sensor-period-detail-legend-chip.is-max {
+            color: #9a3412;
+            background: rgba(249, 115, 22, 0.12);
+            border-color: rgba(249, 115, 22, 0.22);
+        }
+
+        .utility-sensor-period-detail-legend-chip.is-avg {
+            color: #3730a3;
+            background: rgba(99, 102, 241, 0.12);
+            border-color: rgba(99, 102, 241, 0.22);
+        }
+
         .utility-sensor-table {
             min-width: 1080px;
         }
@@ -3531,6 +3588,37 @@
             min-width: 150px;
             font-weight: 700;
             color: var(--report-color-text-primary);
+        }
+
+        .utility-sensor-period-group-head {
+            text-align: center;
+            font-weight: 800;
+            color: var(--report-color-text-primary);
+            background: linear-gradient(180deg, color-mix(in srgb, var(--sensor-tint, rgba(148, 163, 184, 0.12)) 92%, #ffffff 8%) 0%, rgba(255, 255, 255, 0.98) 100%);
+            border-bottom: 1px solid color-mix(in srgb, var(--sensor-accent, #64748b) 28%, #cbd5e1 72%);
+            position: relative;
+        }
+
+        .utility-sensor-period-group-head.is-split-group,
+        .utility-sensor-period-col-head.is-group-start,
+        .utility-sensor-cell.is-group-start {
+            border-left: 2px solid color-mix(in srgb, var(--sensor-accent, #64748b) 42%, #cbd5e1 58%);
+        }
+
+        .utility-sensor-period-col-head {
+            background: color-mix(in srgb, var(--sensor-tint, rgba(148, 163, 184, 0.12)) 52%, #ffffff 48%);
+        }
+
+        .utility-sensor-period-detail-table tbody tr:nth-child(even) td {
+            background: rgba(248, 250, 252, 0.66);
+        }
+
+        .utility-sensor-period-detail-table tbody tr.is-weekend td {
+            background: linear-gradient(180deg, rgba(255, 247, 237, 0.72) 0%, rgba(248, 250, 252, 0.56) 100%);
+        }
+
+        .utility-sensor-period-detail-table tbody tr.is-weekend td.col-date {
+            color: #9a3412;
         }
 
         .utility-sensor-header-cell {
@@ -3553,21 +3641,71 @@
         .utility-sensor-cell {
             text-align: center;
             font-variant-numeric: tabular-nums;
+            vertical-align: top;
         }
 
         .utility-sensor-cell-stack {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: stretch;
             justify-content: center;
-            gap: 1px;
+            gap: 4px;
         }
 
         .utility-sensor-line {
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: center;
+            gap: 6px;
+            padding: 4px 5px;
+            border-radius: 10px;
+            border: 1px solid var(--sensor-line-border, rgba(203, 213, 225, 0.88));
+            background: var(--sensor-line-fill, rgba(255, 255, 255, 0.96));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88), 0 1px 0 var(--sensor-line-shadow, rgba(15, 23, 42, 0.04));
             white-space: nowrap;
+        }
+
+        .utility-sensor-line.is-zero {
+            border-style: dashed;
+            background: rgba(248, 250, 252, 0.92);
+        }
+
+        .utility-sensor-line.is-missing {
+            border-style: dashed;
+            background: rgba(248, 250, 252, 0.72);
+            opacity: 0.78;
+        }
+
+        .utility-sensor-line.is-peak {
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 1px var(--sensor-line-border, rgba(148, 163, 184, 0.2));
+        }
+
+        .utility-sensor-line-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            color: var(--sensor-line-text, var(--report-color-text-primary));
+            background: var(--sensor-line-badge-bg, rgba(148, 163, 184, 0.12));
+        }
+
+        .utility-sensor-line-badge-max {
+            color: #9a3412;
+        }
+
+        .utility-sensor-line-badge-avg {
+            color: #3730a3;
+        }
+
+        .utility-sensor-line-value-shell {
+            display: flex;
+            justify-content: flex-end;
+            min-width: 0;
         }
 
         .utility-sensor-line-label {
@@ -3577,15 +3715,20 @@
         }
 
         .utility-sensor-line-value {
-            font-weight: 700;
+            font-weight: 800;
+            color: var(--sensor-line-text, var(--report-color-text-primary));
+        }
+
+        .utility-sensor-line.is-negative .utility-sensor-line-value {
+            color: #9a3412;
         }
 
         .utility-sensor-line-value-max {
-            color: var(--report-color-brand-primary);
+            color: var(--sensor-line-text, #9a3412);
         }
 
         .utility-sensor-line-value-avg {
-            color: var(--report-color-brand-accent);
+            color: var(--sensor-line-text, #3730a3);
         }
 
         .utility-sensor-overview-grid {
@@ -4315,11 +4458,11 @@
         }
 
         .report-family-periodic .utility-sensor-anomaly-table .col-sensor {
-            width: 170px;
+            width: 138px;
         }
 
         .report-family-periodic .utility-sensor-anomaly-table .col-group {
-            width: 92px;
+            width: 110px;
         }
 
         .report-family-periodic .utility-sensor-anomaly-table .col-type {
@@ -4337,7 +4480,7 @@
         }
 
         .report-family-periodic .utility-sensor-anomaly-table .col-reason {
-            width: 240px;
+            width: 272px;
         }
 
         @media (max-width: 1200px) {
