@@ -308,6 +308,12 @@ def test_daily_pdf_sensor_monitoring_uses_metric_table_layout() -> None:
     assert 'letter-spacing: 0.02em !important;' in pdf_css
     assert 'color: var(--sensor-accent, #1e3a8a) !important;' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-table-head' in pdf_css
+    assert '.report-period-daily .utility-sensor-metric-note {' in pdf_css
+    assert 'color: #22a06b !important;' in pdf_css
+    assert '.report-period-daily .utility-sensor-metric-note.is-warning {' in pdf_css
+    assert 'color: #f59e0b !important;' in pdf_css
+    assert '.report-period-daily .utility-sensor-metric-note.is-critical {' in pdf_css
+    assert 'color: #ef4444 !important;' in pdf_css
     assert '.report-family-periodic .utility-sensor-overview-card.is-reference-card' in pdf_css
     assert 'border-top: 4px solid var(--sensor-accent, #64748b) !important;' in pdf_css
     assert '.report-family-periodic .utility-sensor-overview-title {' in pdf_css

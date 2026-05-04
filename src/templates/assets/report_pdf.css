@@ -2109,7 +2109,16 @@
         font-size: 5.5px !important;
         line-height: 1.08 !important;
         font-weight: 700 !important;
+        color: #22a06b !important;
         opacity: 0.95 !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-note.is-warning {
+        color: #f59e0b !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-note.is-critical {
+        color: #ef4444 !important;
     }
 
     .report-period-daily .utility-sensor-metric-value {
