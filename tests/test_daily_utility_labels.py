@@ -246,12 +246,19 @@ def test_daily_view_sensor_monitoring_uses_metric_table_layout() -> None:
     assert 'sensor_ui.metric_icon(sensor)' in view_template
     assert 'sensor_ui.status_icon(sensor)' in view_template
     assert 'sensor_monitoring_view.overview_cards and not flags.is_daily_report' in view_template
+    assert 'utility-sensor-overview-card is-reference-card' in view_template
+    assert 'utility-sensor-overview-primary-row' in view_template
+    assert 'utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% else %}is-reference-metric-card{% endif %}' in view_template
     assert 'sensor.short_display_name or sensor.display_name' in view_template
     assert 'utility-sensor-metric-submeta' not in view_template
     assert '.report-family-daily .utility-sensor-metric-table' in report_css
     assert '.report-family-daily .utility-sensor-group-card.is-daily-metric-card::before' in report_css
     assert '.report-family-daily .utility-sensor-group-card.group-key-sakari_water' in report_css
     assert '.report-family-daily .utility-sensor-metric-status-main' in report_css
+    assert '.report-family-periodic .utility-sensor-overview-card.is-reference-card' in report_css
+    assert 'border-top: 4px solid var(--sensor-accent, #64748b);' in report_css
+    assert '.report-family-periodic .utility-sensor-group-card.is-reference-metric-card' in report_css
+    assert '.report-family-periodic .utility-sensor-anomaly-table thead th' in report_css
     assert 'macro metric_icon(sensor)' in sensor_macro
     assert 'macro status_icon(sensor)' in sensor_macro
 
@@ -262,6 +269,8 @@ def test_daily_pdf_sensor_monitoring_uses_metric_table_layout() -> None:
 
     assert 'utility-sensor-metric-table utility-sensor-metric-table-pdf' in pdf_template
     assert 'utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% endif %} group-key-{{ group.key }}' in pdf_template
+    assert 'utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% else %}is-reference-metric-card{% endif %} group-key-{{ group.key }}' in pdf_template
+    assert 'utility-sensor-overview-card is-reference-card' in pdf_template
     assert 'sensor_ui.group_icon(group.key)' in pdf_template
     assert 'sensor_ui.metric_icon(sensor)' in pdf_template
     assert 'sensor_ui.status_icon(sensor)' in pdf_template
@@ -271,6 +280,10 @@ def test_daily_pdf_sensor_monitoring_uses_metric_table_layout() -> None:
     assert '.report-period-daily .utility-sensor-group-card.group-key-sakari_water' in pdf_css
     assert 'grid-column: auto !important;' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-table-head' in pdf_css
+    assert '.report-family-periodic .utility-sensor-overview-card.is-reference-card' in pdf_css
+    assert 'border-top: 2px solid var(--sensor-accent, #64748b) !important;' in pdf_css
+    assert '.report-family-periodic .utility-sensor-group-card.is-reference-metric-card' in pdf_css
+    assert '.report-family-periodic .utility-sensor-anomaly-table .col-reason' in pdf_css
     assert 'display: grid !important;' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-table-body' in pdf_css
     assert '.report-period-daily .utility-sensor-metric-title-row' in pdf_css

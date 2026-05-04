@@ -2162,6 +2162,315 @@
         stroke-width: 2 !important;
     }
 
+    .report-family-periodic .utility-sensor-overview-card.is-reference-card {
+        padding: 7px 8px 8px !important;
+        background: #ffffff !important;
+        border: 1px solid #e4ecf3 !important;
+        border-top: 2px solid var(--sensor-accent, #64748b) !important;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-head-reference {
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        gap: 6px !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-head-main {
+        display: flex !important;
+        align-items: center !important;
+        gap: 7px !important;
+        min-width: 0 !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 0 !important;
+        padding: 2px 5px !important;
+        border-radius: 999px !important;
+        border: 1px solid #dbe4ee !important;
+        background: #ffffff !important;
+        color: #475569 !important;
+        font-size: 6.4px !important;
+        font-weight: 800 !important;
+        white-space: nowrap !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-badge.has-alert {
+        color: #9a3412 !important;
+        background: #fff8ef !important;
+        border-color: #fdba74 !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-badge.is-clear {
+        color: #0f766e !important;
+        background: #f0fdf4 !important;
+        border-color: #a7f3d0 !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-primary-row {
+        display: flex !important;
+        align-items: flex-end !important;
+        justify-content: space-between !important;
+        gap: 6px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-primary-label {
+        font-size: 6.8px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.06em !important;
+        color: var(--report-color-text-muted, #5f7387) !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-primary-value {
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        line-height: 1.1 !important;
+        color: var(--sensor-accent, #223548) !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-secondary-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 5px !important;
+    }
+
+    .report-family-periodic .utility-sensor-overview-secondary-grid .utility-sensor-overview-item {
+        padding: 5px 6px !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(226, 232, 240, 0.96) !important;
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, rgba(255, 255, 255, 0.98) 100%) !important;
+    }
+
+    .report-family-periodic .utility-sensor-group-card.is-reference-metric-card {
+        background: #ffffff !important;
+        border: 1px solid #e4ecf3 !important;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .report-family-periodic .utility-sensor-group-card.is-reference-metric-card::before {
+        content: "" !important;
+        position: absolute !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
+        height: 2px !important;
+        background: var(--sensor-accent, #94a3b8) !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-table {
+        border-radius: 10px !important;
+        border-width: 1px !important;
+        background: #ffffff !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-table-head,
+    .report-family-periodic .utility-sensor-metric-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 2.5fr) minmax(38px, 0.68fr) minmax(38px, 0.68fr) minmax(38px, 0.68fr) minmax(58px, 0.84fr) !important;
+        gap: 6px !important;
+        align-items: start !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-table-head {
+        padding: 6px 7px !important;
+        font-size: 6.6px !important;
+        letter-spacing: 0.01em !important;
+        color: #334155 !important;
+        background: #ffffff !important;
+        border-bottom: 1px solid #e5edf5 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-table-head .col-value,
+    .report-family-periodic .utility-sensor-metric-table-head .col-status {
+        text-align: right !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-table-body {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-row {
+        padding: 5px 7px 6px !important;
+        align-items: center !important;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.72) !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-row:last-child {
+        border-bottom: none !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-title-row {
+        display: flex !important;
+        gap: 6px !important;
+        align-items: center !important;
+        min-width: 0 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-icon {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 13px !important;
+        height: 13px !important;
+        color: var(--sensor-accent, #64748b) !important;
+        background: transparent !important;
+        border: none !important;
+        flex: 0 0 auto !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-icon svg {
+        width: 12px !important;
+        height: 12px !important;
+        stroke-width: 1.9 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-main {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        min-width: 0 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-name {
+        font-size: 7.4px !important;
+        line-height: 1.12 !important;
+        color: #1e3a8a !important;
+        font-weight: 800 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-note {
+        margin-top: 1px !important;
+        font-size: 5.5px !important;
+        line-height: 1.08 !important;
+        font-weight: 700 !important;
+        color: #22a06b !important;
+        opacity: 0.95 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-note.is-warning {
+        color: #f59e0b !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-note.is-critical {
+        color: #ef4444 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-value {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        justify-content: flex-start !important;
+        gap: 1px !important;
+        text-align: right !important;
+        min-height: 15px !important;
+        min-width: 0 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-value-label {
+        display: none !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-value strong {
+        font-size: 7.7px !important;
+        line-height: 1.04 !important;
+        color: #0f172a !important;
+        font-weight: 800 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-status {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        justify-content: flex-start !important;
+        gap: 2px !important;
+        min-height: 15px !important;
+        min-width: 0 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-status-main {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+        font-size: 6.2px !important;
+        line-height: 1.05 !important;
+        font-weight: 800 !important;
+        color: #16a34a !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-status.is-warning .utility-sensor-metric-status-main {
+        color: #f59e0b !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-status.is-critical .utility-sensor-metric-status-main {
+        color: #ef4444 !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-status-icon {
+        width: 10px !important;
+        height: 10px !important;
+    }
+
+    .report-family-periodic .utility-sensor-metric-status-icon svg {
+        width: 10px !important;
+        height: 10px !important;
+        stroke-width: 2 !important;
+    }
+
+    .report-family-periodic .utility-sensor-anomaly-block {
+        margin-top: 6px !important;
+        padding: 6px !important;
+    }
+
+    .report-family-periodic .utility-sensor-anomaly-table th,
+    .report-family-periodic .utility-sensor-anomaly-table td {
+        white-space: nowrap !important;
+    }
+
+    .report-family-periodic .utility-sensor-anomaly-table .col-sensor {
+        width: 92px !important;
+    }
+
+    .report-family-periodic .utility-sensor-anomaly-table .col-group {
+        width: 62px !important;
+    }
+
+    .report-family-periodic .utility-sensor-anomaly-table .col-type {
+        width: 42px !important;
+    }
+
+    .report-family-periodic .utility-sensor-anomaly-table .col-days,
+    .report-family-periodic .utility-sensor-anomaly-table .col-min,
+    .report-family-periodic .utility-sensor-anomaly-table .col-avg,
+    .report-family-periodic .utility-sensor-anomaly-table .col-max {
+        width: 40px !important;
+        text-align: right !important;
+    }
+
+    .report-family-periodic .utility-sensor-anomaly-table .col-days,
+    .report-family-periodic .utility-sensor-anomaly-table .col-min,
+    .report-family-periodic .utility-sensor-anomaly-table .col-avg,
+    .report-family-periodic .utility-sensor-anomaly-table .col-max,
+    .report-family-periodic .utility-sensor-anomaly-table th.col-days,
+    .report-family-periodic .utility-sensor-anomaly-table th.col-min,
+    .report-family-periodic .utility-sensor-anomaly-table th.col-avg,
+    .report-family-periodic .utility-sensor-anomaly-table th.col-max {
+        font-variant-numeric: tabular-nums !important;
+    }
+
+    .report-family-periodic .utility-sensor-anomaly-table .col-reason {
+        white-space: normal !important;
+        width: 164px !important;
+    }
+
     .utility-sensor-range-list {
         gap: 6px !important;
     }
