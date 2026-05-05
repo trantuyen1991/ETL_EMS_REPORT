@@ -2568,7 +2568,7 @@ class ReportBuilderService:
         return [f"D{index}" for index in range(1, max_daily_points + 1)]
 
     def _format_periodic_axis_date_label(self, value, period_type: str = "") -> str:
-        """Format periodic chart x-axis label like Apr 14 (Mon)."""
+        """Format periodic chart x-axis label by period type."""
         if value in (None, ""):
             return "-"
 
@@ -5206,7 +5206,16 @@ class ReportBuilderService:
 
         normalized_axis_label_mode = str(axis_label_mode or "intraday").strip().lower()
         if normalized_axis_label_mode == "periodic":
-            formatted_labels = [self._format_periodic_axis_date_label(ts_value, period_type) for ts_value in all_timestamps]
+            normalized_period_type = str(period_type or "").strip().lower()
+            if normalized_period_type == "weekly":
+                formatted_labels = [
+                    self._format_periodic_axis_date_label(ts_value, period_type).split("(")[-1].rstrip(")")
+                    if self._format_periodic_axis_date_label(ts_value, period_type) not in (None, "", "-")
+                    else self._format_periodic_axis_date_label(ts_value, period_type)
+                    for ts_value in all_timestamps
+                ]
+            else:
+                formatted_labels = [self._format_periodic_axis_date_label(ts_value, period_type) for ts_value in all_timestamps]
         else:
             formatted_labels = [self._build_v3_intraday_axis_label(ts_value) for ts_value in all_timestamps]
         palette = self._get_chart_palette()
@@ -5575,9 +5584,14 @@ class ReportBuilderService:
             x_axis_label_option["padding"] = merged_x_axis_label_cfg.get("padding")
         if normalized_axis_label_mode == "periodic":
             x_axis_label_option["interval"] = merged_x_axis_label_cfg.get("interval") if merged_x_axis_label_cfg.get("interval") is not None else 0
-            x_axis_label_option["rotate"] = int(merged_x_axis_label_cfg.get("rotate") or 32)
-            x_axis_label_option["margin"] = int(merged_x_axis_label_cfg.get("margin") or 12)
-            x_axis_label_option["lineHeight"] = int(merged_x_axis_label_cfg.get("lineHeight") or 11)
+            if str(period_type or "").strip().lower() == "weekly":
+                x_axis_label_option["rotate"] = 0
+                x_axis_label_option["margin"] = int(merged_x_axis_label_cfg.get("margin") or 8)
+                x_axis_label_option["lineHeight"] = int(merged_x_axis_label_cfg.get("lineHeight") or 11)
+            else:
+                x_axis_label_option["rotate"] = int(merged_x_axis_label_cfg.get("rotate") or 32)
+                x_axis_label_option["margin"] = int(merged_x_axis_label_cfg.get("margin") or 12)
+                x_axis_label_option["lineHeight"] = int(merged_x_axis_label_cfg.get("lineHeight") or 11)
 
         return {
             "tooltip": {

@@ -308,9 +308,9 @@ def test_period_sensor_rendered_cluster_charts_use_date_axis_labels() -> None:
     chart = rendered_clusters[0]["charts"][0]
     x_axis = chart["option"]["xAxis"]
     assert chart["periodic_page_variant"] == "page2"
-    assert x_axis["data"] == ["May 1 (Thu)", "May 2 (Fri)"]
+    assert x_axis["data"] == ["Thu", "Fri"]
     assert x_axis["axisLabel"]["interval"] == 0
-    assert x_axis["axisLabel"]["rotate"] == 18
+    assert x_axis["axisLabel"]["rotate"] == 0
     assert x_axis["axisLabel"]["margin"] == 10
 
 
@@ -479,11 +479,13 @@ def test_period_sensor_chiller_cluster_dual_axis_chart_rounds_axis_ticks_and_cen
     assert all(chart["option"]["legend"]["left"] == "center" for chart in summary_charts)
     assert all(chart["option"]["legend"]["top"] == 12 for chart in summary_charts)
     assert all(chart["option"]["grid"]["bottom"] == 31 for chart in summary_charts)
-    assert all(chart["option"]["xAxis"]["axisLabel"]["rotate"] == 24 for chart in summary_charts)
+    assert all(chart["option"]["xAxis"]["axisLabel"]["rotate"] == 0 for chart in summary_charts)
+    assert all(chart["option"]["xAxis"]["data"] == ["Mon", "Tue", "Wed"] for chart in summary_charts)
     assert dual_axis_chart["option"]["legend"]["left"] == "center"
     assert dual_axis_chart["option"]["legend"]["bottom"] == 0
     assert dual_axis_chart["option"]["grid"]["bottom"] == 29
-    assert dual_axis_chart["option"]["xAxis"]["axisLabel"]["rotate"] == 24
+    assert dual_axis_chart["option"]["xAxis"]["axisLabel"]["rotate"] == 0
+    assert dual_axis_chart["option"]["xAxis"]["data"] == ["Mon", "Tue", "Wed"]
     assert dual_axis_chart["option"]["yAxis"][0]["interval"] == 2000.0
     assert dual_axis_chart["option"]["yAxis"][1]["interval"] == 1.0
     assert dual_axis_chart["option"]["yAxis"][1]["max"] == 2.0
