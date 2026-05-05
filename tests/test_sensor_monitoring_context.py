@@ -614,8 +614,12 @@ def test_period_sensor_templates_keep_cluster_trends_below_detail_table() -> Non
     assert '.utility-sensor-section-label-block.is-trend-cluster' in report_css
     assert '.utility-sensor-section-label-block.is-trend-cluster' in report_pdf_css
     assert '.utility-sensor-trend-card.is-periodic-trend-page1 .utility-sensor-trend-chart' in report_css
+    assert '--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page1-summary-view' in report_css
+    assert '--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page2-summary-view' in report_css
     assert '.utility-sensor-trend-card.is-periodic-trend-page2 .utility-sensor-trend-chart' in report_css
     assert '.utility-sensor-trend-card.is-periodic-trend-page1 .utility-sensor-trend-chart' in report_pdf_css
+    assert '--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page1-summary-pdf' in report_pdf_css
+    assert '--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page2-summary-pdf' in report_pdf_css
     assert '.utility-sensor-trend-card.is-periodic-trend-page2 .utility-sensor-trend-chart' in report_pdf_css
     assert 'periodicPages' in (PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8")
     assert 'periodicPage1Summary' in (PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8")

@@ -5046,19 +5046,19 @@
         }
 
         .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page1 .utility-sensor-trend-chart {
-            height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page-1-summary-view, var(--report-components-report-section-utility-chart-sensor-cluster-height-view, 280px));
+            height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page1-summary-view, var(--report-components-report-section-utility-chart-sensor-cluster-height-view, 280px));
         }
 
         .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page1.is-periodic-dual-axis-chart .utility-sensor-trend-chart {
-            height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page-1-dual-axis-view, var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-dual-axis-view, calc(var(--report-components-report-section-utility-chart-sensor-cluster-height-view, 280px) * 1.1)));
+            height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page1-dual-axis-view, var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-dual-axis-view, calc(var(--report-components-report-section-utility-chart-sensor-cluster-height-view, 280px) * 1.1)));
         }
 
         .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page2 .utility-sensor-trend-chart {
-            height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page-2-summary-view, var(--report-components-report-section-utility-chart-sensor-cluster-height-view, 280px));
+            height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page2-summary-view, var(--report-components-report-section-utility-chart-sensor-cluster-height-view, 280px));
         }
 
         .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page2.is-periodic-dual-axis-chart .utility-sensor-trend-chart {
-            height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page-2-dual-axis-view, var(--report-components-report-section-utility-chart-sensor-cluster-height-view, 280px));
+            height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page2-dual-axis-view, var(--report-components-report-section-utility-chart-sensor-cluster-height-view, 280px));
         }
 
         .utility-sensor-trend-chart {
