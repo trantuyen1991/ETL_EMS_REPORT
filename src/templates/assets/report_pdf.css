@@ -834,6 +834,14 @@
         height: var(--report-components-report-section-utility-chart-energy-trend-height-pdf, 220px) !important;
     }
 
+    .report-period-weekly .utility-energy-trend-chart {
+        height: var(--report-components-report-section-utility-chart-energy-trend-weekly-height-pdf, 253px) !important;
+    }
+
+    .report-period-weekly .utility-energy-distribution-card.is-mix-style .utility-energy-distribution-chart {
+        height: var(--report-components-report-section-utility-chart-energy-distribution-weekly-height-pdf, 239px) !important;
+    }
+
     .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-trend-chart {
         height: var(--report-components-report-section-utility-chart-energy-trend-monthly-pdf-height, 262px) !important;
     }
@@ -2032,8 +2040,28 @@
         margin-bottom: 7px !important;
     }
 
-    .report-period-weekly .utility-sensor-group-head {
-        margin-bottom: 0 !important;
+    .report-period-weekly .utility-sensor-group-head,
+    .report-period-monthly .utility-sensor-group-head {
+        margin-bottom: 4px !important;
+        gap: 7px !important;
+    }
+
+    .report-period-weekly .utility-sensor-overview-grid,
+    .report-period-weekly .utility-sensor-group-grid-remaining,
+    .report-period-monthly .utility-sensor-overview-grid,
+    .report-period-monthly .utility-sensor-group-grid-remaining {
+        gap: 8px !important;
+    }
+
+    .report-period-weekly .utility-sensor-overview-grid,
+    .report-period-monthly .utility-sensor-overview-grid {
+        margin-bottom: 8px !important;
+    }
+
+    .report-period-weekly .utility-sensor-group-card.is-reference-metric-card,
+    .report-period-monthly .utility-sensor-group-card.is-reference-metric-card {
+        padding: 10px !important;
+        border-radius: 12px !important;
     }
 
     .report-period-daily .utility-sensor-group-head {
@@ -2506,6 +2534,88 @@
 
     .report-family-periodic .utility-sensor-metric-note.is-critical {
         color: #ef4444 !important;
+    }
+
+    .utility-sensor-metric-note-main,
+    .utility-sensor-metric-note-detail {
+        display: block !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-note-detail,
+    .report-period-monthly .utility-sensor-metric-note-detail {
+        margin-top: 1px !important;
+        font-size: 5.5px !important;
+        line-height: 1.15 !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-note.is-warning .utility-sensor-metric-note-detail,
+    .report-period-monthly .utility-sensor-metric-note.is-warning .utility-sensor-metric-note-detail {
+        color: #b45309 !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-note.is-critical .utility-sensor-metric-note-detail,
+    .report-period-monthly .utility-sensor-metric-note.is-critical .utility-sensor-metric-note-detail {
+        color: #b91c1c !important;
+    }
+
+    .report-period-weekly .utility-sensor-group-title,
+    .report-period-monthly .utility-sensor-group-title {
+        font-size: 9.6px !important;
+    }
+
+    .report-period-weekly .utility-sensor-group-meta,
+    .report-period-monthly .utility-sensor-group-meta {
+        font-size: 7.2px !important;
+        line-height: 1.15 !important;
+    }
+
+    .report-period-weekly .utility-sensor-group-badge,
+    .report-period-monthly .utility-sensor-group-badge {
+        font-size: 6.8px !important;
+        padding: 2px 6px !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-table-head,
+    .report-period-weekly .utility-sensor-metric-row,
+    .report-period-monthly .utility-sensor-metric-table-head,
+    .report-period-monthly .utility-sensor-metric-row {
+        gap: 7px !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-table-head,
+    .report-period-monthly .utility-sensor-metric-table-head {
+        padding: 7px 8px !important;
+        font-size: 6.8px !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-row,
+    .report-period-monthly .utility-sensor-metric-row {
+        padding: 6px 8px 7px !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-name,
+    .report-period-monthly .utility-sensor-metric-name {
+        font-size: 7.8px !important;
+        line-height: 1.16 !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-note,
+    .report-period-monthly .utility-sensor-metric-note {
+        margin-top: 2px !important;
+        font-size: 5.9px !important;
+        line-height: 1.16 !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-value strong,
+    .report-period-monthly .utility-sensor-metric-value strong {
+        font-size: 8.1px !important;
+    }
+
+    .report-period-weekly .utility-sensor-metric-status-main,
+    .report-period-monthly .utility-sensor-metric-status-main {
+        font-size: 6.4px !important;
     }
 
     .report-family-periodic .utility-sensor-metric-value {
@@ -2991,10 +3101,11 @@
     .electricity-periodic-detail-page-weekly {
         display: flex !important;
         flex-direction: column !important;
+        gap: 14px !important;
     }
 
     .report-period-weekly .electricity-periodic-detail-page-weekly .electricity-periodic-detail-table-block {
-        margin-bottom: 2px !important;
+        margin-bottom: 0 !important;
     }
 
     .report-period-weekly .electricity-periodic-detail-page-weekly .electricity-subsection-title {

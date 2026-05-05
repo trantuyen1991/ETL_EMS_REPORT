@@ -391,9 +391,10 @@ def test_weekly_pdf_electric_detail_groups_remaining_periodic_blocks_into_five_t
     assert "electricity-periodic-detail-pages electricity-periodic-detail-pages-weekly" in pdf_template
     assert ".electricity-periodic-detail-pages {" in pdf_css
     assert ".electricity-periodic-detail-page-weekly {" in pdf_css
+    assert "gap: 14px !important;" in pdf_css
     assert "padding: 5px 4px !important;" in pdf_css
     assert "font-size: 8px !important;" in pdf_css
-    assert "margin-bottom: 1px !important;" in pdf_css
+    assert "margin-bottom: 0 !important;" in pdf_css
 
 
 def test_weekly_pdf_electric_detail_uses_area_palette_and_state_hierarchy() -> None:

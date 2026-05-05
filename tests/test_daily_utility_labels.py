@@ -480,6 +480,7 @@ def test_weekly_utility_energy_distribution_uses_mix_style_layout() -> None:
     block = next(item for item in context["layout"]["blocks"] if item["kind"] == "distribution")
     series = distribution["option"]["series"][0]
 
+    assert context["charts"]["trend"]["title"] == "Utility Energy Trend (This Week)"
     assert distribution["visual_variant"] == "mix-card"
     assert block["visual_variant"] == "mix-card"
     assert "is-mix-style" in block["card_classes"]
@@ -526,9 +527,17 @@ def test_utility_periodic_layout_css_matches_weekly_delta_width_and_height_targe
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);' in report_css
     assert '.utility-periodic-chart-grid .utility-comparison-chart-daily {' in report_css
     assert 'height: var(--report-components-report-section-utility-chart-period-trend-height-view, 326px);' in report_css
+    assert '.report-period-weekly .utility-energy-trend-chart {' in report_css
+    assert 'height: var(--report-components-report-section-utility-chart-energy-trend-weekly-height-view, 354px);' in report_css
+    assert '.report-period-weekly .utility-energy-distribution-card.is-mix-style .utility-energy-distribution-chart {' in report_css
+    assert 'height: var(--report-components-report-section-utility-chart-energy-distribution-weekly-height-view, 317px);' in report_css
     assert '.utility-period-insight-grid .utility-chart-card {' in report_css
     assert 'height: var(--report-components-report-section-utility-chart-period-insight-mix-height-view, 252px);' in report_css
     assert 'grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) !important;' in pdf_css
+    assert '.report-period-weekly .utility-energy-trend-chart {' in pdf_css
+    assert 'height: var(--report-components-report-section-utility-chart-energy-trend-weekly-height-pdf, 253px) !important;' in pdf_css
+    assert '.report-period-weekly .utility-energy-distribution-card.is-mix-style .utility-energy-distribution-chart {' in pdf_css
+    assert 'height: var(--report-components-report-section-utility-chart-energy-distribution-weekly-height-pdf, 239px) !important;' in pdf_css
     assert 'height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;' in pdf_css
     assert 'height: var(--report-components-report-section-utility-chart-period-insight-mix-height-pdf, 184px) !important;' in pdf_css
 

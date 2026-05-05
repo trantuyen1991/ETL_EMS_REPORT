@@ -101,7 +101,9 @@ def test_daily_pdf_utility_template_keeps_all_daily_sensor_cards_with_overview_b
     assert "sensor_group_preview = sensor_monitoring_view.groups if flags.is_daily_report else []" in pdf_template
     assert "sensor_group_remaining = [] if flags.is_daily_report else sensor_monitoring_view.groups" in pdf_template
     assert 'utility-sensor-group-preview-block{% if not flags.is_daily_report %} pdf-keep-together{% endif %}' in pdf_template
-    assert 'utility-sensor-anomaly-block{% if flags.is_daily_report %} page-break-before{% endif %}' in pdf_template
+    assert "{% set is_card_only_period = period.type in ['weekly', 'monthly'] %}" in pdf_template
+    assert '{% if sensor_monitoring_view.anomaly_rows and (flags.is_daily_report or not is_card_only_period) %}' in pdf_template
+    assert 'utility-sensor-metric-note-detail' in pdf_template
     assert '<th class="col-sensor">Sensor</th>' in pdf_template
     assert '<th class="col-group">Group</th>' in pdf_template
     assert '{% else %}\n                                    <th class="col-group">Group</th>\n                                    <th class="col-sensor">Sensor</th>' in pdf_template
@@ -392,8 +394,9 @@ def test_period_sensor_templates_keep_cluster_trends_below_detail_table() -> Non
     assert '.utility-sensor-period-detail-table tbody tr.is-weekend td' in report_pdf_css
     assert '.utility-sensor-period-detail-pages {' in report_pdf_css
     assert '.utility-sensor-period-detail-page {' in report_pdf_css
-    assert '.report-period-weekly .utility-sensor-group-head {' in report_pdf_css
-    assert 'margin-bottom: 0 !important;' in report_pdf_css
+    assert '.report-period-weekly .utility-sensor-group-head,' in report_pdf_css
+    assert '.report-period-monthly .utility-sensor-group-head {' in report_pdf_css
+    assert 'margin-bottom: 4px !important;' in report_pdf_css
     assert 'sensor_monitoring.period_trend_clusters_render or []' in view_template
     assert 'sensor_monitoring.period_trend_clusters_render or []' in pdf_template
 

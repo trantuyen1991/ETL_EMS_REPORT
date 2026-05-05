@@ -4374,8 +4374,8 @@ class ReportBuilderService:
 
     def _resolve_utility_energy_trend_title(self, *, period_type: str, day_count: int) -> str:
         """Return a compact trend title aligned with the periodic design."""
-        if period_type == "weekly" and day_count > 0:
-            return f"Utility Energy Trend ({day_count} Days)"
+        if period_type == "weekly":
+            return "Utility Energy Trend (This Week)"
         if period_type == "monthly" and day_count > 0:
             return f"Utility Energy Trend ({day_count} Days)"
         if period_type == "daily":

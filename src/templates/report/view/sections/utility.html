@@ -1,6 +1,8 @@
 {% import "report/macros/common.html" as report %}
 {% import "report/macros/sensor_monitoring.html" as sensor_ui %}
 {% import "report/macros/utility_blocks.html" as utility_blocks %}
+{% set is_weekly_period = period.type == 'weekly' %}
+{% set is_card_only_period = period.type in ['weekly', 'monthly'] %}
 {% if flags.show_utility_section %}
         <section class="report-section daily-highlight-header utility-section-shell{% if not flags.is_daily_report %} utility-periodic-section{% endif %}">
             <div class="section-header">
@@ -715,9 +717,12 @@
                                                 {% endif %}
                                             {% else %}
                                                 {% if sensor.has_alert and sensor.flag_summary %}
-                                                {{ sensor.flag_summary }}{% if sensor.days_with_data_display is defined and sensor.days_with_data_display %} · {{ sensor.days_with_data_display }}{% endif %}
+                                                <span class="utility-sensor-metric-note-main">{{ sensor.flag_summary }}{% if sensor.days_with_data_display is defined and sensor.days_with_data_display %} · {{ sensor.days_with_data_display }}{% endif %}</span>
+                                                {% if is_card_only_period and sensor.flag_detail_summary %}
+                                                <span class="utility-sensor-metric-note-detail">{{ sensor.flag_detail_summary }}</span>
+                                                {% endif %}
                                                 {% else %}
-                                                {{ sensor.measurement_type_label }}{% if sensor.days_with_data_display is defined and sensor.days_with_data_display %} · {{ sensor.days_with_data_display }}{% endif %}
+                                                <span class="utility-sensor-metric-note-main">{{ sensor.measurement_type_label }}{% if sensor.days_with_data_display is defined and sensor.days_with_data_display %} · {{ sensor.days_with_data_display }}{% endif %}</span>
                                                 {% endif %}
                                             {% endif %}
                                         </div>
@@ -749,7 +754,7 @@
                     {% endfor %}
                 </div>
 
-                {% if sensor_monitoring_view.anomaly_rows %}
+                {% if sensor_monitoring_view.anomaly_rows and (flags.is_daily_report or not is_card_only_period) %}
                 <div class="utility-sensor-anomaly-block">
                     <h4 class="utility-sensor-anomaly-title">Sensor anomaly scan</h4>
                     <div class="utility-sensor-anomaly-wrap report-table-wrap">
