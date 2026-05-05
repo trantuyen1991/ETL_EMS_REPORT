@@ -109,6 +109,70 @@ def test_daily_pdf_utility_template_keeps_all_daily_sensor_cards_with_overview_b
     assert '{% else %}\n                                    <th class="col-group">Group</th>\n                                    <th class="col-sensor">Sensor</th>' in pdf_template
 
 
+def test_daily_sensor_chiller_dual_axis_chart_colors_axes_and_marks_legend_side() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    rendered_clusters = service._build_v3_sensor_trend_clusters(
+        {
+            "trend_mode": "intraday",
+            "trend_clusters": [
+                {
+                    "cluster_key": "ico_chiller",
+                    "cluster_label": "ICO Chiller",
+                    "charts": [
+                        {
+                            "chart_key": "ico_chiller_flow",
+                            "title": "Flow trend",
+                            "measurement_type": "flow",
+                            "unit": "kg/h",
+                            "series": [
+                                {
+                                    "sensor_key": "ich_supflow",
+                                    "label": "Supply Flow",
+                                    "color": "#005496",
+                                    "points": [
+                                        {"ts": "2025-05-18 00:00:00", "value": 500.0},
+                                        {"ts": "2025-05-18 01:00:00", "value": 700.0},
+                                    ],
+                                }
+                            ],
+                        },
+                        {
+                            "chart_key": "ico_chiller_pressure",
+                            "title": "Pressure trend",
+                            "measurement_type": "pressure",
+                            "unit": "bar",
+                            "series": [
+                                {
+                                    "sensor_key": "ich_suppress",
+                                    "label": "Supply Pressure",
+                                    "color": "#703cd9",
+                                    "points": [
+                                        {"ts": "2025-05-18 00:00:00", "value": 1.2},
+                                        {"ts": "2025-05-18 01:00:00", "value": 1.4},
+                                    ],
+                                }
+                            ],
+                        },
+                    ],
+                }
+            ],
+        }
+    )
+
+    dual_axis_chart = next(chart for chart in rendered_clusters[0]["charts"] if chart["title"] == "Flow and pressure trend")
+    series = dual_axis_chart["option"]["series"]
+    y_axes = dual_axis_chart["option"]["yAxis"]
+
+    assert [item["name"] for item in series] == ["Supply Flow (L)", "Supply Pressure (R)"]
+    assert y_axes[0]["axisLabel"]["color"] == "#005496"
+    assert y_axes[0]["axisLine"]["lineStyle"]["color"] == "#005496"
+    assert y_axes[1]["axisLabel"]["color"] == "#703cd9"
+    assert y_axes[1]["axisLine"]["lineStyle"]["color"] == "#703cd9"
+
+
 def test_period_sensor_trend_builder_marks_lone_tail_chart_for_full_width_pdf_layout() -> None:
     service = ReportBuilderService()
     service._style_config = {}
@@ -486,6 +550,9 @@ def test_period_sensor_chiller_cluster_dual_axis_chart_rounds_axis_ticks_and_cen
     assert dual_axis_chart["option"]["grid"]["bottom"] == 29
     assert dual_axis_chart["option"]["xAxis"]["axisLabel"]["rotate"] == 0
     assert dual_axis_chart["option"]["xAxis"]["data"] == ["Mon", "Tue", "Wed"]
+    assert [item["name"] for item in dual_axis_chart["option"]["series"]] == ["Supply Flow (L)", "Supply Pressure (R)"]
+    assert dual_axis_chart["option"]["yAxis"][0]["axisLabel"]["color"] == dual_axis_chart["option"]["series"][0]["lineStyle"]["color"]
+    assert dual_axis_chart["option"]["yAxis"][1]["axisLabel"]["color"] == dual_axis_chart["option"]["series"][1]["lineStyle"]["color"]
     assert dual_axis_chart["option"]["yAxis"][0]["interval"] == 2000.0
     assert dual_axis_chart["option"]["yAxis"][1]["interval"] == 1.0
     assert dual_axis_chart["option"]["yAxis"][1]["max"] == 2.0

@@ -5356,6 +5356,7 @@ class ReportBuilderService:
             }
 
         axis_numeric_values: dict[int, list[float]] = {}
+        axis_series_colors: dict[int, str] = {}
         option_series: list[dict[str, Any]] = []
         for series in series_items:
             point_lookup = {
@@ -5378,6 +5379,7 @@ class ReportBuilderService:
                 if isinstance(point_value, (int, float))
             ]
             axis_index = int(series_axis_map.get(sensor_key, 0))
+            axis_series_colors.setdefault(axis_index, str(series_color))
             if numeric_points:
                 axis_numeric_values.setdefault(axis_index, []).extend(point_value for _point_index, point_value in numeric_points)
             mark_points: list[dict[str, Any]] = []
@@ -5429,8 +5431,13 @@ class ReportBuilderService:
                             },
                         })
 
+            axis_suffix = " (R)" if axis_index > 0 else " (L)"
+            series_display_name = str(series.get("label") or series.get("sensor_key") or "-")
+            if dual_axis_enabled:
+                series_display_name = f"{series_display_name}{axis_suffix}"
+
             option_series.append({
-                "name": series.get("label") or series.get("sensor_key") or "-",
+                "name": series_display_name,
                 "type": "line",
                 "smooth": False,
                 "showSymbol": show_symbol,
@@ -5479,6 +5486,8 @@ class ReportBuilderService:
             default_label_margin = 0 if is_right_axis else 8
             default_padding = [0, 0, 0, 0] if is_right_axis else [16, 0, 0, 0]
             split_line_show = axis_index == 0 if dual_axis_split_line_primary_only else True
+            axis_color = str(axis_series_colors.get(axis_index) or axis_line_color if dual_axis_enabled else axis_line_color)
+            label_color = axis_color if dual_axis_enabled else muted_text_color
             axis_option = {
                 "type": "value",
                 "name": axis.get("name") or "",
@@ -5488,16 +5497,17 @@ class ReportBuilderService:
                 "nameLocation": "end",
                 "nameGap": int(merged_axis_cfg.get("nameGap") or default_name_gap),
                 "nameTextStyle": {
-                    "color": muted_text_color,
+                    "color": label_color,
                     "fontSize": 9,
                     "padding": merged_axis_cfg.get("nameTextPadding") or default_padding,
                 },
                 "axisLabel": {
-                    "color": muted_text_color,
+                    "color": label_color,
                     "fontSize": int(merged_axis_cfg.get("fontSize") or 9),
                     "margin": int(merged_axis_cfg.get("labelMargin") or default_label_margin),
                 },
-                "axisLine": {"show": dual_axis_axis_line_show, "lineStyle": {"color": axis_line_color}},
+                "axisLine": {"show": dual_axis_axis_line_show, "lineStyle": {"color": axis_color}},
+                "axisTick": {"show": dual_axis_axis_line_show, "lineStyle": {"color": axis_color}},
                 "splitLine": {"show": split_line_show, "lineStyle": {"color": split_line_color}},
             }
             if dual_axis_scale_override:
