@@ -1108,10 +1108,130 @@
                 },
                 "grid": {
                   "left": 20,
-                  "right": 0,
+                  "right": 5,
                   "top": 25,
                   "bottom": 20,
                   "containLabel": true
+                },
+                "periodicChillerSummary": {
+                  "legend": {
+                    "top": 6,
+                    "left": "center"
+                  },
+                  "grid": {
+                    "bottom": 25
+                  }
+                },
+                "periodicPages": {
+                  "page1": {
+                    "summary": {
+                      "legend": {
+                        "top": 6,
+                        "left": "center"
+                      },
+                      "grid": {
+                        "bottom": 25
+                      },
+                      "xAxis": {
+                        "axisLabel": {
+                          "rotate": 32,
+                          "margin": 12,
+                          "interval": 0,
+                          "lineHeight": 11
+                        }
+                      }
+                    },
+                    "dualAxis": {
+                      "legend": {
+                        "bottom": "center"
+                      },
+                      "grid": {
+                        "left": 38,
+                        "right": 14,
+                        "top": 25,
+                        "bottom": 35,
+                        "containLabel": false
+                      },
+                      "xAxis": {
+                        "axisLabel": {
+                          "rotate": 32,
+                          "margin": 12,
+                          "interval": 0,
+                          "lineHeight": 11
+                        }
+                      },
+                      "leftAxis": {
+                        "scale": {
+                          "preferZeroFloor": true,
+                          "maxDecimals": 0,
+                          "targetTickCount": 4
+                        }
+                      },
+                      "rightAxis": {
+                        "scale": {
+                          "preferZeroFloor": false,
+                          "maxDecimals": 1,
+                          "targetTickCount": 4
+                        }
+                      }
+                    }
+                  },
+                  "page2": {
+                    "summary": {
+                      "legend": {
+                        "bottom": "center"
+                      },
+                      "grid": {
+                        "left": 20,
+                        "right": 5,
+                        "top": 25,
+                        "bottom": 20,
+                        "containLabel": true
+                      },
+                      "xAxis": {
+                        "axisLabel": {
+                          "rotate": 32,
+                          "margin": 12,
+                          "interval": 0,
+                          "lineHeight": 11
+                        }
+                      }
+                    },
+                    "dualAxis": {
+                      "legend": {
+                        "bottom": "center"
+                      },
+                      "grid": {
+                        "left": 38,
+                        "right": 14,
+                        "top": 25,
+                        "bottom": 35,
+                        "containLabel": false
+                      },
+                      "xAxis": {
+                        "axisLabel": {
+                          "rotate": 32,
+                          "margin": 12,
+                          "interval": 0,
+                          "lineHeight": 11
+                        }
+                      },
+                      "leftAxis": {
+                        "scale": {
+                          "preferZeroFloor": true,
+                          "maxDecimals": 0,
+                          "targetTickCount": 4
+                        }
+                      },
+                      "rightAxis": {
+                        "scale": {
+                          "preferZeroFloor": false,
+                          "maxDecimals": 1,
+                          "targetTickCount": 4
+                        }
+                      }
+                    }
+                  }
                 },
                 "dualAxis": {
                   "legend": {
@@ -1164,11 +1284,47 @@
                       "borderRadius": 4,
                       "backgroundColor": "rgba(255,255,255,0.92)"
                     }
+                  },
+                  "periodicChillerDualAxis": {
+                    "leftAxis": {
+                      "scale": {
+                        "preferZeroFloor": true,
+                        "maxDecimals": 0,
+                        "targetTickCount": 4
+                      }
+                    },
+                    "rightAxis": {
+                      "scale": {
+                        "preferZeroFloor": false,
+                        "maxDecimals": 1,
+                        "targetTickCount": 4
+                      }
+                    }
                   }
                 },
                 "height": {
                   "view": "280px",
-                  "pdf": "140px"
+                  "pdf": "140px",
+                  "periodicDualAxis": {
+                    "view": "308px",
+                    "pdf": "140px"
+                  },
+                  "periodicPage1Summary": {
+                    "view": "280px",
+                    "pdf": "140px"
+                  },
+                  "periodicPage1DualAxis": {
+                    "view": "308px",
+                    "pdf": "140px"
+                  },
+                  "periodicPage2Summary": {
+                    "view": "280px",
+                    "pdf": "140px"
+                  },
+                  "periodicPage2DualAxis": {
+                    "view": "280px",
+                    "pdf": "140px"
+                  }
                 }
               },
               "deviation": {

@@ -231,7 +231,34 @@ def test_period_sensor_monitoring_context_builds_full_period_cluster_trends() ->
 
 def test_period_sensor_rendered_cluster_charts_use_date_axis_labels() -> None:
     service = ReportBuilderService()
-    service._style_config = {}
+    service._style_config = {
+        "components": {
+            "report": {
+                "section": {
+                    "utility": {
+                        "chart": {
+                            "sensorCluster": {
+                                "periodicPages": {
+                                    "page2": {
+                                        "summary": {
+                                            "xAxis": {
+                                                "axisLabel": {
+                                                    "rotate": 18,
+                                                    "margin": 10,
+                                                    "interval": 0,
+                                                    "lineHeight": 13,
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     service._render_mode = "html"
 
     rendered_clusters = service._build_v3_period_sensor_trend_clusters(
@@ -274,10 +301,192 @@ def test_period_sensor_rendered_cluster_charts_use_date_axis_labels() -> None:
                     ],
                 }
             ],
-        }
+        },
+        period_type="weekly",
     )
 
-    assert rendered_clusters[0]["charts"][0]["option"]["xAxis"]["data"] == ["05/01", "05/02"]
+    chart = rendered_clusters[0]["charts"][0]
+    x_axis = chart["option"]["xAxis"]
+    assert chart["periodic_page_variant"] == "page2"
+    assert x_axis["data"] == ["May 1 (Thu)", "May 2 (Fri)"]
+    assert x_axis["axisLabel"]["interval"] == 0
+    assert x_axis["axisLabel"]["rotate"] == 18
+    assert x_axis["axisLabel"]["margin"] == 10
+
+
+def test_period_sensor_chiller_cluster_dual_axis_chart_rounds_axis_ticks_and_centers_summary_legends() -> None:
+    service = ReportBuilderService()
+    service._style_config = {
+        "components": {
+            "report": {
+                "section": {
+                    "utility": {
+                        "chart": {
+                            "sensorCluster": {
+                                "periodicPages": {
+                                    "page1": {
+                                        "summary": {
+                                            "legend": {"top": 12, "left": "center"},
+                                            "grid": {"bottom": 31},
+                                            "xAxis": {"axisLabel": {"rotate": 24, "margin": 9, "interval": 0}},
+                                        },
+                                        "dualAxis": {
+                                            "legend": {"left": "center", "bottom": 0},
+                                            "grid": {"bottom": 29},
+                                            "xAxis": {"axisLabel": {"rotate": 24, "margin": 9, "interval": 0}},
+                                            "leftAxis": {
+                                                "scale": {
+                                                    "preferZeroFloor": True,
+                                                    "maxDecimals": 0,
+                                                    "targetTickCount": 2,
+                                                }
+                                            },
+                                            "rightAxis": {
+                                                "scale": {
+                                                    "preferZeroFloor": False,
+                                                    "maxDecimals": 0,
+                                                    "targetTickCount": 4,
+                                                }
+                                            },
+                                        },
+                                    }
+                                },
+                                "periodicChillerSummary": {
+                                    "legend": {"top": 6, "left": "center"},
+                                    "grid": {"bottom": 25},
+                                },
+                                "dualAxis": {
+                                    "periodicChillerDualAxis": {
+                                        "leftAxis": {
+                                            "scale": {
+                                                "preferZeroFloor": True,
+                                                "maxDecimals": 0,
+                                                "targetTickCount": 2,
+                                            }
+                                        },
+                                        "rightAxis": {
+                                            "scale": {
+                                                "preferZeroFloor": False,
+                                                "maxDecimals": 0,
+                                                "targetTickCount": 4,
+                                            }
+                                        },
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    service._render_mode = "html"
+
+    rendered_clusters = service._build_v3_period_sensor_trend_clusters(
+        {
+            "trend_mode": "aggregate_only",
+            "period_trend_clusters": [
+                {
+                    "cluster_key": "ico_chiller",
+                    "cluster_label": "ICO Chiller",
+                    "accent_color": "#84cc16",
+                    "accent_tint": "rgba(132, 204, 22, 0.08)",
+                    "sensor_count": 5,
+                    "active_sensor_count": 5,
+                    "alert_count": 1,
+                    "charts": [
+                        {
+                            "chart_key": "ico_chiller_temperature",
+                            "title": "Temperature trend",
+                            "measurement_type": "temperature",
+                            "unit": "°C",
+                            "series": [
+                                {
+                                    "sensor_key": "ich_rettemp",
+                                    "label": "Return Temp",
+                                    "points": [
+                                        {"ts": "2025-05-12", "value": 25.2},
+                                        {"ts": "2025-05-13", "value": 29.7},
+                                        {"ts": "2025-05-14", "value": 34.1},
+                                    ],
+                                }
+                            ],
+                        },
+                        {
+                            "chart_key": "ico_chiller_flow",
+                            "title": "Flow trend",
+                            "measurement_type": "flow",
+                            "unit": "kg/h",
+                            "series": [
+                                {
+                                    "sensor_key": "ich_supflow",
+                                    "label": "Supply Flow",
+                                    "points": [
+                                        {"ts": "2025-05-12", "value": 500.0},
+                                        {"ts": "2025-05-13", "value": 1700.0},
+                                        {"ts": "2025-05-14", "value": 2912.8},
+                                    ],
+                                }
+                            ],
+                        },
+                        {
+                            "chart_key": "ico_chiller_pressure",
+                            "title": "Pressure trend",
+                            "measurement_type": "pressure",
+                            "unit": "bar",
+                            "series": [
+                                {
+                                    "sensor_key": "ich_suppress",
+                                    "label": "Supply Pressure",
+                                    "points": [
+                                        {"ts": "2025-05-12", "value": 1.7},
+                                        {"ts": "2025-05-13", "value": 0.9},
+                                        {"ts": "2025-05-14", "value": 0.3},
+                                    ],
+                                }
+                            ],
+                        },
+                        {
+                            "chart_key": "ico_chiller_capacity",
+                            "title": "Capacity trend",
+                            "measurement_type": "capacity",
+                            "unit": "kW",
+                            "series": [
+                                {
+                                    "sensor_key": "ich_coolingcap",
+                                    "label": "Cooling Capacity",
+                                    "points": [
+                                        {"ts": "2025-05-12", "value": 3500.0},
+                                        {"ts": "2025-05-13", "value": 126440.2},
+                                        {"ts": "2025-05-14", "value": -179.2},
+                                    ],
+                                }
+                            ],
+                        },
+                    ],
+                }
+            ],
+        },
+        period_type="weekly",
+    )
+
+    charts = rendered_clusters[0]["charts"]
+    summary_charts = [chart for chart in charts if not chart.get("is_full_width")]
+    dual_axis_chart = next(chart for chart in charts if chart.get("is_periodic_dual_axis_chart"))
+
+    assert len(summary_charts) == 2
+    assert all(chart["periodic_page_variant"] == "page1" for chart in charts)
+    assert all(chart["option"]["legend"]["left"] == "center" for chart in summary_charts)
+    assert all(chart["option"]["legend"]["top"] == 12 for chart in summary_charts)
+    assert all(chart["option"]["grid"]["bottom"] == 31 for chart in summary_charts)
+    assert all(chart["option"]["xAxis"]["axisLabel"]["rotate"] == 24 for chart in summary_charts)
+    assert dual_axis_chart["option"]["legend"]["left"] == "center"
+    assert dual_axis_chart["option"]["legend"]["bottom"] == 0
+    assert dual_axis_chart["option"]["grid"]["bottom"] == 29
+    assert dual_axis_chart["option"]["xAxis"]["axisLabel"]["rotate"] == 24
+    assert dual_axis_chart["option"]["yAxis"][0]["interval"] == 2000.0
+    assert dual_axis_chart["option"]["yAxis"][1]["interval"] == 1.0
+    assert dual_axis_chart["option"]["yAxis"][1]["max"] == 2.0
 
 
 def test_period_sensor_detail_tables_cover_all_sensor_groups() -> None:
@@ -384,6 +593,11 @@ def test_period_sensor_templates_keep_cluster_trends_below_detail_table() -> Non
     assert 'utility-sensor-section-label-title">Overview cards<' in pdf_template
     assert 'utility-sensor-section-label-title">Sensor avg cards<' in pdf_template
     assert 'utility-sensor-section-label-title">Daily Max / Avg detail<' in pdf_template
+    assert 'utility-sensor-section-label-title">Sensor trend by cluster<' in pdf_template
+    assert 'is-periodic-dual-axis-chart' in pdf_template
+    assert 'is-periodic-axis-chart' in view_template
+    assert 'is-periodic-trend-{{ chart.periodic_page_variant }}' in view_template
+    assert 'is-periodic-trend-{{ chart.periodic_page_variant }}' in pdf_template
     assert 'utility-sensor-period-detail-pages' in pdf_template
     assert 'utility-sensor-period-detail-page pdf-keep-together' in pdf_template
     assert 'page_size = 2' in pdf_template
@@ -395,6 +609,15 @@ def test_period_sensor_templates_keep_cluster_trends_below_detail_table() -> Non
     assert '.utility-sensor-period-detail-card' in report_pdf_css
     assert '.utility-sensor-period-group-head' in report_pdf_css
     assert '.utility-sensor-line-badge' in report_pdf_css
+    assert '.utility-sensor-section-label-block.is-trend-cluster' in report_css
+    assert '.utility-sensor-section-label-block.is-trend-cluster' in report_pdf_css
+    assert '.utility-sensor-trend-card.is-periodic-trend-page1 .utility-sensor-trend-chart' in report_css
+    assert '.utility-sensor-trend-card.is-periodic-trend-page2 .utility-sensor-trend-chart' in report_css
+    assert '.utility-sensor-trend-card.is-periodic-trend-page1 .utility-sensor-trend-chart' in report_pdf_css
+    assert '.utility-sensor-trend-card.is-periodic-trend-page2 .utility-sensor-trend-chart' in report_pdf_css
+    assert 'periodicPages' in (PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8")
+    assert 'periodicPage1Summary' in (PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8")
+    assert 'periodicPage2Summary' in (PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8")
     assert '.utility-sensor-period-detail-table tbody tr.is-weekend td' in report_pdf_css
     assert '.utility-sensor-period-detail-pages {' in report_pdf_css
     assert '.utility-sensor-period-detail-page {' in report_pdf_css

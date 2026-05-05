@@ -1017,11 +1017,11 @@
 
                 {% if sensor_monitoring.period_trend_clusters_render %}
                 <div class="utility-sensor-trend-preview-block">
-                    <div class="utility-sensor-trend-preview-head">
+                    <div class="utility-sensor-section-label-block is-trend-cluster">
                         <div>
-                            <h4 class="utility-sensor-anomaly-title">Sensor trend by cluster</h4>
-                            <p class="utility-sensor-subtitle">
-                                Daily average signal across the full reporting period, grouped like the daily template
+                            <h4 class="utility-sensor-section-label-title">Sensor trend by cluster</h4>
+                            <p class="utility-sensor-section-label-note">
+                                Daily average signal across the full reporting period, grouped like the daily template.
                             </p>
                         </div>
                     </div>
@@ -1046,7 +1046,7 @@
 
                             <div class="utility-sensor-trend-preview-grid {% if cluster.chart_count == 1 %}is-single{% endif %}">
                                 {% for chart in cluster.charts %}
-                                <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card {% if chart.is_full_width %}is-full-width{% endif %}">
+                                <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card {% if chart.is_full_width %}is-full-width{% endif %}{% if chart.is_periodic_axis_chart %} is-periodic-axis-chart{% endif %}{% if chart.is_periodic_dual_axis_chart %} is-periodic-dual-axis-chart{% endif %}{% if chart.periodic_page_variant %} is-periodic-trend-{{ chart.periodic_page_variant }}{% endif %}">
                                     <h3 class="electricity-chart-card-title">{{ chart.title }}</h3>
                                     <p class="electricity-chart-card-subtitle">{{ chart.subtitle }}</p>
                                     <div id="{{ chart.chart_id }}" class="electricity-chart utility-sensor-trend-chart"></div>

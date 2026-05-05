@@ -696,12 +696,26 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
 
     assert sensor_cluster["height"]["view"] == "280px"
     assert sensor_cluster["height"]["pdf"] == "140px"
+    assert sensor_cluster["height"]["periodicDualAxis"]["view"] == "308px"
+    assert sensor_cluster["height"]["periodicDualAxis"]["pdf"] == "140px"
+    assert sensor_cluster["height"]["periodicPage1Summary"]["view"] == "280px"
+    assert sensor_cluster["height"]["periodicPage1DualAxis"]["view"] == "308px"
+    assert sensor_cluster["height"]["periodicPage2Summary"]["pdf"] == "140px"
+    assert sensor_cluster["height"]["periodicPage2DualAxis"]["pdf"] == "140px"
+    assert sensor_cluster["periodicChillerSummary"]["legend"] == {"top": 6, "left": "center"}
+    assert sensor_cluster["periodicChillerSummary"]["grid"]["bottom"] == 25
+    assert sensor_cluster["periodicPages"]["page1"]["summary"]["legend"] == {"top": 6, "left": "center"}
+    assert sensor_cluster["periodicPages"]["page1"]["dualAxis"]["grid"]["bottom"] == 35
+    assert sensor_cluster["periodicPages"]["page2"]["summary"]["xAxis"]["axisLabel"]["rotate"] == 32
+    assert sensor_cluster["periodicPages"]["page2"]["dualAxis"]["legend"]["bottom"] == "center"
     assert dual_axis["grid"] == {"left": 38, "right": 14, "top": 25, "bottom": 35, "containLabel": False}
     assert dual_axis["legend"]["bottom"] == "center"
     assert dual_axis["leftAxis"]["nameGap"] == 12
     assert dual_axis["rightAxis"]["nameGap"] == 2
     assert dual_axis["series"]["lineWidth"] == 2.2
     assert dual_axis["markPoint"]["label"]["fontSize"] == 9
+    assert dual_axis["periodicChillerDualAxis"]["leftAxis"]["scale"]["targetTickCount"] == 4
+    assert dual_axis["periodicChillerDualAxis"]["rightAxis"]["scale"]["maxDecimals"] == 1
     assert utility_chart_cfg["typeTrend"]["legend"]["bottom"] == "center"
     assert period_insight_heatmap["height"]["view"] == "252px"
     assert period_insight_mix["height"]["view"] == "276px"

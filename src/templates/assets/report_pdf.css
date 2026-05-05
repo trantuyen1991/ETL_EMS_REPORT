@@ -1818,6 +1818,10 @@
         border-left: 3px solid #7c3aed !important;
     }
 
+    .utility-sensor-section-label-block.is-trend-cluster {
+        border-left: 3px solid #0f766e !important;
+    }
+
     .utility-sensor-statline {
         gap: 5px !important;
         margin-bottom: 6px !important;
@@ -2973,6 +2977,22 @@
 
     .utility-sensor-trend-cluster .utility-sensor-trend-chart {
         height: var(--report-components-report-section-utility-chart-sensor-cluster-height-pdf, 190px) !important;
+    }
+
+    .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page1 .utility-sensor-trend-chart {
+        height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page-1-summary-pdf, var(--report-components-report-section-utility-chart-sensor-cluster-height-pdf, 190px)) !important;
+    }
+
+    .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page1.is-periodic-dual-axis-chart .utility-sensor-trend-chart {
+        height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page-1-dual-axis-pdf, var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-dual-axis-pdf, calc(var(--report-components-report-section-utility-chart-sensor-cluster-height-pdf, 190px) * 1.1))) !important;
+    }
+
+    .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page2 .utility-sensor-trend-chart {
+        height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page-2-summary-pdf, var(--report-components-report-section-utility-chart-sensor-cluster-height-pdf, 190px)) !important;
+    }
+
+    .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page2.is-periodic-dual-axis-chart .utility-sensor-trend-chart {
+        height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page-2-dual-axis-pdf, var(--report-components-report-section-utility-chart-sensor-cluster-height-pdf, 190px)) !important;
     }
 
     .utility-sensor-trend-preview-grid.is-single .utility-sensor-trend-card {

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import math
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -2727,7 +2728,10 @@ class ReportBuilderService:
         }
         sensor_monitoring["trend_clusters_render"] = self._build_v3_sensor_trend_clusters(sensor_monitoring)
         sensor_monitoring["period_trend_charts_render"] = []
-        sensor_monitoring["period_trend_clusters_render"] = self._build_v3_period_sensor_trend_clusters(sensor_monitoring)
+        sensor_monitoring["period_trend_clusters_render"] = self._build_v3_period_sensor_trend_clusters(
+            sensor_monitoring,
+            period_type=str(period.get("type") or "").strip().lower(),
+        )
 
         return {
             "title": "UTILITY OVERVIEW",
@@ -4940,9 +4944,21 @@ class ReportBuilderService:
 
         return rendered_charts
 
+    def _resolve_periodic_sensor_cluster_page_variant(
+        self,
+        cluster_key: str,
+    ) -> str:
+        """Return page config variant for one periodic sensor-cluster block."""
+        normalized_key = str(cluster_key or "").strip().lower()
+        if normalized_key in {"ico_chiller", "diode_chiller"}:
+            return "page1"
+        return "page2"
+
     def _build_v3_period_sensor_trend_clusters(
         self,
         sensor_monitoring: Dict[str, Any],
+        *,
+        period_type: str = "",
     ) -> list[dict[str, Any]]:
         """Build rendered daily-average trend clusters for periodic utility UI."""
         trend_mode = str(sensor_monitoring.get("trend_mode") or "").strip().lower()
@@ -4956,7 +4972,11 @@ class ReportBuilderService:
         default_accent = palette[0]
         default_accent_tint = self._hex_to_rgba(default_accent, 0.08)
         for cluster in trend_clusters:
-            rendered_charts = self._build_v3_sensor_trend_cluster_charts(cluster)
+            rendered_charts = self._build_v3_sensor_trend_cluster_charts(
+                cluster,
+                axis_label_mode="periodic",
+                period_type=period_type,
+            )
             if not rendered_charts:
                 continue
 
@@ -5013,6 +5033,9 @@ class ReportBuilderService:
     def _build_v3_sensor_trend_cluster_charts(
         self,
         cluster: Dict[str, Any],
+        *,
+        axis_label_mode: str = "intraday",
+        period_type: str = "",
     ) -> list[dict[str, Any]]:
         """Build display charts for one sensor cluster."""
         raw_charts = cluster.get("charts") or []
@@ -5025,6 +5048,7 @@ class ReportBuilderService:
         cluster_label = cluster.get("cluster_label") or "Sensor cluster"
         cluster_key = str(cluster.get("cluster_key") or "").strip().lower()
         full_width_flow_pressure = cluster_key in {"ico_chiller", "diode_chiller"}
+        periodic_page_variant = self._resolve_periodic_sensor_cluster_page_variant(cluster_key) if axis_label_mode == "periodic" else ""
 
         temperature_chart = chart_lookup.get("temperature")
         if temperature_chart and (temperature_chart.get("series") or []):
@@ -5033,6 +5057,8 @@ class ReportBuilderService:
                 "chart_key": f"{cluster.get('cluster_key')}_temperature",
                 "title": "Temperature trend",
                 "subtitle": f"{cluster_label} · {temperature_chart.get('unit') or '-'}",
+                "is_periodic_axis_chart": axis_label_mode == "periodic",
+                "periodic_page_variant": periodic_page_variant,
                 "option": self._build_v3_sensor_intraday_option(
                     temperature_chart,
                     y_axes=[
@@ -5044,6 +5070,10 @@ class ReportBuilderService:
                             ],
                         }
                     ],
+                    axis_label_mode=axis_label_mode,
+                    period_type=period_type,
+                    chart_variant="periodic_chiller_summary" if (axis_label_mode == "periodic" and full_width_flow_pressure) else "",
+                    page_variant=periodic_page_variant,
                 ),
             })
 
@@ -5095,7 +5125,17 @@ class ReportBuilderService:
                 "title": combo_title,
                 "subtitle": combo_subtitle,
                 "is_full_width": full_width_flow_pressure,
-                "option": self._build_v3_sensor_intraday_option(combo_chart, y_axes=y_axes),
+                "is_periodic_axis_chart": axis_label_mode == "periodic",
+                "is_periodic_dual_axis_chart": axis_label_mode == "periodic" and full_width_flow_pressure,
+                "periodic_page_variant": periodic_page_variant,
+                "option": self._build_v3_sensor_intraday_option(
+                    combo_chart,
+                    y_axes=y_axes,
+                    axis_label_mode=axis_label_mode,
+                    period_type=period_type,
+                    chart_variant="periodic_dual_axis" if (axis_label_mode == "periodic" and full_width_flow_pressure) else "",
+                    page_variant=periodic_page_variant,
+                ),
             }
         else:
             combo_rendered_chart = None
@@ -5107,6 +5147,8 @@ class ReportBuilderService:
                 "chart_key": f"{cluster.get('cluster_key')}_capacity",
                 "title": "Capacity trend",
                 "subtitle": f"{cluster_label} · {capacity_chart.get('unit') or '-'}",
+                "is_periodic_axis_chart": axis_label_mode == "periodic",
+                "periodic_page_variant": periodic_page_variant,
                 "option": self._build_v3_sensor_intraday_option(
                     capacity_chart,
                     y_axes=[
@@ -5118,6 +5160,10 @@ class ReportBuilderService:
                             ],
                         }
                     ],
+                    axis_label_mode=axis_label_mode,
+                    period_type=period_type,
+                    chart_variant="periodic_chiller_summary" if (axis_label_mode == "periodic" and full_width_flow_pressure) else "",
+                    page_variant=periodic_page_variant,
                 ),
             }
         else:
@@ -5140,6 +5186,10 @@ class ReportBuilderService:
         chart: Dict[str, Any],
         *,
         y_axes: list[dict[str, Any]] | None = None,
+        axis_label_mode: str = "intraday",
+        period_type: str = "",
+        chart_variant: str = "",
+        page_variant: str = "",
     ) -> Dict[str, Any]:
         """Build one intraday sensor line chart from raw timestamp points."""
         series_items = chart.get("series") or []
@@ -5154,7 +5204,11 @@ class ReportBuilderService:
         if not all_timestamps:
             all_timestamps = ["-"]
 
-        formatted_labels = [self._build_v3_intraday_axis_label(ts_value) for ts_value in all_timestamps]
+        normalized_axis_label_mode = str(axis_label_mode or "intraday").strip().lower()
+        if normalized_axis_label_mode == "periodic":
+            formatted_labels = [self._format_periodic_axis_date_label(ts_value, period_type) for ts_value in all_timestamps]
+        else:
+            formatted_labels = [self._build_v3_intraday_axis_label(ts_value) for ts_value in all_timestamps]
         palette = self._get_chart_palette()
         muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
@@ -5178,6 +5232,41 @@ class ReportBuilderService:
         dual_axis_split_line = self._get_chart_config_branch("splitLine", *dual_axis_path) if dual_axis_enabled else {}
         dual_axis_series = self._get_chart_config_branch("series", *dual_axis_path) if dual_axis_enabled else {}
         dual_axis_mark_point = self._get_chart_config_branch("markPoint", *dual_axis_path) if dual_axis_enabled else {}
+        normalized_chart_variant = str(chart_variant or "").strip().lower()
+        normalized_page_variant = str(page_variant or "").strip().lower()
+        page_chart_family = "dualAxis" if dual_axis_enabled else "summary"
+        page_variant_path = (
+            "utility",
+            "sensorCluster",
+            "periodicPages",
+            normalized_page_variant,
+            page_chart_family,
+        ) if normalized_page_variant else ()
+        page_legend_cfg = self._get_chart_config_branch("legend", *page_variant_path) if page_variant_path else {}
+        page_grid_cfg = self._get_chart_config_branch("grid", *page_variant_path) if page_variant_path else {}
+        page_x_axis_cfg = self._get_chart_config_branch("xAxis", *page_variant_path) if page_variant_path else {}
+        page_x_axis_label_cfg = dict(page_x_axis_cfg.get("axisLabel") or {}) if isinstance(page_x_axis_cfg, dict) else {}
+        page_left_axis_cfg = self._get_chart_config_branch("leftAxis", *page_variant_path) if page_variant_path else {}
+        page_right_axis_cfg = self._get_chart_config_branch("rightAxis", *page_variant_path) if page_variant_path else {}
+        dual_axis_variant_name = "periodicChillerDualAxis" if normalized_chart_variant == "periodic_dual_axis" else ""
+        dual_axis_variant_node = (
+            self._get_chart_variant_mode_node(dual_axis_variant_name, *dual_axis_path)
+            if dual_axis_enabled and dual_axis_variant_name
+            else {}
+        )
+        dual_axis_left_axis_variant = (
+            dual_axis_variant_node.get("leftAxis") if isinstance(dual_axis_variant_node.get("leftAxis"), dict) else {}
+        )
+        dual_axis_right_axis_variant = (
+            dual_axis_variant_node.get("rightAxis") if isinstance(dual_axis_variant_node.get("rightAxis"), dict) else {}
+        )
+        summary_variant_name = "periodicChillerSummary" if normalized_chart_variant == "periodic_chiller_summary" else ""
+        summary_variant_node = (
+            self._get_chart_variant_mode_node(summary_variant_name, "utility", "sensorCluster")
+            if summary_variant_name
+            else {}
+        )
+        dual_axis_scale_override = dual_axis_enabled and normalized_chart_variant == "periodic_dual_axis"
         dual_axis_mark_point_label = (
             dict(dual_axis_mark_point.get("label") or {})
             if isinstance(dual_axis_mark_point, dict)
@@ -5201,6 +5290,63 @@ class ReportBuilderService:
             for sensor_key in axis.get("series_keys") or []:
                 series_axis_map[str(sensor_key)] = axis_index
 
+        def build_axis_scale(
+            values: list[float],
+            *,
+            prefer_zero_floor: bool = False,
+            max_decimals: int = 1,
+            target_tick_count: int = 4,
+        ) -> dict[str, float]:
+            numeric_values = [float(value) for value in values if isinstance(value, (int, float))]
+            if not numeric_values:
+                return {}
+
+            min_value = min(numeric_values)
+            max_value = max(numeric_values)
+            if prefer_zero_floor and min_value >= 0:
+                min_value = 0.0
+
+            span = max_value - min_value
+            if span <= 1e-9:
+                baseline = abs(max_value) if abs(max_value) > 1e-9 else 1.0
+                span = baseline
+                max_value = max_value + (baseline * 0.2)
+                if prefer_zero_floor and min_value >= 0:
+                    min_value = 0.0
+                else:
+                    min_value = min_value - (baseline * 0.2)
+
+            safe_tick_count = max(2, int(target_tick_count or 4))
+            rough_step = max(span / float(safe_tick_count), 10 ** (-max_decimals))
+            magnitude = 10 ** math.floor(math.log10(abs(rough_step))) if abs(rough_step) > 1e-12 else 1.0
+            normalized_step = rough_step / magnitude
+            if normalized_step <= 1:
+                nice_step = 1.0
+            elif normalized_step <= 2:
+                nice_step = 2.0
+            elif normalized_step <= 2.5:
+                nice_step = 2.5
+            elif normalized_step <= 5:
+                nice_step = 5.0
+            else:
+                nice_step = 10.0
+
+            interval = round(nice_step * magnitude, max_decimals)
+            if interval <= 0:
+                interval = round(max(rough_step, 10 ** (-max_decimals)), max_decimals)
+
+            axis_min = math.floor(min_value / interval) * interval
+            axis_max = math.ceil(max_value / interval) * interval
+            if prefer_zero_floor and axis_min > 0:
+                axis_min = 0.0
+
+            return {
+                "min": round(axis_min, max_decimals),
+                "max": round(axis_max, max_decimals),
+                "interval": round(interval, max_decimals),
+            }
+
+        axis_numeric_values: dict[int, list[float]] = {}
         option_series: list[dict[str, Any]] = []
         for series in series_items:
             point_lookup = {
@@ -5222,6 +5368,9 @@ class ReportBuilderService:
                 for point_index, point_value in enumerate(series_data)
                 if isinstance(point_value, (int, float))
             ]
+            axis_index = int(series_axis_map.get(sensor_key, 0))
+            if numeric_points:
+                axis_numeric_values.setdefault(axis_index, []).extend(point_value for _point_index, point_value in numeric_points)
             mark_points: list[dict[str, Any]] = []
 
             if numeric_points:
@@ -5292,7 +5441,7 @@ class ReportBuilderService:
                     "focus": "series",
                 },
                 "connectNulls": False,
-                "yAxisIndex": int(series_axis_map.get(sensor_key, 0)),
+                "yAxisIndex": axis_index,
                 "data": series_data,
                 "markPoint": {
                     "symbol": "circle",
@@ -5308,40 +5457,68 @@ class ReportBuilderService:
         for axis_index, axis in enumerate(axis_list):
             is_right_axis = axis_index > 0
             axis_cfg = dual_axis_right_axis if (dual_axis_enabled and is_right_axis) else dual_axis_left_axis if dual_axis_enabled else {}
+            axis_page_cfg = page_right_axis_cfg if (dual_axis_enabled and is_right_axis) else page_left_axis_cfg if dual_axis_enabled else {}
+            merged_axis_cfg = dict(axis_cfg or {})
+            if isinstance(axis_page_cfg, dict):
+                for merge_key, merge_value in axis_page_cfg.items():
+                    if merge_key == "scale":
+                        continue
+                    if merge_value is not None:
+                        merged_axis_cfg[merge_key] = merge_value
+            axis_variant_cfg = dual_axis_right_axis_variant if (dual_axis_enabled and is_right_axis) else dual_axis_left_axis_variant if dual_axis_enabled else {}
             default_name_gap = 2 if is_right_axis else 12
             default_label_margin = 0 if is_right_axis else 8
             default_padding = [0, 0, 0, 0] if is_right_axis else [16, 0, 0, 0]
             split_line_show = axis_index == 0 if dual_axis_split_line_primary_only else True
-            option_y_axes.append({
+            axis_option = {
                 "type": "value",
                 "name": axis.get("name") or "",
-                "position": str(axis_cfg.get("position") or ("right" if is_right_axis else "left")),
-                "offset": int(axis_cfg.get("offset") or 0),
+                "position": str(merged_axis_cfg.get("position") or ("right" if is_right_axis else "left")),
+                "offset": int(merged_axis_cfg.get("offset") or 0),
                 "alignTicks": True if dual_axis_enabled else False,
                 "nameLocation": "end",
-                "nameGap": int(axis_cfg.get("nameGap") or default_name_gap),
+                "nameGap": int(merged_axis_cfg.get("nameGap") or default_name_gap),
                 "nameTextStyle": {
                     "color": muted_text_color,
                     "fontSize": 9,
-                    "padding": axis_cfg.get("nameTextPadding") or default_padding,
+                    "padding": merged_axis_cfg.get("nameTextPadding") or default_padding,
                 },
                 "axisLabel": {
                     "color": muted_text_color,
-                    "fontSize": int(axis_cfg.get("fontSize") or 9),
-                    "margin": int(axis_cfg.get("labelMargin") or default_label_margin),
+                    "fontSize": int(merged_axis_cfg.get("fontSize") or 9),
+                    "margin": int(merged_axis_cfg.get("labelMargin") or default_label_margin),
                 },
                 "axisLine": {"show": dual_axis_axis_line_show, "lineStyle": {"color": axis_line_color}},
                 "splitLine": {"show": split_line_show, "lineStyle": {"color": split_line_color}},
-            })
+            }
+            if dual_axis_scale_override:
+                scale_cfg = axis_variant_cfg.get("scale") if isinstance(axis_variant_cfg.get("scale"), dict) else {}
+                if not scale_cfg and isinstance(axis_page_cfg.get("scale"), dict):
+                    scale_cfg = axis_page_cfg.get("scale") or {}
+                scale = build_axis_scale(
+                    axis_numeric_values.get(axis_index, []),
+                    prefer_zero_floor=bool(scale_cfg.get("preferZeroFloor")) if scale_cfg.get("preferZeroFloor") is not None else (not is_right_axis),
+                    max_decimals=int(scale_cfg.get("maxDecimals")) if scale_cfg.get("maxDecimals") is not None else (1 if is_right_axis else 0),
+                    target_tick_count=int(scale_cfg.get("targetTickCount")) if scale_cfg.get("targetTickCount") is not None else 4,
+                )
+                if scale:
+                    axis_option["min"] = scale["min"]
+                    axis_option["max"] = scale["max"]
+                    axis_option["interval"] = scale["interval"]
+            option_y_axes.append(axis_option)
+
+        default_grid = {
+            "left": 38,
+            "right": 0,
+            "top": 38,
+            "bottom": 28,
+            "containLabel": True,
+        }
+        if normalized_axis_label_mode == "periodic":
+            default_grid["bottom"] = 48
 
         grid_option = self._resolve_chart_grid(
-            {
-                "left": 38,
-                "right": 0,
-                "top": 38,
-                "bottom": 28,
-                "containLabel": True,
-            },
+            default_grid,
             *(dual_axis_path if dual_axis_enabled else ("utility", "sensorCluster")),
         )
 
@@ -5355,16 +5532,52 @@ class ReportBuilderService:
             },
             *(dual_axis_path if dual_axis_enabled else ("utility", "sensorCluster")),
         )
+        if isinstance(page_legend_cfg, dict) and page_legend_cfg:
+            for legend_key, legend_value in page_legend_cfg.items():
+                if legend_value is not None:
+                    legend_option[legend_key] = legend_value
+            if page_legend_cfg.get("left") is not None:
+                legend_option.pop("right", None)
+            if page_legend_cfg.get("top") is not None:
+                legend_option.pop("bottom", None)
+            if page_legend_cfg.get("bottom") is not None:
+                legend_option.pop("top", None)
+        if isinstance(page_grid_cfg, dict) and page_grid_cfg:
+            for grid_key in ("left", "right", "top", "bottom", "containLabel"):
+                if page_grid_cfg.get(grid_key) is not None:
+                    grid_option[grid_key] = page_grid_cfg.get(grid_key)
+
+        if normalized_chart_variant == "periodic_chiller_summary":
+            summary_legend_cfg = summary_variant_node.get("legend") if isinstance(summary_variant_node.get("legend"), dict) else {}
+            summary_grid_cfg = summary_variant_node.get("grid") if isinstance(summary_variant_node.get("grid"), dict) else {}
+            if not page_legend_cfg:
+                legend_option["left"] = summary_legend_cfg.get("left") or "center"
+                legend_option["top"] = summary_legend_cfg.get("top") if summary_legend_cfg.get("top") is not None else 6
+                legend_option.pop("right", None)
+                legend_option.pop("bottom", None)
+            if not page_grid_cfg:
+                grid_option["bottom"] = int(summary_grid_cfg.get("bottom")) if summary_grid_cfg.get("bottom") is not None else 25
+
+        merged_x_axis_label_cfg = dict(dual_axis_x_axis_label or {})
+        if isinstance(page_x_axis_label_cfg, dict):
+            for merge_key, merge_value in page_x_axis_label_cfg.items():
+                if merge_value is not None:
+                    merged_x_axis_label_cfg[merge_key] = merge_value
 
         x_axis_label_option = {
             "color": muted_text_color,
-            "fontSize": int(dual_axis_x_axis_label.get("fontSize") or 9),
-            "interval": dual_axis_x_axis_label.get("interval") if dual_axis_x_axis_label.get("interval") is not None else "auto",
+            "fontSize": int(merged_x_axis_label_cfg.get("fontSize") or 9),
+            "interval": merged_x_axis_label_cfg.get("interval") if merged_x_axis_label_cfg.get("interval") is not None else "auto",
         }
-        if dual_axis_x_axis_label.get("margin") is not None:
-            x_axis_label_option["margin"] = int(dual_axis_x_axis_label.get("margin"))
-        if dual_axis_x_axis_label.get("padding") is not None:
-            x_axis_label_option["padding"] = dual_axis_x_axis_label.get("padding")
+        if merged_x_axis_label_cfg.get("margin") is not None:
+            x_axis_label_option["margin"] = int(merged_x_axis_label_cfg.get("margin"))
+        if merged_x_axis_label_cfg.get("padding") is not None:
+            x_axis_label_option["padding"] = merged_x_axis_label_cfg.get("padding")
+        if normalized_axis_label_mode == "periodic":
+            x_axis_label_option["interval"] = merged_x_axis_label_cfg.get("interval") if merged_x_axis_label_cfg.get("interval") is not None else 0
+            x_axis_label_option["rotate"] = int(merged_x_axis_label_cfg.get("rotate") or 32)
+            x_axis_label_option["margin"] = int(merged_x_axis_label_cfg.get("margin") or 12)
+            x_axis_label_option["lineHeight"] = int(merged_x_axis_label_cfg.get("lineHeight") or 11)
 
         return {
             "tooltip": {
