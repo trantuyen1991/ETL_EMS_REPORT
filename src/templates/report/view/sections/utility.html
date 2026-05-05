@@ -643,6 +643,12 @@
                 </div>
 
                 {% if sensor_monitoring_view.overview_cards and not flags.is_daily_report %}
+                <div class="utility-sensor-section-label-block is-overview">
+                    <div>
+                        <h4 class="utility-sensor-section-label-title">Overview cards</h4>
+                        <p class="utility-sensor-section-label-note">Group-level active sensor and alert snapshot.</p>
+                    </div>
+                </div>
                 <div class="utility-sensor-overview-grid">
                     {% for card in sensor_monitoring_view.overview_cards %}
                     <div class="utility-sensor-overview-card is-reference-card" style="--sensor-accent: {{ card.accent_color }}; --sensor-tint: {{ card.accent_tint }};">
@@ -675,6 +681,14 @@
                 </div>
                 {% endif %}
 
+                {% if not flags.is_daily_report %}
+                <div class="utility-sensor-section-label-block is-metric-cards">
+                    <div>
+                        <h4 class="utility-sensor-section-label-title">Sensor avg cards</h4>
+                        <p class="utility-sensor-section-label-note">Per-group min, avg, max, status, and short anomaly reason.</p>
+                    </div>
+                </div>
+                {% endif %}
                 <div class="utility-sensor-group-grid">
                     {% for group in sensor_monitoring_view.groups %}
                     <div class="utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% else %}is-reference-metric-card{% endif %} group-key-{{ group.key }}" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
@@ -861,6 +875,12 @@
 
                 {% if not flags.is_daily_report %}
                 {% if sensor_monitoring.period_detail_tables %}
+                <div class="utility-sensor-section-label-block is-period-detail">
+                    <div>
+                        <h4 class="utility-sensor-section-label-title">Daily Max / Avg detail</h4>
+                        <p class="utility-sensor-section-label-note">Day-by-day max and avg breakdown for the monitored sensor groups.</p>
+                    </div>
+                </div>
                 <div class="utility-sensor-period-detail-stack">
                     {% for table in sensor_monitoring.period_detail_tables %}
                     <div class="utility-sensor-period-detail-card" style="--sensor-accent: {{ table.accent_color }}; --sensor-tint: {{ table.accent_tint }};">

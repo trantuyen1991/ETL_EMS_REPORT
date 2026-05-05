@@ -381,9 +381,13 @@ def test_period_sensor_templates_keep_cluster_trends_below_detail_table() -> Non
     assert 'utility-sensor-period-detail-legend-chip is-avg' in pdf_template
     assert 'cell.max_meta.line_class' in view_template
     assert 'row.row_class' in pdf_template
-    assert 'utility-sensor-period-detail-pages page-break-before' in pdf_template
+    assert 'utility-sensor-section-label-title">Overview cards<' in pdf_template
+    assert 'utility-sensor-section-label-title">Sensor avg cards<' in pdf_template
+    assert 'utility-sensor-section-label-title">Daily Max / Avg detail<' in pdf_template
+    assert 'utility-sensor-period-detail-pages' in pdf_template
     assert 'utility-sensor-period-detail-page pdf-keep-together' in pdf_template
     assert 'page_size = 2' in pdf_template
+    assert '{% if is_card_only_period %}' in pdf_template
     assert '.utility-sensor-period-detail-card' in report_css
     assert '.utility-sensor-period-group-head' in report_css
     assert '.utility-sensor-line-badge' in report_css

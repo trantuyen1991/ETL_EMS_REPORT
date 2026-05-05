@@ -649,6 +649,14 @@
                 </div>
 
                 {% if sensor_monitoring_view.overview_cards %}
+                {% if not flags.is_daily_report %}
+                <div class="utility-sensor-section-label-block is-overview">
+                    <div>
+                        <h4 class="utility-sensor-section-label-title">Overview cards</h4>
+                        <p class="utility-sensor-section-label-note">Group-level active sensor and alert snapshot.</p>
+                    </div>
+                </div>
+                {% endif %}
                 <div class="utility-sensor-overview-grid">
                     {% for card in sensor_monitoring_view.overview_cards %}
                     {% if not flags.is_daily_report %}
@@ -824,6 +832,14 @@
                 {% endif %}
 
                 {% if sensor_group_remaining %}
+                {% if not flags.is_daily_report %}
+                <div class="utility-sensor-section-label-block is-metric-cards">
+                    <div>
+                        <h4 class="utility-sensor-section-label-title">Sensor avg cards</h4>
+                        <p class="utility-sensor-section-label-note">Per-group min, avg, max, status, and short anomaly reason.</p>
+                    </div>
+                </div>
+                {% endif %}
                 <div class="utility-sensor-group-grid utility-sensor-group-grid-remaining{% if flags.is_daily_report %} page-break-before{% endif %}">
                     {% for group in sensor_group_remaining %}
                     <div class="utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% else %}is-reference-metric-card{% endif %} group-key-{{ group.key }}" style="--sensor-accent: {{ group.accent_color }}; --sensor-tint: {{ group.accent_tint }};">
@@ -1010,6 +1026,12 @@
 
                 {% if not flags.is_daily_report %}
                 {% if sensor_monitoring.period_detail_tables %}
+                <div class="utility-sensor-section-label-block is-period-detail page-break-before">
+                    <div>
+                        <h4 class="utility-sensor-section-label-title">Daily Max / Avg detail</h4>
+                        <p class="utility-sensor-section-label-note">Day-by-day max and avg breakdown for the monitored sensor groups.</p>
+                    </div>
+                </div>
                 {% macro render_period_detail_card(table) -%}
                     <div class="utility-sensor-period-detail-card" style="--sensor-accent: {{ table.accent_color }}; --sensor-tint: {{ table.accent_tint }};">
                         <div class="utility-sensor-period-detail-head">
@@ -1076,9 +1098,9 @@
                         </div>
                     </div>
                 {%- endmacro %}
-                {% if is_weekly_period %}
+                {% if is_card_only_period %}
                 {% set page_size = 2 %}
-                <div class="utility-sensor-period-detail-pages page-break-before">
+                <div class="utility-sensor-period-detail-pages">
                     {% for page_start in range(0, sensor_monitoring.period_detail_tables|length, page_size) %}
                     <div class="utility-sensor-period-detail-page pdf-keep-together{% if page_start > 0 %} page-break-before{% endif %}">
                         <div class="utility-sensor-period-detail-stack is-weekly-paired">
