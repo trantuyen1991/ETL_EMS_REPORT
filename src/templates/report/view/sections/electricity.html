@@ -282,6 +282,7 @@
                         {{ sections.electricity.charts.period_heatmap.subtitle }}
                     </p>
                     <div id="electricity-period-heatmap-chart" class="electricity-heatmap-chart"></div>
+                    {% if sections.electricity.charts.period_heatmap.show_scale_legend %}
                     <div class="electricity-heatmap-legend" aria-hidden="true">
                         <span class="legend-label">Low</span>
                         <span class="legend-bar"></span>
@@ -289,6 +290,7 @@
                         <span class="legend-bar legend-bar-strong"></span>
                         <span class="legend-label">High</span>
                     </div>
+                    {% endif %}
                     {% if sections.electricity.charts.period_heatmap.area_legend %}
                     <div class="electricity-heatmap-area-legend" aria-hidden="true">
                         {% for item in sections.electricity.charts.period_heatmap.area_legend %}

@@ -2364,8 +2364,10 @@ class ReportBuilderService:
             return {}
 
         is_weekly_period = period_type == "weekly"
-        bottom_gap = 62 if is_weekly_period or len(x_labels) > 8 else 44
-        label_rotate = 28 if is_weekly_period or len(x_labels) > 8 else 0
+        is_monthly_period = period_type == "monthly"
+        has_dense_columns = len(x_labels) > 8
+        bottom_gap = 44 if is_monthly_period else (62 if is_weekly_period or has_dense_columns else 44)
+        label_rotate = 24 if is_monthly_period else (28 if is_weekly_period or has_dense_columns else 0)
         label_font_size = 9 if len(x_labels) <= 8 else 8
 
         area_visual_map = self._get_v3_area_visual_map()
@@ -2428,7 +2430,8 @@ class ReportBuilderService:
         return {
             "title": "Daily total heatmap",
             "subtitle": "kWh by area and total",
-            "area_legend": area_legend if period_type == "monthly" else [],
+            "show_scale_legend": not is_monthly_period,
+            "area_legend": area_legend if is_monthly_period else [],
             "option": {
                 "tooltip": {
                     "position": "top",

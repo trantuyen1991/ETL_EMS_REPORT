@@ -1568,7 +1568,7 @@
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart {
-            height: var(--report-components-report-section-electric-chart-heatmap-height-view-monthly, 192px);
+            height: max(var(--report-components-report-section-electric-chart-heatmap-height-view-monthly, 192px), 150px);
         }
 
         .electricity-delta-chart {
