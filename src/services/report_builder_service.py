@@ -1634,7 +1634,7 @@ class ReportBuilderService:
             period_type=period_type,
         )
 
-        top10_display_limit = 6 if str(period_type or "").strip().lower() == "monthly" else 10
+        top10_display_limit = 5 if str(period_type or "").strip().lower() == "monthly" else 10
         display_top10_rows = top10_rows[:top10_display_limit]
         display_area_top10_tables = [
             {
