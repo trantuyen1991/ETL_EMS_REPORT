@@ -1292,6 +1292,10 @@
                                 option: {{ sections.utility.energy.charts.distribution.option | tojson if sections.utility.energy.charts.distribution else {} }},
                             },
                             {
+                                id: "utility-energy-deviation-chart",
+                                option: {{ sections.utility.energy.charts.deviation.option | tojson if sections.utility.energy.charts.deviation else {} }},
+                            },
+                            {
                                 id: "utility-energy-heatmap-chart",
                                 option: {{ sections.utility.energy.charts.heatmap.option | tojson if sections.utility.energy.charts.heatmap else {} }},
                             },

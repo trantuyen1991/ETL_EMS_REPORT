@@ -853,6 +853,14 @@
         grid-column: var(--report-components-report-section-utility-chart-energy-trend-monthly-pdf-grid-column, 1 / -1) !important;
     }
 
+    .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-heatmap {
+        grid-column: var(--report-components-report-section-utility-chart-energy-heatmap-monthly-pdf-grid-column, 1 / -1) !important;
+    }
+
+    .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-deviation {
+        grid-column: var(--report-components-report-section-utility-chart-energy-deviation-monthly-pdf-grid-column, auto) !important;
+    }
+
     .utility-energy-chart-card {
         padding: 12px 13px 10px !important;
     }
@@ -890,6 +898,10 @@
         height: var(--report-components-report-section-utility-chart-energy-heatmap-height-pdf, 192px) !important;
     }
 
+    .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-deviation-chart {
+        height: var(--report-components-report-section-utility-chart-energy-deviation-height-pdf, 208px) !important;
+    }
+
     .utility-energy-distribution-card.is-mix-style {
         min-height: 100% !important;
         height: 100% !important;
@@ -904,6 +916,11 @@
     .utility-energy-distribution-layout {
         grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr) !important;
         gap: 8px !important;
+    }
+
+    .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-layout {
+        grid-template-columns: minmax(0, 1.30fr) minmax(0, 0.70fr) !important;
+        gap: 10px !important;
     }
 
     .utility-energy-distribution-center-value {
@@ -921,6 +938,13 @@
 
     .utility-energy-distribution-legend {
         gap: 6px !important;
+    }
+
+    .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-legend {
+        align-items: flex-start !important;
+        justify-content: center !important;
+        padding-left: 4px !important;
+        text-align: left !important;
     }
 
     .utility-energy-distribution-legend-item {
@@ -946,6 +970,11 @@
     .utility-energy-distribution-total {
         padding-top: 4px !important;
         gap: 4px !important;
+    }
+
+    .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-total {
+        justify-content: flex-start !important;
+        align-self: stretch !important;
     }
 
     .utility-energy-distribution-total-value {

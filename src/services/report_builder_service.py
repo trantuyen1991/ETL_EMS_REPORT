@@ -292,10 +292,21 @@ class ReportBuilderService:
                 'visual_variant': str(((charts.get('distribution') or {}).get('visual_variant')) or ''),
                 'pdf_keep_together': True,
             },
+            'deviation': {
+                'kind': 'deviation',
+                'enabled': bool((charts.get('deviation') or {}).get('option')),
+                'block_classes': 'utility-chart-block utility-chart-block-narrow utility-chart-block-energy-deviation',
+                'card_classes': 'electricity-chart-card utility-chart-card utility-energy-chart-card utility-energy-deviation-card',
+                'title': str(((charts.get('deviation') or {}).get('title')) or ''),
+                'subtitle': str(((charts.get('deviation') or {}).get('subtitle')) or ''),
+                'chart_id': 'utility-energy-deviation-chart',
+                'chart_classes': 'electricity-chart utility-comparison-chart utility-energy-deviation-chart',
+                'pdf_keep_together': True,
+            },
             'heatmap': {
                 'kind': 'heatmap',
                 'enabled': bool((charts.get('heatmap') or {}).get('option')),
-                'block_classes': 'utility-chart-block utility-chart-block-narrow utility-chart-block-heatmap',
+                'block_classes': 'utility-chart-block utility-chart-block-wide utility-chart-block-heatmap utility-chart-block-energy-heatmap',
                 'card_classes': 'electricity-chart-card utility-chart-card utility-energy-chart-card utility-heatmap-card electricity-chart-card-heatmap',
                 'title': str(((charts.get('heatmap') or {}).get('title')) or ''),
                 'subtitle': str(((charts.get('heatmap') or {}).get('subtitle')) or ''),
@@ -3990,6 +4001,7 @@ class ReportBuilderService:
             "charts": {
                 "trend": {},
                 "distribution": {},
+                "deviation": {},
                 "heatmap": {},
             },
         }
@@ -4328,23 +4340,57 @@ class ReportBuilderService:
 
         distribution_items = []
         total_current = 0.0
+        total_previous = 0.0
         for key, label, color in category_defs:
             value = round(float(category_totals.get(key, {}).get("current", 0.0) or 0.0), 2)
+            previous_value = round(float(category_totals.get(key, {}).get("previous", 0.0) or 0.0), 2)
             if value <= 0:
+                if previous_value > 0:
+                    total_previous += previous_value
                 continue
             total_current += value
+            total_previous += previous_value
             distribution_items.append({
                 "name": label,
                 "value": value,
+                "previous": previous_value,
                 "itemStyle": {"color": color},
                 "percent_display": "0.0%",
                 "value_display": self._fmt(value),
             })
 
         total_current = round(total_current, 2)
+        total_previous = round(total_previous, 2)
         for item in distribution_items:
             pct_value = (float(item.get("value") or 0.0) / total_current * 100.0) if total_current > 0 else 0.0
             item["percent_display"] = f"{pct_value:.1f}%"
+
+        energy_deviation = {}
+        if period_type == "monthly":
+            deviation_items = [
+                {
+                    "display_name": "Total Utility Energy",
+                    "unit": "kWh",
+                    "current": total_current,
+                    "previous": total_previous,
+                }
+            ]
+            for item in distribution_items:
+                deviation_items.append({
+                    "display_name": item.get("name") or "-",
+                    "unit": "kWh",
+                    "current": float(item.get("value") or 0.0),
+                    "previous": float(item.get("previous") or 0.0),
+                })
+
+            energy_deviation = {
+                "title": "Deviation vs Last Month",
+                "subtitle": "This Month vs last month change by utility energy group",
+                "option": self._build_v3_utility_deviation_option(
+                    deviation_items,
+                    period_type,
+                ),
+            }
 
         return {
             "trend": {
@@ -4375,6 +4421,7 @@ class ReportBuilderService:
                     period_type=period_type,
                 ),
             },
+            "deviation": energy_deviation,
             "heatmap": energy_heatmap,
         }
 
@@ -4708,20 +4755,35 @@ class ReportBuilderService:
                 ],
             }
 
+        pie_defaults = {
+            "radius": ("40%", "76%") if is_pdf_mode else ("46%", "90%"),
+            "center": ("39%", "54%") if is_pdf_mode else ("39%", "56%"),
+            "sliceBorderRadius": 10,
+        } if normalized_period_type == "monthly" else {
+            "radius": ("48%", "72%") if is_pdf_mode else ("56%", "86%"),
+            "center": ("42%", "54%") if is_pdf_mode else ("42%", "56%"),
+            "sliceBorderRadius": 10,
+        }
+        pie_cfg = dict(pie_defaults) if normalized_period_type == "monthly" else self._resolve_chart_pie(
+            pie_defaults,
+            "utility",
+            "energyDistribution",
+        )
+
         return {
             "tooltip": {"trigger": "item", "formatter": "{b}: {c} kWh ({d}%)"},
             "series": [
                 {
                     "type": "pie",
-                    "radius": ["48%", "72%"] if is_pdf_mode else ["56%", "86%"],
-                    "center": ["42%", "54%"] if is_pdf_mode else ["42%", "56%"],
+                    "radius": list(pie_cfg.get("radius", ("48%", "72%") if is_pdf_mode else ("56%", "86%"))),
+                    "center": list(pie_cfg.get("center", ("42%", "54%") if is_pdf_mode else ("42%", "56%"))),
                     "startAngle": 90,
                     "avoidLabelOverlap": True,
                     "minShowLabelAngle": 10 if is_pdf_mode else 4,
                     "itemStyle": {
                         "borderColor": str(self._get_style_color_value("#ffffff", "text", "inverse")),
                         "borderWidth": 3,
-                        "borderRadius": 10,
+                        "borderRadius": pie_cfg.get("sliceBorderRadius", 10),
                     },
                     "label": {
                         "show": True,

@@ -1112,8 +1112,14 @@
                   "pdf": "208px"
                 },
                 "pie": {
-                  "radius": ["42%", "78%"],
-                  "center": ["50%", "42%"],
+                  "radius": [
+                    "42%",
+                    "78%"
+                  ],
+                  "center": [
+                    "50%",
+                    "42%"
+                  ],
                   "sliceBorderRadius": 8
                 }
               },
@@ -1126,8 +1132,14 @@
                   "bottom": "center"
                 },
                 "pie": {
-                  "radius": ["42%", "78%"],
-                  "center": ["50%", "42%"],
+                  "radius": [
+                    "42%",
+                    "78%"
+                  ],
+                  "center": [
+                    "50%",
+                    "42%"
+                  ],
                   "sliceBorderRadius": 8
                 }
               },
@@ -1138,8 +1150,8 @@
                 "grid": {
                   "left": 18,
                   "right": 12,
-                  "top": 40,
-                  "bottom": 40,
+                  "top": 15,
+                  "bottom": 30,
                   "containLabel": true
                 },
                 "height": {
@@ -1171,6 +1183,14 @@
                 "height": {
                   "view": "192px",
                   "pdf": "192px"
+                },
+                "monthly": {
+                  "view": {
+                    "gridColumn": "1 / -1"
+                  },
+                  "pdf": {
+                    "gridColumn": "1 / -1"
+                  }
                 }
               },
               "periodSensorTrend": {
@@ -1346,13 +1366,23 @@
                     "offset": 0,
                     "nameGap": 12,
                     "labelMargin": 8,
-                    "nameTextPadding": [16, 0, 0, 0]
+                    "nameTextPadding": [
+                      16,
+                      0,
+                      0,
+                      0
+                    ]
                   },
                   "rightAxis": {
                     "offset": 0,
                     "nameGap": 12,
                     "labelMargin": 8,
-                    "nameTextPadding": [16, 0, 0, 0]
+                    "nameTextPadding": [
+                      16,
+                      0,
+                      0,
+                      0
+                    ]
                   },
                   "xAxis": {
                     "axisLabel": {
@@ -1378,7 +1408,10 @@
                     "label": {
                       "fontSize": 9,
                       "distance": 8,
-                      "padding": [2, 5],
+                      "padding": [
+                        2,
+                        5
+                      ],
                       "borderRadius": 4,
                       "backgroundColor": "rgba(255,255,255,0.92)"
                     }
@@ -1594,6 +1627,7 @@
                     "blockOrder": [
                       "trend",
                       "distribution",
+                      "deviation",
                       "heatmap"
                     ]
                   },
@@ -1602,8 +1636,23 @@
                     "blockOrder": [
                       "trend",
                       "distribution",
+                      "deviation",
                       "heatmap"
                     ]
+                  }
+                }
+              },
+              "energyDeviation": {
+                "height": {
+                  "view": "276px",
+                  "pdf": "208px"
+                },
+                "monthly": {
+                  "view": {
+                    "gridColumn": "2"
+                  },
+                  "pdf": {
+                    "gridColumn": "2"
                   }
                 }
               }
