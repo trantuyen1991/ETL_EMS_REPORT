@@ -2954,6 +2954,10 @@
             height: var(--report-components-report-section-utility-chart-energy-deviation-height-view, 276px);
         }
 
+        .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-heatmap .electricity-heatmap-legend {
+            display: none;
+        }
+
         .utility-energy-distribution-layout {
             display: grid;
             grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
@@ -2971,6 +2975,11 @@
             min-width: 0;
         }
 
+        .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-chart-wrap {
+            padding-left: 10px;
+            padding-right: 2px;
+        }
+
         .utility-energy-distribution-center {
             position: absolute;
             left: 42%;
@@ -2983,6 +2992,10 @@
             text-align: center;
             pointer-events: none;
             line-height: 1.08;
+        }
+
+        .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-center {
+            left: 44%;
         }
 
         .utility-energy-distribution-center-value {

@@ -1138,7 +1138,7 @@
                   ],
                   "center": [
                     "50%",
-                    "42%"
+                    "45%"
                   ],
                   "sliceBorderRadius": 8
                 }
@@ -1164,7 +1164,7 @@
                     "gridColumn": "1 / -1"
                   },
                   "pdf": {
-                    "height": "262px",
+                    "height": "220px",
                     "gridColumn": "1 / -1"
                   }
                 }

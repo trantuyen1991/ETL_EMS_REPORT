@@ -902,6 +902,10 @@
         height: var(--report-components-report-section-utility-chart-energy-deviation-height-pdf, 208px) !important;
     }
 
+    .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-heatmap .electricity-heatmap-legend {
+        display: none !important;
+    }
+
     .utility-energy-distribution-card.is-mix-style {
         min-height: 100% !important;
         height: 100% !important;
@@ -921,6 +925,15 @@
     .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-layout {
         grid-template-columns: minmax(0, 1.30fr) minmax(0, 0.70fr) !important;
         gap: 10px !important;
+    }
+
+    .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-chart-wrap {
+        padding-left: 8px !important;
+        padding-right: 2px !important;
+    }
+
+    .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-center {
+        left: 43.5% !important;
     }
 
     .utility-energy-distribution-center-value {
@@ -1337,22 +1350,60 @@
         white-space: nowrap !important;
     }
 
+    .report-period-monthly .utility-total-block {
+        margin-bottom: 4px !important;
+    }
+
+    .report-period-monthly .utility-total-block .electricity-subsection-title,
+    .report-period-monthly .utility-detail-block .electricity-subsection-title {
+        margin-bottom: 6px !important;
+    }
+
+    .report-period-monthly .utility-total-table thead th,
+    .report-period-monthly .utility-total-table td {
+        padding: 3px 4px !important;
+        font-size: 7.6px !important;
+    }
+
     .utility-value-bar-cell {
         min-height: 24px !important;
         padding: 4px 6px !important;
+    }
+
+    .report-period-monthly .utility-value-bar-cell {
+        min-height: 20px !important;
+        padding: 3px 5px !important;
     }
 
     .utility-value-bar-fill {
         height: 14px !important;
     }
 
+    .report-period-monthly .utility-value-bar-fill {
+        height: 12px !important;
+    }
+
     .utility-value-bar-label {
         font-size: 8px !important;
+    }
+
+    .report-period-monthly .utility-value-bar-label {
+        font-size: 7.4px !important;
     }
 
     .utility-delta-chip,
     .report-delta-inline {
         font-size: 7.6px !important;
+    }
+
+    .report-period-monthly .utility-delta-chip,
+    .report-period-monthly .report-delta-inline {
+        font-size: 7px !important;
+    }
+
+    .report-period-monthly .utility-detail-block.utility-detail-block-compact {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
     }
 
     .electricity-daily-summary-area-table {
