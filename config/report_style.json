@@ -957,9 +957,9 @@
                     },
                     "grid": {
                       "left": 24,
-                      "right": 8,
-                      "top": 18,
-                      "bottom": 24,
+                      "right": 10,
+                      "top": 22,
+                      "bottom": 30,
                       "containLabel": true
                     }
                   },
@@ -971,9 +971,9 @@
                     },
                     "grid": {
                       "left": 24,
-                      "right": 8,
-                      "top": 16,
-                      "bottom": 20,
+                      "right": 10,
+                      "top": 18,
+                      "bottom": 24,
                       "containLabel": true
                     }
                   }
@@ -1458,8 +1458,8 @@
                     "grid": {
                       "left": 56,
                       "right": 18,
-                      "top": 10,
-                      "bottom": 24
+                      "top": 16,
+                      "bottom": 30
                     },
                     "valueLabel": {
                       "positivePosition": "left",
@@ -1482,8 +1482,8 @@
                     "grid": {
                       "left": 56,
                       "right": 18,
-                      "top": 10,
-                      "bottom": 22
+                      "top": 14,
+                      "bottom": 24
                     },
                     "valueLabel": {
                       "positivePosition": "left",
