@@ -1501,14 +1501,14 @@
                   },
                   "dualAxis": {
                     "legend": {
-                      "bottom": 0,
+                      "top": 6,
                       "left": "center"
                     },
                     "grid": {
                       "left": 44,
                       "right": 44,
                       "top": 28,
-                      "bottom": 42,
+                      "bottom": 20,
                       "containLabel": false
                     }
                   },
@@ -1582,6 +1582,16 @@
                             "maxDecimals": 1,
                             "targetTickCount": 4
                           }
+                        }
+                      }
+                    }
+                  },
+                  "clusters": {
+                    "domestic_water": {
+                      "summary": {
+                        "grid": {
+                          "top": 15,
+                          "bottom": 25
                         }
                       }
                     }

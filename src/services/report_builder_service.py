@@ -5214,6 +5214,7 @@ class ReportBuilderService:
                     period_type=period_type,
                     chart_variant="periodic_chiller_summary" if (axis_label_mode == "periodic" and full_width_flow_pressure) else "",
                     page_variant=periodic_page_variant,
+                    cluster_key=cluster_key,
                 ),
             })
 
@@ -5275,6 +5276,7 @@ class ReportBuilderService:
                     period_type=period_type,
                     chart_variant="periodic_dual_axis" if (axis_label_mode == "periodic" and full_width_flow_pressure) else "",
                     page_variant=periodic_page_variant,
+                    cluster_key=cluster_key,
                 ),
             }
         else:
@@ -5304,6 +5306,7 @@ class ReportBuilderService:
                     period_type=period_type,
                     chart_variant="periodic_chiller_summary" if (axis_label_mode == "periodic" and full_width_flow_pressure) else "",
                     page_variant=periodic_page_variant,
+                    cluster_key=cluster_key,
                 ),
             }
         else:
@@ -5330,6 +5333,7 @@ class ReportBuilderService:
         period_type: str = "",
         chart_variant: str = "",
         page_variant: str = "",
+        cluster_key: str = "",
     ) -> Dict[str, Any]:
         """Build one intraday sensor line chart from raw timestamp points."""
         series_items = chart.get("series") or []
@@ -5382,6 +5386,7 @@ class ReportBuilderService:
             if is_monthly_periodic
             else ()
         )
+        normalized_cluster_key = str(cluster_key or "").strip().lower()
         dual_axis_left_axis = self._get_chart_config_branch("leftAxis", *dual_axis_path) if dual_axis_enabled else {}
         dual_axis_right_axis = self._get_chart_config_branch("rightAxis", *dual_axis_path) if dual_axis_enabled else {}
         dual_axis_x_axis = self._get_chart_config_branch("xAxis", *dual_axis_path) if dual_axis_enabled else {}
@@ -5393,6 +5398,11 @@ class ReportBuilderService:
         normalized_chart_variant = str(chart_variant or "").strip().lower()
         normalized_page_variant = str(page_variant or "").strip().lower()
         page_chart_family = "dualAxis" if dual_axis_enabled else "summary"
+        sensor_cluster_monthly_cluster_path = (
+            ("utility", "sensorCluster", "monthly", "clusters", normalized_cluster_key, page_chart_family)
+            if is_monthly_periodic and normalized_cluster_key
+            else ()
+        )
         page_variant_path = (
             "utility",
             "sensorCluster",
@@ -5426,6 +5436,12 @@ class ReportBuilderService:
         monthly_x_axis_label_cfg = dict(monthly_x_axis_cfg.get("axisLabel") or {}) if isinstance(monthly_x_axis_cfg, dict) else {}
         monthly_left_axis_cfg = self._get_chart_config_branch("leftAxis", *sensor_cluster_monthly_path) if sensor_cluster_monthly_path else {}
         monthly_right_axis_cfg = self._get_chart_config_branch("rightAxis", *sensor_cluster_monthly_path) if sensor_cluster_monthly_path else {}
+        monthly_cluster_legend_cfg = self._get_chart_config_branch("legend", *sensor_cluster_monthly_cluster_path) if sensor_cluster_monthly_cluster_path else {}
+        monthly_cluster_grid_cfg = self._get_chart_config_branch("grid", *sensor_cluster_monthly_cluster_path) if sensor_cluster_monthly_cluster_path else {}
+        monthly_cluster_x_axis_cfg = self._get_chart_config_branch("xAxis", *sensor_cluster_monthly_cluster_path) if sensor_cluster_monthly_cluster_path else {}
+        monthly_cluster_x_axis_label_cfg = dict(monthly_cluster_x_axis_cfg.get("axisLabel") or {}) if isinstance(monthly_cluster_x_axis_cfg, dict) else {}
+        monthly_cluster_left_axis_cfg = self._get_chart_config_branch("leftAxis", *sensor_cluster_monthly_cluster_path) if sensor_cluster_monthly_cluster_path else {}
+        monthly_cluster_right_axis_cfg = self._get_chart_config_branch("rightAxis", *sensor_cluster_monthly_cluster_path) if sensor_cluster_monthly_cluster_path else {}
         dual_axis_variant_name = "periodicChillerDualAxis" if normalized_chart_variant == "periodic_dual_axis" else ""
         dual_axis_variant_node = (
             self._get_chart_variant_mode_node(dual_axis_variant_name, *dual_axis_path)
@@ -5646,7 +5662,8 @@ class ReportBuilderService:
             axis_page_cfg = page_right_axis_cfg if (dual_axis_enabled and is_right_axis) else page_left_axis_cfg if dual_axis_enabled else {}
             axis_monthly_page_cfg = monthly_page_right_axis_cfg if (dual_axis_enabled and is_right_axis) else monthly_page_left_axis_cfg if dual_axis_enabled else {}
             merged_axis_cfg = dict(axis_cfg or {})
-            for override_cfg in (axis_page_cfg, axis_monthly_cfg, axis_monthly_page_cfg):
+            axis_cluster_cfg = monthly_cluster_right_axis_cfg if (dual_axis_enabled and is_right_axis) else monthly_cluster_left_axis_cfg
+            for override_cfg in (axis_page_cfg, axis_monthly_cfg, axis_monthly_page_cfg, axis_cluster_cfg):
                 if isinstance(override_cfg, dict):
                     for merge_key, merge_value in override_cfg.items():
                         if merge_key == "scale":
@@ -5688,6 +5705,9 @@ class ReportBuilderService:
                     scale_cfg = axis_monthly_page_cfg.get("scale") or {}
                 if not scale_cfg and isinstance(axis_monthly_cfg.get("scale"), dict):
                     scale_cfg = axis_monthly_cfg.get("scale") or {}
+                cluster_axis_cfg = monthly_cluster_right_axis_cfg if (dual_axis_enabled and is_right_axis) else monthly_cluster_left_axis_cfg
+                if not scale_cfg and isinstance(cluster_axis_cfg.get("scale"), dict):
+                    scale_cfg = cluster_axis_cfg.get("scale") or {}
                 if not scale_cfg and isinstance(axis_page_cfg.get("scale"), dict):
                     scale_cfg = axis_page_cfg.get("scale") or {}
                 scale = build_axis_scale(
@@ -5741,10 +5761,10 @@ class ReportBuilderService:
             if cfg.get("bottom") is not None:
                 target.pop("top", None)
 
-        for legend_cfg in (page_legend_cfg, monthly_legend_cfg, monthly_page_legend_cfg):
+        for legend_cfg in (page_legend_cfg, monthly_legend_cfg, monthly_page_legend_cfg, monthly_cluster_legend_cfg):
             apply_legend_overrides(legend_option, legend_cfg)
 
-        for grid_cfg in (page_grid_cfg, monthly_grid_cfg, monthly_page_grid_cfg):
+        for grid_cfg in (page_grid_cfg, monthly_grid_cfg, monthly_page_grid_cfg, monthly_cluster_grid_cfg):
             if isinstance(grid_cfg, dict) and grid_cfg:
                 for grid_key in ("left", "right", "top", "bottom", "containLabel"):
                     if grid_cfg.get(grid_key) is not None:
@@ -5762,7 +5782,7 @@ class ReportBuilderService:
                 grid_option["bottom"] = int(summary_grid_cfg.get("bottom")) if summary_grid_cfg.get("bottom") is not None else 25
 
         merged_x_axis_label_cfg = dict(dual_axis_x_axis_label or {})
-        for override_cfg in (page_x_axis_label_cfg, monthly_x_axis_label_cfg, monthly_page_x_axis_label_cfg):
+        for override_cfg in (page_x_axis_label_cfg, monthly_x_axis_label_cfg, monthly_page_x_axis_label_cfg, monthly_cluster_x_axis_label_cfg):
             if isinstance(override_cfg, dict):
                 for merge_key, merge_value in override_cfg.items():
                     if merge_value is not None:
