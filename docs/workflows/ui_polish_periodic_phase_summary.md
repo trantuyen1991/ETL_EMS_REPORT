@@ -141,6 +141,22 @@
   - review switched from stitched long artifacts to native page PNGs when Telegram scaling created false size-perception drift
   - the final native-page review was accepted by the user before consolidation
 
+## Utility monthly energy follow-up (2026-05-08)
+- The periodic Utility Energy monthly layout received a dedicated screenshot-driven cleanup pass:
+  - moved `Utility energy heatmap` to its own full-width row
+  - inserted `Deviation vs Last Month` into the old heatmap slot beside `Utility Distribution`
+  - kept `Utility Energy Trend` as the opening full-width chart
+- The `Utility Distribution` donut was then refined in 2 accepted micro-passes:
+  - legend stayed in the right column with `Total` aligned to the same left edge
+  - donut geometry was enlarged/retuned without shrinking the visible pie feel
+  - final donut/center graphic position was nudged further right so the left percentage label no longer feels cramped against the card edge
+- The monthly Utility Energy heatmap scale legend (`Low ... kWh ... High`) was intentionally removed because it was not helpful for the approved presentation.
+- Monthly PDF table/pagination follow-up was also closed in the same chain:
+  - `Utility Detail Summary` was compacted through tighter PDF spacing only
+  - `Daily Utility Detail` was allowed to flow instead of staying overly protected as one keep-together block
+  - verification via `pdftotext -layout` confirmed both blocks now appear on the same PDF page
+
 ## Next workstream
 - No immediate weekly periodic PDF blocker remains for the approved slice.
+- The current monthly Utility Energy polish slice is also closed at the accepted checkpoint.
 - Use `docs/workflows/template_layout_audit_master_checklist.md` for the next broader audit step when the user opens the next pass.

@@ -128,6 +128,10 @@ KPI logic:
 - Periodic utility-energy overview cards now reuse the same compact compare-card pattern: ✅
 - Periodic utility-energy trend line chart: ✅
 - Periodic utility distribution donut chart with right-side legend + total kWh: ✅
+- Monthly Utility Energy layout now uses `Trend` full-width, `Distribution + Deviation vs Last Month` in a shared row, and `Utility energy heatmap` as a full-width row below: ✅
+- Monthly Utility distribution donut now uses a slightly right-shifted geometry to avoid left-edge label crowding, while keeping the pie visually large and the legend/total left-aligned in the right column: ✅
+- Monthly Utility energy heatmap now hides the misleading `Low ... kWh ... High` scale legend: ✅
+- Monthly PDF Utility `Detail Summary` and `Daily Utility Detail` now fit on the same page through targeted periodic/PDF compaction instead of backend logic changes: ✅
 - Utility section header now uses the shared `utilityheader.svg` icon in both HTML and PDF templates: ✅
 - Weekly `This Week mix` donut now uses corrected PDF geometry, with a 90° start rotation and upward-centered total/caption positioning: ✅
 - Weekly `Utility daily total heatmap` now renders full-width after removing the duplicate `This Week mix` donut from the same row: ✅
@@ -233,6 +237,10 @@ Current anomaly rules:
   - utility weekly comparison row now uses a 6:4 layout with centered-zero deviation behavior
   - utility weekly insight row now adds `Utility daily total heatmap` + `This Week mix`
   - utility weekly heatmap / mix geometry is now style-configurable under dedicated config nodes
+  - monthly Utility Energy now uses the approved layout progression `Trend -> Distribution + Deviation -> Heatmap`
+  - monthly Utility distribution donut was nudged right in both view/PDF so the left percentage label no longer feels cropped
+  - monthly Utility energy heatmap scale legend was intentionally removed
+  - monthly PDF `Utility Detail Summary` + `Daily Utility Detail` now share one page after targeted compaction
   - weekly KPI now adds a top insight row (`trend + deviation`) and a tuned lower 6:4 compare/waterfall row
   - weekly KPI deviation labels now split across two lines and the compare / waterfall order now starts from `This Week`
   - periodic detail highlight artifacts/date crowding were reduced
