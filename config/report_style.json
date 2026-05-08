@@ -652,7 +652,7 @@
                 "grid": {
                   "left": 20,
                   "right": 12,
-                  "top": 20,
+                  "top": 10,
                   "bottom": 15,
                   "containLabel": true
                 },
@@ -768,14 +768,14 @@
                     "left": 58,
                     "right": 18,
                     "top": 10,
-                    "bottom": 62,
+                    "bottom": 30,
                     "containLabel": false
                   },
                   "monthly": {
                     "left": 18,
                     "right": 18,
                     "top": 10,
-                    "bottom": 62,
+                    "bottom": 30,
                     "containLabel": false
                   }
                 }
@@ -947,6 +947,36 @@
                 "height": {
                   "view": "272px",
                   "pdf": "140px"
+                },
+                "monthly": {
+                  "view": {
+                    "height": "300px",
+                    "legend": {
+                      "bottom": 0,
+                      "left": "center"
+                    },
+                    "grid": {
+                      "left": 24,
+                      "right": 8,
+                      "top": 18,
+                      "bottom": 24,
+                      "containLabel": true
+                    }
+                  },
+                  "pdf": {
+                    "height": "168px",
+                    "legend": {
+                      "bottom": 0,
+                      "left": "center"
+                    },
+                    "grid": {
+                      "left": 24,
+                      "right": 8,
+                      "top": 16,
+                      "bottom": 20,
+                      "containLabel": true
+                    }
+                  }
                 }
               },
               "monthlyLayout": {
@@ -966,26 +996,58 @@
                 },
                 "monthly": {
                   "view": {
-                    "height": "200px",
+                    "height": "216px",
                     "gridColumn": "1 / -1"
                   },
                   "pdf": {
-                    "height": "200px",
+                    "height": "188px",
                     "gridColumn": "1 / -1"
                   }
                 }
               },
-              "periodHeatmap": {
+              "heatmap": {
                 "height": {
                   "view": "326px",
                   "pdf": "150px"
                 },
                 "monthly": {
                   "view": {
-                    "gridColumn": "1"
+                    "height": "300px",
+                    "gridColumn": "1",
+                    "grid": {
+                      "left": 12,
+                      "right": 12,
+                      "top": 10,
+                      "bottom": 30,
+                      "containLabel": false
+                    },
+                    "legend": {
+                      "scale": {
+                        "justifyContent": "center"
+                      },
+                      "area": {
+                        "justifyContent": "center"
+                      }
+                    }
                   },
                   "pdf": {
-                    "gridColumn": "1"
+                    "height": "168px",
+                    "gridColumn": "1",
+                    "grid": {
+                      "left": 12,
+                      "right": 12,
+                      "top": 8,
+                      "bottom": 30,
+                      "containLabel": false
+                    },
+                    "legend": {
+                      "scale": {
+                        "justifyContent": "center"
+                      },
+                      "area": {
+                        "justifyContent": "center"
+                      }
+                    }
                   }
                 }
               },
@@ -1003,6 +1065,34 @@
                 "height": {
                   "view": "292px",
                   "pdf": "186px"
+                },
+                "monthly": {
+                  "view": {
+                    "legend": {
+                      "bottom": 0,
+                      "left": "center"
+                    },
+                    "grid": {
+                      "left": 24,
+                      "right": 10,
+                      "top": 15,
+                      "bottom": 25,
+                      "containLabel": true
+                    }
+                  },
+                  "pdf": {
+                    "legend": {
+                      "bottom": 0,
+                      "left": "center"
+                    },
+                    "grid": {
+                      "left": 24,
+                      "right": 10,
+                      "top": 15,
+                      "bottom": 25,
+                      "containLabel": true
+                    }
+                  }
                 }
               },
               "mix": {
@@ -1108,7 +1198,7 @@
                 },
                 "grid": {
                   "left": 20,
-                  "right": 5,
+                  "right": 20,
                   "top": 25,
                   "bottom": 20,
                   "containLabel": true
@@ -1116,6 +1206,7 @@
                 "periodicChillerSummary": {
                   "legend": {
                     "top": 6,
+                    "bottom": "bottom",
                     "left": "center"
                   },
                   "grid": {
@@ -1126,11 +1217,14 @@
                   "page1": {
                     "summary": {
                       "legend": {
-                        "top": 6,
+                        "bottom": "bottom",
                         "left": "center"
                       },
                       "grid": {
-                        "bottom": 25
+                        "bottom": 25,
+                        "right": 20,
+                        "left": 20,
+                        "top": 25
                       },
                       "xAxis": {
                         "axisLabel": {
@@ -1143,13 +1237,14 @@
                     },
                     "dualAxis": {
                       "legend": {
-                        "bottom": "center"
+                        "bottom": "bottom",
+                        "left": "center"
                       },
                       "grid": {
                         "left": 38,
-                        "right": 14,
-                        "top": 25,
-                        "bottom": 35,
+                        "right": 38,
+                        "top": 30,
+                        "bottom": 40,
                         "containLabel": false
                       },
                       "xAxis": {
@@ -1179,11 +1274,12 @@
                   "page2": {
                     "summary": {
                       "legend": {
-                        "bottom": "center"
+                        "bottom": "bottom",
+                        "left": "center"
                       },
                       "grid": {
                         "left": 20,
-                        "right": 5,
+                        "right": 20,
                         "top": 25,
                         "bottom": 20,
                         "containLabel": true
@@ -1199,11 +1295,12 @@
                     },
                     "dualAxis": {
                       "legend": {
-                        "bottom": "center"
+                        "bottom": 0,
+                        "left": "center"
                       },
                       "grid": {
                         "left": 38,
-                        "right": 14,
+                        "right": 38,
                         "top": 25,
                         "bottom": 35,
                         "containLabel": false
@@ -1235,11 +1332,12 @@
                 },
                 "dualAxis": {
                   "legend": {
-                    "bottom": "center"
+                    "bottom": 0,
+                    "left": "center"
                   },
                   "grid": {
                     "left": 38,
-                    "right": 14,
+                    "right": 20,
                     "top": 25,
                     "bottom": 35,
                     "containLabel": false
@@ -1252,9 +1350,9 @@
                   },
                   "rightAxis": {
                     "offset": 0,
-                    "nameGap": 2,
-                    "labelMargin": 0,
-                    "nameTextPadding": [0, 0, 0, 0]
+                    "nameGap": 12,
+                    "labelMargin": 8,
+                    "nameTextPadding": [16, 0, 0, 0]
                   },
                   "xAxis": {
                     "axisLabel": {
@@ -1311,11 +1409,11 @@
                   },
                   "periodicPage1Summary": {
                     "view": "280px",
-                    "pdf": "200px"
+                    "pdf": "165px"
                   },
                   "periodicPage1DualAxis": {
                     "view": "308px",
-                    "pdf": "200px"
+                    "pdf": "165px"
                   },
                   "periodicPage2Summary": {
                     "view": "280px",
@@ -1355,10 +1453,52 @@
                 },
                 "monthly": {
                   "view": {
-                    "gridColumn": "2"
+                    "height": "300px",
+                    "gridColumn": "2",
+                    "grid": {
+                      "left": 56,
+                      "right": 18,
+                      "top": 10,
+                      "bottom": 24
+                    },
+                    "valueLabel": {
+                      "positivePosition": "left",
+                      "negativePosition": "right",
+                      "nearZeroPositivePosition": "right",
+                      "nearZeroNegativePosition": "left",
+                      "distance": 4,
+                      "nearZeroDistance": 10,
+                      "nearZeroThreshold": 4,
+                      "fontSize": 10,
+                      "fontWeight": 700,
+                      "color": "#334155",
+                      "axisPaddingLeft": 22,
+                      "axisPaddingRight": 22
+                    }
                   },
                   "pdf": {
-                    "gridColumn": "2"
+                    "height": "168px",
+                    "gridColumn": "2",
+                    "grid": {
+                      "left": 56,
+                      "right": 18,
+                      "top": 10,
+                      "bottom": 22
+                    },
+                    "valueLabel": {
+                      "positivePosition": "left",
+                      "negativePosition": "right",
+                      "nearZeroPositivePosition": "right",
+                      "nearZeroNegativePosition": "left",
+                      "distance": 3,
+                      "nearZeroDistance": 10,
+                      "nearZeroThreshold": 4,
+                      "fontSize": 9,
+                      "fontWeight": 700,
+                      "color": "#334155",
+                      "axisPaddingLeft": 18,
+                      "axisPaddingRight": 18
+                    }
                   }
                 }
               },
@@ -1585,7 +1725,7 @@
               "dashboard": {
                 "height": {
                   "view": "288px",
-                  "pdf": "196px"
+                  "pdf": "220px"
                 }
               },
               "compareBar": {
@@ -1622,7 +1762,7 @@
                   "left": 58,
                   "right": 18,
                   "top": 10,
-                  "bottom": 62,
+                  "bottom": 50,
                   "containLabel": false
                 },
                 "height": {

@@ -782,7 +782,15 @@
     }
 
     .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-heatmap[data-layout-slot="primary"] {
-        grid-column: var(--report-components-report-section-utility-chart-period-heatmap-monthly-pdf-grid-column, 1) !important;
+        grid-column: var(--report-components-report-section-utility-chart-heatmap-monthly-pdf-grid-column, 1) !important;
+    }
+
+    .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-heatmap[data-layout-slot="primary"] .electricity-heatmap-legend {
+        justify-content: var(--report-components-report-section-utility-chart-heatmap-monthly-pdf-legend-scale-justify-content, flex-start) !important;
+    }
+
+    .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-heatmap[data-layout-slot="primary"] .electricity-heatmap-area-legend {
+        justify-content: var(--report-components-report-section-utility-chart-heatmap-monthly-pdf-legend-area-justify-content, center) !important;
     }
 
     .utility-comparison-chart-daily {
@@ -791,6 +799,10 @@
 
     .utility-periodic-chart-grid .utility-comparison-chart-daily {
         height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;
+    }
+
+    .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-comparison-chart-daily {
+        height: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-height, var(--report-components-report-section-utility-chart-deviation-height-pdf, 164px)) !important;
     }
 
     .utility-period-insight-grid .utility-chart-card {
@@ -820,6 +832,11 @@
     .utility-comparison-chart-wide,
     .utility-comparison-chart-narrow {
         height: var(--report-components-report-section-utility-chart-comparison-height-pdf, 168px) !important;
+    }
+
+    .report-period-monthly .utility-comparison-chart-wide,
+    .report-period-monthly .utility-comparison-chart-narrow {
+        height: var(--report-components-report-section-utility-chart-comparison-monthly-pdf-height, var(--report-components-report-section-utility-chart-comparison-height-pdf, 168px)) !important;
     }
 
     .utility-energy-chart-grid {
@@ -866,7 +883,7 @@
     }
 
     .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {
-        height: var(--report-components-report-section-utility-chart-period-heatmap-height-pdf, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px)) !important;
+        height: var(--report-components-report-section-utility-chart-heatmap-monthly-pdf-height, var(--report-components-report-section-utility-chart-heatmap-height-pdf, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px))) !important;
     }
 
     .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {

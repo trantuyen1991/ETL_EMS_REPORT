@@ -2891,6 +2891,7 @@ class ReportBuilderService:
                     utility_items,
                     current_series_name=current_series_name,
                     previous_series_name=previous_series_name,
+                    period_type=period_type,
                 ),
             },
             "deviation_vs_yesterday": {
@@ -2925,6 +2926,7 @@ class ReportBuilderService:
                         split_wide_items,
                         current_series_name=current_series_name,
                         previous_series_name=previous_series_name,
+                        period_type=period_type,
                     ),
                 },
                 "narrow": {
@@ -2934,6 +2936,7 @@ class ReportBuilderService:
                         split_narrow_items,
                         current_series_name=current_series_name,
                         previous_series_name=previous_series_name,
+                        period_type=period_type,
                     ),
                 },
             },
@@ -3089,6 +3092,7 @@ class ReportBuilderService:
         *,
         current_series_name: str = "Current period",
         previous_series_name: str = "Previous period",
+        period_type: str = "daily",
     ) -> Dict[str, Any]:
         """Build one grouped utility comparison bar chart option."""
         chart_labels = [item.get("chart_label") or item.get("display_name") or "-" for item in items]
@@ -3098,10 +3102,15 @@ class ReportBuilderService:
         axis_label_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         axis_line_color = str(self._get_style_color_value("#b8cada", "border", "strong"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
+        normalized_period_type = str(period_type or "daily").strip().lower() or "daily"
+        comparison_config_path = (
+            ("utility", "comparison", "monthly")
+            if normalized_period_type == "monthly"
+            else ("utility", "comparison")
+        )
         series_cfg = self._resolve_chart_series_config(
             {"barMaxWidth": 24, "labelLayoutHideOverlap": False},
-            "utility",
-            "comparison",
+            *comparison_config_path,
         )
         bar_max_width = int(series_cfg.get("barMaxWidth") or 24)
         hide_overlap = bool(series_cfg.get("labelLayoutHideOverlap", False))
@@ -3119,8 +3128,7 @@ class ReportBuilderService:
                     "itemWidth": 12,
                     "itemHeight": 8,
                 },
-                "utility",
-                "comparison",
+                *comparison_config_path,
             ),
             "grid": self._resolve_chart_grid(
                 {
@@ -3130,8 +3138,7 @@ class ReportBuilderService:
                     "bottom": 32,
                     "containLabel": True,
                 },
-                "utility",
-                "comparison",
+                *comparison_config_path,
             ),
             "xAxis": {
                 "type": "category",
@@ -3218,6 +3225,11 @@ class ReportBuilderService:
         labels: list[str] = []
         series_values: dict[str, list[float | None]] = {key: [] for key, _label, _color in category_defs}
         is_monthly_period = period_type == "monthly"
+        trend_config_path = (
+            ("utility", "typeTrend", "monthly")
+            if is_monthly_period
+            else ("utility", "typeTrend")
+        )
 
         for row in timeseries:
             dt_value = row.get("dt")
@@ -3256,8 +3268,7 @@ class ReportBuilderService:
                     "itemWidth": 12,
                     "itemHeight": 8,
                 },
-                "utility",
-                "typeTrend",
+                *trend_config_path,
             ),
             "grid": self._resolve_chart_grid(
                 {
@@ -3267,8 +3278,7 @@ class ReportBuilderService:
                     "bottom": 46,
                     "containLabel": True,
                 },
-                "utility",
-                "typeTrend",
+                *trend_config_path,
             ),
             "xAxis": {
                 "type": "category",
@@ -3383,6 +3393,11 @@ class ReportBuilderService:
         bottom_gap = 62 if is_weekly_period or len(x_labels) > 8 else 44
         label_rotate = 28 if is_weekly_period or len(x_labels) > 8 else 0
         label_font_size = 9 if len(x_labels) <= 8 else 8
+        heatmap_config_path = (
+            ("utility", "heatmap", "monthly")
+            if period_type == "monthly"
+            else ("utility", "heatmap", "dense" if len(x_labels) > 8 else "default")
+        )
         primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
         muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
         axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
@@ -3439,9 +3454,7 @@ class ReportBuilderService:
                         "bottom": bottom_gap,
                         "containLabel": False,
                     },
-                    "utility",
-                    "heatmap",
-                    "monthly" if period_type == "monthly" else ("dense" if len(x_labels) > 8 else "default"),
+                    *heatmap_config_path,
                 ),
                 "xAxis": {
                     "type": "category",
@@ -3717,6 +3730,11 @@ class ReportBuilderService:
 
         period_type = str(period_type or "daily").strip().lower() or "daily"
         is_weekly_period = period_type == "weekly"
+        deviation_config_path = (
+            ("utility", "deviation", "monthly")
+            if period_type == "monthly"
+            else ("utility", "deviation")
+        )
         is_pdf_mode = self._render_mode == "pdf"
         series_cfg = self._resolve_chart_series_config(
             {
@@ -3725,8 +3743,7 @@ class ReportBuilderService:
                 "negativeBorderRadius": [4, 0, 0, 4],
                 "neutralBorderRadius": [0, 4, 4, 0],
             },
-            "utility",
-            "deviation",
+            *deviation_config_path,
         )
         label_config = self._resolve_chart_value_label(
             {
@@ -3743,8 +3760,7 @@ class ReportBuilderService:
                 "axisPaddingLeft": 18 if is_pdf_mode else 22,
                 "axisPaddingRight": 32 if is_pdf_mode else 22,
             },
-            "utility",
-            "deviation",
+            *deviation_config_path,
         )
         if is_weekly_period:
             label_config["positivePosition"] = "left"
@@ -3782,8 +3798,7 @@ class ReportBuilderService:
                     "top": 18,
                     "bottom": 36 if is_pdf_mode else 28,
                 },
-                "utility",
-                "deviation",
+                *deviation_config_path,
             ),
             "xAxis": {
                 "type": "value",
