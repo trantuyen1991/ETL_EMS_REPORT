@@ -1040,12 +1040,6 @@
 
                 {% if not flags.is_daily_report %}
                 {% if sensor_monitoring.period_detail_tables %}
-                <div class="utility-sensor-section-label-block is-period-detail page-break-before">
-                    <div>
-                        <h4 class="utility-sensor-section-label-title">Daily Max / Avg detail</h4>
-                        <p class="utility-sensor-section-label-note">Day-by-day max and avg breakdown for the monitored sensor groups.</p>
-                    </div>
-                </div>
                 {% macro render_period_detail_card(table) -%}
                     <div class="utility-sensor-period-detail-card" style="--sensor-accent: {{ table.accent_color }}; --sensor-tint: {{ table.accent_tint }};">
                         <div class="utility-sensor-period-detail-head">
@@ -1113,10 +1107,18 @@
                     </div>
                 {%- endmacro %}
                 {% if is_card_only_period %}
-                {% set page_size = 2 %}
+                {% set page_size = 1 if period.type == 'monthly' else 2 %}
                 <div class="utility-sensor-period-detail-pages">
                     {% for page_start in range(0, sensor_monitoring.period_detail_tables|length, page_size) %}
-                    <div class="utility-sensor-period-detail-page pdf-keep-together{% if page_start > 0 %} page-break-before{% endif %}">
+                    <div class="utility-sensor-period-detail-page{% if page_start == 0 %} page-break-before{% elif period.type == 'monthly' %} page-break-before{% endif %}">
+                        {% if page_start == 0 %}
+                        <div class="utility-sensor-section-label-block is-period-detail utility-sensor-period-detail-intro">
+                            <div>
+                                <h4 class="utility-sensor-section-label-title">Daily Max / Avg detail</h4>
+                                <p class="utility-sensor-section-label-note">Day-by-day max and avg breakdown for the monitored sensor groups.</p>
+                            </div>
+                        </div>
+                        {% endif %}
                         <div class="utility-sensor-period-detail-stack is-weekly-paired">
                             {% for table in sensor_monitoring.period_detail_tables[page_start:page_start + page_size] %}
                                 {{ render_period_detail_card(table) }}
