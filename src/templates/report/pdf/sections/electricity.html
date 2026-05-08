@@ -319,7 +319,7 @@
 
             {% if sections.electricity.top10.grouped_rows %}
             <div class="electricity-detail-block electricity-detail-block-plant">
-                <h3 class="electricity-subsection-title">Top 10 Meter Consumption</h3>
+                <h3 class="electricity-subsection-title">Top {{ sections.electricity.top10.display_limit or 10 }} Meter Consumption</h3>
 
                 <div class="electricity-top10-wrap report-table-wrap">
                     <table class="electricity-top10-table electricity-top10-grouped-table report-table-ui">
@@ -406,7 +406,7 @@
                 </div>
 
                 <p class="electricity-top10-note">
-                    Top 10 meters are sorted by {{ labels.current_period | lower }} consumption.
+                    Top {{ sections.electricity.top10.display_limit or 10 }} meters are sorted by {{ labels.current_period | lower }} consumption.
                     Configured feeder and excluded meters are filtered by area rules.
                 </p>
             </div>

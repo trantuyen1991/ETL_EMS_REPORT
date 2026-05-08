@@ -261,6 +261,13 @@
         page-break-inside: auto !important;
     }
 
+    .report-period-monthly .electricity-daily-summary-block,
+    .report-period-monthly .electricity-daily-summary-wrap,
+    .report-period-monthly .electricity-daily-summary-area-table {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
     .daily-highlight-header .section-header-title-row {
         gap: 8px !important;
         align-items: center !important;

@@ -1634,11 +1634,21 @@ class ReportBuilderService:
             period_type=period_type,
         )
 
+        top10_display_limit = 6 if str(period_type or "").strip().lower() == "monthly" else 10
+        display_top10_rows = top10_rows[:top10_display_limit]
+        display_area_top10_tables = [
+            {
+                **table,
+                "rows": list((table.get("rows") or [])[:top10_display_limit]),
+            }
+            for table in area_top10_tables
+        ]
+
         daily_summary_rows = energy_object.get("current", {}).get("daily_summary_rows", [])
         daily_detail_tables = energy_object.get("current", {}).get("daily_tables", [])
         grouped_top10_rows = self._build_v3_grouped_top10_rows(
-            plant_rows=top10_rows,
-            area_tables=area_top10_tables,
+            plant_rows=display_top10_rows,
+            area_tables=display_area_top10_tables,
             area_display_order=area_display_order,
         )
         area_daily_summary_rows = self._build_v3_area_daily_summary_rows(
@@ -1665,9 +1675,10 @@ class ReportBuilderService:
                 "rows": comparison_rows,
             },
             "top10": {
-                "rows": top10_rows,
+                "rows": display_top10_rows,
                 "grouped_rows": grouped_top10_rows,
-                "area_tables": area_top10_tables,
+                "area_tables": display_area_top10_tables,
+                "display_limit": top10_display_limit,
                 "group_columns": [
                     {"key": "plant", "label": "Plant Meter"},
                     {"key": "diode", "label": "Diode Meter"},
