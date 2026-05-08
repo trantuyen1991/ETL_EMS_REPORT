@@ -28,31 +28,45 @@
                         </div>
 
                         {% if flags.is_daily_report %}
+                        {% set section_current_period_display = period.label or sections.utility.date_comparison.current_display %}
+                        {% set section_previous_period_display = period.comparison_label or sections.utility.date_comparison.previous_display %}
                         <div class="utility-date-chip">
                             <span class="utility-date-chip-icon">
                                 {% include "assets/icon/calendar.svg" %}
                             </span>
                             <div class="utility-date-chip-copy">
                                 <div class="utility-date-chip-current">
-                                    {{ sections.utility.date_comparison.current_display }} ({{ sections.utility.date_comparison.current_label }})
+                                    {{ section_current_period_display }}
                                 </div>
+                                {% if section_previous_period_display %}
                                 <div class="utility-date-chip-previous">
-                                    vs {{ sections.utility.date_comparison.previous_display }} ({{ sections.utility.date_comparison.previous_label }})
+                                    vs {{ section_previous_period_display }}
                                 </div>
+                                {% endif %}
                             </div>
                         </div>
                         {% elif period.label or period.comparison_label %}
+                        {% set section_current_period_display = period.label %}
+                        {% set section_previous_period_display = period.comparison_label %}
+                        {% if period.start_date and period.end_date %}
+                        {% set section_current_period_display = period.start_date ~ ' → ' ~ period.end_date %}
+                        {% endif %}
+                        {% if period.previous_start_date and period.previous_end_date %}
+                        {% set section_previous_period_display = period.previous_start_date ~ ' → ' ~ period.previous_end_date %}
+                        {% endif %}
                         <div class="utility-date-chip electricity-header-date-chip">
                             <span class="utility-date-chip-icon">
                                 {% include "assets/icon/calendar.svg" %}
                             </span>
                             <div class="utility-date-chip-copy">
                                 <div class="utility-date-chip-current">
-                                    {{ period.label }}
+                                    {{ section_current_period_display }}
                                 </div>
+                                {% if section_previous_period_display %}
                                 <div class="utility-date-chip-previous">
-                                    vs {{ period.comparison_label }}
+                                    vs {{ section_previous_period_display }}
                                 </div>
+                                {% endif %}
                             </div>
                         </div>
                         {% endif %}

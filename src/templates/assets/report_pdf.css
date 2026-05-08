@@ -355,16 +355,32 @@
     }
 
     .utility-date-chip {
+        gap: 5px !important;
+        width: fit-content !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        padding: 6px 9px !important;
+        border-radius: 10px !important;
+    }
+
+    .report-family-periodic .utility-date-chip {
         gap: 6px !important;
-        padding: 7px 9px !important;
+        padding: 7px 12px !important;
+        border-radius: 11px !important;
+    }
+
+    .utility-date-chip-copy {
+        gap: 1px !important;
     }
 
     .utility-date-chip-current {
         font-size: 8px !important;
+        line-height: 1.2 !important;
     }
 
     .utility-date-chip-previous {
         font-size: 7px !important;
+        line-height: 1.2 !important;
     }
 
     .kpi-section-shell .section-header {
@@ -395,8 +411,7 @@
     }
 
     .kpi-header-date-chip {
-        min-width: var(--report-components-report-section-kpi-header-date-chip-min-width, 142px) !important;
-        padding: 6px 8px !important;
+        min-width: 0 !important;
     }
 
     .report-period-daily .kpi-section-shell .section-header {
@@ -404,8 +419,7 @@
     }
 
     .report-period-daily .kpi-header-date-chip {
-        min-width: 124px !important;
-        padding: 5px 7px !important;
+        min-width: 0 !important;
     }
 
     .electricity-section-shell .section-header {
@@ -436,8 +450,7 @@
     }
 
     .electricity-header-date-chip {
-        min-width: var(--report-components-report-section-electric-header-date-chip-min-width, 152px) !important;
-        padding: 6px 8px !important;
+        min-width: 0 !important;
     }
 
     .utility-periodic-section .section-header {
@@ -473,8 +486,7 @@
     }
 
     .utility-periodic-section .utility-date-chip {
-        min-width: var(--report-components-report-section-common-header-date-chip-min-width, 152px) !important;
-        padding: 6px 8px !important;
+        min-width: 0 !important;
     }
 
     .utility-overview-heading {
