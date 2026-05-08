@@ -64,14 +64,19 @@ For all comparable metrics:
   - delta
   - delta %
 
-### 3.4 Top 10 Meters
+### 3.4 Top Meter Ranking
 - Rank meters by current period consumption.
 - Attach previous-period value for comparison.
 - Exclude main distribution feeders from:
-  - Top 10 meters
+  - Top Meter ranking
   - Top 1 daily meter logic
 - Feeder exclusion rules must follow `config/energy_metadata.py`.
-- Residual Load may appear in Top 10 as one virtual meter when it has valid calculated value.
+- Residual Load may appear in the ranking as one virtual meter when it has valid calculated value.
+- Current display limits:
+  - daily = Top 10
+  - weekly = Top 10
+  - monthly = Top 5
+- The effective display limit should be exposed by backend context so templates can render the correct heading and table size without re-implementing period-specific logic.
 - If no valid meter data exists:
   - do not generate fake ranking rows
   - allow the table to be empty
@@ -211,31 +216,47 @@ Example:
 ---
 
 ### 6.3 Aggregation
-For each day and each metric:
+For each day and each metric, backend aggregation should preserve the current quality-oriented structure, including:
+- min value
 - avg value
 - max value
+- latest value
+- sample_count
+- non_null_count
+- zero_count
+- negative_count
+- anomaly-ready quality signals such as coverage, zero-heavy patterns, and negative-tolerance checks
 
 ---
 
 ### 6.4 Output Structure
-Sensor monitoring must return:
+Sensor monitoring must return a structured UI-ready payload that can support both daily and periodic Utility surfaces.
+
+Current output families include:
 - metric_columns
 - daily_rows
+- overview_cards
+- groups
+- anomaly_rows
+- period_detail_tables
+- trend_clusters_render
+- period_trend_clusters_render
 
-Each daily row contains:
+Each daily row should remain dense and carry structured metric payloads such as:
 - date
 - date_display
-- metrics:
-  - avg
-  - max
-  - formatted display values
+- min / avg / max / latest
+- formatted display values
+- data-quality metadata when available
 
 ---
 
 ### 6.5 Missing Data Handling
 - If no data:
+  - min = None
   - avg = None
   - max = None
+  - latest = None
   - display = "-"
 
 ---

@@ -139,7 +139,7 @@ Approved rollout rule:
   - Batch 3: Utility section remap + remaining chart hardcode cleanup
 
 ### 2.7 Approved Color Architecture Reset (2026-04-30)
-The next color-system phase is now explicitly approved as a stronger reset of the theme architecture.
+The color-system reset is no longer just a planned phase. A working baseline is already implemented and active in the current report stack.
 
 Approved rules:
 - `report_style.json` must expose a short, human-readable master palette near the top of the file
@@ -162,21 +162,19 @@ Approved target architecture:
    - components keep layout, sizing, spacing, and object structure
    - components reference colors through `themeRef` or future `...Ref` properties instead of embedding local hex values
 
-Approved technical roadmap:
-1. introduce `reportStyle.palette` and `reportStyle.themes` as the new canonical color registry while keeping current render behavior stable
-2. extend `style_service.py` so palette seeds and theme modes can derive the secondary colors needed by CSS and charts
-3. migrate shared shells first, especially title header, common section header, and the Electricity total-card pilot
-4. migrate remaining Electricity, KPI, and Utility card/chart/table themes to `themeRef`
-5. remove leftover direct color literals from components and SVG assets once all consumers are reading from the new theme registry
+Current implemented baseline:
+1. `reportStyle.palette` and `reportStyle.themes` already exist as the canonical color registry
+2. `style_service.py` already derives secondary theme colors for CSS and chart consumers
+3. shared shells such as title/header families are already wired into the canonical report token tree
+4. multiple component branches already consume `themeRef`
 
-Checkpoint rule for this migration:
-- update docs first
-- create a scoped checkpoint commit
-- run MemPalace mine
-- then begin implementation from roadmap step 1
+Remaining migration work:
+1. continue migrating remaining Electricity, KPI, and Utility card/chart/table branches to `themeRef` where local literals still exist
+2. remove leftover direct color literals from components and SVG assets as each consumer is verified stable
+3. keep compatibility bridges shrinking gradually instead of forcing one broad rewrite
 
 ### 2.8 Approved Chart Style Preset Architecture (2026-04-30)
-A second presentation-architecture phase is now approved for chart configuration, focused on reducing duplicate per-chart tuning across sections.
+A second presentation-architecture phase for chart configuration is already partially implemented and is now in expansion/cleanup mode.
 
 Problem being solved:
 - the same chart family, especially column/bar charts, currently repeats layout tuning in multiple places
@@ -230,12 +228,15 @@ Approved merge order for chart config:
 4. object-local mode branch, either `view` or `pdf`
 5. builder runtime patch only when data-driven logic still needs a final adjustment
 
-Approved implementation roadmap:
-1. update docs and create a checkpoint commit
-2. run MemPalace mine
-3. Step 1, introduce the chart-preset registry scaffold and preset-ref resolution flow
-4. Step 2, pilot `column.standard` and repoint the first Electric + KPI column-chart pair
-5. Step 3, validate view + PDF consistency, then extend to more chart families only after the column pilot is stable
+Current implemented baseline:
+1. `reportStyle.chartPreset` already exists as the shared preset registry scaffold
+2. preset-ref resolution already exists in `src/services/style_service.py`
+3. chart branches can already resolve preset ownership through `familyRef` / preset-driven merge flow
+
+Remaining implementation roadmap:
+1. continue repointing truly shared chart families toward preset ownership where reuse reduces duplication
+2. validate each migration in both `view` and `pdf` before expanding to more chart families
+3. keep builder runtime patching as the last layer when data-driven chart logic still needs final adjustments
 
 ---
 

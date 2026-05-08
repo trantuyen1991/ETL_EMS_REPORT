@@ -30,7 +30,6 @@ report:
     daily: true
     weekly: true
     monthly: true
-    quarterly: true
 
   decimal_places: 2
 
@@ -50,7 +49,6 @@ charts:
     daily: bar
     weekly: line
     monthly: bar
-    quarterly: bar
 
 # -----------------------------------------------------------------------------
 # PDF configuration

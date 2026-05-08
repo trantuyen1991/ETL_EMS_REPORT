@@ -281,25 +281,17 @@ Current anomaly rules:
 - allow renderer-specific overrides only where print behavior really differs
 
 ### 4.3 Approved color-architecture reset (2026-04-30)
-Current approved direction:
-- add a short master palette at `reportStyle.palette`
-- add a reusable theme registry at `reportStyle.themes`
-- stop adding new direct hex / rgba literals into component branches
-- derive soft backgrounds, borders, tints, and icon shells from seed colors in backend normalization logic
-- move components toward `themeRef` / `...Ref` ownership while keeping layout tokens where they already live
-- remove inline hardcoded SVG colors as each asset is touched
+Current implemented baseline:
+- `reportStyle.palette` exists in `config/report_style.json`
+- `reportStyle.themes` exists and is consumed by `src/services/style_service.py`
+- `themeRef` is already active across multiple report components
+- backend normalization already derives reusable shell colors from seed themes for CSS and chart consumers
 
-Implementation roadmap now approved:
-1. foundation: palette registry + theme registry + normalization support
-2. shared-shell pilot: title header, common section header, Electricity total card
-3. section migration: remaining Electricity, KPI, Utility cards / charts / tables
-4. cleanup: remove leftover local color literals and shrink compatibility bridges again
-
-Execution rule:
-- docs update first
-- checkpoint commit
-- MemPalace mine
-- then start implementation from roadmap step 1
+Remaining migration work:
+1. continue replacing leftover local color literals in section-specific branches
+2. continue moving remaining component ownership toward `themeRef` / `...Ref`
+3. remove inline hardcoded SVG colors as assets are touched
+4. shrink compatibility bridges further only when the canonical report-tree consumers are verified stable
 
 ### 4.4 Enterprise color palette rollout
 Approved architecture:
@@ -320,10 +312,15 @@ Approved rollout order:
 2. Batch 2, KPI section remap
 3. Batch 3, Utility section remap + remaining chart hardcode cleanup
 
-Immediate implementation goal after this doc checkpoint:
-- start Batch 1 only
+Current status after the implemented baseline:
+- Batch 1 foundation is already in place through palette/theme registry support and shared shell wiring
+- Electricity token ownership is already substantially migrated into the canonical report tree
+- KPI and Utility now both consume tokenized section/chart branches, with remaining cleanup focused on residual hardcoded recipes rather than first-time adoption
+
+Current execution rule:
 - preserve layout and business logic
 - prioritize compatibility and render stability over broad visual rewrites
+- use incremental section cleanup rather than restart the rollout from Batch 1
 
 ### 4.4 Sensor Monitoring UI
 - Step 2:
@@ -338,22 +335,17 @@ Immediate implementation goal after this doc checkpoint:
   - consider a compact completeness block (`full / partial / no data`) after anomaly semantics are approved
 
 ### 4.5 Approved chart-style preset rollout (2026-04-30)
-Current approved direction:
-- add a shared chart-preset registry so repeated chart-family tuning does not need to be re-implemented per section
-- keep chart-specific differences under `components.report.section.<section>.chart.<object>`
-- keep the public mode split to `view` and `pdf`
-- let preset structure stay ECharts-like at a controlled schema level, for example `grid`, `axis`, `series`, `label`, `legend`, `tooltip`, and `interaction`
-- use backend resolution/merge so builders consume one normalized chart config instead of scattered section-specific tweaks
+Current implemented baseline:
+- `reportStyle.chartPreset` already exists in `config/report_style.json`
+- preset-ref resolution support already exists in `src/services/style_service.py`
+- `familyRef` / preset-driven branching is already part of the active style architecture
 
-Implementation roadmap now approved:
-1. docs update first
-2. checkpoint commit
-3. MemPalace mine
-4. Step 1, scaffold chart-preset registry + preset-ref resolution support
-5. Step 2, pilot `column.standard` and repoint the first Electric + KPI column charts
-6. Step 3, validate view/PDF output before expanding to more chart families
+Remaining rollout work:
+1. continue repointing more chart objects toward shared preset families where reuse is real
+2. validate each migration in both `view` and `pdf` before broadening preset ownership
+3. keep object-local overrides only for section-specific differences that should not be normalized away
 
-Execution rule:
+Execution rule remains:
 - presets should remain project-owned schema, not unrestricted raw ECharts blobs
 - interactive view-only behavior such as tooltip, hover, and zoom must stay isolated from PDF mode rules
 - builder runtime patching is still allowed as the last merge layer when data-driven chart logic requires it
@@ -384,11 +376,13 @@ Execution rule:
 - A major periodic-vs-daily PDF scale mismatch was resolved by fixing overflow in the periodic Utility Sensor Monitoring detail table rather than continuing to tune Electricity total-card CSS
 - Table pagination still needs improvement on very wide / dense sections
 
-### 5.5 Enterprise palette implementation
-- foundation semantic palette still needs to be added formally to `config/report_style.json`
-- CSS/report object color consumers still need to be repointed gradually toward the new palette branches
-- chart series / axis / grid colors still need a dedicated cleanup pass to remove remaining hardcoded values from builder logic where practical
-- the first rollout target is Electricity, which will act as the visual pilot before KPI and Utility are remapped
+### 5.5 Enterprise palette follow-up
+- the foundation semantic palette is already present in `config/report_style.json`
+- theme/preset resolution is already active in `src/services/style_service.py`
+- remaining work is now a cleanup/migration pass:
+  - repoint lingering local color literals toward palette/theme ownership
+  - keep reducing section-specific hardcoded chart colors where practical
+  - continue removing compatibility aliases only after each affected surface is verified stable
 
 ---
 

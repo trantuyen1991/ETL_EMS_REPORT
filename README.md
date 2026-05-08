@@ -117,7 +117,7 @@ REPORT_ANCHOR_DATE (.env)
 - Includes:
 - grouped KPI summary matrix by area + total
 - `Today / Yesterday / Delta %` layout for daily summary matrix
-- period summary matrix reuses the same structure with period labels such as `This Week / Previous Week` and `This Month / Previous Month`
+- period summary matrix reuses the same structure with period labels such as `This Week / Last Week` and `This Month / Last Month`
 - period `Production day` row now counts actual production days within each current / previous period
 - Daily KPI detail
 - periodic KPI detail now uses a vertical area-stacked layout (`Plant / ICO / DIODE / SAKARI`) so the PDF fits A4 width more reliably
@@ -379,14 +379,19 @@ Implemented now:
   - overview by group
   - current-day range presentation (`min / avg / max`)
   - anomaly scan table
+- Step 2: `periodic Utility sensor monitoring rollout`
+  - header stat pills
+  - overview cards by group
+  - grouped sensor cards
+  - anomaly scan table
+  - supporting period detail table
+  - full-period rollup semantics
+  - period line charts using daily aggregates, grouped by unit
 
 Planned next:
-- Step 2:
-  - extend backend sensor context for stronger derived flags and quality metadata
-  - prepare reusable context for periodic trend rendering
-- Step 3:
-  - periodic sensor monitoring UI
-  - heatmap and trend chart exploration using daily aggregates
+- heatmap / anomaly-trend exploration using daily aggregates
+- current vs previous sensor-monitoring comparison when business semantics are approved
+- compact completeness summary once anomaly semantics are finalized
 
 ---
 
@@ -439,12 +444,25 @@ docs/
 ```
 
 report_context = {
-electricity: {...},
-utility: {
-summary: {...},
-sensor_monitoring: {...}
-},
-kpi: {...}
+  meta: {...},
+  period: {...},
+  flags: {...},
+  labels: {...},
+  summary: {...},
+  sections: {
+    electricity: {...},
+    utility: {
+      consumption: {...},
+      energy: {...},
+      charts: {...},
+      sensor_monitoring: {...}
+    },
+    kpi: {...}
+  },
+  notes: [...],
+  generated_at: "...",
+  version: "v4.0.0",
+  context_mode: "html|pdf"
 }
 
 ```
@@ -519,7 +537,7 @@ output/reports/
 
 - CSV export
 - advanced charts (ECharts)
-- heatmap visualization (daily KPI / sensor)
+- sensor heatmap / anomaly-trend exploration
 - continued daily-first UI refinement
 - Windows executable packaging
 

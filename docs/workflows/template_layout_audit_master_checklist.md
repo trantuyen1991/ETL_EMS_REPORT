@@ -19,7 +19,7 @@ For each audited surface/section, check:
 ## Audit scenarios
 - [x] Daily-only anchor: `2025-06-25`
 - [x] Sunday anchor (daily + weekly): `2025-06-29`
-- [ ] Month-end anchor (daily + monthly): `2025-05-31`
+- [x] Month-end anchor (daily + monthly): `2025-05-31`
 
 ## Surface order
 ### Step 1. Daily PDF layout audit
@@ -79,14 +79,32 @@ For each audited surface/section, check:
 - [ ] `src/templates/report/view/sections/utility.html`
 - [ ] `src/templates/report/view/sections/kpi.html`
 - [ ] `src/templates/report/view/sections/footer.html`
+- Progress to date:
+  - targeted weekly periodic view passes were executed during Electricity, KPI, and Utility polish
+  - weekly Electricity heatmap legend simplification and label cleanup were reviewed in the live periodic view
+  - periodic KPI dashboard/detail layout updates were reviewed during the weekly family polish
+  - a formal checklist-close for the entire weekly view surface is still pending
 
 ### Step 5. Monthly PDF layout audit
-- [ ] Re-check periodic PDF with month-end output pages
-- [ ] Focus on sections with longer tables/charts under monthly density
+- [x] Re-check periodic PDF with month-end output pages
+- [x] Focus on sections with longer tables/charts under monthly density
+- [x] Checkpoint closed for the accepted current monthly slice
+- Durable summary:
+  - monthly Electricity heatmap legend/padding and Top Meter compaction were validated on real PDF output
+  - monthly Utility chart sizing, spacing, and comparison/deviation balance were re-verified on real renders
+  - monthly Utility Energy layout was rearranged to `Trend -> Distribution + Deviation -> Heatmap`
+  - `Utility Detail Summary` and `Daily Utility Detail` were verified on the same PDF page after compaction
+  - monthly pagination verification used `pdftotext -layout` when direct local PDF inspection was restricted
 
 ### Step 6. Monthly view layout audit
-- [ ] Re-check periodic view with month-end output
-- [ ] Focus on overflow, label crowding, and card balance
+- [x] Re-check periodic view with month-end output
+- [x] Focus on overflow, label crowding, and card balance
+- [x] Checkpoint closed for the accepted current monthly slice
+- Durable summary:
+  - monthly section-header date chips were normalized across Electricity, Utility, and KPI
+  - monthly Electricity heatmap and Top Meter section were reviewed in the real periodic view
+  - monthly Utility chart balance was reviewed with live DOM/CDP measurements
+  - monthly Utility Energy layout, donut positioning, and heatmap legend cleanup were accepted after screenshot review
 
 ## Deliverables per step
 - [x] Checklist updated with findings

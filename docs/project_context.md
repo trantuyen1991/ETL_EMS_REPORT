@@ -214,23 +214,36 @@ Main responsibilities:
 
 ### 6.2 Context Structure
 
-The final `report_context` contains:
+The final `report_context` currently contains:
 
 ```
 report_context
-├── header
-├── electricity
-├── utility
-│   ├── summary
-│   ├── daily_detail
-│   └── sensor_monitoring
-│       ├── metric_columns
-│       ├── daily_rows
-│       ├── overview_cards
-│       ├── groups
-│       └── anomaly_rows
-├── kpi
-└── metadata
+├── meta
+├── period
+├── flags
+├── labels
+├── summary
+├── sections
+│   ├── electricity
+│   ├── utility
+│   │   ├── daily_dashboard
+│   │   ├── energy
+│   │   ├── consumption
+│   │   ├── charts
+│   │   └── sensor_monitoring
+│   │       ├── metric_columns
+│   │       ├── daily_rows
+│   │       ├── overview_cards
+│   │       ├── groups
+│   │       ├── anomaly_rows
+│   │       ├── period_detail_tables
+│   │       ├── trend_clusters_render
+│   │       └── period_trend_clusters_render
+│   └── kpi
+├── notes
+├── generated_at
+├── version
+└── context_mode
 ```
 
 ---
@@ -420,11 +433,11 @@ processvalue table
     ↓
 processvalue_repository
     ↓
-processvalue_service (aggregate avg/max)
+processvalue_service (aggregate min/avg/max/latest + quality counts)
     ↓
 utility_service (build sensor context)
     ↓
-report_context.utility.sensor_monitoring
+report_context.sections.utility.sensor_monitoring
     ↓
 render in Utility section
 ```
