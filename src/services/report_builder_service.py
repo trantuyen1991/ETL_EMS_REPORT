@@ -2366,6 +2366,8 @@ class ReportBuilderService:
         is_weekly_period = period_type == "weekly"
         is_monthly_period = period_type == "monthly"
         has_dense_columns = len(x_labels) > 8
+        use_area_legend = is_weekly_period or is_monthly_period
+        hide_y_axis_labels = use_area_legend
         bottom_gap = 44 if is_monthly_period else (62 if is_weekly_period or has_dense_columns else 44)
         label_rotate = 24 if is_monthly_period else (28 if is_weekly_period or has_dense_columns else 0)
         label_font_size = 9 if len(x_labels) <= 8 else 8
@@ -2427,27 +2429,31 @@ class ReportBuilderService:
                     },
                 })
 
+        grid_option = self._resolve_chart_grid(
+            {
+                "left": 18 if hide_y_axis_labels else 58,
+                "right": 18,
+                "top": 10,
+                "bottom": bottom_gap,
+                "containLabel": False,
+            },
+            "electricity",
+            "periodHeatmap",
+            "monthly" if period_type == "monthly" else ("dense" if len(x_labels) > 8 else "default"),
+        )
+        if hide_y_axis_labels:
+            grid_option["left"] = 18
+
         return {
             "title": "Daily total heatmap",
             "subtitle": "kWh by area and total",
-            "show_scale_legend": not is_monthly_period,
-            "area_legend": area_legend if is_monthly_period else [],
+            "show_scale_legend": not use_area_legend,
+            "area_legend": area_legend if use_area_legend else [],
             "option": {
                 "tooltip": {
                     "position": "top",
                 },
-                "grid": self._resolve_chart_grid(
-                    {
-                        "left": 18 if period_type == "monthly" else 58,
-                        "right": 18,
-                        "top": 10,
-                        "bottom": bottom_gap,
-                        "containLabel": False,
-                    },
-                    "electricity",
-                    "periodHeatmap",
-                    "monthly" if period_type == "monthly" else ("dense" if len(x_labels) > 8 else "default"),
-                ),
+                "grid": grid_option,
                 "xAxis": {
                     "type": "category",
                     "data": x_labels,
@@ -2467,7 +2473,7 @@ class ReportBuilderService:
                     "axisLine": {"show": False},
                     "axisTick": {"show": False},
                     "axisLabel": {
-                        "show": period_type != "monthly",
+                        "show": not hide_y_axis_labels,
                         "fontWeight": 700,
                         "color": primary_text_color,
                     },
