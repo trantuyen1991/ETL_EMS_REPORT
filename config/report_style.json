@@ -950,7 +950,7 @@
                 },
                 "monthly": {
                   "view": {
-                    "height": "300px",
+                    "height": "360px",
                     "legend": {
                       "bottom": 0,
                       "left": "center"
@@ -964,7 +964,7 @@
                     }
                   },
                   "pdf": {
-                    "height": "168px",
+                    "height": "202px",
                     "legend": {
                       "bottom": 0,
                       "left": "center"
@@ -1036,7 +1036,7 @@
                     "grid": {
                       "left": 12,
                       "right": 12,
-                      "top": 8,
+                      "top": 10,
                       "bottom": 30,
                       "containLabel": false
                     },
@@ -1453,7 +1453,7 @@
                 },
                 "monthly": {
                   "view": {
-                    "height": "300px",
+                    "height": "348px",
                     "gridColumn": "2",
                     "grid": {
                       "left": 56,
@@ -1477,7 +1477,7 @@
                     }
                   },
                   "pdf": {
-                    "height": "168px",
+                    "height": "204px",
                     "gridColumn": "2",
                     "grid": {
                       "left": 56,
