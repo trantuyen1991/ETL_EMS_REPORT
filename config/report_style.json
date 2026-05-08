@@ -1210,6 +1210,34 @@
                     "default": "156px",
                     "single": "142px"
                   }
+                },
+                "monthly": {
+                  "view": {
+                    "legend": {
+                      "bottom": 0,
+                      "left": "center"
+                    },
+                    "grid": {
+                      "left": 28,
+                      "right": 18,
+                      "top": 54,
+                      "bottom": 36,
+                      "containLabel": true
+                    }
+                  },
+                  "pdf": {
+                    "legend": {
+                      "bottom": 0,
+                      "left": "center"
+                    },
+                    "grid": {
+                      "left": 24,
+                      "right": 16,
+                      "top": 50,
+                      "bottom": 32,
+                      "containLabel": true
+                    }
+                  }
                 }
               },
               "sensorCluster": {
@@ -1455,6 +1483,108 @@
                   "periodicPage2DualAxis": {
                     "view": "280px",
                     "pdf": "140px"
+                  }
+                },
+                "monthly": {
+                  "summary": {
+                    "legend": {
+                      "bottom": 0,
+                      "left": "center"
+                    },
+                    "grid": {
+                      "left": 32,
+                      "right": 24,
+                      "top": 25,
+                      "bottom": 28,
+                      "containLabel": true
+                    }
+                  },
+                  "dualAxis": {
+                    "legend": {
+                      "bottom": 0,
+                      "left": "center"
+                    },
+                    "grid": {
+                      "left": 44,
+                      "right": 44,
+                      "top": 28,
+                      "bottom": 42,
+                      "containLabel": false
+                    }
+                  },
+                  "periodicPages": {
+                    "page1": {
+                      "summary": {
+                        "xAxis": {
+                          "axisLabel": {
+                            "rotate": 32,
+                            "margin": 12,
+                            "interval": 0,
+                            "lineHeight": 11
+                          }
+                        }
+                      },
+                      "dualAxis": {
+                        "xAxis": {
+                          "axisLabel": {
+                            "rotate": 32,
+                            "margin": 12,
+                            "interval": 0,
+                            "lineHeight": 11
+                          }
+                        },
+                        "leftAxis": {
+                          "scale": {
+                            "preferZeroFloor": true,
+                            "maxDecimals": 0,
+                            "targetTickCount": 4
+                          }
+                        },
+                        "rightAxis": {
+                          "scale": {
+                            "preferZeroFloor": false,
+                            "maxDecimals": 1,
+                            "targetTickCount": 4
+                          }
+                        }
+                      }
+                    },
+                    "page2": {
+                      "summary": {
+                        "xAxis": {
+                          "axisLabel": {
+                            "rotate": 32,
+                            "margin": 12,
+                            "interval": 0,
+                            "lineHeight": 11
+                          }
+                        }
+                      },
+                      "dualAxis": {
+                        "xAxis": {
+                          "axisLabel": {
+                            "rotate": 32,
+                            "margin": 12,
+                            "interval": 0,
+                            "lineHeight": 11
+                          }
+                        },
+                        "leftAxis": {
+                          "scale": {
+                            "preferZeroFloor": true,
+                            "maxDecimals": 0,
+                            "targetTickCount": 4
+                          }
+                        },
+                        "rightAxis": {
+                          "scale": {
+                            "preferZeroFloor": false,
+                            "maxDecimals": 1,
+                            "targetTickCount": 4
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               },

@@ -185,6 +185,17 @@ class ReportBuilderService:
             return dict(mode_node)
         return dict(variant_node)
 
+    def _merge_chart_config_branch(self, branch_name: str, *paths: tuple[str, ...]) -> Dict[str, Any]:
+        """Merge one chart config branch from multiple chart-node paths in order."""
+        merged: Dict[str, Any] = {}
+        for path in paths:
+            if not path:
+                continue
+            current = self._get_chart_config_branch(branch_name, *path)
+            if isinstance(current, dict):
+                merged.update(current)
+        return merged
+
     def _resolve_utility_chart_layout(self, layout_key: str, period_type: str) -> Dict[str, Any]:
         """Resolve config-driven Utility layout metadata for the active period."""
         variant_name = 'monthly' if str(period_type or '').strip().lower() == 'monthly' else 'default'
@@ -4880,6 +4891,7 @@ class ReportBuilderService:
     ) -> list[dict[str, Any]]:
         """Build daily aggregate line charts for periodic utility sensor monitoring."""
         trend_mode = str(sensor_monitoring.get("trend_mode") or "").strip().lower()
+        normalized_period_type = str(period_type or "").strip().lower()
         daily_rows = sensor_monitoring.get("daily_rows") or []
         metric_columns = sensor_monitoring.get("metric_columns") or []
 
@@ -4954,6 +4966,63 @@ class ReportBuilderService:
             if not option_series:
                 continue
 
+            period_sensor_trend_monthly_path = (
+                ("utility", "periodSensorTrend", "monthly")
+                if normalized_period_type == "monthly"
+                else ()
+            )
+            legend_option = self._resolve_chart_legend(
+                {
+                    "top": 0,
+                    "left": 8,
+                    "right": 8,
+                    "itemWidth": 12,
+                    "itemHeight": 8,
+                    "icon": "roundRect",
+                    "textStyle": {
+                        "fontSize": 11,
+                        "fontWeight": 600,
+                        "color": primary_text_color,
+                    },
+                },
+                "utility",
+                "periodSensorTrend",
+            )
+            monthly_legend_cfg = self._merge_chart_config_branch(
+                "legend",
+                period_sensor_trend_monthly_path,
+            )
+            if monthly_legend_cfg:
+                for legend_key, legend_value in monthly_legend_cfg.items():
+                    if legend_value is not None:
+                        legend_option[legend_key] = legend_value
+                if monthly_legend_cfg.get("left") is not None:
+                    legend_option.pop("right", None)
+                if monthly_legend_cfg.get("top") is not None:
+                    legend_option.pop("bottom", None)
+                if monthly_legend_cfg.get("bottom") is not None:
+                    legend_option.pop("top", None)
+
+            grid_option = self._resolve_chart_grid(
+                {
+                    "left": 20,
+                    "right": 16,
+                    "top": 54,
+                    "bottom": 30,
+                    "containLabel": True,
+                },
+                "utility",
+                "periodSensorTrend",
+            )
+            monthly_grid_cfg = self._merge_chart_config_branch(
+                "grid",
+                period_sensor_trend_monthly_path,
+            )
+            if monthly_grid_cfg:
+                for grid_key in ("left", "right", "top", "bottom", "containLabel"):
+                    if monthly_grid_cfg.get(grid_key) is not None:
+                        grid_option[grid_key] = monthly_grid_cfg.get(grid_key)
+
             rendered_charts.append({
                 "chart_id": f"utility-sensor-period-trend-{self._slugify(unit) or unit_index}",
                 "chart_key": f"period_trend_{self._slugify(unit) or unit_index}",
@@ -4966,34 +5035,8 @@ class ReportBuilderService:
                         "trigger": "axis",
                         "axisPointer": {"type": "line"},
                     },
-                    "legend": self._resolve_chart_legend(
-                        {
-                            "top": 0,
-                            "left": 8,
-                            "right": 8,
-                            "itemWidth": 12,
-                            "itemHeight": 8,
-                            "icon": "roundRect",
-                            "textStyle": {
-                                "fontSize": 11,
-                                "fontWeight": 600,
-                                "color": primary_text_color,
-                            },
-                        },
-                        "utility",
-                        "periodSensorTrend",
-                    ),
-                    "grid": self._resolve_chart_grid(
-                        {
-                            "left": 20,
-                            "right": 16,
-                            "top": 54,
-                            "bottom": 30,
-                            "containLabel": True,
-                        },
-                        "utility",
-                        "periodSensorTrend",
-                    ),
+                    "legend": legend_option,
+                    "grid": grid_option,
                     "xAxis": {
                         "type": "category",
                         "boundaryGap": False,
@@ -5302,8 +5345,8 @@ class ReportBuilderService:
             all_timestamps = ["-"]
 
         normalized_axis_label_mode = str(axis_label_mode or "intraday").strip().lower()
+        normalized_period_type = str(period_type or "").strip().lower()
         if normalized_axis_label_mode == "periodic":
-            normalized_period_type = str(period_type or "").strip().lower()
             if normalized_period_type == "weekly":
                 formatted_labels = [
                     self._format_periodic_axis_date_label(ts_value, period_type).split("(")[-1].rstrip(")")
@@ -5330,6 +5373,15 @@ class ReportBuilderService:
         }]
         dual_axis_enabled = len(axis_list) > 1
         dual_axis_path = ("utility", "sensorCluster", "dualAxis")
+        sensor_cluster_base_path = dual_axis_path if dual_axis_enabled else ("utility", "sensorCluster")
+        is_monthly_periodic = normalized_axis_label_mode == "periodic" and normalized_period_type == "monthly"
+        sensor_cluster_monthly_path = (
+            ("utility", "sensorCluster", "monthly", "dualAxis")
+            if is_monthly_periodic and dual_axis_enabled
+            else ("utility", "sensorCluster", "monthly", "summary")
+            if is_monthly_periodic
+            else ()
+        )
         dual_axis_left_axis = self._get_chart_config_branch("leftAxis", *dual_axis_path) if dual_axis_enabled else {}
         dual_axis_right_axis = self._get_chart_config_branch("rightAxis", *dual_axis_path) if dual_axis_enabled else {}
         dual_axis_x_axis = self._get_chart_config_branch("xAxis", *dual_axis_path) if dual_axis_enabled else {}
@@ -5348,12 +5400,32 @@ class ReportBuilderService:
             normalized_page_variant,
             page_chart_family,
         ) if normalized_page_variant else ()
+        monthly_page_variant_path = (
+            "utility",
+            "sensorCluster",
+            "monthly",
+            "periodicPages",
+            normalized_page_variant,
+            page_chart_family,
+        ) if (is_monthly_periodic and normalized_page_variant) else ()
         page_legend_cfg = self._get_chart_config_branch("legend", *page_variant_path) if page_variant_path else {}
+        monthly_page_legend_cfg = self._get_chart_config_branch("legend", *monthly_page_variant_path) if monthly_page_variant_path else {}
         page_grid_cfg = self._get_chart_config_branch("grid", *page_variant_path) if page_variant_path else {}
+        monthly_page_grid_cfg = self._get_chart_config_branch("grid", *monthly_page_variant_path) if monthly_page_variant_path else {}
         page_x_axis_cfg = self._get_chart_config_branch("xAxis", *page_variant_path) if page_variant_path else {}
+        monthly_page_x_axis_cfg = self._get_chart_config_branch("xAxis", *monthly_page_variant_path) if monthly_page_variant_path else {}
         page_x_axis_label_cfg = dict(page_x_axis_cfg.get("axisLabel") or {}) if isinstance(page_x_axis_cfg, dict) else {}
+        monthly_page_x_axis_label_cfg = dict(monthly_page_x_axis_cfg.get("axisLabel") or {}) if isinstance(monthly_page_x_axis_cfg, dict) else {}
         page_left_axis_cfg = self._get_chart_config_branch("leftAxis", *page_variant_path) if page_variant_path else {}
+        monthly_page_left_axis_cfg = self._get_chart_config_branch("leftAxis", *monthly_page_variant_path) if monthly_page_variant_path else {}
         page_right_axis_cfg = self._get_chart_config_branch("rightAxis", *page_variant_path) if page_variant_path else {}
+        monthly_page_right_axis_cfg = self._get_chart_config_branch("rightAxis", *monthly_page_variant_path) if monthly_page_variant_path else {}
+        monthly_legend_cfg = self._get_chart_config_branch("legend", *sensor_cluster_monthly_path) if sensor_cluster_monthly_path else {}
+        monthly_grid_cfg = self._get_chart_config_branch("grid", *sensor_cluster_monthly_path) if sensor_cluster_monthly_path else {}
+        monthly_x_axis_cfg = self._get_chart_config_branch("xAxis", *sensor_cluster_monthly_path) if sensor_cluster_monthly_path else {}
+        monthly_x_axis_label_cfg = dict(monthly_x_axis_cfg.get("axisLabel") or {}) if isinstance(monthly_x_axis_cfg, dict) else {}
+        monthly_left_axis_cfg = self._get_chart_config_branch("leftAxis", *sensor_cluster_monthly_path) if sensor_cluster_monthly_path else {}
+        monthly_right_axis_cfg = self._get_chart_config_branch("rightAxis", *sensor_cluster_monthly_path) if sensor_cluster_monthly_path else {}
         dual_axis_variant_name = "periodicChillerDualAxis" if normalized_chart_variant == "periodic_dual_axis" else ""
         dual_axis_variant_node = (
             self._get_chart_variant_mode_node(dual_axis_variant_name, *dual_axis_path)
@@ -5570,14 +5642,17 @@ class ReportBuilderService:
         for axis_index, axis in enumerate(axis_list):
             is_right_axis = axis_index > 0
             axis_cfg = dual_axis_right_axis if (dual_axis_enabled and is_right_axis) else dual_axis_left_axis if dual_axis_enabled else {}
+            axis_monthly_cfg = monthly_right_axis_cfg if (dual_axis_enabled and is_right_axis) else monthly_left_axis_cfg if dual_axis_enabled else {}
             axis_page_cfg = page_right_axis_cfg if (dual_axis_enabled and is_right_axis) else page_left_axis_cfg if dual_axis_enabled else {}
+            axis_monthly_page_cfg = monthly_page_right_axis_cfg if (dual_axis_enabled and is_right_axis) else monthly_page_left_axis_cfg if dual_axis_enabled else {}
             merged_axis_cfg = dict(axis_cfg or {})
-            if isinstance(axis_page_cfg, dict):
-                for merge_key, merge_value in axis_page_cfg.items():
-                    if merge_key == "scale":
-                        continue
-                    if merge_value is not None:
-                        merged_axis_cfg[merge_key] = merge_value
+            for override_cfg in (axis_page_cfg, axis_monthly_cfg, axis_monthly_page_cfg):
+                if isinstance(override_cfg, dict):
+                    for merge_key, merge_value in override_cfg.items():
+                        if merge_key == "scale":
+                            continue
+                        if merge_value is not None:
+                            merged_axis_cfg[merge_key] = merge_value
             axis_variant_cfg = dual_axis_right_axis_variant if (dual_axis_enabled and is_right_axis) else dual_axis_left_axis_variant if dual_axis_enabled else {}
             default_name_gap = 2 if is_right_axis else 12
             default_label_margin = 0 if is_right_axis else 8
@@ -5609,6 +5684,10 @@ class ReportBuilderService:
             }
             if dual_axis_scale_override:
                 scale_cfg = axis_variant_cfg.get("scale") if isinstance(axis_variant_cfg.get("scale"), dict) else {}
+                if not scale_cfg and isinstance(axis_monthly_page_cfg.get("scale"), dict):
+                    scale_cfg = axis_monthly_page_cfg.get("scale") or {}
+                if not scale_cfg and isinstance(axis_monthly_cfg.get("scale"), dict):
+                    scale_cfg = axis_monthly_cfg.get("scale") or {}
                 if not scale_cfg and isinstance(axis_page_cfg.get("scale"), dict):
                     scale_cfg = axis_page_cfg.get("scale") or {}
                 scale = build_axis_scale(
@@ -5635,7 +5714,7 @@ class ReportBuilderService:
 
         grid_option = self._resolve_chart_grid(
             default_grid,
-            *(dual_axis_path if dual_axis_enabled else ("utility", "sensorCluster")),
+            *sensor_cluster_base_path,
         )
 
         legend_option = self._resolve_chart_legend(
@@ -5646,39 +5725,48 @@ class ReportBuilderService:
                 "itemHeight": 8,
                 "textStyle": {"color": primary_text_color, "fontSize": 10},
             },
-            *(dual_axis_path if dual_axis_enabled else ("utility", "sensorCluster")),
+            *sensor_cluster_base_path,
         )
-        if isinstance(page_legend_cfg, dict) and page_legend_cfg:
-            for legend_key, legend_value in page_legend_cfg.items():
+
+        def apply_legend_overrides(target: dict[str, Any], cfg: dict[str, Any]) -> None:
+            if not isinstance(cfg, dict) or not cfg:
+                return
+            for legend_key, legend_value in cfg.items():
                 if legend_value is not None:
-                    legend_option[legend_key] = legend_value
-            if page_legend_cfg.get("left") is not None:
-                legend_option.pop("right", None)
-            if page_legend_cfg.get("top") is not None:
-                legend_option.pop("bottom", None)
-            if page_legend_cfg.get("bottom") is not None:
-                legend_option.pop("top", None)
-        if isinstance(page_grid_cfg, dict) and page_grid_cfg:
-            for grid_key in ("left", "right", "top", "bottom", "containLabel"):
-                if page_grid_cfg.get(grid_key) is not None:
-                    grid_option[grid_key] = page_grid_cfg.get(grid_key)
+                    target[legend_key] = legend_value
+            if cfg.get("left") is not None:
+                target.pop("right", None)
+            if cfg.get("top") is not None:
+                target.pop("bottom", None)
+            if cfg.get("bottom") is not None:
+                target.pop("top", None)
+
+        for legend_cfg in (page_legend_cfg, monthly_legend_cfg, monthly_page_legend_cfg):
+            apply_legend_overrides(legend_option, legend_cfg)
+
+        for grid_cfg in (page_grid_cfg, monthly_grid_cfg, monthly_page_grid_cfg):
+            if isinstance(grid_cfg, dict) and grid_cfg:
+                for grid_key in ("left", "right", "top", "bottom", "containLabel"):
+                    if grid_cfg.get(grid_key) is not None:
+                        grid_option[grid_key] = grid_cfg.get(grid_key)
 
         if normalized_chart_variant == "periodic_chiller_summary":
             summary_legend_cfg = summary_variant_node.get("legend") if isinstance(summary_variant_node.get("legend"), dict) else {}
             summary_grid_cfg = summary_variant_node.get("grid") if isinstance(summary_variant_node.get("grid"), dict) else {}
-            if not page_legend_cfg:
+            if not page_legend_cfg and not monthly_page_legend_cfg and not monthly_legend_cfg:
                 legend_option["left"] = summary_legend_cfg.get("left") or "center"
                 legend_option["top"] = summary_legend_cfg.get("top") if summary_legend_cfg.get("top") is not None else 6
                 legend_option.pop("right", None)
                 legend_option.pop("bottom", None)
-            if not page_grid_cfg:
+            if not page_grid_cfg and not monthly_page_grid_cfg and not monthly_grid_cfg:
                 grid_option["bottom"] = int(summary_grid_cfg.get("bottom")) if summary_grid_cfg.get("bottom") is not None else 25
 
         merged_x_axis_label_cfg = dict(dual_axis_x_axis_label or {})
-        if isinstance(page_x_axis_label_cfg, dict):
-            for merge_key, merge_value in page_x_axis_label_cfg.items():
-                if merge_value is not None:
-                    merged_x_axis_label_cfg[merge_key] = merge_value
+        for override_cfg in (page_x_axis_label_cfg, monthly_x_axis_label_cfg, monthly_page_x_axis_label_cfg):
+            if isinstance(override_cfg, dict):
+                for merge_key, merge_value in override_cfg.items():
+                    if merge_value is not None:
+                        merged_x_axis_label_cfg[merge_key] = merge_value
 
         x_axis_label_option = {
             "color": muted_text_color,
