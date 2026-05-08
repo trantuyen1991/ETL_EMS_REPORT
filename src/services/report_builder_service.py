@@ -4757,7 +4757,7 @@ class ReportBuilderService:
 
         pie_defaults = {
             "radius": ("40%", "76%") if is_pdf_mode else ("46%", "90%"),
-            "center": ("39%", "54%") if is_pdf_mode else ("39%", "56%"),
+            "center": ("49%", "54%") if is_pdf_mode else ("49%", "56%"),
             "sliceBorderRadius": 10,
         } if normalized_period_type == "monthly" else {
             "radius": ("48%", "72%") if is_pdf_mode else ("56%", "86%"),
