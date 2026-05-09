@@ -5739,8 +5739,18 @@
             margin-bottom: 14px;
         }
 
-        .kpi-monthly-variance-tile {
+        .kpi-monthly-insight-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
             margin-bottom: 14px;
+        }
+
+        .kpi-monthly-insight-grid .kpi-chart-card {
+            min-height: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .kpi-monthly-compare-grid {
@@ -5786,6 +5796,10 @@
 
         .kpi-periodic-variance-chart {
             height: var(--report-components-report-section-kpi-chart-period-variance-height-view, 288px);
+        }
+
+        .kpi-monthly-donut-chart {
+            height: var(--report-components-report-section-kpi-chart-energy-share-height-view, 288px);
         }
 
         .kpi-periodic-heatmap-tile {
