@@ -7221,7 +7221,7 @@ class ReportBuilderService:
         max_value = max(values, default=0.0)
         axis_padding_left = float(label_config.get("axisPaddingLeft", 22) or 0.0)
         axis_padding_right = float(label_config.get("axisPaddingRight", 22) or 0.0)
-        if normalized_period_type == "weekly":
+        if normalized_period_type in {"weekly", "monthly"}:
             axis_padding = max(axis_padding_left, axis_padding_right)
             axis_limit = round(max(10.0, max(abs(float(min_value)), abs(float(max_value))) + axis_padding), 2)
             axis_min = -axis_limit

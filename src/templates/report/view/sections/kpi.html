@@ -204,7 +204,7 @@
                     {% endif %}
                 </div>
 
-                {% if not flags.is_daily_report and period.type == 'weekly' %}
+                {% if not flags.is_daily_report and period.type in ['weekly', 'monthly'] %}
                 <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile kpi-periodic-heatmap-tile">
                     <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.period_heatmap.title }}</h3>
                     <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.period_heatmap.subtitle }}</p>
