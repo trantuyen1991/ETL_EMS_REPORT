@@ -5798,10 +5798,6 @@
             height: var(--report-components-report-section-kpi-chart-period-variance-height-view, 288px);
         }
 
-        .kpi-monthly-donut-chart {
-            height: var(--report-components-report-section-kpi-chart-energy-share-height-view, 288px);
-        }
-
         .kpi-periodic-heatmap-tile {
             margin-top: 14px;
         }

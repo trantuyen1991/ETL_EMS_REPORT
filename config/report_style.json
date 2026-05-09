@@ -2025,22 +2025,6 @@
                   }
                 }
               },
-              "energyShare": {
-                "height": {
-                  "view": "288px",
-                  "pdf": "220px"
-                },
-                "legend": {
-                  "bottom": 0,
-                  "left": "center",
-                  "itemWidth": 11,
-                  "itemHeight": 8,
-                  "textStyle": {
-                    "fontSize": 9,
-                    "color": "#5f7387"
-                  }
-                }
-              },
               "theme": {
                 "series": {
                   "themeRef": "chart.default"
