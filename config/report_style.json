@@ -1488,14 +1488,14 @@
                 "monthly": {
                   "summary": {
                     "legend": {
-                      "bottom": 0,
+                      "bottom": -5,
                       "left": "center"
                     },
                     "grid": {
                       "left": 32,
                       "right": 24,
-                      "top": 25,
-                      "bottom": 28,
+                      "top": 15,
+                      "bottom": 15,
                       "containLabel": true
                     }
                   },
@@ -1591,7 +1591,7 @@
                       "summary": {
                         "grid": {
                           "top": 15,
-                          "bottom": 25
+                          "bottom": 15
                         }
                       }
                     }
@@ -2022,22 +2022,6 @@
                     "axisLabel": {
                       "color": "#223548"
                     }
-                  }
-                }
-              },
-              "energyShare": {
-                "height": {
-                  "view": "288px",
-                  "pdf": "220px"
-                },
-                "legend": {
-                  "bottom": 0,
-                  "left": "center",
-                  "itemWidth": 11,
-                  "itemHeight": 8,
-                  "textStyle": {
-                    "fontSize": 9,
-                    "color": "#5f7387"
                   }
                 }
               },

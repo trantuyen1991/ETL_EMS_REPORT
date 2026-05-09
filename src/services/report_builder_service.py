@@ -6436,7 +6436,7 @@ class ReportBuilderService:
         is_daily_comparison = current_label == "Today" and previous_label == "Yesterday"
         compare_title = "Energy KPI: Today vs yesterday" if is_daily_comparison else "Energy KPI comparison"
         compare_subtitle = "KPI comparison by Total and workshop" if is_daily_comparison else f"{current_label} vs {previous_label.lower()} by Total and workshop"
-        reverse_kpi_order = normalized_period_type == "weekly"
+        reverse_kpi_order = normalized_period_type in {"weekly", "monthly"}
         waterfall_subtitle = (
             "Decomposition of the Total KPI movement"
             if is_daily_comparison else
@@ -6458,30 +6458,6 @@ class ReportBuilderService:
             period_type=normalized_period_type,
         )
         period_heatmap_empty = not bool(period_heatmap_option)
-
-        energy_share_items: list[dict[str, Any]] = []
-        if normalized_period_type == "monthly":
-            for area_key, area_label in (("diode", "DIODE"), ("ico", "ICO"), ("sakari", "SAKARI")):
-                area_summary = current_summary.get("areas", {}).get(area_key, {}) or {}
-                area_energy = self._safe_float(area_summary.get("energy")) or 0.0
-                if area_energy <= 0:
-                    continue
-                energy_share_items.append({
-                    "name": area_label,
-                    "value": round(area_energy, 4),
-                    "itemStyle": {
-                        "color": area_visual_map[area_key]["bar_color"],
-                    },
-                })
-        total_energy_share = self._safe_float(current_plant.get("total_energy")) or sum(
-            float(item.get("value") or 0.0) for item in energy_share_items
-        )
-        energy_share_option = self._build_v3_kpi_energy_share_option(
-            items=energy_share_items,
-            total_value=total_energy_share,
-            current_label=current_label,
-        ) if normalized_period_type == "monthly" else {}
-        energy_share_empty = not bool(energy_share_option)
 
         return {
             "cards": cards,
@@ -6544,16 +6520,6 @@ class ReportBuilderService:
                         variance_items,
                         period_type=normalized_period_type,
                     ),
-                },
-                "energy_share": {
-                    "title": "Workshop energy share",
-                    "subtitle": (
-                        f"{current_label} energy contribution by workshop"
-                        if normalized_period_type == "monthly"
-                        else ""
-                    ),
-                    "empty_message": "No workshop energy totals recorded for this period." if energy_share_empty else "",
-                    "option": energy_share_option,
                 },
             },
         }
@@ -6810,7 +6776,13 @@ class ReportBuilderService:
                     },
                 })
 
+        area_legend = [
+            {"label": row_def[0], "color": row_def[2]}
+            for row_def in row_defs
+        ]
+
         return {
+            "area_legend": area_legend if normalized_period_type == "monthly" else [],
             "tooltip": {"position": "top"},
             "grid": self._resolve_chart_grid(
                 {
@@ -6843,6 +6815,7 @@ class ReportBuilderService:
                 "axisLine": {"show": False},
                 "axisTick": {"show": False},
                 "axisLabel": {
+                    "show": normalized_period_type != "monthly",
                     "fontWeight": 700,
                     "color": primary_text_color,
                 },
@@ -6853,7 +6826,7 @@ class ReportBuilderService:
                     "type": "heatmap",
                     "data": heatmap_data,
                     "label": {
-                        "show": True,
+                        "show": normalized_period_type != "monthly",
                         "fontSize": 8,
                         "fontWeight": 700,
                         "color": chart_text_color,
@@ -7279,97 +7252,6 @@ class ReportBuilderService:
                 }
             ],
         }
-
-    def _build_v3_kpi_energy_share_option(
-        self,
-        *,
-        items: list[dict[str, Any]],
-        total_value: float,
-        current_label: str = "This Month",
-    ) -> Dict[str, Any]:
-        """Build a monthly KPI-side donut showing workshop energy share."""
-        chart_items = [item for item in items if float(item.get("value") or 0.0) > 0]
-        if not chart_items or float(total_value or 0.0) <= 0:
-            return {}
-
-        is_pdf_mode = self._render_mode == "pdf"
-        heading_text_color = str(self._get_style_color_value("#0f2d45", "text", "heading"))
-        muted_text_color = str(self._get_style_color_value("#5f7387", "text", "muted"))
-        inverse_text_color = str(self._get_style_color_value("#ffffff", "text", "inverse"))
-        pie_cfg = self._resolve_chart_pie(
-            {
-                "radius": ("40%", "74%") if is_pdf_mode else ("46%", "82%"),
-                "center": ("50%", "42%") if is_pdf_mode else ("50%", "44%"),
-                "sliceBorderRadius": 8,
-            },
-            "kpi",
-            "energyShare",
-        )
-
-        return {
-            "tooltip": {"trigger": "item", "formatter": "{b}: {c} kWh ({d}%)"},
-            "legend": self._resolve_chart_legend(
-                {
-                    "bottom": 0,
-                    "left": "center",
-                    "itemWidth": 11,
-                    "itemHeight": 8,
-                    "textStyle": {
-                        "fontSize": 9,
-                        "color": muted_text_color,
-                    },
-                },
-                "kpi",
-                "energyShare",
-            ),
-            "title": [
-                {
-                    "text": self._fmt_chart_compact(total_value),
-                    "left": "center",
-                    "top": "33%" if is_pdf_mode else "35%",
-                    "textStyle": {
-                        "fontSize": 16 if is_pdf_mode else 18,
-                        "fontWeight": 800,
-                        "color": heading_text_color,
-                    },
-                },
-                {
-                    "text": current_label,
-                    "left": "center",
-                    "top": "47%" if is_pdf_mode else "49%",
-                    "textStyle": {
-                        "fontSize": 8 if is_pdf_mode else 9,
-                        "fontWeight": 700,
-                        "color": muted_text_color,
-                    },
-                },
-            ],
-            "series": [
-                {
-                    "type": "pie",
-                    "radius": list(pie_cfg.get("radius", ("40%", "74%") if is_pdf_mode else ("46%", "82%"))),
-                    "center": list(pie_cfg.get("center", ("50%", "42%") if is_pdf_mode else ("50%", "44%"))),
-                    "startAngle": 90,
-                    "avoidLabelOverlap": True,
-                    "itemStyle": {
-                        "borderColor": inverse_text_color,
-                        "borderWidth": 3 if is_pdf_mode else 4,
-                        "borderRadius": pie_cfg.get("sliceBorderRadius", 8),
-                    },
-                    "label": {
-                        "show": True,
-                        "position": "inside",
-                        "formatter": "{d}%",
-                        "color": inverse_text_color,
-                        "fontWeight": 700,
-                        "fontSize": 7 if is_pdf_mode else 10,
-                    },
-                    "labelLine": {"show": False},
-                    "data": chart_items,
-                }
-            ],
-        }
-
 
     def _build_v3_contribution_donut_option(
         self,
