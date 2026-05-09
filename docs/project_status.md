@@ -105,6 +105,15 @@ Stable baseline:
 - Weekly KPI lower comparison row now uses a 6:4 layout for `Energy KPI comparison` + `Total KPI change explanation`: ✅
 - Weekly KPI deviation chart now uses a centered symmetric zero axis, thicker bars, and two-line labels (`delta%` above `delta value + unit`): ✅
 - Weekly KPI compare / waterfall charts now render `This Week` before `Last Week`: ✅
+- Monthly KPI dashboard now renders as:
+  - total cards
+  - full-width `Energy KPI daily trend`
+  - shared 50/50 row: `Deviation vs Last Month` | `Energy KPI comparison`
+  - full-width `Total KPI change explanation`
+  - full-width `Energy KPI heatmap`: ✅
+- Monthly KPI compare / waterfall charts now render `This Month` before `Last Month`: ✅
+- Monthly KPI heatmap now hides in-cell values and Y-axis labels, and uses a bottom-center legend (`Total`, `DIODE`, `ICO`, `SAKARI`): ✅
+- The exploratory monthly `Workshop energy share` donut was removed from the accepted KPI layout: ✅
 - Daily KPI detail (with coverage status): ✅
 - Period KPI detail now uses a vertical area-stacked layout for A4/PDF width control: ✅
 - Weekly/periodic KPI detail now adds a leading `Index` column, reorders each day to `Plant -> DIODE -> ICO -> SAKARI`, and uses per-column heat-fill for `KPI / Product / Energy`: ✅

@@ -156,7 +156,27 @@
   - `Daily Utility Detail` was allowed to flow instead of staying overly protected as one keep-together block
   - verification via `pdftotext -layout` confirmed both blocks now appear on the same PDF page
 
+## KPI monthly layout follow-up (2026-05-09)
+- The monthly KPI periodic dashboard was iterated through several layout candidates, then closed at the accepted final arrangement:
+  - keep `Energy KPI daily trend` as a full-width opener
+  - use a shared 50/50 row for `Deviation vs Last Month` on the left and `Energy KPI comparison` on the right
+  - keep `Total KPI change explanation` as a full-width chart on the next row
+  - keep `Energy KPI heatmap` below as its own full-width row
+- The exploratory `Workshop energy share` donut was intentionally removed from the accepted monthly KPI layout after review.
+- Monthly comparison semantics were kept aligned with the approved periodic wording/order:
+  - compare series render `This Month` before `Last Month`
+  - waterfall sequence also starts from `This Month` and ends at `Last Month`
+- Monthly KPI heatmap follow-up was also finalized in the same chain:
+  - hide in-cell numeric values
+  - hide Y-axis row labels
+  - render row identification through a bottom-center legend (`Total`, `DIODE`, `ICO`, `SAKARI`)
+- Verification status for this KPI follow-up chain:
+  - monthly periodic HTML/PDF source artifacts were regenerated after each accepted step
+  - real monthly PDF export completed successfully at the final checkpoint
+  - final HTML/PDF source verification confirmed `Workshop energy share` was removed and `Energy KPI comparison` only mounts once in each rendered surface
+
 ## Next workstream
 - No immediate weekly periodic PDF blocker remains for the approved slice.
 - The current monthly Utility Energy polish slice is also closed at the accepted checkpoint.
+- The current monthly KPI layout slice is also closed at the accepted checkpoint.
 - Use `docs/workflows/template_layout_audit_master_checklist.md` for the next broader audit step when the user opens the next pass.
