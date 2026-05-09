@@ -183,13 +183,23 @@
                         </div>
 
                         {% if flags.is_daily_report %}
+                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile pdf-keep-together">
+                            <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.compare_bar.title }}</h3>
+                            <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.compare_bar.subtitle }}</p>
+                            {% if sections.kpi.charts.daily_dashboard.charts.compare_bar.empty_message %}
+                            <div class="kpi-daily-empty-state">{{ sections.kpi.charts.daily_dashboard.charts.compare_bar.empty_message }}</div>
+                            {% else %}
+                            <div id="kpi-daily-compare-chart" class="electricity-chart kpi-daily-dashboard-chart"></div>
+                            {% endif %}
+                        </div>
+
                         <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile kpi-daily-chart-tile-wide pdf-keep-together">
                             <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.variance.title }}</h3>
                             <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.variance.subtitle }}</p>
                             {% if sections.kpi.charts.daily_dashboard.charts.variance.empty_message %}
                             <div class="kpi-daily-empty-state kpi-daily-empty-state-wide">{{ sections.kpi.charts.daily_dashboard.charts.variance.empty_message }}</div>
                             {% else %}
-                            <div id="kpi-daily-variance-chart" class="electricity-chart kpi-daily-dashboard-chart"></div>
+                            <div id="kpi-daily-variance-chart" class="electricity-chart kpi-daily-dashboard-chart kpi-daily-variance-chart-tall"></div>
                             {% endif %}
                         </div>
                         {% endif %}

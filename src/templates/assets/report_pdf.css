@@ -1203,6 +1203,10 @@
         height: 148px !important;
     }
 
+    .report-period-daily .kpi-daily-variance-chart-tall {
+        height: 192px !important;
+    }
+
     .kpi-daily-dashboard-note {
         margin-top: 6px !important;
         font-size: 8px !important;
