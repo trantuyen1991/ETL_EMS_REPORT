@@ -6436,7 +6436,7 @@ class ReportBuilderService:
         is_daily_comparison = current_label == "Today" and previous_label == "Yesterday"
         compare_title = "Energy KPI: Today vs yesterday" if is_daily_comparison else "Energy KPI comparison"
         compare_subtitle = "KPI comparison by Total and workshop" if is_daily_comparison else f"{current_label} vs {previous_label.lower()} by Total and workshop"
-        reverse_kpi_order = normalized_period_type in {"weekly", "monthly"}
+        reverse_kpi_order = is_daily_comparison or normalized_period_type in {"weekly", "monthly"}
         waterfall_subtitle = (
             "Decomposition of the Total KPI movement"
             if is_daily_comparison else

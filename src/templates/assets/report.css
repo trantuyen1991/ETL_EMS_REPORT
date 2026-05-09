@@ -5815,10 +5815,6 @@
             height: 236px;
         }
 
-        .report-family-daily .kpi-daily-variance-chart-tall {
-            height: 308px;
-        }
-
         .kpi-daily-dashboard-note {
             margin: var(--report-components-chart-layout-note-margin-top, 10px) 2px 0;
             font-size: var(--report-components-chart-note-font-size, 12px);
