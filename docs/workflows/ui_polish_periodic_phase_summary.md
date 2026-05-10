@@ -175,7 +175,23 @@
   - real monthly PDF export completed successfully at the final checkpoint
   - final HTML/PDF source verification confirmed `Workshop energy share` was removed and `Energy KPI comparison` only mounts once in each rendered surface
 
+## Daily + Weekly KPI regression cleanup (2026-05-09 to 2026-05-10)
+- A small KPI regression cleanup chain was completed after the monthly KPI follow-up accidentally displaced periodic/daily comparison cards.
+- Daily KPI final accepted state after the cleanup:
+  - `Energy KPI: Today vs yesterday` was restored beside `Total KPI change explanation`
+  - both daily compare + waterfall now render `Today` before `Yesterday`
+  - `Deviation vs yesterday` keeps a centered symmetric zero axis and was finally rebalanced back to the same visual height as the upper chart row
+- Weekly KPI final accepted state after the cleanup:
+  - `Energy KPI comparison` was restored on the left of the lower row
+  - `Total KPI change explanation` remains on the right
+  - the lower weekly row again follows the approved 6:4 compare-to-waterfall layout without changing Daily or Monthly branches
+- Verification status for this cleanup chain:
+  - real daily HTML/PDF/PDF-source renders completed successfully after the Daily fixes
+  - real weekly HTML/PDF/PDF-source renders completed successfully after the Weekly fix
+  - branch scoping was checked so the Weekly template restoration did not change Daily or Monthly layout paths
+
 ## Next workstream
+- UI development is currently paused at the accepted Daily/Weekly KPI cleanup checkpoint.
 - No immediate weekly periodic PDF blocker remains for the approved slice.
 - The current monthly Utility Energy polish slice is also closed at the accepted checkpoint.
 - The current monthly KPI layout slice is also closed at the accepted checkpoint.

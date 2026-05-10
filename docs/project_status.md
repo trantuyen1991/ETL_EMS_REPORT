@@ -102,9 +102,11 @@ Stable baseline:
 - Daily KPI cards now include `Today / Yesterday` comparison: ✅
 - Period KPI dashboard now reuses the daily chart family with period labels: ✅
 - Weekly KPI top insight row now renders `Energy KPI daily trend` + `Deviation vs Last Week` in a 6:4 layout: ✅
-- Weekly KPI lower comparison row now uses a 6:4 layout for `Energy KPI comparison` + `Total KPI change explanation`: ✅
+- Weekly KPI lower comparison row now uses a 6:4 layout for `Energy KPI comparison` + `Total KPI change explanation`, with `Energy KPI comparison` restored on the left after the accepted regression cleanup: ✅
 - Weekly KPI deviation chart now uses a centered symmetric zero axis, thicker bars, and two-line labels (`delta%` above `delta value + unit`): ✅
 - Weekly KPI compare / waterfall charts now render `This Week` before `Last Week`: ✅
+- Daily KPI lower chart row now renders `Energy KPI: Today vs yesterday` beside `Total KPI change explanation`, while `Deviation vs yesterday` keeps a centered zero axis on its own row: ✅
+- Daily KPI compare / waterfall charts now render `Today` before `Yesterday`, and the daily deviation card height is rebalanced back to match the upper chart row: ✅
 - Monthly KPI dashboard now renders as:
   - total cards
   - full-width `Energy KPI daily trend`
