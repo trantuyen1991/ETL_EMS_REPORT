@@ -48,10 +48,10 @@
   - confirmed sheet count and names match the contract
   - confirmed weekly/monthly do not generate Excel
 
-- [ ] **Checkpoint 8, Documentation + closeout**
-  - update README and export docs to match the implemented flow
-  - create a clean checkpoint commit
-  - re-mine MemPalace
+- [x] **Checkpoint 8, Documentation + closeout**
+  - updated README and export docs to match the implemented flow
+  - created a clean checkpoint commit
+  - re-mined MemPalace
 
 ## Audit notes from checkpoint 1
 
