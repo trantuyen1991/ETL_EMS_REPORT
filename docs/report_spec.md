@@ -3,7 +3,7 @@
 ## 1. Report Purpose
 This report is a workshop-level reporting document designed for daily operational review, management visibility, and export-ready sharing.
 
-The report is built from structured backend context and rendered into HTML first, then used for PDF export and future CSV export.
+The report is built from structured backend context and rendered into HTML first, then used for PDF export and the approved next-step daily Excel workbook export.
 
 ---
 
@@ -680,9 +680,9 @@ Current implemented output:
 ### 13.2 Planned Output
 Planned export outputs:
 - PDF
-- CSV
+- daily Excel workbook (`.xlsx`) for the daily report only
 
-CSV export is not yet implemented but is part of the intended release workflow.
+The daily Excel workbook export is not yet implemented, but it is the approved next export workflow after PDF.
 
 ### 13.3 Output Directory
 Output paths must come from configuration in `.env`.

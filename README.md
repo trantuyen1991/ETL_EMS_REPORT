@@ -9,6 +9,7 @@ The system:
 - builds a structured `report_context`
 - renders HTML reports (view + PDF source)
 - exports final PDF outputs
+- is approved to add a daily-only Excel workbook export next
 
 ---
 
@@ -338,7 +339,7 @@ Why the split exists:
 Stable PDF chart rules:
 
 - wait for page readiness using `window.status`
-- keep the current `15000ms` readiness delay
+- keep the current `5000ms` readiness delay
 - print with Chromium `--window-status=ready`
 - use `renderer: "svg"` for PDF charts
 - keep `animation: false`
@@ -365,10 +366,11 @@ Detailed reference:
 
 ---
 
-### 6. CSV Export
-- CSV export service exists in the codebase
-- production flow is not wired to export CSV yet
-- final release workflow still treats CSV as pending
+### 6. Daily Excel Export
+- the approved next export step is one daily-only `.xlsx` workbook per run
+- weekly and monthly Excel exports are intentionally out of scope for v1
+- workbook formatting is intentionally minimal in v1, with correctness and sheet coverage prioritized over styling
+- production flow is not wired to export Excel yet
 
 ---
 
@@ -535,7 +537,7 @@ output/reports/
 
 ## Future Roadmap
 
-- CSV export
+- daily Excel workbook export
 - advanced charts (ECharts)
 - sensor heatmap / anomaly-trend exploration
 - continued daily-first UI refinement

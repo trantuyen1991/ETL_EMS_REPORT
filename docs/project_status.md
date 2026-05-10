@@ -7,7 +7,7 @@ This project is an automated energy reporting system.
 It generates structured reports from database-backed data sources and renders them into:
 - HTML (interactive view)
 - PDF (A4 print-ready format)
-- (Planned) CSV export
+- (Approved next step) daily Excel workbook export
 
 The system is designed to run once per day and automatically determine which report set should be exported for the effective anchor day.
 
@@ -365,9 +365,11 @@ Execution rule remains:
 
 ## 5. Pending Features
 
-### 5.1 CSV Export
-- CSV service exists, but production flow is not wired yet
-- Planned to export after PDF generation
+### 5.1 Daily Excel Export
+- the approved export direction is one daily-only `.xlsx` workbook per run
+- weekly and monthly Excel exports are intentionally excluded from v1
+- workbook formatting is intentionally minimal for v1, prioritizing data completeness, sheet separation, and stable generation
+- production flow is not wired yet
 
 ### 5.2 Chart Expansion
 - More charts will be added across sections
@@ -416,7 +418,7 @@ Current stabilized approach:
 - disable animation in option
 - initialize using measured element width/height
 - kick off chart init after `window.load` using `setTimeout(run, 100)`
-- keep the readiness signal: `window.status = "loading"` -> wait for `window.load` -> delay `15000ms` -> `window.status = "ready"`
+- keep the readiness signal: `window.status = "loading"` -> wait for `window.load` -> delay `5000ms` -> `window.status = "ready"`
 - print through Chrome headless after `window.status = "ready"`
 - use CDP `Page.printToPDF` with `scale=1.0`, `preferCSSPageSize=true`, and print media emulation
 - keep the legacy CLI `--print-to-pdf` path as fallback only
@@ -492,7 +494,7 @@ Rules:
 - HTML (view)
 - HTML (PDF source)
 - PDF (print)
-- CSV (planned)
+- daily Excel workbook (approved next step, not yet wired)
 
 ### Output Path
 - defined via `.env`
@@ -503,7 +505,7 @@ Rules:
 3. render each report into view HTML
 4. render each report into PDF source HTML
 5. generate each PDF via Chromium
-6. (planned) export CSV
+6. (planned next step) export one daily-only Excel workbook for the daily report
 
 ### Output Naming
 - Filename base comes from `.env`: `REPORT_FILENAME`
@@ -570,7 +572,7 @@ Immediate next priorities:
 4. Update documentation whenever style tokens expand or periodic styling scope changes
 5. Re-mine project memory after meaningful docs/code checkpoints
 6. Keep business/data logic unchanged while presentation work continues
-7. Continue sensor monitoring / CSV follow-up only after the presentation checkpoint remains stable
+7. Continue sensor monitoring / daily Excel export follow-up only after the presentation checkpoint remains stable
 8. Continue PDF regression hardening for future layout changes
 
 Header and top-summary rule for the upcoming layout batch:

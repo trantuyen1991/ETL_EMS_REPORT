@@ -33,7 +33,7 @@ Companion runbook: `docs/workflows/release_runbook.md`
 
 - [ ] Confirm docs still match the live runtime: Chromium/CDP-first PDF flow, canonical `components.report.*` style schema, and `kpi_reporting_rules.md`
 - [ ] Confirm project naming stays consistent as `Energy Consumption Reporting System`
-- [ ] Confirm CSV export is still documented as planned / not yet wired in production flow
+- [ ] Confirm daily Excel export is documented as the approved next step, daily-only in v1, and not yet wired in production flow
 - [ ] Confirm no stale dependency or release note still claims WeasyPrint is the active PDF engine
 
 ## 5. Release decision

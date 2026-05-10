@@ -298,7 +298,7 @@ The PDF shell in `base_pdf.html` uses a simple readiness signal.
 - set `window.status = "loading"` at the start
 - wait for `window.load`
 - allow chart init to start through `setTimeout(run, 100)`
-- wait an additional `15000ms`
+- wait an additional `5000ms`
 - set `window.status = "ready"`
 
 Chromium waits on:
@@ -369,7 +369,7 @@ These items are part of the current stable print baseline and should only be cha
 - Chromium flags in `src/services/pdf_service.py`
 - `--window-status=ready`
 - the `window.status` readiness flow in `base_pdf.html`
-- the `15000ms` readiness delay after `window.load`
+- the `5000ms` readiness delay after `window.load`
 - timer-based kickoff using `setTimeout(run, 100)`
 - PDF chart `renderer: "svg"`
 - PDF chart `animation: false`
