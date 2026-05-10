@@ -691,13 +691,18 @@ Output paths must come from configuration in `.env`.
 Output files must use the configured filename base and resolved report period.
 
 Current naming rule:
-- `<filename>_<period_type>_<anchor-date>`
+- `<sort-prefix>_<period_type>_<filename>_<anchor-date>`
 
 Filename base source:
 - `.env` variable: `REPORT_FILENAME`
 
+Sort prefixes:
+- `00_monthly`
+- `20_weekly`
+- `30_daily`
+
 Example:
-- `daily_automatic_report_daily_20250520.pdf`
+- `00_monthly_daily_automatic_report_20250531.pdf`
 
 ---
 

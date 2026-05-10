@@ -62,9 +62,10 @@ Stable baseline:
 - Output filename base implemented: ✅
   - `REPORT_FILENAME` from `.env`
 - Output artifact set implemented per report: ✅
-  - `*_view.html`
-  - `*_pdf_source.html`
-  - `*.pdf`
+  - `view_html/*.html`
+  - `pdf_source_html/*.html`
+  - `pdf/*.pdf`
+  - `excel/*.xlsx` for daily only
 
 ### 3.1 Electricity Section
 - Plant total summary: ✅
@@ -407,8 +408,8 @@ Execution rule remains:
   - `PRINT_STAGING_DIR`
   - otherwise `OUTPUT_DIR` when non-hidden
   - otherwise another safe non-hidden fallback
-- The final PDF is still copied back into project `output/reports/`
-- The current export batch is also copied into a dated folder under `output/reports/YYYY_MM_DD/`
+- Final canonical artifacts now write directly into monthly grouped project output under `output/reports/YYYY_MM/`
+- Each month folder is split into `pdf/`, `pdf_source_html/`, `view_html/`, and `excel/`
 
 ---
 
@@ -510,9 +511,13 @@ Rules:
 ### Output Naming
 - Filename base comes from `.env`: `REPORT_FILENAME`
 - Current format:
-  - `<filename>_<period_type>_<anchor-date>`
+  - `<sort-prefix>_<period_type>_<filename>_<anchor-date>`
+- Period sort prefixes:
+  - `00_monthly`
+  - `20_weekly`
+  - `30_daily`
 - Example:
-  - `daily_automatic_report_daily_20250520.pdf`
+  - `00_monthly_daily_automatic_report_20250531.pdf`
 
 ---
 

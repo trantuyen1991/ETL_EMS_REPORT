@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import re
-import shutil
 from pathlib import Path
 from typing import Any
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from src.config.config_loader import load_config
 from src.config.data_sources import get_data_sources
@@ -327,11 +325,28 @@ def _resolve_report_filename_base(env_cfg: dict[str, Any]) -> str:
     return _sanitize_filename_part(str(raw_value))
 
 
+def _resolve_period_sort_prefix(period_type: str) -> str:
+    """Resolve the sort prefix for canonical report filenames."""
+    normalized = str(period_type or "").strip().lower()
+    mapping = {
+        "monthly": "00",
+        "weekly": "20",
+        "daily": "30",
+    }
+    return mapping.get(normalized, "99")
+
+
+def _resolve_report_anchor_value(period):
+    """Resolve the canonical anchor date for report naming and monthly grouping."""
+    return getattr(period, "anchor_date", None) or period.end_date
+
+
 def _build_report_export_stem(env_cfg: dict[str, Any], period) -> str:
-    """Build export filename stem as <filename>_<period>_<date>."""
+    """Build export filename stem as <sort-prefix>_<period>_<filename>_<date>."""
     base_name = _resolve_report_filename_base(env_cfg)
-    anchor_value = getattr(period, "anchor_date", None) or period.end_date
-    return f"{base_name}_{period.period_type}_{anchor_value.strftime('%Y%m%d')}"
+    anchor_value = _resolve_report_anchor_value(period)
+    period_prefix = _resolve_period_sort_prefix(period.period_type)
+    return f"{period_prefix}_{period.period_type}_{base_name}_{anchor_value.strftime('%Y%m%d')}"
 
 
 def _path_contains_hidden_segment(path: Path) -> bool:
@@ -360,34 +375,20 @@ def _resolve_pdf_staging_dir(
     return Path.home() / "Reports"
 
 
-def _resolve_export_run_date(env_cfg: dict[str, Any]) -> date:
-    """Resolve the export-run date using APP_TIMEZONE when available."""
-    timezone_name = str(env_cfg.get("APP_TIMEZONE") or "").strip()
-    if timezone_name:
-        try:
-            return datetime.now(ZoneInfo(timezone_name)).date()
-        except ZoneInfoNotFoundError:
-            pass
-
-    return date.today()
-
-
-def _resolve_report_batch_dir(
-    env_cfg: dict[str, Any],
-    project_output_dir: Path,
+def _resolve_monthly_report_dir(
+    project_output_root: Path,
+    period,
 ) -> Path:
-    """Build the dated archive directory for one production export run."""
-    export_run_date = _resolve_export_run_date(env_cfg)
-    return project_output_dir / export_run_date.strftime("%Y_%m_%d")
+    """Resolve the canonical month directory for one report anchor."""
+    anchor_value = _resolve_report_anchor_value(period)
+    return project_output_root / anchor_value.strftime("%Y_%m")
 
 
-def _archive_report_batch(
+def _collect_report_batch_artifacts(
     rendered_reports: list[dict[str, Any]],
-    report_batch_dir: Path,
 ) -> list[Path]:
-    """Copy canonical artifacts from the current run into a dated batch directory."""
-    archived_paths: list[Path] = []
-    report_batch_dir.mkdir(parents=True, exist_ok=True)
+    """Collect canonical artifact paths from the current run."""
+    collected_paths: list[Path] = []
 
     for item in rendered_reports:
         artifacts = item.get("artifacts", {})
@@ -395,12 +396,9 @@ def _archive_report_batch(
             artifact_path = artifacts.get(artifact_key)
             if not isinstance(artifact_path, Path) or not artifact_path.exists():
                 continue
+            collected_paths.append(artifact_path)
 
-            archived_path = report_batch_dir / artifact_path.name
-            shutil.copy2(artifact_path, archived_path)
-            archived_paths.append(archived_path)
-
-    return archived_paths
+    return collected_paths
 
 
 def _render_report_artifacts(
@@ -411,20 +409,29 @@ def _render_report_artifacts(
     env_cfg: dict[str, Any],
     period,
     report_context: dict[str, Any],
-    project_output_dir: Path,
+    project_output_root: Path,
     staging_output_dir: Path,
 ) -> dict[str, Path]:
-    """Render one report into view HTML, PDF source HTML, PDF, and daily Excel when applicable."""
+    """Render one report into monthly grouped view HTML, PDF source HTML, PDF, and daily Excel when applicable."""
     template_bundle = _select_template_bundle(period.period_type)
     export_stem = _build_report_export_stem(env_cfg, period)
+
+    month_dir = _resolve_monthly_report_dir(project_output_root, period)
+    view_dir = month_dir / "view_html"
+    pdf_source_dir = month_dir / "pdf_source_html"
+    pdf_dir = month_dir / "pdf"
+    excel_dir = month_dir / "excel"
+
+    for path in (view_dir, pdf_source_dir, pdf_dir, excel_dir):
+        path.mkdir(parents=True, exist_ok=True)
 
     view_html = renderer.render(template_bundle["view"], report_context)
     pdf_html = renderer.render(template_bundle["pdf"], report_context)
 
-    view_path = project_output_dir / f"{export_stem}_view.html"
-    pdf_source_path = project_output_dir / f"{export_stem}_pdf_source.html"
+    view_path = view_dir / f"{export_stem}.html"
+    pdf_source_path = pdf_source_dir / f"{export_stem}.html"
     staging_html_path = staging_output_dir / f"{export_stem}_pdf_source.html"
-    final_pdf_path = project_output_dir / f"{export_stem}.pdf"
+    final_pdf_path = pdf_dir / f"{export_stem}.pdf"
     staging_pdf_path = staging_output_dir / f"{export_stem}.pdf"
 
     view_path.write_text(view_html, encoding="utf-8")
@@ -443,7 +450,7 @@ def _render_report_artifacts(
     }
 
     if str(period.period_type or "").strip().lower() == "daily":
-        excel_path = project_output_dir / f"{export_stem}.xlsx"
+        excel_path = excel_dir / f"{export_stem}.xlsx"
         excel_service.export_daily_workbook(excel_path, report_context)
         artifacts["excel"] = excel_path
 
@@ -465,19 +472,14 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
     pdf_service = PDFService(config)
     excel_service = ExcelExportService()
 
-    project_output_dir = Path("output/reports")
-    project_output_dir.mkdir(parents=True, exist_ok=True)
+    project_output_root = Path("output/reports")
+    project_output_root.mkdir(parents=True, exist_ok=True)
 
     staging_output_dir = _resolve_pdf_staging_dir(
         env_cfg=env_cfg,
-        project_output_dir=project_output_dir,
+        project_output_dir=project_output_root,
     )
     staging_output_dir.mkdir(parents=True, exist_ok=True)
-
-    report_batch_dir = _resolve_report_batch_dir(
-        env_cfg=env_cfg,
-        project_output_dir=project_output_dir,
-    )
 
     rendered_reports: list[dict[str, Any]] = []
 
@@ -506,7 +508,7 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
             env_cfg=env_cfg,
             period=period,
             report_context=report_context,
-            project_output_dir=project_output_dir,
+            project_output_root=project_output_root,
             staging_output_dir=staging_output_dir,
         )
 
@@ -522,15 +524,14 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
             artifacts["pdf"],
         )
 
-    archived_paths = _archive_report_batch(
+    batch_paths = _collect_report_batch_artifacts(
         rendered_reports=rendered_reports,
-        report_batch_dir=report_batch_dir,
     )
 
     logger.info(
-        "Archived current report batch | batch_dir=%s file_count=%s",
-        report_batch_dir,
-        len(archived_paths),
+        "Collected current report batch artifacts | output_root=%s file_count=%s",
+        project_output_root,
+        len(batch_paths),
     )
 
     return rendered_reports

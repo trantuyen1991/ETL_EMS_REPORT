@@ -22,12 +22,12 @@ Companion runbook: `docs/workflows/release_runbook.md`
 
 ## 3. Manual smoke checks
 
-- [ ] Run one daily export and verify `_view.html`, `_pdf_source.html`, and `.pdf` are produced in both flat output and the dated batch folder
+- [ ] Run one daily export and verify `.html`, `.pdf`, and `.xlsx` are produced under the correct monthly subfolders (`view_html`, `pdf_source_html`, `pdf`, `excel`)
 - [ ] Run one Sunday anchor export and verify weekly report is generated
 - [ ] Run one month-end anchor export and verify monthly report is generated
 - [ ] Open the final PDF and verify layout width, chart sizing, and table overflow are acceptable
-- [ ] Verify staged PDF output is copied back into the canonical `output/reports/` directory
-- [ ] Verify the current run also creates `output/reports/YYYY_MM_DD/` and copies the whole batch there
+- [ ] Verify staged PDF output is copied into the canonical monthly `output/reports/YYYY_MM/pdf/` directory
+- [ ] Verify filenames sort by prefix order: `00_monthly`, `20_weekly`, `30_daily`
 
 ## 4. Documentation and scope
 

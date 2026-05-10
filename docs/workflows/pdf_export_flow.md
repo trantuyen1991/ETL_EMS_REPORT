@@ -138,12 +138,10 @@ For each report, `_render_report_artifacts()` writes several files.
 
 ### Canonical project output
 
-- `output/reports/<export_stem>_view.html`
-- `output/reports/<export_stem>_pdf_source.html`
-- `output/reports/<export_stem>.pdf`
-- `output/reports/<export_run_date>/<export_stem>_view.html`
-- `output/reports/<export_run_date>/<export_stem>_pdf_source.html`
-- `output/reports/<export_run_date>/<export_stem>.pdf`
+- `output/reports/<YYYY_MM>/view_html/<export_stem>.html`
+- `output/reports/<YYYY_MM>/pdf_source_html/<export_stem>.html`
+- `output/reports/<YYYY_MM>/pdf/<export_stem>.pdf`
+- `output/reports/<YYYY_MM>/excel/<export_stem>.xlsx` for daily only
 
 ### Chromium staging output
 
@@ -163,8 +161,8 @@ The PDF print flow also writes staging artifacts into a Chromium-safe non-hidden
 
 Responsibility split:
 
-- `project_output_dir` is the canonical flat report artifact location for the most recent exports
-- `project_output_dir / <export_run_date>` stores a dated copy of the full batch for that run, for example `output/reports/2026_05_01/`
+- `project_output_dir` is the canonical month-grouped artifact root under `output/reports/`
+- each `<YYYY_MM>` folder is split into `view_html`, `pdf_source_html`, `pdf`, and `excel`
 - `staging_output_dir` is the print-safe location used only for Chromium staging and print
 
 ---

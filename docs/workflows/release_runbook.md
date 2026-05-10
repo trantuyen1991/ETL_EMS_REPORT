@@ -6,7 +6,11 @@ Notes:
 - Run from `/home/nbt/workspace/02_MySQL`
 - Each command temporarily rewrites `REPORT_ANCHOR_DATE` in `config/.env`, runs production, lists matching artifacts under `output/reports/`, then restores the original `.env`
 - Production entry point is `./venv/bin/python -m src.main`
-- After each export run, the app also copies the current batch into `output/reports/YYYY_MM_DD/` where `YYYY_MM_DD` is the export run date in `APP_TIMEZONE`
+- Canonical artifacts now write directly into `output/reports/YYYY_MM/` grouped by artifact type
+- Period sort prefixes are:
+  - `00_monthly`
+  - `20_weekly`
+  - `30_daily`
 
 ## 1. Daily-only smoke
 
@@ -17,20 +21,17 @@ p = Path('config/.env')
 lines = p.read_text(encoding='utf-8').splitlines()
 p.write_text('\n'.join('REPORT_ANCHOR_DATE=2025-06-25' if line.startswith('REPORT_ANCHOR_DATE=') else line for line in lines) + '\n', encoding='utf-8')
 PY
-./venv/bin/python -m src.main && find output/reports -maxdepth 2 -type f | sort | grep 20250625
+./venv/bin/python -m src.main && find output/reports -maxdepth 3 -type f | sort | grep 20250625
 ```
 
 Expected:
 - `daily` artifacts are generated
 - no `weekly` or `monthly` artifact should be created for this anchor
-- expected flat files:
-  - `output/reports/daily_automatic_report_daily_20250625_view.html`
-  - `output/reports/daily_automatic_report_daily_20250625_pdf_source.html`
-  - `output/reports/daily_automatic_report_daily_20250625.pdf`
-- expected dated-copy patterns:
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_daily_20250625_view.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_daily_20250625_pdf_source.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_daily_20250625.pdf`
+- expected files:
+  - `output/reports/2025_06/view_html/30_daily_daily_automatic_report_20250625.html`
+  - `output/reports/2025_06/pdf_source_html/30_daily_daily_automatic_report_20250625.html`
+  - `output/reports/2025_06/pdf/30_daily_daily_automatic_report_20250625.pdf`
+  - `output/reports/2025_06/excel/30_daily_daily_automatic_report_20250625.xlsx`
 
 ## 2. Sunday smoke
 
@@ -41,26 +42,20 @@ p = Path('config/.env')
 lines = p.read_text(encoding='utf-8').splitlines()
 p.write_text('\n'.join('REPORT_ANCHOR_DATE=2025-06-29' if line.startswith('REPORT_ANCHOR_DATE=') else line for line in lines) + '\n', encoding='utf-8')
 PY
-./venv/bin/python -m src.main && find output/reports -maxdepth 2 -type f | sort | grep 20250629
+./venv/bin/python -m src.main && find output/reports -maxdepth 3 -type f | sort | grep 20250629
 ```
 
 Expected:
 - `daily` and `weekly` artifacts are generated
 - no `monthly` artifact should be created for this anchor
-- expected flat files:
-  - `output/reports/daily_automatic_report_daily_20250629_view.html`
-  - `output/reports/daily_automatic_report_daily_20250629_pdf_source.html`
-  - `output/reports/daily_automatic_report_daily_20250629.pdf`
-  - `output/reports/daily_automatic_report_weekly_20250629_view.html`
-  - `output/reports/daily_automatic_report_weekly_20250629_pdf_source.html`
-  - `output/reports/daily_automatic_report_weekly_20250629.pdf`
-- expected dated-copy patterns:
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_daily_20250629_view.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_daily_20250629_pdf_source.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_daily_20250629.pdf`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_weekly_20250629_view.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_weekly_20250629_pdf_source.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_weekly_20250629.pdf`
+- expected files:
+  - `output/reports/2025_06/view_html/20_weekly_daily_automatic_report_20250629.html`
+  - `output/reports/2025_06/pdf_source_html/20_weekly_daily_automatic_report_20250629.html`
+  - `output/reports/2025_06/pdf/20_weekly_daily_automatic_report_20250629.pdf`
+  - `output/reports/2025_06/view_html/30_daily_daily_automatic_report_20250629.html`
+  - `output/reports/2025_06/pdf_source_html/30_daily_daily_automatic_report_20250629.html`
+  - `output/reports/2025_06/pdf/30_daily_daily_automatic_report_20250629.pdf`
+  - `output/reports/2025_06/excel/30_daily_daily_automatic_report_20250629.xlsx`
 
 ## 3. Month-end smoke
 
@@ -71,23 +66,17 @@ p = Path('config/.env')
 lines = p.read_text(encoding='utf-8').splitlines()
 p.write_text('\n'.join('REPORT_ANCHOR_DATE=2025-05-31' if line.startswith('REPORT_ANCHOR_DATE=') else line for line in lines) + '\n', encoding='utf-8')
 PY
-./venv/bin/python -m src.main && find output/reports -maxdepth 2 -type f | sort | grep 20250531
+./venv/bin/python -m src.main && find output/reports -maxdepth 3 -type f | sort | grep 20250531
 ```
 
 Expected:
 - `daily` and `monthly` artifacts are generated
 - no `weekly` artifact should be created for this anchor
-- expected flat files:
-  - `output/reports/daily_automatic_report_daily_20250531_view.html`
-  - `output/reports/daily_automatic_report_daily_20250531_pdf_source.html`
-  - `output/reports/daily_automatic_report_daily_20250531.pdf`
-  - `output/reports/daily_automatic_report_monthly_20250531_view.html`
-  - `output/reports/daily_automatic_report_monthly_20250531_pdf_source.html`
-  - `output/reports/daily_automatic_report_monthly_20250531.pdf`
-- expected dated-copy patterns:
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_daily_20250531_view.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_daily_20250531_pdf_source.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_daily_20250531.pdf`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_monthly_20250531_view.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_monthly_20250531_pdf_source.html`
-  - `output/reports/YYYY_MM_DD/daily_automatic_report_monthly_20250531.pdf`
+- expected files:
+  - `output/reports/2025_05/view_html/00_monthly_daily_automatic_report_20250531.html`
+  - `output/reports/2025_05/pdf_source_html/00_monthly_daily_automatic_report_20250531.html`
+  - `output/reports/2025_05/pdf/00_monthly_daily_automatic_report_20250531.pdf`
+  - `output/reports/2025_05/view_html/30_daily_daily_automatic_report_20250531.html`
+  - `output/reports/2025_05/pdf_source_html/30_daily_daily_automatic_report_20250531.html`
+  - `output/reports/2025_05/pdf/30_daily_daily_automatic_report_20250531.pdf`
+  - `output/reports/2025_05/excel/30_daily_daily_automatic_report_20250531.xlsx`

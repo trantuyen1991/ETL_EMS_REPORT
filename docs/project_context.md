@@ -362,13 +362,15 @@ Important rule learned from implementation:
 ```text
 project_output_dir
     output/reports/
-        <export_stem>_view.html
-        <export_stem>_pdf_source.html
-        <export_stem>.pdf
-        <export_run_date>/
-            <export_stem>_view.html
-            <export_stem>_pdf_source.html
-            <export_stem>.pdf
+        <YYYY_MM>/
+            view_html/
+                <export_stem>.html
+            pdf_source_html/
+                <export_stem>.html
+            pdf/
+                <export_stem>.pdf
+            excel/
+                <export_stem>.xlsx
 
 staging_output_dir
     <non-hidden print-safe directory>
@@ -378,8 +380,8 @@ staging_output_dir
 
 Responsibility split:
 
-* `project_output_dir` stores the canonical flat report artifacts for the latest run
-* `project_output_dir / <export_run_date>` stores a dated copy of the full export batch, for example `output/reports/2026_05_01/`
+* `project_output_dir` stores canonical report artifacts grouped by report month, for example `output/reports/2025_05/`
+* each month folder is split into `view_html`, `pdf_source_html`, `pdf`, and `excel`
 * `staging_output_dir` is the Chromium-safe print location
 
 The current stable PDF flow depends on this separation.
@@ -393,13 +395,10 @@ Current flow:
 1. resolve effective anchor day
 2. determine all report periods required for that day
 3. build report_context per report
-4. render `*_view.html`
-5. render `*_pdf_source.html`
-6. generate PDF with Chromium headless
-7. copy PDF back into project output
-8. copy the current batch into a dated folder named from the export run date, for example `output/reports/2026_05_01/`
-
-9. export one daily-only Excel workbook for the daily report only
+4. render view HTML into `output/reports/YYYY_MM/view_html/`
+5. render PDF source HTML into `output/reports/YYYY_MM/pdf_source_html/`
+6. generate PDF with Chromium headless into `output/reports/YYYY_MM/pdf/`
+7. export one daily-only Excel workbook into `output/reports/YYYY_MM/excel/`
 
 ---
 

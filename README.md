@@ -503,13 +503,21 @@ Generated files:
 ```
 
 output/reports/
-├── <filename>_<period_type>_<anchor-date>_view.html
-├── <filename>_<period_type>_<anchor-date>_pdf_source.html
-├── <filename>_<period_type>_<anchor-date>.pdf
-└── <export_run_date>/
-    ├── <filename>_<period_type>_<anchor-date>_view.html
-    ├── <filename>_<period_type>_<anchor-date>_pdf_source.html
-    └── <filename>_<period_type>_<anchor-date>.pdf
+└── <YYYY_MM>/
+    ├── pdf/
+    │   ├── 00_monthly_<filename>_<anchor-date>.pdf
+    │   ├── 20_weekly_<filename>_<anchor-date>.pdf
+    │   └── 30_daily_<filename>_<anchor-date>.pdf
+    ├── pdf_source_html/
+    │   ├── 00_monthly_<filename>_<anchor-date>.html
+    │   ├── 20_weekly_<filename>_<anchor-date>.html
+    │   └── 30_daily_<filename>_<anchor-date>.html
+    ├── view_html/
+    │   ├── 00_monthly_<filename>_<anchor-date>.html
+    │   ├── 20_weekly_<filename>_<anchor-date>.html
+    │   └── 30_daily_<filename>_<anchor-date>.html
+    └── excel/
+        └── 30_daily_<filename>_<anchor-date>.xlsx
 
 ```
 
