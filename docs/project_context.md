@@ -399,7 +399,6 @@ Current flow:
 7. copy PDF back into project output
 8. copy the current batch into a dated folder named from the export run date, for example `output/reports/2026_05_01/`
 
-Planned:
 9. export one daily-only Excel workbook for the daily report only
 
 ---
@@ -511,7 +510,7 @@ OpenClaw is expected to:
 Planned improvements:
 
 * sensor monitoring charts
-* daily Excel workbook export
+* weekly/monthly Excel workbook expansion if later approved
 * advanced KPI visualization
 * alerting / anomaly detection
 * improved PDF layout engine

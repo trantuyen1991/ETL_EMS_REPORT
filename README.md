@@ -9,7 +9,7 @@ The system:
 - builds a structured `report_context`
 - renders HTML reports (view + PDF source)
 - exports final PDF outputs
-- is approved to add a daily-only Excel workbook export next
+- exports one daily-only Excel workbook (`.xlsx`) per daily run
 
 ---
 
@@ -367,10 +367,10 @@ Detailed reference:
 ---
 
 ### 6. Daily Excel Export
-- the approved next export step is one daily-only `.xlsx` workbook per run
+- one daily-only `.xlsx` workbook is now exported per daily run
 - weekly and monthly Excel exports are intentionally out of scope for v1
 - workbook formatting is intentionally minimal in v1, with correctness and sheet coverage prioritized over styling
-- production flow is not wired to export Excel yet
+- the workbook is generated from backend report context, not from templates
 
 ---
 

@@ -7,7 +7,7 @@ This project is an automated energy reporting system.
 It generates structured reports from database-backed data sources and renders them into:
 - HTML (interactive view)
 - PDF (A4 print-ready format)
-- (Approved next step) daily Excel workbook export
+- daily Excel workbook export for the daily report only
 
 The system is designed to run once per day and automatically determine which report set should be exported for the effective anchor day.
 
@@ -366,10 +366,10 @@ Execution rule remains:
 ## 5. Pending Features
 
 ### 5.1 Daily Excel Export
-- the approved export direction is one daily-only `.xlsx` workbook per run
+- one daily-only `.xlsx` workbook is now generated per daily run
 - weekly and monthly Excel exports are intentionally excluded from v1
 - workbook formatting is intentionally minimal for v1, prioritizing data completeness, sheet separation, and stable generation
-- production flow is not wired yet
+- the workbook is built from backend report context through `ExcelExportService`
 
 ### 5.2 Chart Expansion
 - More charts will be added across sections
@@ -494,7 +494,7 @@ Rules:
 - HTML (view)
 - HTML (PDF source)
 - PDF (print)
-- daily Excel workbook (approved next step, not yet wired)
+- daily Excel workbook (`.xlsx`) for the daily report only
 
 ### Output Path
 - defined via `.env`
@@ -505,7 +505,7 @@ Rules:
 3. render each report into view HTML
 4. render each report into PDF source HTML
 5. generate each PDF via Chromium
-6. (planned next step) export one daily-only Excel workbook for the daily report
+6. export one daily-only Excel workbook for the daily report
 
 ### Output Naming
 - Filename base comes from `.env`: `REPORT_FILENAME`

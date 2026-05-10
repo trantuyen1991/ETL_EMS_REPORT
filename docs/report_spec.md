@@ -677,12 +677,12 @@ Current implemented output:
 - rendered HTML PDF source report
 - PDF export in development workflow
 
-### 13.2 Planned Output
-Planned export outputs:
+### 13.2 Current Output
+Current export outputs:
 - PDF
 - daily Excel workbook (`.xlsx`) for the daily report only
 
-The daily Excel workbook export is not yet implemented, but it is the approved next export workflow after PDF.
+The daily Excel workbook is now generated from backend tabular context for the daily report only. Weekly and monthly Excel exports remain out of scope for v1.
 
 ### 13.3 Output Directory
 Output paths must come from configuration in `.env`.

@@ -19,6 +19,7 @@ from src.services.template_service import TemplateRenderingService
 from src.services.energy_service import EnergyService
 from src.services.pdf_service import PDFService
 from src.services.style_service import ReportStyleService
+from src.services.excel_export_service import ExcelExportService
 
 from datetime import datetime, date
 from src.config.utility_metadata import get_utility_sensor_metadata
@@ -390,7 +391,7 @@ def _archive_report_batch(
 
     for item in rendered_reports:
         artifacts = item.get("artifacts", {})
-        for artifact_key in ("view_html", "pdf_source_html", "pdf"):
+        for artifact_key in ("view_html", "pdf_source_html", "pdf", "excel"):
             artifact_path = artifacts.get(artifact_key)
             if not isinstance(artifact_path, Path) or not artifact_path.exists():
                 continue
@@ -406,13 +407,14 @@ def _render_report_artifacts(
     *,
     renderer: TemplateRenderingService,
     pdf_service,
+    excel_service: ExcelExportService,
     env_cfg: dict[str, Any],
     period,
     report_context: dict[str, Any],
     project_output_dir: Path,
     staging_output_dir: Path,
 ) -> dict[str, Path]:
-    """Render one report into view HTML, PDF source HTML, and PDF."""
+    """Render one report into view HTML, PDF source HTML, PDF, and daily Excel when applicable."""
     template_bundle = _select_template_bundle(period.period_type)
     export_stem = _build_report_export_stem(env_cfg, period)
 
@@ -432,13 +434,20 @@ def _render_report_artifacts(
     pdf_service.export(staging_html_path, staging_pdf_path)
     final_pdf_path.write_bytes(staging_pdf_path.read_bytes())
 
-    return {
+    artifacts = {
         "view_html": view_path,
         "pdf_source_html": pdf_source_path,
         "pdf": final_pdf_path,
         "staging_html": staging_html_path,
         "staging_pdf": staging_pdf_path,
     }
+
+    if str(period.period_type or "").strip().lower() == "daily":
+        excel_path = project_output_dir / f"{export_stem}.xlsx"
+        excel_service.export_daily_workbook(excel_path, report_context)
+        artifacts["excel"] = excel_path
+
+    return artifacts
 
 
 def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
@@ -454,6 +463,7 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
 
     renderer = TemplateRenderingService("src/templates")
     pdf_service = PDFService(config)
+    excel_service = ExcelExportService()
 
     project_output_dir = Path("output/reports")
     project_output_dir.mkdir(parents=True, exist_ok=True)
@@ -492,6 +502,7 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
         artifacts = _render_report_artifacts(
             renderer=renderer,
             pdf_service=pdf_service,
+            excel_service=excel_service,
             env_cfg=env_cfg,
             period=period,
             report_context=report_context,
