@@ -7,8 +7,9 @@
 % ==================================================
 \usepackage{fontspec}
 \setmainfont{Times New Roman}
+
 % ==================================================
-% ================== KHỔ GIẤY 19x27 =================
+% ================== KHỔ GIẤY 19x27 ================
 % ==================================================
 \usepackage{geometry}
 \geometry{
@@ -24,7 +25,7 @@
 }
 
 % ==================================================
-% ============== CĂN ĐOẠN & GIÃN DÒNG =============
+% ============== CĂN ĐOẠN & GIÃN DÒNG ==============
 % ==================================================
 \usepackage{enumitem}
 \usepackage{ragged2e}
@@ -35,7 +36,7 @@
 \raggedbottom
 
 % ==================================================
-% ============== CÂU HỎI ÔN TẬP =============
+% ============== TIÊU ĐỀ / ĐỊNH DẠNG ===============
 % ==================================================
 \usepackage{titlesec}
 
@@ -54,6 +55,7 @@
 % ================== HÌNH ẢNH & BẢNG ===============
 % ==================================================
 \usepackage{graphicx}
+\usepackage{eso-pic}
 \usepackage{float}
 \usepackage[most]{tcolorbox}
 \usepackage{caption}
@@ -61,7 +63,6 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{tabularx}
-\usepackage{enumitem}
 \usepackage{amsmath}
 \numberwithin{equation}{chapter}
 
@@ -92,22 +93,57 @@
 \AtBeginEnvironment{tabularx}{\fontsize{11}{13}\selectfont}
 
 % ==================================================
+% ============ DOCUMENT IDENTITY & BRAND ===========
+% ==================================================
+\definecolor{BrandBlue}{HTML}{005496}
+\definecolor{BrandDark}{HTML}{003B6B}
+\definecolor{BrandGray}{HTML}{5B6770}
+
+\newcommand{\DocumentTypeLabel}{TÀI LIỆU KỸ THUẬT DỰ ÁN}
+\newcommand{\ProjectName}{Energy Consumption Reporting System}
+\newcommand{\DocumentShortTitle}{Project Technical Manual}
+\newcommand{\DocumentVersionLabel}{v0.5-draft}
+\newcommand{\DocumentStatusLabel}{Draft review baseline}
+\newcommand{\DocumentOwnerLabel}{Tuyen Tran}
+\newcommand{\DocumentReviewerLabel}{TBD}
+\newcommand{\DocumentApprovalLabel}{Pending sign-off}
+\newcommand{\DocumentOrganisationLabel}{REAL Group}
+\newcommand{\DocumentDateLabel}{May 2026}
+\newcommand{\DocumentSourceRoot}{docs/latex/templates/project\_technical\_documentation\_template/}
+\newcommand{\DocumentOutputPath}{docs/output/project\_technical\_documentation\_latest.pdf}
+\newcommand{\CoverBackgroundImage}{figure/cover_background.jpg}
+\newcommand*{\CoverBackground}{%
+	\AtPageLowerLeft{%
+		\includegraphics[width=\paperwidth,height=\paperheight]{\CoverBackgroundImage}%
+	}%
+}
+
+% ==================================================
 % ================= HEADER / FOOTER ================
 % ==================================================
 \usepackage{fancyhdr}
-\setlength{\headheight}{15pt}
+\setlength{\headheight}{28pt}
+
+\newcommand{\ApplyDocumentPageStyle}{%
+	\fancyhf{}%
+	\fancyhead[L]{\fontsize{8}{10}\selectfont\textbf{\ProjectName}\\\fontsize{7}{9}\selectfont\DocumentShortTitle}%
+	\fancyhead[R]{\fontsize{8}{10}\selectfont\textbf{\DocumentVersionLabel}\\\fontsize{7}{9}\selectfont\DocumentStatusLabel}%
+	\fancyfoot[L]{\fontsize{8}{10}\selectfont\DocumentOrganisationLabel}%
+	\fancyfoot[C]{\fontsize{9}{11}\selectfont\thepage}%
+	\fancyfoot[R]{\fontsize{8}{10}\selectfont\DocumentOwnerLabel}%
+	\renewcommand{\headrulewidth}{0.6pt}%
+	\renewcommand{\footrulewidth}{0.6pt}%
+}
 
 \pagestyle{fancy}
-\fancyhf{}
-\fancyfoot[C]{\fontsize{11}{13}\selectfont\thepage}
-
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0pt}
+\ApplyDocumentPageStyle
+\fancypagestyle{plain}{%
+	\ApplyDocumentPageStyle
+}
 
 % ==================================================
 % ================== CHAPTER STYLE =================
 % ==================================================
-\usepackage{titlesec}
 \renewcommand{\chaptername}{Chương}
 
 \titleformat{\chapter}[block]
@@ -185,7 +221,6 @@
 \renewcommand{\listoftables}{\@starttoc{lot}}
 \makeatother
 
-
 % ==================================================
 % ================= TÀI LIỆU THAM KHẢO =============
 % ==================================================
@@ -196,102 +231,113 @@
 }
 
 % ==================================================
-% ================== BẮT ĐẦU TÀI LIỆU ===============
+% ================== BẮT ĐẦU TÀI LIỆU ==============
 % ==================================================
 \begin{document}
 	
 	% ================== BÌA ==================
 	\thispagestyle{empty}
+	\AddToShipoutPictureBG*{\CoverBackground}
 	\begin{titlepage}
-		\begin{center}
-			
-			\vspace*{-0.8cm}
-			
-			{\fontsize{15}{18}\selectfont
-				\textbf{TS. NGUYỄN VĂN A (Chủ biên)}\\
-				\textbf{TS. NGUYỄN VĂN B}\\
-				\textit{(Sách có 1 tác giả không ghi chủ biên)}
+		\color{BrandDark}
+		\vspace*{4.7cm}
+		\hspace*{1.9cm}
+		\begin{minipage}{0.76\textwidth}
+			{\fontsize{15}{18}\selectfont\bfseries \DocumentTypeLabel\par}
+			\vspace{0.6cm}
+			{\fontsize{24}{29}\selectfont\bfseries ENERGY CONSUMPTION\\REPORTING SYSTEM\par}
+			\vspace{0.45cm}
+			{\fontsize{14}{18}\selectfont\bfseries \DocumentShortTitle\par}
+			\vspace{0.8cm}
+			{\color{BrandBlue}\rule{0.88\linewidth}{1.2pt}\par}
+			\vspace{0.8cm}
+			{\fontsize{12}{15}\selectfont
+				Version: \DocumentVersionLabel\par
+				Status: \DocumentStatusLabel\par
+				Owner: \DocumentOwnerLabel\par
+				Prepared for: \DocumentOrganisationLabel\par
+				Updated: \DocumentDateLabel\par
 			}
-			
-			\vfill
-			
-			{\fontsize{20}{24}\selectfont \textbf{TÀI LIỆU KỸ THUẬT}}\\[0.6cm]
-			
-			{\fontsize{24}{28}\selectfont \textbf{TÊN TÀI LIỆU KỸ THUẬT}}\\[0.6cm]
-			
-			{\fontsize{14.5}{18}\selectfont
-				\textit{\textbf{(Dành cho ngành …)}}
-			}
-			
-			\vfill
-			
-			{\fontsize{14}{18}\selectfont
-				\textbf{THÀNH PHỐ HỒ CHÍ MINH - NĂM ...}\\
-				\textit{(Trang tên sách không đánh số trang)}
-			}
-			
-		\end{center}
+			\vspace{0.9cm}
+			{\fontsize{11}{14}\selectfont\color{BrandDark}
+			Controlled technical manual for architecture, data sources, repository/service mapping, business rules, export workflow, and troubleshooting.\par}
+		\end{minipage}
 	\end{titlepage}
+	\ClearShipoutPictureBG
 	
 	\clearpage
-% ================== TRANG BẢN QUYỀN ==================
-\thispagestyle{empty}
-
-\vspace*{0.5cm}
-
-
-\begin{center}
-	\textit{(Trang này không đánh số trang)}
-\end{center}
-
-\vfill
-
-\begin{center}
-	\begin{tcolorbox}[
-		width=0.9\textwidth,
-		colback=white,
-		colframe=black,
-		arc=8mm,
-		boxrule=0.6pt
-		]
-		\textbf{Tên tài liệu kỹ thuật}
-		
-		\vspace{0.5em}
-		
-		Bản quyền thuộc về tác giả và nhà trường.
-		
-		Trường Đại học Giao thông vận tải Thành phố Hồ Chí Minh giữ quyền công bố ấn phẩm.
-		
-		Mọi hành vi sao chép, in ấn, phát hành dưới mọi hình thức hay phương tiện nào mà không có sự cho phép trước bằng văn bản của tác giả và Nhà trường đều nghiêm cấm và có thể xử lý theo quy định của pháp luât.
-	\end{tcolorbox}
-\end{center}
-
-\clearpage
-
-	% ================== LỜI NÓI ĐẦU ==================
+	
+	% ================== TRANG KIỂM SOÁT TÀI LIỆU ==================
 	\thispagestyle{empty}
 	\begin{center}
-		{\fontsize{15}{18}\selectfont\bfseries LỜI NÓI ĐẦU}
+		{\fontsize{15}{18}\selectfont\bfseries THÔNG TIN KIỂM SOÁT TÀI LIỆU}
+	\end{center}
+	
+	\vspace{14pt}
+	
+	\begin{center}
+		\begin{tcolorbox}[
+			width=0.92\textwidth,
+			colback=white,
+			colframe=BrandBlue,
+			arc=6mm,
+			boxrule=0.8pt
+			]
+			\textbf{Project:} \ProjectName\\[4pt]
+			\textbf{Document:} \DocumentShortTitle\\[4pt]
+			\textbf{Version:} \DocumentVersionLabel\\[4pt]
+			\textbf{Status:} \DocumentStatusLabel\\[4pt]
+			\textbf{Owner / Author:} \DocumentOwnerLabel\\[4pt]
+			\textbf{Reviewer:} \DocumentReviewerLabel\\[4pt]
+			\textbf{Approval:} \DocumentApprovalLabel\\[4pt]
+			\textbf{Source Root:} \texttt{\DocumentSourceRoot}\\[4pt]
+			\textbf{Canonical PDF:} \texttt{\DocumentOutputPath}
+		\end{tcolorbox}
+	\end{center}
+	
+	\vfill
+	
+	\begin{center}
+		\begin{tcolorbox}[
+			width=0.92\textwidth,
+			colback=BrandBlue!4,
+			colframe=BrandBlue!45,
+			arc=4mm,
+			boxrule=0.5pt
+			]
+			This technical manual is maintained as a controlled project document. Content should be updated through the Documentation-as-Code workflow and rebuilt to PDF whenever documentation source content changes.
+		\end{tcolorbox}
+	\end{center}
+	
+	\clearpage
+	
+	% ================== GIỚI THIỆU TÀI LIỆU ==================
+	\thispagestyle{empty}
+	\begin{center}
+		{\fontsize{15}{18}\selectfont\bfseries GIỚI THIỆU TÀI LIỆU}
 	\end{center}
 	
 	\vspace{16pt}
 	
-	\noindent Lời nói đầu cần giới thiệu mục tiêu của tài liệu kỹ thuật, phạm vi áp dụng, đối tượng sử dụng, cấu trúc tài liệu, và cách dùng tài liệu trong quá trình phát triển, vận hành, bảo trì hệ thống.
-	Trong phần giới thiệu của tài liệu cần ghi rõ: tài liệu này dùng để mô tả dự án, các tính năng, quy tắc nghiệp vụ, cách tính toán, kiến trúc hệ thống, và các lưu ý triển khai hoặc vận hành của hệ thống báo cáo năng lượng.
+	\noindent Tài liệu này được duy trì như một \textit{living technical manual} cho dự án \ProjectName. Mục tiêu của nó là mô tả hệ thống ở mức đủ chi tiết để nhóm phát triển, người rà soát nghiệp vụ, và người vận hành có thể cùng nhìn vào một nguồn tham chiếu thống nhất cho kiến trúc, nguồn dữ liệu, business rules, KPI rules, output workflow, và troubleshooting practices.
 	
-	\noindent...\\
-	Tác giả/nhóm biên soạn mong nhận được góp ý của bạn đọc để tài liệu kỹ thuật được hoàn thiện hơn trong các lần cập nhật sau. Mọi ý kiến đóng góp xin gửi về Email:… 
-	Trân trọng cảm ơn!
-	Tác giả 
+	\vspace{10pt}
 	
-	\noindent\makebox[0.9\textwidth][r]{\textbf{Tác giả}}\\
-	\noindent\makebox{\textit{(Trang Lời nói đầu là trang 3)}}
+	\noindent Ở trạng thái hiện tại, bộ tài liệu tập trung vào các lớp quan trọng nhất của dự án: metadata và revision history, project overview, data sources và ownership mapping, business rules và KPI rules, cùng với output structure, release workflow, và troubleshooting playbook.
+	
+	\vspace{10pt}
+	
+	\noindent Khi implementation thay đổi đáng kể, nội dung tài liệu cần được cập nhật song song và technical PDF cần được rebuild theo workflow Documentation-as-Code của project. Nhờ đó, tài liệu luôn là một bản mô tả kiểm soát được, thay vì trở thành một snapshot lỗi thời tách rời khỏi codebase thực tế.
+	
+	\vspace{16pt}
+	
+	\noindent Nhóm dự án mong nhận được góp ý để tài liệu tiếp tục hoàn thiện ở các vòng review sau.
+	
+	\vspace{18pt}
+	\noindent\makebox[0.9\textwidth][r]{\textbf{\DocumentOwnerLabel}}\\
+	\noindent\makebox[0.9\textwidth][r]{\textit{Primary owner / author}}
 	\clearpage
-	% ================== TRANG TRỐNG ==================
-	\clearpage
-	\thispagestyle{empty}
-	\null
-	\clearpage
+	
 	% ================== MỤC LỤC / DANH MỤC ==================
 	\thispagestyle{empty}
 	\TieuDeTrang{MỤC LỤC}
@@ -302,6 +348,7 @@
 	\TieuDeTrang{DANH MỤC HÌNH}
 	\listoffigures
 	\clearpage
+	
 	\thispagestyle{empty}
 	\TieuDeTrang{DANH MỤC BẢNG}
 	\listoftables
@@ -317,41 +364,29 @@
 	\input{chapter_business_rules_kpi}
 	\input{chapter_output_release_troubleshooting}
 	
-	% ================== TRANG TRÁCH NHIỆM ==================
+	% ================== TÀI LIỆU THAM KHẢO VÀ TRANG KẾT ==================
 	\printbibliography
-	\let\cleardoublepage\clearpage	
+	\let\cleardoublepage\clearpage
 	\begin{titlepage}
+		\thispagestyle{empty}
 		\begin{center}
-			
-			\vspace*{-0.8cm}
-			
-			{\fontsize{15}{18}\selectfont
-				\textbf{TS. NGUYỄN VĂN A (Chủ biên)}\\
-				\textbf{TS. NGUYỄN VĂN B}\\
+			\vspace*{3.8cm}
+			{\fontsize{20}{24}\selectfont\bfseries\color{BrandDark} \DocumentShortTitle}\\[0.6cm]
+			{\fontsize{24}{28}\selectfont\bfseries\MakeUppercase{\ProjectName}}\\[0.9cm]
+			{\color{BrandBlue}\rule{0.72\textwidth}{1pt}}\\[0.9cm]
+			{\fontsize{12}{15}\selectfont
+				Version: \DocumentVersionLabel\\[5pt]
+				Status: \DocumentStatusLabel\\[5pt]
+				Owner: \DocumentOwnerLabel\\[5pt]
+				Reviewer: \DocumentReviewerLabel\\[5pt]
+				Approval: \DocumentApprovalLabel
 			}
-			
 			\vfill
-			
-			{\fontsize{20}{24}\selectfont 
-				\textbf{TÀI LIỆU KỸ THUẬT}
-			}\\[0.6cm]
-			{\fontsize{24}{28}\selectfont
-				 \textbf{TÊN TÀI LIỆU KỸ THUẬT}\\[0.6cm]
+			{\fontsize{11}{13}\selectfont
+				\textbf{Canonical source:} \texttt{\DocumentSourceRoot}\\[6pt]
+				\textbf{Canonical PDF:} \texttt{\DocumentOutputPath}\\[12pt]
+				Prepared for internal engineering use and maintained through the project Documentation-as-Code workflow.
 			}
-			
-			\vfill
-			
-			% ----- Đường kẻ ngang -----
-			\rule{\textwidth}{0.6pt}
-			
-			\vspace{10pt}
-			
-			{\fontsize{11}{18}\selectfont
-				\textbf{TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI THÀNH PHỐ HỒ CHÍ MINH}\\[6pt]
-				Số 2, Võ Oanh, Phường Thạnh Mỹ Tây, TP. Hồ Chí Minh\\[6pt]
-				Phát hành năm...
-			}
-			
 		\end{center}
 	\end{titlepage}
 	
