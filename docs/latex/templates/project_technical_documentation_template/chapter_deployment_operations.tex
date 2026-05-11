@@ -67,9 +67,7 @@ Nếu host bám đúng baseline chuẩn, đa số trường hợp chỉ cần th
 
 \subsection{Step 1. Chuẩn bị host mới}
 
-\begingroup
-\footnotesize
-\begin{verbatim}
+\begin{ShellBlock}
 sudo apt update
 sudo apt install -y \
   git \
@@ -82,16 +80,13 @@ which google-chrome || which chromium || which chromium-browser
 timedatectl
 # If needed:
 # sudo timedatectl set-timezone Asia/Ho_Chi_Minh
-\end{verbatim}
-\endgroup
+\end{ShellBlock}
 
 Block này chỉ mới xác nhận baseline runtime. Nếu host chưa có Chrome hoặc Chromium, deployment chưa nên đi tiếp tới bước PDF smoke.
 
 \subsection{Step 2. Tạo service account, clone repo, và dựng venv}
 
-\begingroup
-\footnotesize
-\begin{verbatim}
+\begin{ShellBlock}
 sudo useradd --system \
   --create-home \
   --home-dir /srv/energy-report \
@@ -108,8 +103,7 @@ cd /srv/energy-report
 sudo -u energy-report python3 -m venv venv
 sudo -u energy-report ./venv/bin/pip install --upgrade pip
 sudo -u energy-report ./venv/bin/pip install -r requirements.txt
-\end{verbatim}
-\endgroup
+\end{ShellBlock}
 
 Đây là baseline end-to-end cho host mới. \texttt{venv} phải luôn được tạo lại ngay trên máy đích, không copy từ host khác.
 
@@ -117,9 +111,7 @@ sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 
 Block bên dưới phản ánh operator-first flow hiện tại. Canonical source vẫn là \texttt{docs/workflows/deployment\_runbook.md}, nhưng technical PDF giữ lại block này để người vận hành đọc tài liệu bàn giao vẫn nhìn được đúng mẫu cấu hình cần paste.
 
-\begingroup
-\footnotesize
-\begin{verbatim}
+\begin{ShellBlock}
 sudo tee /srv/energy-report/config/.env >/dev/null <<'EOF'
 # --- Change these values to match the target system ---
 MYSQL_HOST=__FILL_DB_HOST__
@@ -148,8 +140,7 @@ sudo mkdir -p /srv/energy-report/logs /srv/energy-report-output
 sudo chown -R energy-report:energy-report \
   /srv/energy-report/logs \
   /srv/energy-report-output
-\end{verbatim}
-\endgroup
+\end{ShellBlock}
 
 Các điểm bắt buộc phải nhớ khi dùng block này:
 
@@ -162,14 +153,11 @@ Các điểm bắt buộc phải nhớ khi dùng block này:
 
 \subsection{Step 4. Manual smoke trước khi bật schedule}
 
-\begingroup
-\footnotesize
-\begin{verbatim}
+\begin{ShellBlock}
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
 find /srv/energy-report-output -maxdepth 3 -type f | sort | tail -n 20
-\end{verbatim}
-\endgroup
+\end{ShellBlock}
 
 Expected baseline behavior:
 
@@ -184,13 +172,10 @@ Nếu cần deterministic smoke anchors cho Sunday hoặc month-end, operator n�
 
 \subsection{Step 5. Cài \texttt{systemd} service và timer bằng helper}
 
-\begingroup
-\footnotesize
-\begin{verbatim}
+\begin{ShellBlock}
 cd /srv/energy-report
 ./deploy/systemd/install_systemd_units.sh
-\end{verbatim}
-\endgroup
+\end{ShellBlock}
 
 Helper script hiện làm các việc sau trong một lần chạy:
 
@@ -205,16 +190,13 @@ Helper script hiện làm các việc sau trong một lần chạy:
 
 \subsection{Step 6. Xác nhận service, timer, và output sau cài đặt}
 
-\begingroup
-\footnotesize
-\begin{verbatim}
+\begin{ShellBlock}
 sudo systemctl status energy-report-etl.service --no-pager
 sudo systemctl status energy-report-etl.timer --no-pager
 systemctl list-timers energy-report-etl.timer --all
 journalctl -u energy-report-etl.service -n 100 --no-pager
 find /srv/energy-report-output -maxdepth 3 -type f | sort | tail -n 30
-\end{verbatim}
-\endgroup
+\end{ShellBlock}
 
 Nếu timer đã enabled nhưng output không như kỳ vọng, operator nên quay sang chapter \textit{Troubleshooting Playbook} để kiểm tra theo đúng thứ tự triage đã chuẩn hóa.
 
