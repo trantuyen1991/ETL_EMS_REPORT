@@ -18,7 +18,26 @@ Assumptions:
 
 ---
 
-## 1. Prepare the new host
+## 1. One-command bootstrap option
+
+For a fresh Ubuntu host, prefer the bootstrap script when you want to avoid manual copy/paste drift:
+
+- script: `deploy/bootstrap_ubuntu_host.sh`
+- copy/paste text source: `docs/workflows/deployment_copy_paste_commands.txt`
+
+Copy the one-command bootstrap from the plain text file, not from the PDF. PDF readers can wrap long URLs or drop continuation lines.
+
+Example:
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/backup-before-pdf-docs-20260426/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31
+```
+
+Add `--install-systemd` only after you are ready for the script to enable the timer.
+
+---
+
+## 2. Prepare the new host
 
 Install baseline tools as needed:
 
@@ -70,7 +89,7 @@ sudo timedatectl set-timezone Asia/Ho_Chi_Minh
 
 ---
 
-## 2. Clone the project and create a fresh venv
+## 3. Clone the project and create a fresh venv
 
 Recommended baseline for the sample `systemd` files in this repo:
 - Linux user/group: `energy-report`
@@ -124,7 +143,7 @@ sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 
 ---
 
-## 3. Configure `config/.env`
+## 4. Configure `config/.env`
 
 The application loads runtime values from:
 - `config/.env`
@@ -190,7 +209,7 @@ Why `REPORT_ANCHOR_DATE` must be blank for scheduled mode:
 
 ---
 
-## 4. Check release asset compatibility
+## 5. Check release asset compatibility
 
 For release tag `v4.3.0-dev`, if rendering fails with missing `assets/icon/outline/*.svg` while loading Sensor Monitoring templates, create these compatibility links before the smoke run:
 
@@ -220,7 +239,7 @@ This is a deployment workaround for the reviewed tag and should be replaced by a
 
 ---
 
-## 5. Run a manual smoke check before enabling schedule
+## 6. Run a manual smoke check before enabling schedule
 
 From the project root:
 
@@ -265,7 +284,7 @@ sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/c
 
 ---
 
-## 6. Install the ready-made `systemd` files
+## 7. Install the ready-made `systemd` files
 
 The repo now includes:
 - `deploy/systemd/energy-report-etl.service`
@@ -313,7 +332,7 @@ journalctl -u energy-report-etl.service -n 100 --no-pager
 
 ---
 
-## 7. Confirm the timer baseline
+## 8. Confirm the timer baseline
 
 The repo sample timer still uses the same runtime rule:
 - `OnCalendar=*-*-* 23:00:00`
@@ -333,7 +352,7 @@ systemctl list-timers energy-report-etl.timer --all
 
 ---
 
-## 8. Recommended deployment validation checklist
+## 9. Recommended deployment validation checklist
 
 Before calling the deployment usable, verify:
 - MySQL credentials in `config/.env` are correct
@@ -347,7 +366,7 @@ Before calling the deployment usable, verify:
 
 ---
 
-## 9. Operational troubleshooting notes
+## 10. Operational troubleshooting notes
 
 If the timer runs but outputs look wrong, check these first:
 
@@ -369,7 +388,7 @@ find /srv/energy-report-output -type f | sort | tail -n 30
 
 ---
 
-## 10. Recommended document pairing
+## 11. Recommended document pairing
 
 Use these together:
 - deployment/bootstrap on a new host: `docs/workflows/deployment_runbook.md`

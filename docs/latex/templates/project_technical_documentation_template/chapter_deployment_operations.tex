@@ -78,6 +78,19 @@ Flow triển khai hiện tại được đồng bộ với reviewed release tag 
 
 Nếu muốn deploy đúng snapshot đã review, operator nên clone trực tiếp tag này thay vì bám một moving branch.
 
+\subsection{One-command bootstrap option}
+
+Nếu operator muốn tránh copy nhiều dòng lệnh từ PDF, repo có sẵn script bootstrap:
+
+\begin{enumerate}[label=-]
+\item \texttt{deploy/bootstrap\_ubuntu\_host.sh}: script tự động cho Ubuntu host mới;
+\item \texttt{docs/workflows/deployment\_copy\_paste\_commands.txt}: bản plain text để copy command an toàn hơn PDF.
+\end{enumerate}
+
+Khuyến nghị vận hành là copy one-command từ file \texttt{deployment\_copy\_paste\_commands.txt} hoặc từ raw GitHub text, không copy các block lệnh dài trực tiếp từ PDF vì trình đọc PDF có thể wrap dòng, làm mất dấu \texttt{\textbackslash}, tách \texttt{.deb}, hoặc bỏ sót các dòng sau.
+
+Script bootstrap có thể tự cài package nền, cài Google Chrome \texttt{.deb}, tạo service account, clone repo, dựng \texttt{venv}, ghi \texttt{config/.env}, ép PDF browser path sang \texttt{/usr/bin/google-chrome}, kiểm tra icon Sensor Monitoring, chạy manual smoke, và nếu có flag \texttt{--install-systemd} thì cài luôn timer.
+
 \subsection{Step 1. Chuẩn bị host mới}
 
 \begin{ShellBlock}

@@ -1,0 +1,163 @@
+Energy Report deployment copy-paste commands
+============================================
+
+Use this plain text file for terminal copy/paste. Do not copy commands from the PDF
+when a command contains long URLs, heredocs, or line continuations.
+
+Default deploy ref
+------------------
+
+DEPLOY_REF=backup-before-pdf-docs-20260426
+
+
+Step 1 - Prepare host and Chrome
+--------------------------------
+
+sudo apt update
+sudo apt install -y git python3 python3-venv python3-pip ca-certificates curl netcat-openbsd poppler-utils
+python3 --version
+timedatectl
+
+rm -f /tmp/google-chrome.deb
+curl -L --fail -o /tmp/google-chrome.deb "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+ls -lh /tmp/google-chrome.deb
+file /tmp/google-chrome.deb
+sudo apt install -y /tmp/google-chrome.deb
+which google-chrome
+google-chrome --version
+google-chrome --headless --disable-gpu --no-sandbox --dump-dom about:blank >/tmp/chrome-smoke.html
+
+# Optional timezone, only if timedatectl is not already correct:
+# sudo timedatectl set-timezone Asia/Ho_Chi_Minh
+
+# Optional MySQL network check after you know the DB host and port:
+# nc -vz 192.168.100.82 3306
+
+
+Step 2 - Create service account, clone repo, create venv
+--------------------------------------------------------
+
+sudo useradd --system --no-create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report || true
+sudo mkdir -p /srv
+sudo chown energy-report:energy-report /srv
+sudo -u energy-report git clone --branch "backup-before-pdf-docs-20260426" --depth 1 https://github.com/trantuyen1991/ETL_EMS_REPORT.git /srv/energy-report
+cd /srv/energy-report
+sudo -u energy-report python3 -m venv venv
+sudo -u energy-report ./venv/bin/pip install --upgrade pip
+sudo -u energy-report ./venv/bin/pip install -r requirements.txt
+
+
+Step 2 reset - Only for a test host when you want to redo Step 2
+---------------------------------------------------------------
+
+sudo bash -lc 'set -e
+rm -rf /srv/energy-report
+id energy-report >/dev/null 2>&1 && userdel energy-report || true
+useradd --system --no-create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report
+mkdir -p /srv
+chown energy-report:energy-report /srv
+sudo -u energy-report git clone --branch backup-before-pdf-docs-20260426 --depth 1 https://github.com/trantuyen1991/ETL_EMS_REPORT.git /srv/energy-report
+cd /srv/energy-report
+sudo -u energy-report python3 -m venv venv
+sudo -u energy-report ./venv/bin/pip install --upgrade pip
+sudo -u energy-report ./venv/bin/pip install -r requirements.txt
+'
+
+
+Step 3 - Create config/.env
+---------------------------
+
+cd /srv/energy-report
+sudo tee /srv/energy-report/config/.env >/dev/null <<'EOF'
+MYSQL_HOST=192.168.100.82
+MYSQL_PORT=3306
+MYSQL_DATABASE=ems_db
+MYSQL_USER=admin
+MYSQL_PASSWORD=admin
+
+OUTPUT_DIR=/srv/energy-report-output
+PRINT_STAGING_DIR=/srv/energy-report-output
+
+REPORT_FILENAME=energy_automatic_report
+LOG_LEVEL=INFO
+WORKSHOP_NAME=ENERGY REPORT
+ENERGY_UNIT=kWh
+
+REPORT_ANCHOR_DATE=2025-05-31
+EOF
+
+sudo chown energy-report:energy-report /srv/energy-report/config/.env
+sudo chmod 640 /srv/energy-report/config/.env
+sudo mkdir -p /srv/energy-report/logs /srv/energy-report-output
+sudo chown -R energy-report:energy-report /srv/energy-report/logs /srv/energy-report-output
+
+
+Step 4 - Confirm required Sensor Monitoring icons exist
+-------------------------------------------------------
+
+cd /srv/energy-report
+test -f src/templates/assets/icon/outline/activity.svg
+test -f src/templates/assets/icon/outline/snowflake.svg
+test -f src/templates/assets/icon/outline/wind.svg
+test -f src/templates/assets/icon/outline/flame.svg
+test -f src/templates/assets/icon/outline/droplet.svg
+test -f src/templates/assets/icon/outline/bell.svg
+test -f src/templates/assets/icon/outline/gauge.svg
+test -f src/templates/assets/icon/outline/thermometer.svg
+test -f src/templates/assets/icon/outline/alert-circle.svg
+test -f src/templates/assets/icon/outline/circle-check.svg
+
+
+Step 4 fallback - Only if deploying the old v4.3.0-dev tag without the icon fix
+-------------------------------------------------------------------------------
+
+cd /srv/energy-report
+sudo -u energy-report bash -lc '
+set -e
+cd /srv/energy-report
+mkdir -p src/templates/assets/icon/outline
+cd src/templates/assets/icon/outline
+ln -sf ../sensor/capacity.svg snowflake.svg
+ln -sf ../sensor/flow.svg wind.svg
+ln -sf ../steam.svg flame.svg
+ln -sf ../water.svg droplet.svg
+ln -sf ../energy.svg activity.svg
+ln -sf ../sensor/power.svg bell.svg
+ln -sf ../sensor/pressure.svg gauge.svg
+ln -sf ../sensor/temperature.svg thermometer.svg
+ln -sf ../sensor/power.svg alert-circle.svg
+ln -sf ../sensor/power.svg circle-check.svg
+'
+
+
+Step 5 - Manual smoke run
+-------------------------
+
+cd /srv/energy-report
+sudo -u energy-report google-chrome --headless --disable-gpu --no-sandbox --dump-dom about:blank >/tmp/chrome-smoke-energy-report.html
+sudo -u energy-report ./venv/bin/python -m src.main
+find /srv/energy-report-output -type f | sort | tail -n 30
+
+
+Step 6 - Restore scheduled mode after smoke test
+------------------------------------------------
+
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
+grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+
+
+Step 7 - Install systemd service and timer
+------------------------------------------
+
+cd /srv/energy-report
+./deploy/systemd/install_systemd_units.sh
+
+
+Step 8 - Verify systemd and outputs
+-----------------------------------
+
+sudo systemctl status energy-report-etl.service --no-pager
+sudo systemctl status energy-report-etl.timer --no-pager
+systemctl list-timers energy-report-etl.timer --all
+journalctl -u energy-report-etl.service -n 100 --no-pager
+find /srv/energy-report-output -type f | sort | tail -n 30
