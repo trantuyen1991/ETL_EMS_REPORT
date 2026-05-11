@@ -1,0 +1,261 @@
+\chapter{CÁCH ĐỌC PHẦN KPI}
+
+\section{Phần KPI đang giúp người đọc trả lời điều gì}
+
+Phần \texttt{Energy KPI} giúp người đọc trả lời bốn câu hỏi chính:
+
+\begin{enumerate}[label=-]
+\item hiệu suất năng lượng của plant hoặc workshop đang ở mức nào;
+\item KPI đang tốt lên hay xấu đi so với kỳ đối chiếu;
+\item biến động KPI đến nhiều hơn từ phía năng lượng hay từ phía sản lượng;
+\item trong kỳ weekly hoặc monthly, ngày nào đang cần xem kỹ hơn về mức KPI, sản lượng, hoặc độ phủ dữ liệu.
+\end{enumerate}
+
+Khác với Electricity, KPI không chỉ trả lời câu hỏi \textit{đã dùng bao nhiêu điện}. KPI trả lời câu hỏi \textit{đã dùng bao nhiêu năng lượng cho mỗi đơn vị sản lượng}. Vì vậy, đây là phần nên đọc sau khi đã có cảm giác ban đầu về total điện hoặc utility, rồi mới đi sâu vào hiệu quả vận hành.
+
+\section{Cách hiểu đúng bản chất của KPI}
+
+Trong report hiện tại, KPI được đọc theo công thức nền:
+
+\begin{center}
+\texttt{Energy KPI = Energy (kWh) / Production (Ton)}
+\end{center}
+
+Điều đó có nghĩa là:
+
+\begin{enumerate}[label=-]
+\item KPI cao hơn thường đồng nghĩa với việc cần nhiều kWh hơn để tạo ra một tấn sản phẩm;
+\item KPI thấp hơn thường là tín hiệu hiệu suất năng lượng tốt hơn, nếu dữ liệu coverage và sản lượng đều đáng tin cậy;
+\item KPI có thể thay đổi dù total energy không đổi, vì phần mẫu số là production cũng có thể thay đổi;
+\item muốn hiểu KPI đúng, luôn phải nhìn song song cả \texttt{Energy} và \texttt{Production}, không nên chỉ nhìn một con số KPI riêng lẻ.
+\end{enumerate}
+
+\begin{ReaderNote}{Điểm dễ đọc nhầm nhất của KPI}
+KPI tăng không nhất thiết luôn có nghĩa là điện năng tổng tăng mạnh. Nhiều trường hợp KPI tăng vì sản lượng giảm nhanh hơn mức giảm năng lượng. Ngược lại, tổng điện có thể tăng nhưng KPI vẫn cải thiện nếu sản lượng tăng mạnh hơn.
+\end{ReaderNote}
+
+\section{Cách đọc các KPI card \texttt{TOTAL}, \texttt{DIODE}, \texttt{ICO}, \texttt{SAKARI}}
+
+Lớp đầu tiên trong phần KPI là các card tổng quan cho \texttt{TOTAL} và từng workshop. Đây là nơi nên nhìn đầu tiên để biết bức tranh chung của kỳ hiện tại.
+
+Mỗi card nên được hiểu như sau:
+
+\begin{enumerate}[label=-]
+\item giá trị lớn ở giữa card là KPI của kỳ hiện tại;
+\item cặp nhãn đối chiếu sẽ thay theo loại kỳ, ví dụ \texttt{Today / Yesterday}, \texttt{This Week / Last Week}, hoặc \texttt{This Month / Last Month};
+\item dòng phần trăm phía dưới cho biết mức biến động tương đối so với kỳ trước;
+\item badge \texttt{GOOD / STABLE / WATCH / N/A} là tín hiệu đọc nhanh, không phải kết luận cuối cùng.
+\end{enumerate}
+
+Với KPI, cách hiểu badge nên thận trọng hơn Electricity:
+
+\begin{enumerate}[label=-]
+\item \texttt{GOOD} thường cho thấy KPI đang đi xuống hoặc không tăng, tức là cường độ năng lượng không xấu hơn;
+\item \texttt{WATCH} thường cho thấy KPI tăng rõ và nên được điều tra thêm;
+\item \texttt{STABLE} cho thấy KPI có thay đổi nhưng chưa lớn;
+\item \texttt{N/A} thường xuất hiện khi không đủ cơ sở so sánh trực tiếp.
+\end{enumerate}
+
+Nếu \texttt{TOTAL} tăng nhưng chỉ một workshop tăng mạnh còn các workshop khác gần như đi ngang, người đọc nên hiểu rằng biến động KPI toàn plant đang tập trung ở workshop đó.
+
+\section{Cách đọc \texttt{Energy KPI comparison}}
+
+Ở daily, chart này xuất hiện với nhãn \texttt{Energy KPI: Today vs yesterday}. Ở weekly hoặc monthly, chart đổi thành \texttt{Energy KPI comparison}. Cả hai cùng dùng để so sánh KPI giữa hai kỳ theo \texttt{Total}, \texttt{DIODE}, \texttt{ICO}, và \texttt{SAKARI}.
+
+Chart này phù hợp để trả lời câu hỏi: \textit{workshop nào đang làm thay đổi mặt bằng KPI nhiều nhất}.
+
+Cách đọc an toàn là:
+
+\begin{enumerate}[label=-]
+\item nhìn cặp cột của \texttt{Total} trước để biết toàn plant đang tốt hơn hay xấu hơn;
+\item sau đó mới nhìn các workshop để xem nguồn biến động nằm ở đâu;
+\item nếu chỉ một workshop lệch mạnh, nên truy nguyên workshop đó trước;
+\item nếu tất cả workshop đều tăng hoặc giảm cùng chiều, có khả năng biến động mang tính hệ thống hơn là cục bộ.
+\end{enumerate}
+
+Người đọc cũng nên nhớ rằng chart này đang so sánh KPI chứ không phải total energy. Vì vậy, một workshop có cột KPI cao hơn không đồng nghĩa ngay với việc workshop đó dùng điện tuyệt đối nhiều nhất.
+
+\section{Cách đọc \texttt{Deviation vs ...}}
+
+Chart \texttt{Deviation vs yesterday}, \texttt{Deviation vs Last Week}, hoặc \texttt{Deviation vs Last Month} là lớp giúp nhìn độ lệch KPI theo từng workshop quanh mốc 0.
+
+Ở trạng thái hiện tại của report, subtitle của chart này đã nói rõ một nguyên tắc rất quan trọng: \textit{Positive KPI change means higher energy intensity}.
+
+Người đọc nên hiểu như sau:
+
+\begin{enumerate}[label=-]
+\item giá trị dương nghĩa là KPI tăng, tức là cần nhiều năng lượng hơn trên mỗi tấn sản phẩm;
+\item giá trị âm nghĩa là KPI giảm, tức là hiệu suất năng lượng đang tốt hơn;
+\item thanh càng xa mốc 0 thì mức thay đổi càng đáng chú ý;
+\item nên dùng chart này để quét nhanh workshop nào đang lệch nhiều nhất, rồi quay lại xem \texttt{Energy} và \texttt{Production} của workshop đó.
+\end{enumerate}
+
+\begin{ReaderNote}{KPI tốt hay xấu không nên đọc chỉ bằng một màu chart}
+Thanh âm thường là tín hiệu tích cực hơn về hiệu suất, còn thanh dương là tín hiệu cần chú ý hơn. Tuy nhiên, trước khi kết luận, người đọc vẫn nên nhìn thêm sản lượng và trạng thái coverage của kỳ đó, nhất là với weekly hoặc monthly report.
+\end{ReaderNote}
+
+\section{Cách đọc \texttt{Total KPI change explanation}}
+
+Đây là chart rất quan trọng của phần KPI vì nó không chỉ cho biết KPI thay đổi, mà còn gợi ý \textbf{vì sao} KPI thay đổi.
+
+Ở trạng thái hiện tại, chart này đang tách biến động KPI Total thành hai hướng tác động chính:
+
+\begin{enumerate}[label=-]
+\item \texttt{energy impact}: phần thay đổi do mức năng lượng thay đổi;
+\item \texttt{production impact}: phần thay đổi do sản lượng thay đổi.
+\end{enumerate}
+
+Vì vậy, khi đọc chart này, người đọc nên dùng nó để phân biệt ba tình huống:
+
+\begin{enumerate}[label=-]
+\item KPI xấu đi chủ yếu do energy tăng;
+\item KPI xấu đi chủ yếu do production giảm;
+\item KPI thay đổi do cả hai phía cùng tác động.
+\end{enumerate}
+
+Nếu phần \texttt{production impact} chiếm tỷ trọng lớn, người đọc không nên phản ứng như thể đó hoàn toàn là vấn đề điện năng. Khi đó, cách hiểu đúng là hiệu suất KPI đang chịu ảnh hưởng đáng kể từ biến động sản lượng.
+
+\section{Cách đọc \texttt{KPI Summary Matrix}}
+
+Ngay dưới phần chart, report hiện có bảng \texttt{KPI Summary Matrix}. Đây là bảng rất hữu ích vì gom cả \texttt{Energy}, \texttt{Production}, và \texttt{Energy KPI} vào cùng một mặt nhìn theo \texttt{Total}, \texttt{DIODE}, \texttt{ICO}, và \texttt{SAKARI}.
+
+Người đọc nên dùng bảng này như lớp kiểm chứng nhanh cho các chart bên trên.
+
+Ở trạng thái hiện tại:
+
+\begin{enumerate}[label=-]
+\item thứ tự cột nhóm là \texttt{Total -> DIODE -> ICO -> SAKARI};
+\item mỗi nhóm có ba cột con: kỳ hiện tại, kỳ trước, và \texttt{Delta \%};
+\item các dòng chính luôn gồm \texttt{Energy}, \texttt{Production}, và \texttt{Energy KPI};
+\item với weekly và monthly, bảng có thêm dòng \texttt{Production day}.
+\end{enumerate}
+
+\subsection{Cách hiểu dòng \texttt{Production day}}
+
+\texttt{Production day} không phải là tổng sản lượng. Đây là số ngày trong kỳ mà chỉ số production tương ứng lớn hơn 0.
+
+Dòng này hữu ích vì:
+
+\begin{enumerate}[label=-]
+\item giúp người đọc biết kỳ hiện tại và kỳ trước có cùng mật độ ngày sản xuất hay không;
+\item giúp giải thích vì sao \texttt{Production} tổng có thể thay đổi mạnh;
+\item giúp tránh so sánh KPI quá vội giữa hai kỳ có số ngày sản xuất rất khác nhau.
+\end{enumerate}
+
+Nếu \texttt{Production day} giảm đáng kể, người đọc nên đặc biệt cẩn thận khi diễn giải biến động KPI, vì một phần thay đổi có thể đến từ số ngày chạy thực tế ít hơn chứ không chỉ từ hiệu suất năng lượng thuần túy.
+
+\section{Cách đọc \texttt{Energy KPI daily trend} và \texttt{Energy KPI heatmap}}
+
+Với weekly và monthly report, KPI không dừng ở snapshot. Report còn cho các bề mặt xu hướng để nhìn biến động theo ngày bên trong kỳ.
+
+\subsection{Energy KPI daily trend}
+
+\texttt{Energy KPI daily trend} phù hợp để trả lời câu hỏi: \textit{KPI thay đổi dần theo kỳ hay chỉ vọt lên ở vài ngày cụ thể}.
+
+Cách đọc nên là:
+
+\begin{enumerate}[label=-]
+\item nhìn đường \texttt{Total} trước để xác định mặt bằng KPI chung của kỳ;
+\item sau đó nhìn từng workshop để xem điểm lệch nằm ở đâu;
+\item nếu chỉ một vài ngày vọt lên mạnh, nên truy tiếp xuống \texttt{Daily KPI Detail};
+\item nếu toàn bộ chuỗi ngày cùng cao hơn kỳ trước, có khả năng đây là biến động mang tính nền vận hành chứ không phải sự kiện đơn lẻ.
+\end{enumerate}
+
+\subsection{Energy KPI heatmap}
+
+Ở periodic report, report còn có \texttt{Energy KPI heatmap}. Đây là lớp quét nhanh để nhìn ngày nào và area nào có mức KPI nổi bật hơn phần còn lại.
+
+Heatmap phù hợp khi người đọc muốn:
+
+\begin{enumerate}[label=-]
+\item tìm nhanh các ngày nóng về KPI;
+\item xem workshop nào lặp lại mức KPI cao trong nhiều ngày;
+\item quyết định nên mở bảng detail ở ngày nào trước.
+\end{enumerate}
+
+Heatmap nên được dùng để định vị điểm nóng, không nên dùng như nơi đọc số chính xác cuối cùng. Khi đã thấy một ô nổi bật, người đọc nên quay lại trend hoặc detail table để xác nhận bằng số cụ thể.
+
+\section{Cách đọc \texttt{Daily KPI Detail}}
+
+Trong weekly và monthly report, \texttt{Daily KPI Detail} là lớp quan trọng nhất để đọc sâu theo từng ngày.
+
+Ở trạng thái hiện tại, mỗi ngày được mở thành bốn dòng con:
+
+\begin{enumerate}[label=-]
+\item \texttt{Plant}
+\item \texttt{DIODE}
+\item \texttt{ICO}
+\item \texttt{SAKARI}
+\end{enumerate}
+
+Các cột chính gồm:
+
+\begin{enumerate}[label=-]
+\item \texttt{Index}
+\item \texttt{Date}
+\item \texttt{Status}
+\item \texttt{Source}
+\item \texttt{Area}
+\item \texttt{KPI}
+\item \texttt{Product}
+\item \texttt{Energy}
+\end{enumerate}
+
+Cách đọc bảng này nên là:
+
+\begin{enumerate}[label=-]
+\item nhìn \texttt{Status} trước để biết ngày đó có đủ dữ liệu hay không;
+\item nhìn \texttt{Source} để biết ngày đó đang được phủ bởi loại block KPI nào;
+\item sau đó mới so số \texttt{KPI}, \texttt{Product}, và \texttt{Energy} theo từng area;
+\item nếu có một ngày nổi bật trên chart, dùng bảng này để truy đúng ngày và đúng workshop.
+\end{enumerate}
+
+\subsection{Cách hiểu đúng \texttt{Status = OK / Block / Missing}}
+
+Ba trạng thái này là phần rất quan trọng của KPI detail:
+
+\begin{enumerate}[label=-]
+\item \texttt{OK}: ngày đó có dữ liệu KPI dạng ngày và có thể đọc số trực tiếp;
+\item \texttt{Block}: ngày đó được bao phủ bởi một block KPI rộng hơn như week hoặc month, nhưng report không tách block đó thành số giả cho từng ngày;
+\item \texttt{Missing}: ngày đó hiện không có KPI row phù hợp để dùng cho report.
+\end{enumerate}
+
+\begin{ReaderNote}{Ý nghĩa thực sự của trạng thái Block}
+\texttt{Block} không có nghĩa là hệ thống lỗi. Nó có nghĩa là ngày đó đang được bao phủ bởi một block KPI cấp rộng hơn, nhưng report giữ nguyên rule không prorate và không bẻ block lớn thành các giá trị ngày nhân tạo. Vì vậy, người đọc sẽ thấy ngày vẫn tồn tại trong bảng nhưng số KPI, Product, hoặc Energy có thể để trống.
+\end{ReaderNote}
+
+\section{Cách tránh đọc sai KPI}
+
+Một số cách hiểu sai thường gặp ở phần KPI là:
+
+\begin{enumerate}[label=-]
+\item thấy KPI tăng rồi kết luận ngay total điện tăng mạnh;
+\item thấy total điện tăng rồi kết luận chắc chắn KPI sẽ xấu đi;
+\item bỏ qua \texttt{Production day}, \texttt{Status}, hoặc \texttt{Source} khi so sánh hai kỳ;
+\item thấy ô trống hoặc dấu \texttt{-} rồi tự thay bằng 0;
+\item thấy \texttt{Block} rồi tưởng đó là dữ liệu ngày đã được tính đầy đủ.
+\end{enumerate}
+
+Cách đọc an toàn hơn là:
+
+\begin{enumerate}[label=-]
+\item nhìn card \texttt{TOTAL} để xác nhận KPI toàn plant đang tăng hay giảm;
+\item nhìn \texttt{Energy KPI comparison} và \texttt{Deviation} để biết biến động nằm ở workshop nào;
+\item nhìn \texttt{Total KPI change explanation} để tách ảnh hưởng do energy và do production;
+\item dùng \texttt{KPI Summary Matrix} để kiểm chứng lại bằng số;
+\item với weekly hoặc monthly, dùng \texttt{Daily KPI Detail} để xác nhận ngày nào là \texttt{OK}, \texttt{Block}, hay \texttt{Missing} trước khi kết luận.
+\end{enumerate}
+
+\section{Thứ tự khuyến nghị để đọc KPI}
+
+Nếu người đọc muốn truy nguyên KPI theo cách ít nhầm nhất, thứ tự khuyến nghị là:
+
+\begin{enumerate}[label=-]
+\item nhìn \texttt{TOTAL} card để biết KPI plant đang đi theo hướng nào;
+\item nhìn compare chart và deviation chart để xác định workshop nào lệch mạnh nhất;
+\item nhìn waterfall để xem nguyên nhân thiên về energy hay production;
+\item nhìn summary matrix để kiểm số nhanh giữa \texttt{Energy}, \texttt{Production}, và \texttt{Energy KPI};
+\item cuối cùng, với weekly hoặc monthly, dùng trend, heatmap, và detail table để truy ngày cụ thể.
+\end{enumerate}
+
+Đó là cách đọc giúp người dùng nghiệp vụ tránh biến KPI thành một con số cô lập, và thay vào đó xem nó như kết quả đồng thời của năng lượng, sản lượng, và độ phủ dữ liệu trong kỳ đang đọc.
