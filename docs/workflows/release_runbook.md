@@ -28,10 +28,10 @@ Expected:
 - `daily` artifacts are generated
 - no `weekly` or `monthly` artifact should be created for this anchor
 - expected files:
-  - `output/reports/2025_06/view_html/30_daily_daily_automatic_report_20250625.html`
-  - `output/reports/2025_06/pdf_source_html/30_daily_daily_automatic_report_20250625.html`
-  - `output/reports/2025_06/pdf/30_daily_daily_automatic_report_20250625.pdf`
-  - `output/reports/2025_06/excel/30_daily_daily_automatic_report_20250625.xlsx`
+  - `output/reports/2025_06/view_html/30_daily_energy_automatic_report_20250625.html`
+  - `output/reports/2025_06/pdf_source_html/30_daily_energy_automatic_report_20250625.html`
+  - `output/reports/2025_06/pdf/30_daily_energy_automatic_report_20250625.pdf`
+  - `output/reports/2025_06/excel/30_daily_energy_automatic_report_20250625.xlsx`
 
 ## 2. Sunday smoke
 
@@ -49,13 +49,13 @@ Expected:
 - `daily` and `weekly` artifacts are generated
 - no `monthly` artifact should be created for this anchor
 - expected files:
-  - `output/reports/2025_06/view_html/20_weekly_daily_automatic_report_20250629.html`
-  - `output/reports/2025_06/pdf_source_html/20_weekly_daily_automatic_report_20250629.html`
-  - `output/reports/2025_06/pdf/20_weekly_daily_automatic_report_20250629.pdf`
-  - `output/reports/2025_06/view_html/30_daily_daily_automatic_report_20250629.html`
-  - `output/reports/2025_06/pdf_source_html/30_daily_daily_automatic_report_20250629.html`
-  - `output/reports/2025_06/pdf/30_daily_daily_automatic_report_20250629.pdf`
-  - `output/reports/2025_06/excel/30_daily_daily_automatic_report_20250629.xlsx`
+  - `output/reports/2025_06/view_html/20_weekly_energy_automatic_report_20250629.html`
+  - `output/reports/2025_06/pdf_source_html/20_weekly_energy_automatic_report_20250629.html`
+  - `output/reports/2025_06/pdf/20_weekly_energy_automatic_report_20250629.pdf`
+  - `output/reports/2025_06/view_html/30_daily_energy_automatic_report_20250629.html`
+  - `output/reports/2025_06/pdf_source_html/30_daily_energy_automatic_report_20250629.html`
+  - `output/reports/2025_06/pdf/30_daily_energy_automatic_report_20250629.pdf`
+  - `output/reports/2025_06/excel/30_daily_energy_automatic_report_20250629.xlsx`
 
 ## 3. Month-end smoke
 
@@ -73,10 +73,10 @@ Expected:
 - `daily` and `monthly` artifacts are generated
 - no `weekly` artifact should be created for this anchor
 - expected files:
-  - `output/reports/2025_05/view_html/00_monthly_daily_automatic_report_20250531.html`
-  - `output/reports/2025_05/pdf_source_html/00_monthly_daily_automatic_report_20250531.html`
-  - `output/reports/2025_05/pdf/00_monthly_daily_automatic_report_20250531.pdf`
-  - `output/reports/2025_05/view_html/30_daily_daily_automatic_report_20250531.html`
-  - `output/reports/2025_05/pdf_source_html/30_daily_daily_automatic_report_20250531.html`
-  - `output/reports/2025_05/pdf/30_daily_daily_automatic_report_20250531.pdf`
-  - `output/reports/2025_05/excel/30_daily_daily_automatic_report_20250531.xlsx`
+  - `output/reports/2025_05/view_html/00_monthly_energy_automatic_report_20250531.html`
+  - `output/reports/2025_05/pdf_source_html/00_monthly_energy_automatic_report_20250531.html`
+  - `output/reports/2025_05/pdf/00_monthly_energy_automatic_report_20250531.pdf`
+  - `output/reports/2025_05/view_html/30_daily_energy_automatic_report_20250531.html`
+  - `output/reports/2025_05/pdf_source_html/30_daily_energy_automatic_report_20250531.html`
+  - `output/reports/2025_05/pdf/30_daily_energy_automatic_report_20250531.pdf`
+  - `output/reports/2025_05/excel/30_daily_energy_automatic_report_20250531.xlsx`

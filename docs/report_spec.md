@@ -702,7 +702,7 @@ Sort prefixes:
 - `30_daily`
 
 Example:
-- `00_monthly_daily_automatic_report_20250531.pdf`
+- `00_monthly_energy_automatic_report_20250531.pdf`
 
 ---
 
