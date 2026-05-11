@@ -52,7 +52,6 @@ Flow dưới đây được viết cho đúng baseline khuyến nghị của d�
 Trước khi paste các block bên dưới, người cài chỉ cần thay các giá trị host-specific sau:
 
 \begin{enumerate}[label=-]
-\item \texttt{<YOUR\_REPO\_URL>};
 \item \texttt{MYSQL\_HOST};
 \item \texttt{MYSQL\_PORT};
 \item \texttt{MYSQL\_DATABASE};
@@ -63,7 +62,20 @@ Trước khi paste các block bên dưới, người cài chỉ cần thay các 
 \item khi cần, \texttt{WORKSHOP\_NAME} và \texttt{ENERGY\_UNIT}.
 \end{enumerate}
 
-Nếu host bám đúng baseline chuẩn, đa số trường hợp chỉ cần thay repo URL và các giá trị MySQL.
+Nếu host bám đúng baseline chuẩn, đa số trường hợp chỉ cần thay các giá trị MySQL và đường dẫn lưu output.
+
+\subsection{Reviewed release reference cho bootstrap này}
+
+Flow triển khai hiện tại được đồng bộ với reviewed release tag sau:
+
+\begin{enumerate}[label=-]
+\item release tag: \texttt{v4.3.0-dev};
+\item repo URL: \nolinkurl{https://github.com/trantuyen1991/ETL_EMS_REPORT.git};
+\item release tag page: \nolinkurl{https://github.com/trantuyen1991/ETL_EMS_REPORT/tree/v4.3.0-dev};
+\item release archive: \nolinkurl{https://github.com/trantuyen1991/ETL_EMS_REPORT/archive/refs/tags/v4.3.0-dev.zip}.
+\end{enumerate}
+
+Nếu muốn deploy đúng snapshot đã review, operator nên clone trực tiếp tag này thay vì bám một moving branch.
 
 \subsection{Step 1. Chuẩn bị host mới}
 
@@ -95,8 +107,8 @@ sudo useradd --system \
 
 sudo mkdir -p /srv
 sudo chown energy-report:energy-report /srv
-sudo -u energy-report git clone \
-  <YOUR_REPO_URL> \
+sudo -u energy-report git clone --branch v4.3.0-dev --depth 1 \
+  https://github.com/trantuyen1991/ETL_EMS_REPORT.git \
   /srv/energy-report
 
 cd /srv/energy-report

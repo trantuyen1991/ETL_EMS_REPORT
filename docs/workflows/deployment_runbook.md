@@ -57,13 +57,21 @@ Recommended baseline for the sample `systemd` files in this repo:
 - Linux user/group: `energy-report`
 - project root: `/srv/energy-report`
 
-Example using that baseline:
+Reviewed release reference for this deployment flow:
+- release tag: `v4.3.0-dev`
+- repo URL: `https://github.com/trantuyen1991/ETL_EMS_REPORT.git`
+- release tag page: `https://github.com/trantuyen1991/ETL_EMS_REPORT/tree/v4.3.0-dev`
+- release archive: `https://github.com/trantuyen1991/ETL_EMS_REPORT/archive/refs/tags/v4.3.0-dev.zip`
+
+If the host should deploy the exact reviewed snapshot, clone the tag directly:
 
 ```bash
 sudo useradd --system --create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report || true
 sudo mkdir -p /srv
 sudo chown energy-report:energy-report /srv
-sudo -u energy-report git clone <your-repo-url> /srv/energy-report
+sudo -u energy-report git clone --branch v4.3.0-dev --depth 1 \
+  https://github.com/trantuyen1991/ETL_EMS_REPORT.git \
+  /srv/energy-report
 cd /srv/energy-report
 sudo -u energy-report python3 -m venv venv
 sudo -u energy-report ./venv/bin/pip install --upgrade pip
@@ -73,6 +81,7 @@ sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 Important:
 - do **not** copy an old `venv/` from another machine
 - always recreate the virtual environment on the new host
+- if you intentionally deploy a moving branch instead of the reviewed release tag, change the `git clone --branch ...` target on purpose
 - if you do not use the `energy-report` service account or `/srv/energy-report` path, update the sample `systemd` files before installing them
 
 ---
