@@ -48,6 +48,33 @@ output/reports/
 debug_*.html
 debug_*.pdf
 *.zip
+
+# -----------------------------------------------------------------------------
+# LaTeX documentation sources and build artifacts
+# -----------------------------------------------------------------------------
+!docs/latex/**/*.png
+!docs/latex/**/*.jpg
+!docs/latex/**/*.jpeg
+!docs/latex/**/*.svg
+!docs/latex/**/*.pdf
+docs/latex/**/*.aux
+docs/latex/**/*.bbl
+docs/latex/**/*.bcf
+docs/latex/**/*.blg
+docs/latex/**/*.fdb_latexmk
+docs/latex/**/*.fls
+docs/latex/**/*.lof
+docs/latex/**/*.log
+docs/latex/**/*.lot
+docs/latex/**/*.out
+docs/latex/**/*.run.xml
+docs/latex/**/*.synctex.gz
+docs/latex/**/*.toc
+docs/latex/**/*.xdv
+docs/latex/templates/**/main.pdf
+docs/output/*
+!docs/output/.gitkeep
+
 # -----------------------------------------------------------------------------
 # Test / coverage
 # -----------------------------------------------------------------------------

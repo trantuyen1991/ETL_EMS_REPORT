@@ -1,0 +1,354 @@
+% !TeX program = xelatex
+\documentclass[12pt,twoside,openany]{book}
+\setlength{\parskip}{6pt}
+
+% ==================================================
+% ================== FONT ==========================
+% ==================================================
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+% ==================================================
+% ================== KHỔ GIẤY 19x27 =================
+% ==================================================
+\usepackage{geometry}
+\geometry{
+	paperwidth=19cm,
+	paperheight=27cm,
+	top=2cm,
+	bottom=2cm,
+	inner=3cm,
+	outer=2cm,
+	headsep=1.27cm,
+	footskip=1.27cm,
+	twoside
+}
+
+% ==================================================
+% ============== CĂN ĐOẠN & GIÃN DÒNG =============
+% ==================================================
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\justifying
+\setlength{\parindent}{0.6cm}
+\setlength{\parskip}{6pt}
+\linespread{1.0}
+\raggedbottom
+
+% ==================================================
+% ============== CÂU HỎI ÔN TẬP =============
+% ==================================================
+\usepackage{titlesec}
+
+\titleformat{\section}[block]
+{\normalfont\bfseries\fontsize{12}{14}\selectfont\centering}
+{}
+{0pt}
+{}
+
+\titlespacing*{\section}
+{0pt}
+{16pt}
+{16pt}
+
+% ==================================================
+% ================== HÌNH ẢNH & BẢNG ===============
+% ==================================================
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[most]{tcolorbox}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\numberwithin{equation}{chapter}
+
+\renewcommand{\figurename}{Hình}
+\renewcommand{\tablename}{Bảng}
+
+% ---- Caption size 11 ----
+\DeclareCaptionFont{capfont}{\fontsize{11}{13}\selectfont}
+
+\captionsetup[figure]{
+	font=capfont,
+	labelfont=bf,
+	labelsep=period,
+	justification=centering
+}
+
+\DeclareCaptionLabelFormat{tablebold}{\textbf{#1~#2}}
+\captionsetup[table]{
+	font=capfont,
+	labelformat=tablebold,
+	labelsep=period,
+	justification=centering
+}
+
+% ---- Nội dung bảng size 11 ----
+\setlength{\extrarowheight}{3pt}
+\AtBeginEnvironment{tabular}{\fontsize{11}{13}\selectfont}
+\AtBeginEnvironment{tabularx}{\fontsize{11}{13}\selectfont}
+
+% ==================================================
+% ================= HEADER / FOOTER ================
+% ==================================================
+\usepackage{fancyhdr}
+\setlength{\headheight}{15pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\fontsize{11}{13}\selectfont\thepage}
+
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ==================================================
+% ================== CHAPTER STYLE =================
+% ==================================================
+\usepackage{titlesec}
+\renewcommand{\chaptername}{Chương}
+
+\titleformat{\chapter}[block]
+{\filcenter\bfseries\fontsize{15}{18}\selectfont}
+{\MakeUppercase{\chaptername~\thechapter.}}
+{0.6em}
+{\MakeUppercase}
+
+\titlespacing*{\chapter}{0pt}{0pt}{16pt}
+
+% ==================================================
+% ================= SECTION STYLE ==================
+% ==================================================
+\titleformat{\section}
+{\bfseries\fontsize{12}{14}\selectfont}
+{\thesection}{0.8em}{}
+\titlespacing*{\section}{0pt}{6pt}{6pt}
+
+\titleformat{\subsection}
+{\bfseries\fontsize{12}{14}\selectfont}
+{\thesubsection}{0.8em}{}
+\titlespacing*{\subsection}{0pt}{6pt}{6pt}
+
+% ==================================================
+% =============== MỤC LỤC / DANH MỤC ===============
+% ==================================================
+\usepackage{tocloft}
+
+% ----- Bỏ khoảng trắng dư -----
+\setlength{\cftbeforetoctitleskip}{0pt}
+\setlength{\cftaftertoctitleskip}{0pt}
+\setlength{\cftbeforeloftitleskip}{0pt}
+\setlength{\cftafterloftitleskip}{0pt}
+\setlength{\cftbeforelottitleskip}{0pt}
+\setlength{\cftafterlottitleskip}{0pt}
+
+% ----- Định dạng danh mục hình -----
+\renewcommand{\cftfigpresnum}{Hình\ }
+\renewcommand{\cftfigaftersnum}{.\ }
+\setlength{\cftfignumwidth}{3.5cm}
+
+% ----- Định dạng danh mục bảng -----
+\renewcommand{\cfttabpresnum}{Bảng\ }
+\renewcommand{\cfttabaftersnum}{.\ }
+\setlength{\cfttabnumwidth}{3.5cm}
+
+% ----- Dấu chấm dẫn -----
+\renewcommand{\cftdotsep}{1}
+
+% ----- Cỡ chữ danh mục = 12pt -----
+\renewcommand{\cftfigfont}{\normalsize}
+\renewcommand{\cfttabfont}{\normalsize}
+\renewcommand{\cftfigpagefont}{\normalsize}
+\renewcommand{\cfttabpagefont}{\normalsize}
+
+% ----- Tiêu đề trang kiểu "LỜI NÓI ĐẦU" -----
+\newcommand{\TieuDeTrang}[1]{%
+	\begin{center}
+		{\fontsize{15}{18}\selectfont\bfseries #1}
+	\end{center}
+	\vspace{16pt}
+}
+
+% ----- Tắt tiêu đề mặc định tiếng Anh -----
+\makeatletter
+\renewcommand{\contentsname}{}
+\renewcommand{\listfigurename}{}
+\renewcommand{\listtablename}{}
+\makeatother
+
+% ----- In nội dung danh mục không in heading mặc định -----
+\makeatletter
+\renewcommand{\tableofcontents}{\@starttoc{toc}}
+\renewcommand{\listoffigures}{\@starttoc{lof}}
+\renewcommand{\listoftables}{\@starttoc{lot}}
+\makeatother
+
+
+% ==================================================
+% ================= TÀI LIỆU THAM KHẢO =============
+% ==================================================
+\usepackage[backend=biber,style=ieee]{biblatex}
+\addbibresource{./ref/references.bib}
+\DefineBibliographyStrings{english}{
+	bibliography = {TÀI LIỆU THAM KHẢO}
+}
+
+% ==================================================
+% ================== BẮT ĐẦU TÀI LIỆU ===============
+% ==================================================
+\begin{document}
+	
+	% ================== BÌA ==================
+	\thispagestyle{empty}
+	\begin{titlepage}
+		\begin{center}
+			
+			\vspace*{-0.8cm}
+			
+			{\fontsize{15}{18}\selectfont
+				\textbf{TS. NGUYỄN VĂN A (Chủ biên)}\\
+				\textbf{TS. NGUYỄN VĂN B}\\
+				\textit{(Sách có 1 tác giả không ghi chủ biên)}
+			}
+			
+			\vfill
+			
+			{\fontsize{20}{24}\selectfont \textbf{TÀI LIỆU KỸ THUẬT}}\\[0.6cm]
+			
+			{\fontsize{24}{28}\selectfont \textbf{TÊN TÀI LIỆU KỸ THUẬT}}\\[0.6cm]
+			
+			{\fontsize{14.5}{18}\selectfont
+				\textit{\textbf{(Dành cho ngành …)}}
+			}
+			
+			\vfill
+			
+			{\fontsize{14}{18}\selectfont
+				\textbf{THÀNH PHỐ HỒ CHÍ MINH - NĂM ...}\\
+				\textit{(Trang tên sách không đánh số trang)}
+			}
+			
+		\end{center}
+	\end{titlepage}
+	
+	\clearpage
+% ================== TRANG BẢN QUYỀN ==================
+\thispagestyle{empty}
+
+\vspace*{0.5cm}
+
+
+\begin{center}
+	\textit{(Trang này không đánh số trang)}
+\end{center}
+
+\vfill
+
+\begin{center}
+	\begin{tcolorbox}[
+		width=0.9\textwidth,
+		colback=white,
+		colframe=black,
+		arc=8mm,
+		boxrule=0.6pt
+		]
+		\textbf{Tên tài liệu kỹ thuật}
+		
+		\vspace{0.5em}
+		
+		Bản quyền thuộc về tác giả và nhà trường.
+		
+		Trường Đại học Giao thông vận tải Thành phố Hồ Chí Minh giữ quyền công bố ấn phẩm.
+		
+		Mọi hành vi sao chép, in ấn, phát hành dưới mọi hình thức hay phương tiện nào mà không có sự cho phép trước bằng văn bản của tác giả và Nhà trường đều nghiêm cấm và có thể xử lý theo quy định của pháp luât.
+	\end{tcolorbox}
+\end{center}
+
+\clearpage
+
+	% ================== LỜI NÓI ĐẦU ==================
+	\thispagestyle{empty}
+	\begin{center}
+		{\fontsize{15}{18}\selectfont\bfseries LỜI NÓI ĐẦU}
+	\end{center}
+	
+	\vspace{16pt}
+	
+	\noindent Lời nói đầu cần giới thiệu mục tiêu của tài liệu kỹ thuật, phạm vi áp dụng, đối tượng sử dụng, cấu trúc tài liệu, và cách dùng tài liệu trong quá trình phát triển, vận hành, bảo trì hệ thống.
+	Trong phần giới thiệu của tài liệu cần ghi rõ: tài liệu này dùng để mô tả dự án, các tính năng, quy tắc nghiệp vụ, cách tính toán, kiến trúc hệ thống, và các lưu ý triển khai hoặc vận hành của hệ thống báo cáo năng lượng.
+	
+	\noindent...\\
+	Tác giả/nhóm biên soạn mong nhận được góp ý của bạn đọc để tài liệu kỹ thuật được hoàn thiện hơn trong các lần cập nhật sau. Mọi ý kiến đóng góp xin gửi về Email:… 
+	Trân trọng cảm ơn!
+	Tác giả 
+	
+	\noindent\makebox[0.9\textwidth][r]{\textbf{Tác giả}}\\
+	\noindent\makebox{\textit{(Trang Lời nói đầu là trang 3)}}
+	\clearpage
+	% ================== TRANG TRỐNG ==================
+	\clearpage
+	\thispagestyle{empty}
+	\null
+	\clearpage
+	% ================== MỤC LỤC / DANH MỤC ==================
+	\thispagestyle{empty}
+	\TieuDeTrang{MỤC LỤC}
+	\tableofcontents
+	\clearpage
+	
+	\thispagestyle{empty}
+	\TieuDeTrang{DANH MỤC HÌNH}
+	\listoffigures
+	\clearpage
+	\thispagestyle{empty}
+	\TieuDeTrang{DANH MỤC BẢNG}
+	\listoftables
+	\clearpage
+	
+	% ================== BẮT ĐẦU ĐÁNH SỐ TRANG (NỘI DUNG) ==================
+	\pagenumbering{arabic}
+	
+	% ================== NỘI DUNG ==================
+	\input{chuong1}
+	
+	% ================== TRANG TRÁCH NHIỆM ==================
+	\printbibliography
+	\let\cleardoublepage\clearpage	
+	\begin{titlepage}
+		\begin{center}
+			
+			\vspace*{-0.8cm}
+			
+			{\fontsize{15}{18}\selectfont
+				\textbf{TS. NGUYỄN VĂN A (Chủ biên)}\\
+				\textbf{TS. NGUYỄN VĂN B}\\
+			}
+			
+			\vfill
+			
+			{\fontsize{20}{24}\selectfont 
+				\textbf{TÀI LIỆU KỸ THUẬT}
+			}\\[0.6cm]
+			{\fontsize{24}{28}\selectfont
+				 \textbf{TÊN TÀI LIỆU KỸ THUẬT}\\[0.6cm]
+			}
+			
+			\vfill
+			
+			% ----- Đường kẻ ngang -----
+			\rule{\textwidth}{0.6pt}
+			
+			\vspace{10pt}
+			
+			{\fontsize{11}{18}\selectfont
+				\textbf{TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI THÀNH PHỐ HỒ CHÍ MINH}\\[6pt]
+				Số 2, Võ Oanh, Phường Thạnh Mỹ Tây, TP. Hồ Chí Minh\\[6pt]
+				Phát hành năm...
+			}
+			
+		\end{center}
+	\end{titlepage}
+	
+\end{document}
