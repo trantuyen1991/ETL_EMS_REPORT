@@ -76,8 +76,15 @@ A successful build MUST:
 - preserve images
 - preserve table formatting
 - preserve chapter formatting
+- preserve page-level layout integrity for any touched template areas
 
 Warnings about optional unicode spacing may be ignored if PDF output is correct.
+
+When the change touches layout or template chrome, also visually verify representative pages such as:
+- cover/control pages
+- TOC/list pages
+- a normal chapter/content page
+- any page containing a note/callout banner or long metadata paths
 
 ---
 

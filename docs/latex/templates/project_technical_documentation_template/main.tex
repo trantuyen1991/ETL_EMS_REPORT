@@ -19,7 +19,7 @@
 	bottom=2cm,
 	inner=3cm,
 	outer=2cm,
-	headsep=1.27cm,
+	headsep=0.8cm,
 	footskip=1.27cm,
 	twoside
 }
@@ -55,6 +55,7 @@
 % ================== HÌNH ẢNH & BẢNG ===============
 % ==================================================
 \usepackage{graphicx}
+\usepackage{xurl}
 \usepackage{eso-pic}
 \usepackage{float}
 \usepackage[most]{tcolorbox}
@@ -102,7 +103,7 @@
 \newcommand{\DocumentTypeLabel}{TÀI LIỆU KỸ THUẬT DỰ ÁN}
 \newcommand{\ProjectName}{Energy Consumption Reporting System}
 \newcommand{\DocumentShortTitle}{Project Technical Manual}
-\newcommand{\DocumentVersionLabel}{v0.7-draft}
+\newcommand{\DocumentVersionLabel}{v0.8-draft}
 \newcommand{\DocumentStatusLabel}{Internal review copy}
 \newcommand{\DocumentOwnerLabel}{Tuyen Tran}
 \newcommand{\DocumentReviewerLabel}{Reviewer assignment pending}
@@ -111,6 +112,8 @@
 \newcommand{\DocumentDateLabel}{May 2026}
 \newcommand{\DocumentSourceRoot}{docs/latex/templates/project\_technical\_documentation\_template/}
 \newcommand{\DocumentOutputPath}{docs/output/project\_technical\_documentation\_latest.pdf}
+\newcommand{\DocumentSourceRootDisplay}{\nolinkurl{docs/latex/templates/project_technical_documentation_template/}}
+\newcommand{\DocumentOutputPathDisplay}{\nolinkurl{docs/output/project_technical_documentation_latest.pdf}}
 \newcommand{\CoverBackgroundImage}{figure/cover_background.jpg}
 \newcommand*{\CoverBackground}{%
 	\AtPageLowerLeft{%
@@ -139,6 +142,25 @@
 \ApplyDocumentPageStyle
 \fancypagestyle{plain}{%
 	\ApplyDocumentPageStyle
+}
+
+\newtcolorbox{DocBannerNote}[2][]{
+	enhanced,
+	breakable,
+	width=0.92\textwidth,
+	colback=BrandBlue!4,
+	colframe=BrandBlue!55,
+	colbacktitle=BrandBlue,
+	coltitle=white,
+	fonttitle=\bfseries,
+	title={#2},
+	arc=3mm,
+	boxrule=0.6pt,
+	left=8pt,
+	right=8pt,
+	top=8pt,
+	bottom=8pt,
+	#1
 }
 
 % ==================================================
@@ -204,7 +226,7 @@
 	\begin{center}
 		{\fontsize{15}{18}\selectfont\bfseries #1}
 	\end{center}
-	\vspace{16pt}
+	\vspace{10pt}
 }
 
 % ----- Tắt tiêu đề mặc định tiếng Anh -----
@@ -289,24 +311,21 @@
 			\textbf{Status:} \DocumentStatusLabel\\[4pt]
 			\textbf{Owner / Author:} \DocumentOwnerLabel\\[4pt]
 			\textbf{Reviewer:} \DocumentReviewerLabel\\[4pt]
-			\textbf{Approval:} \DocumentApprovalLabel\\[4pt]
-			\textbf{Source Root:} \texttt{\DocumentSourceRoot}\\[4pt]
-			\textbf{Canonical PDF:} \texttt{\DocumentOutputPath}
+			\textbf{Approval:} \DocumentApprovalLabel\\[6pt]
+			\textbf{Source Root:}\\[-1pt]
+			{\raggedright\small \nolinkurl{docs/latex/templates/}\\\nolinkurl{project_technical_documentation_template/}\par}
+			\vspace{4pt}
+			\textbf{Canonical PDF:}\\[-1pt]
+			{\raggedright\small \DocumentOutputPathDisplay\par}
 		\end{tcolorbox}
 	\end{center}
 	
-	\vfill
+	\vspace{14pt}
 	
 	\begin{center}
-		\begin{tcolorbox}[
-			width=0.92\textwidth,
-			colback=BrandBlue!4,
-			colframe=BrandBlue!45,
-			arc=4mm,
-			boxrule=0.5pt
-			]
-			This technical manual is maintained as a controlled project document. Content should be updated through the Documentation-as-Code workflow and rebuilt to PDF whenever documentation source content changes.
-		\end{tcolorbox}
+		\begin{DocBannerNote}[fontupper=\fontsize{11}{14}\selectfont, top=10pt, bottom=10pt]{Ghi chú}
+			Tài liệu này hiện ở trạng thái \DocumentStatusLabel. Các mục còn mang trạng thái \DocumentReviewerLabel{} hoặc \DocumentApprovalLabel{} chưa được xem là approved handover baseline. Không dùng bản này để thay thế cho manual chính thức, hướng dẫn an toàn, hoặc tài liệu pháp lý và vận hành gốc của thiết bị hay hệ thống.
+		\end{DocBannerNote}
 	\end{center}
 	
 	\clearpage
@@ -386,8 +405,12 @@
 			}
 			\vfill
 			{\fontsize{11}{13}\selectfont
-				\textbf{Canonical source:} \texttt{\DocumentSourceRoot}\\[6pt]
-				\textbf{Canonical PDF:} \texttt{\DocumentOutputPath}\\[12pt]
+				\textbf{Canonical source:}\\[2pt]
+				{\raggedright\small \nolinkurl{docs/latex/templates/}\\\nolinkurl{project_technical_documentation_template/}\par}
+				\vspace{6pt}
+				\textbf{Canonical PDF:}\\[2pt]
+				{\raggedright\small \DocumentOutputPathDisplay\par}
+				\vspace{12pt}
 				Prepared for internal engineering use and maintained through the project Documentation-as-Code workflow.
 			}
 		\end{center}

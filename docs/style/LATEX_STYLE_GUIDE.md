@@ -71,6 +71,49 @@ Keep:
 
 Do not introduce random styling changes.
 
+When layout issues are found:
+
+. prefer controlled template-level adjustments
+. avoid ad-hoc per-page spacing hacks
+. fix recurring issues once in the shared template
+
+
+# CALLOUT / NOTE STYLE
+
+For notes, cautions, internal-review disclaimers, and take-note blocks:
+
+. use a banner-style `tcolorbox` with a colored title bar
+. keep the title short, e.g. `Ghi chú`, `Lưu ý`, `Cảnh báo`
+. keep the body concise, operational, and professional
+. avoid plain floating paragraphs for important callouts when a reusable note block is more appropriate
+
+For long technical paths inside metadata or control boxes:
+
+. do not force long paths onto a single row
+. put the label on one line and the path value on the next line when needed
+. allow path wrapping cleanly instead of overflowing the box edge
+
+
+# SPACING AND PAGE CHROME RULES
+
+Header-to-content spacing must be explicitly controlled.
+
+Use:
+
+. compact `headsep`
+. controlled chapter/title spacing
+. helper macros for title pages and TOC-style pages
+
+Avoid:
+
+. large dead zones between the header rule and the first heading/content block
+. manual one-off `\vspace` fixes that only hide the real spacing problem
+
+If spacing is adjusted:
+
+. prefer `geometry`, `titlesec`, or shared helper macro updates
+. verify representative pages such as control/info pages, TOC pages, and normal content pages
+
 
 
 # TABLE STYLE
