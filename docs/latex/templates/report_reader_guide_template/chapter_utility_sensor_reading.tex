@@ -1,0 +1,213 @@
+\chapter{CÁCH ĐỌC PHẦN UTILITY VÀ SENSOR MONITORING}
+
+\section{Phần Utility đang giúp người đọc trả lời điều gì}
+
+Phần \texttt{Utility Usage} giúp người đọc trả lời các câu hỏi sau:
+
+\begin{enumerate}[label=-]
+\item utility nào đang chiếm mức sử dụng đáng chú ý trong kỳ hiện tại;
+\item mức sử dụng hiện tại đang tăng hay giảm so với kỳ đối chiếu;
+\item biến động đến từ nước, chilled water, compressed air, hay steam;
+\item phần nào là số tiêu thụ nghiệp vụ và phần nào là tín hiệu giám sát sensor.
+\end{enumerate}
+
+So với Electricity, phần Utility cần được đọc cẩn thận hơn vì trong cùng một domain này report đang chứa hai lớp thông tin khác nhau: \textbf{utility consumption / utility energy} và \textbf{sensor monitoring}. Hai lớp này liên quan với nhau nhưng không nên bị hiểu là cùng một thứ.
+
+\section{Cách đọc các overview card của Utility}
+
+Ở lớp đầu tiên, report thường hiển thị các overview card theo từng nhóm utility như nước, chilled water, air, hoặc steam. Đây là nơi phù hợp để nhìn nhanh utility nào đang tăng hoặc giảm rõ nhất.
+
+Người đọc nên hiểu các card này như sau:
+
+\begin{enumerate}[label=-]
+\item giá trị lớn là mức sử dụng của nhóm utility trong kỳ hiện tại;
+\item cặp \texttt{Today / Yesterday} hoặc \texttt{Current / Previous} cho biết số đối chiếu trực tiếp giữa hai kỳ;
+\item dòng \texttt{delta \%} cho biết hướng biến động tương đối;
+\item badge \texttt{GOOD / WATCH / STABLE} chỉ là tín hiệu quét nhanh, không phải kết luận nguyên nhân.
+\end{enumerate}
+
+Nếu chỉ một nhóm utility tăng mạnh còn các nhóm khác đi ngang, người đọc nên hiểu rằng biến động utility của kỳ đó đang tập trung chủ yếu ở nhóm đó.
+
+\section{Cách đọc chart comparison và deviation của Utility}
+
+Các chart của Utility thường phục vụ hai mục đích:
+
+\begin{enumerate}[label=-]
+\item nhìn so sánh \texttt{current} với \texttt{previous} theo từng utility group;
+\item nhìn độ lệch tăng, giảm, hoặc gần như đi ngang của từng utility.
+\end{enumerate}
+
+Ở đây, cách đọc an toàn là:
+
+\begin{enumerate}[label=-]
+\item nhìn utility nào có độ lệch lớn nhất trước;
+\item kiểm tra utility đó đang tăng theo giá trị tuyệt đối hay chỉ tăng theo phần trăm do base kỳ trước nhỏ;
+\item không so chéo hai utility khác đơn vị hoặc khác bản chất chỉ bằng độ dài thanh chart nếu report đang tách chúng thành các block riêng.
+\end{enumerate}
+
+Nếu một utility có \texttt{delta \%} rất lớn nhưng giá trị tuyệt đối nhỏ, người đọc nên coi đó là tín hiệu cần kiểm tra, chưa nên coi là driver chính của toàn bộ phần Utility.
+
+\section{Cách đọc \texttt{Utility Energy (Converted to kWh)}}
+
+Trong một số bề mặt, report hiển thị thêm phần \texttt{Utility Energy (Converted to kWh)}. Phần này khác với utility consumption thông thường.
+
+Người đọc nên hiểu phần này như sau:
+
+\begin{enumerate}[label=-]
+\item đây là lớp quy đổi utility về đơn vị năng lượng để tiện nhìn ở góc độ energy-equivalent;
+\item nó không thay thế hoàn toàn phần utility consumption gốc;
+\item tổng ở đây là tổng các nhóm utility energy đã được quy đổi, ví dụ như air, chilled water, và boiler-related energy theo cấu hình hiện hành của report.
+\end{enumerate}
+
+\begin{ReaderNote}{Không nên trộn cách hiểu consumption và converted energy}
+Nếu một utility flow tăng nhưng phần \texttt{Utility Energy} không tăng tương ứng, người đọc không nên kết luận report sai ngay. Hai lớp này phản ánh hai góc nhìn khác nhau: một bên là mức sử dụng nghiệp vụ theo đơn vị vận hành, bên còn lại là mức quy đổi về năng lượng theo logic của report.
+\end{ReaderNote}
+
+\section{Cách đọc \texttt{Utility Detail Summary}}
+
+\texttt{Utility Detail Summary} là bảng giúp người đọc gom lại kết quả theo từng utility name ở dạng dễ so sánh hơn overview card.
+
+Khi đọc bảng này, người đọc nên chú ý:
+
+\begin{enumerate}[label=-]
+\item mỗi dòng là một business metric như \texttt{Domestic Water}, \texttt{ICO Chilled Water}, \texttt{DIODE Air}, hoặc \texttt{Steam};
+\item report luôn cố gắng hiển thị đủ \texttt{current}, \texttt{previous}, \texttt{delta}, và \texttt{delta \%};
+\item nếu có cột năng lượng quy đổi, cần đọc tách phần \texttt{Consumption} và phần \texttt{Utility Energy};
+\item dấu \texttt{-} là thiếu dữ liệu hoặc không đủ cơ sở hiển thị, không mặc định bằng 0.
+\end{enumerate}
+
+Nếu cần trả lời câu hỏi \textit{utility nào thay đổi nhiều nhất}, đây thường là bảng nên nhìn sau overview cards và trước khi đi xuống chi tiết theo ngày.
+
+\section{Cách đọc \texttt{Daily Utility Detail}}
+
+\texttt{Daily Utility Detail} là lớp giúp truy lại biến động theo từng ngày trong kỳ. Bảng này hữu ích khi người đọc đã biết utility nào cần kiểm tra sâu hơn.
+
+Cách đọc nên là:
+
+\begin{enumerate}[label=-]
+\item xác định utility cần xem trước từ overview card hoặc summary;
+\item dò theo từng ngày để tìm ngày bắt đầu tăng, giảm, hoặc mất dữ liệu;
+\item phân biệt rõ \texttt{-} với giá trị 0;
+\item với weekly hoặc monthly report, ưu tiên nhìn chuỗi ngày trước khi kết luận biến động là bất thường.
+\end{enumerate}
+
+Vì phần Utility phải render đủ ngày trong kỳ, các dòng trống hoặc có \texttt{-} không nhất thiết là lỗi file PDF hay lỗi trình bày. Nhiều trường hợp đó chỉ là cách report giữ đúng mật độ ngày và thể hiện trung thực tình trạng dữ liệu.
+
+\section{Sensor Monitoring đang nằm ở đâu và nên được hiểu thế nào}
+
+Trong report hiện tại, \texttt{Sensor Monitoring} nằm dưới domain Utility. Tuy nhiên, người đọc nên hiểu đây là \textbf{lớp giám sát tín hiệu sensor}, không phải lớp tổng hợp utility consumption theo nghĩa nghiệp vụ.
+
+Phần này phù hợp để trả lời các câu hỏi như:
+
+\begin{enumerate}[label=-]
+\item sensor nào đang có tín hiệu bất thường;
+\item nhóm sensor nào đang thiếu dữ liệu hoặc có ít dữ liệu active;
+\item giá trị \texttt{min / avg / max} trong ngày hoặc trong kỳ đang ra sao;
+\item biến động tín hiệu có tập trung vào một cụm utility cụ thể hay không.
+\end{enumerate}
+
+Nói ngắn gọn, Utility cho biết \textit{đã dùng bao nhiêu}, còn Sensor Monitoring giúp nhìn thêm \textit{tín hiệu đo đang có chất lượng và hình dạng như thế nào}.
+
+\section{Cách đọc phần đầu của Sensor Monitoring}
+
+Ngay ở đầu block Sensor Monitoring, report thường cho vài stat pill quan trọng. Người đọc nên hiểu chúng như sau:
+
+\begin{enumerate}[label=-]
+\item \texttt{Period} hoặc ngày focus cho biết khoảng thời gian block này đang phản ánh;
+\item \texttt{Data days} cho biết có bao nhiêu ngày trong kỳ thực sự có dữ liệu sensor;
+\item \texttt{active sensors} cho biết số sensor có dữ liệu trên tổng số sensor thuộc scope hiện hành;
+\item \texttt{alerts} cho biết số sensor hoặc số dòng bất thường đã bị gắn cờ trong block này.
+\end{enumerate}
+
+Nếu \texttt{Data days} thấp hoặc số sensor active thấp, người đọc nên hạ mức tin cậy của các kết luận dựa trên phần Sensor Monitoring và xem lại anomaly scan trước khi kết luận thêm.
+
+\section{Cách đọc overview cards và group cards của Sensor Monitoring}
+
+Ở periodic report, Sensor Monitoring có overview cards theo nhóm. Đây là lớp nhìn nhanh xem nhóm nào đang có nhiều alert, nhiều sensor active, hay nhiều sensor critical hơn bình thường.
+
+Sau lớp overview, report đi vào các group card chi tiết hơn. Mỗi group card thường hiển thị:
+
+\begin{enumerate}[label=-]
+\item tên nhóm sensor;
+\item số sensor có dữ liệu trên tổng sensor của nhóm;
+\item số alert của nhóm;
+\item với từng sensor, các giá trị \texttt{Min}, \texttt{Avg}, \texttt{Max}, và \texttt{Status}.
+\end{enumerate}
+
+Người đọc nên dùng các group card để nhận ra hai kiểu tình huống khác nhau:
+
+\begin{enumerate}[label=-]
+\item tín hiệu có dữ liệu nhưng hình dạng hoặc mức đo đáng nghi;
+\item tín hiệu thiếu dữ liệu, ít dữ liệu, hoặc hầu như không hoạt động trong kỳ.
+\end{enumerate}
+
+\section{Cách đọc \texttt{Status} và \texttt{Alert}}
+
+Trong Sensor Monitoring, \texttt{Alert} không nên bị hiểu ngay là sự cố vận hành đã được xác nhận. Trước hết nó là tín hiệu cho biết dữ liệu hoặc hành vi của sensor đang có điểm cần chú ý.
+
+Các alert hiện thường liên quan tới các tình huống như:
+
+\begin{enumerate}[label=-]
+\item không có dữ liệu;
+\item coverage thấp hoặc chỉ có dữ liệu một phần;
+\item tín hiệu toàn 0 hoặc nghiêng mạnh về 0;
+\item tín hiệu quá phẳng;
+\item tín hiệu âm vượt quá ngưỡng cho phép;
+\item giá trị latest lệch đáng kể so với phần còn lại của dải dữ liệu.
+\end{enumerate}
+
+Vì vậy, khi thấy alert, cách đọc đúng là xem nó như \textbf{manh mối điều tra} chứ chưa phải kết luận cuối cùng.
+
+\section{Cách đọc \texttt{Sensor anomaly scan}}
+
+\texttt{Sensor anomaly scan} là bảng nên đọc khi người dùng muốn biết cụ thể sensor nào đang bị gắn cờ và vì sao.
+
+Bảng này thường cho biết:
+
+\begin{enumerate}[label=-]
+\item nhóm sensor;
+\item tên sensor;
+\item loại measurement;
+\item \texttt{latest} hoặc \texttt{data days} tùy theo daily hay periodic view;
+\item \texttt{min / avg / max};
+\item lý do bị gắn cờ trong cột \texttt{Reason}.
+\end{enumerate}
+
+Nếu chỉ xem badge alert ở card mà không xem anomaly scan, người đọc sẽ biết là có vấn đề nhưng khó biết mức độ và nguyên nhân. Vì vậy, anomaly scan là lớp cần nhìn khi muốn chuyển từ \textit{biết có cảnh báo} sang \textit{biết cảnh báo đó là gì}.
+
+\section{Cách đọc trend preview và period detail của Sensor Monitoring}
+
+Tùy loại kỳ báo cáo, Sensor Monitoring có thể hiển thị thêm các lớp xu hướng và chi tiết sau:
+
+\begin{enumerate}[label=-]
+\item \texttt{Intraday trend by cluster}: xem hình dạng raw signal trong ngày, phù hợp để nhìn đột biến theo thời điểm;
+\item \texttt{Daily Max / Avg detail}: xem theo từng ngày trong kỳ, phù hợp để truy ngày có mức đo bất thường;
+\item \texttt{Period sensor trend} hoặc \texttt{Sensor trend by cluster}: xem đường xu hướng daily aggregate trong suốt kỳ weekly hoặc monthly.
+\end{enumerate}
+
+Cách đọc an toàn là:
+
+\begin{enumerate}[label=-]
+\item dùng anomaly scan để xác định sensor hoặc group cần chú ý trước;
+\item dùng trend preview để xem biến động xảy ra tại thời điểm nào hoặc ngày nào;
+\item chỉ sau đó mới liên hệ ngược lại với utility consumption nếu cần tìm ảnh hưởng nghiệp vụ.
+\end{enumerate}
+
+\section{Cách tránh đọc nhầm giữa Utility và Sensor Monitoring}
+
+Một số nhầm lẫn thường gặp ở chapter này là:
+
+\begin{enumerate}[label=-]
+\item thấy utility tăng và nghĩ chắc chắn mọi sensor liên quan đều có alert;
+\item thấy nhiều alert sensor và kết luận ngay rằng utility consumption cũng đang bất thường;
+\item thấy dấu \texttt{-} trong sensor detail rồi hiểu là bằng 0;
+\item so trực tiếp các sensor khác đơn vị hoặc khác nhóm trên cùng một cảm nhận trực quan.
+\end{enumerate}
+
+Cách đọc đúng hơn là:
+
+\begin{enumerate}[label=-]
+\item dùng Utility để nhìn mức sử dụng và hướng biến động nghiệp vụ;
+\item dùng Sensor Monitoring để nhìn chất lượng tín hiệu, hình dạng tín hiệu, và nơi cần điều tra;
+\item chỉ nối hai lớp này với nhau sau khi đã xác nhận đúng nhóm utility, đúng nhóm sensor, và đúng loại vấn đề đang thấy trong report.
+\end{enumerate}

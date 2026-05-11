@@ -73,7 +73,7 @@ The new PDF should avoid going deep into:
 - [x] Checkpoint 2. Create the new LaTeX source set for the reader guide and build a first skeleton PDF
 - [x] Checkpoint 3. Write report anatomy + header/period reading chapters
 - [x] Checkpoint 4. Write Electricity interpretation chapter
-- [ ] Checkpoint 5. Write Utility + Sensor Monitoring interpretation chapter
+- [x] Checkpoint 5. Write Utility + Sensor Monitoring interpretation chapter
 - [ ] Checkpoint 6. Write KPI interpretation chapter
 - [ ] Checkpoint 7. Write source-of-truth, comparison, coverage, zero-vs-missing, and caveat chapter
 - [ ] Checkpoint 8. Add quick glossary / reader cheat sheet and do visual cleanup
