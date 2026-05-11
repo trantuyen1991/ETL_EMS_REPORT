@@ -506,19 +506,19 @@ Generated files:
 output/reports/
 └── <YYYY_MM>/
     ├── pdf/
-    │   ├── 00_monthly_<filename>_<anchor-date>.pdf
-    │   ├── 20_weekly_<filename>_<anchor-date>.pdf
-    │   └── 30_daily_<filename>_<anchor-date>.pdf
+    │   ├── 01_monthly_<filename>_<anchor-date>.pdf
+    │   ├── 02_weekly_<filename>_<anchor-date>.pdf
+    │   └── 03_daily_<filename>_<anchor-date>.pdf
     ├── pdf_source_html/
-    │   ├── 00_monthly_<filename>_<anchor-date>.html
-    │   ├── 20_weekly_<filename>_<anchor-date>.html
-    │   └── 30_daily_<filename>_<anchor-date>.html
+    │   ├── 01_monthly_<filename>_<anchor-date>.html
+    │   ├── 02_weekly_<filename>_<anchor-date>.html
+    │   └── 03_daily_<filename>_<anchor-date>.html
     ├── view_html/
-    │   ├── 00_monthly_<filename>_<anchor-date>.html
-    │   ├── 20_weekly_<filename>_<anchor-date>.html
-    │   └── 30_daily_<filename>_<anchor-date>.html
+    │   ├── 01_monthly_<filename>_<anchor-date>.html
+    │   ├── 02_weekly_<filename>_<anchor-date>.html
+    │   └── 03_daily_<filename>_<anchor-date>.html
     └── excel/
-        └── 30_daily_<filename>_<anchor-date>.xlsx
+        └── 03_daily_<filename>_<anchor-date>.xlsx
 
 ```
 

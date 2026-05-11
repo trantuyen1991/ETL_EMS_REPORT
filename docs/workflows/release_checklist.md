@@ -27,7 +27,7 @@ Companion runbook: `docs/workflows/release_runbook.md`
 - [ ] Run one month-end anchor export and verify monthly report is generated
 - [ ] Open the final PDF and verify layout width, chart sizing, and table overflow are acceptable
 - [ ] Verify staged PDF output is copied into the canonical monthly `output/reports/YYYY_MM/pdf/` directory
-- [ ] Verify filenames sort by prefix order: `00_monthly`, `20_weekly`, `30_daily`
+- [ ] Verify filenames sort by prefix order: `01_monthly`, `02_weekly`, `03_daily`
 
 ## 4. Documentation and scope
 

@@ -515,11 +515,11 @@ Rules:
 - Current format:
   - `<sort-prefix>_<period_type>_<filename>_<anchor-date>`
 - Period sort prefixes:
-  - `00_monthly`
-  - `20_weekly`
-  - `30_daily`
+  - `01_monthly`
+  - `02_weekly`
+  - `03_daily`
 - Example:
-  - `00_monthly_energy_automatic_report_20250531.pdf`
+  - `01_monthly_energy_automatic_report_20250531.pdf`
 
 ---
 

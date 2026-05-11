@@ -329,9 +329,9 @@ def _resolve_period_sort_prefix(period_type: str) -> str:
     """Resolve the sort prefix for canonical report filenames."""
     normalized = str(period_type or "").strip().lower()
     mapping = {
-        "monthly": "00",
-        "weekly": "20",
-        "daily": "30",
+        "monthly": "01",
+        "weekly": "02",
+        "daily": "03",
     }
     return mapping.get(normalized, "99")
 
