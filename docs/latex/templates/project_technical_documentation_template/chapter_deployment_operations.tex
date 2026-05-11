@@ -87,21 +87,49 @@ sudo apt install -y \
   python3 \
   python3-venv \
   python3-pip \
+  ca-certificates \
+  curl \
+  netcat-openbsd \
   poppler-utils
 
+python3 --version
 which google-chrome || which chromium || which chromium-browser
 timedatectl
 # If needed:
 # sudo timedatectl set-timezone Asia/Ho_Chi_Minh
 \end{ShellBlock}
 
-Block này chỉ mới xác nhận baseline runtime. Nếu host chưa có Chrome hoặc Chromium, deployment chưa nên đi tiếp tới bước PDF smoke.
+Block này chỉ mới xác nhận baseline runtime. Host Ubuntu 24.04 thường cài \texttt{chromium} dạng Snap; dạng này có thể lỗi khi chạy headless bằng service account hoặc \texttt{systemd}. Vì PDF export của project ưu tiên \texttt{google-chrome} trước \texttt{chromium}, baseline khuyến nghị là cài Google Chrome bản \texttt{.deb} nếu host chưa có \texttt{google-chrome}.
+
+\begin{ShellBlock}
+curl -L -o /tmp/google-chrome.deb \
+  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo apt install -y /tmp/google-chrome.deb
+
+which google-chrome
+google-chrome --version
+
+sudo -u "$(whoami)" google-chrome \
+  --headless \
+  --disable-gpu \
+  --no-sandbox \
+  --dump-dom about:blank >/tmp/chrome-smoke.html
+\end{ShellBlock}
+
+Expected result của Step 1:
+
+\begin{enumerate}[label=-]
+\item \texttt{python3 --version} trả về Python 3.12.x trên Ubuntu 24.04;
+\item \texttt{which google-chrome} trả về executable path;
+\item \texttt{timedatectl} hiển thị timezone đúng với lịch chạy mong muốn;
+\item nếu database host đã biết, có thể kiểm tra network bằng \texttt{nc -vz MYSQL\_HOST 3306} trước khi chạy smoke.
+\end{enumerate}
 
 \subsection{Step 2. Tạo service account, clone repo, và dựng venv}
 
 \begin{ShellBlock}
 sudo useradd --system \
-  --create-home \
+  --no-create-home \
   --home-dir /srv/energy-report \
   --shell /usr/sbin/nologin \
   energy-report || true
@@ -118,7 +146,26 @@ sudo -u energy-report ./venv/bin/pip install --upgrade pip
 sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 \end{ShellBlock}
 
-Đây là baseline end-to-end cho host mới. \texttt{venv} phải luôn được tạo lại ngay trên máy đích, không copy từ host khác.
+Đây là baseline end-to-end cho host mới. \texttt{--no-create-home} là cố ý: nếu dùng \texttt{--create-home}, Linux sẽ tạo sẵn \texttt{/srv/energy-report} với các dotfiles mặc định và lệnh \texttt{git clone ... /srv/energy-report} sẽ fail vì thư mục đích đã tồn tại và không rỗng.
+
+Nếu cần reset riêng Step 2 để chạy lại từ đầu trên một host test, dùng block sau. Block này xóa project checkout và user service account, nhưng không xóa output report.
+
+\begin{ShellBlock}
+sudo bash -lc 'set -e
+rm -rf /srv/energy-report
+id energy-report >/dev/null 2>&1 && userdel energy-report || true
+useradd --system --no-create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report
+mkdir -p /srv
+chown energy-report:energy-report /srv
+sudo -u energy-report git clone --branch v4.3.0-dev --depth 1 https://github.com/trantuyen1991/ETL_EMS_REPORT.git /srv/energy-report
+cd /srv/energy-report
+sudo -u energy-report python3 -m venv venv
+sudo -u energy-report ./venv/bin/pip install --upgrade pip
+sudo -u energy-report ./venv/bin/pip install -r requirements.txt
+'
+\end{ShellBlock}
+
+\texttt{venv} phải luôn được tạo lại ngay trên máy đích, không copy từ host khác.
 
 \subsection{Step 3. Ghi \texttt{config/.env} bằng block paste-ready}
 
@@ -161,15 +208,42 @@ Các điểm bắt buộc phải nhớ khi dùng block này:
 \item \texttt{REPORT\_ANCHOR\_DATE} phải để trống trong steady-state scheduled mode;
 \item nếu giữ nhầm một anchor date cố định sau smoke test, timer sẽ lặp lại ngày đó thay vì current date thực;
 \item \texttt{OUTPUT\_DIR} và \texttt{PRINT\_STAGING\_DIR} phải là non-hidden writable paths;
+\item không đặt \texttt{PRINT\_STAGING\_DIR} vào Desktop hoặc home folder của user cá nhân như \texttt{/home/trantuyen/Desktop/Report}, vì service account \texttt{energy-report} thường không có quyền ghi vào đó;
 \item nếu host không dùng baseline \texttt{/srv/energy-report}, block và \texttt{systemd} units phải được chỉnh đồng bộ.
 \end{enumerate}
 
-\subsection{Step 4. Manual smoke trước khi bật schedule}
+\subsection{Step 4. Kiểm tra asset runtime cho release tag}
+
+Với release tag \texttt{v4.3.0-dev}, nếu template báo thiếu \texttt{assets/icon/outline/*.svg} khi render Sensor Monitoring, tạo các link tương thích dưới đây trước khi chạy smoke. Đây là workaround an toàn cho host deploy và nên được thay bằng source release fix ở release tiếp theo.
+
+\begin{ShellBlock}
+cd /srv/energy-report
+
+sudo -u energy-report bash -lc '
+set -e
+cd /srv/energy-report
+mkdir -p src/templates/assets/icon/outline
+cd src/templates/assets/icon/outline
+
+ln -sf ../sensor/capacity.svg snowflake.svg
+ln -sf ../sensor/flow.svg wind.svg
+ln -sf ../steam.svg flame.svg
+ln -sf ../water.svg droplet.svg
+ln -sf ../energy.svg activity.svg
+ln -sf ../sensor/power.svg bell.svg
+ln -sf ../sensor/pressure.svg gauge.svg
+ln -sf ../sensor/temperature.svg thermometer.svg
+ln -sf ../sensor/power.svg alert-circle.svg
+ln -sf ../sensor/power.svg circle-check.svg
+'
+\end{ShellBlock}
+
+\subsection{Step 5. Manual smoke trước khi bật schedule}
 
 \begin{ShellBlock}
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
-find /srv/energy-report-output -maxdepth 3 -type f | sort | tail -n 20
+find /srv/energy-report-output -type f | sort | tail -n 30
 \end{ShellBlock}
 
 Expected baseline behavior:
@@ -178,12 +252,22 @@ Expected baseline behavior:
 \item luôn có một batch \textit{daily};
 \item \textit{weekly} chỉ xuất hiện khi anchor day là Chủ nhật;
 \item \textit{monthly} chỉ xuất hiện khi anchor day là ngày cuối tháng;
-\item daily run cũng tạo một workbook Excel theo đúng scope hiện hành.
+\item daily run cũng tạo một workbook Excel theo đúng scope hiện hành;
+\item nếu PDF export thành công, output có cả \texttt{.\_view.html}, \texttt{.\_pdf\_source.html}, và \texttt{.pdf}.
 \end{enumerate}
 
 Nếu cần deterministic smoke anchors cho Sunday hoặc month-end, operator nên dùng \texttt{docs/workflows/release\_runbook.md} để bám đúng các anchor đã được chấp nhận, thay vì tự đoán ngày kiểm tra.
 
-\subsection{Step 5. Cài \texttt{systemd} service và timer bằng helper}
+\subsection{Step 6. Restore scheduled mode sau smoke test}
+
+Nếu đã dùng \texttt{REPORT\_ANCHOR\_DATE} cố định để test month-end hoặc Sunday, phải restore về rỗng trước khi bật timer production.
+
+\begin{ShellBlock}
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' \
+  /srv/energy-report/config/.env
+\end{ShellBlock}
+
+\subsection{Step 7. Cài \texttt{systemd} service và timer bằng helper}
 
 \begin{ShellBlock}
 cd /srv/energy-report
@@ -201,14 +285,14 @@ Helper script hiện làm các việc sau trong một lần chạy:
 \item in ra timer status và schedule summary.
 \end{enumerate}
 
-\subsection{Step 6. Xác nhận service, timer, và output sau cài đặt}
+\subsection{Step 8. Xác nhận service, timer, và output sau cài đặt}
 
 \begin{ShellBlock}
 sudo systemctl status energy-report-etl.service --no-pager
 sudo systemctl status energy-report-etl.timer --no-pager
 systemctl list-timers energy-report-etl.timer --all
 journalctl -u energy-report-etl.service -n 100 --no-pager
-find /srv/energy-report-output -maxdepth 3 -type f | sort | tail -n 30
+find /srv/energy-report-output -type f | sort | tail -n 30
 \end{ShellBlock}
 
 Nếu timer đã enabled nhưng output không như kỳ vọng, operator nên quay sang chapter \textit{Troubleshooting Playbook} để kiểm tra theo đúng thứ tự triage đã chuẩn hóa.

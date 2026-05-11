@@ -131,10 +131,11 @@ Bảng \ref{tab:revision_history} là baseline revision history của bộ techn
 		\texttt{v0.20-draft} & 2026-05-11 & Internal review copy & Thực hiện pass chuyên biệt cho float placement rhythm: nới float placement từ ép cứng \texttt{h} sang \texttt{htbp} cho tables/figures thường, đồng thời thêm shared float-placement rules và tinh chỉnh float spacing để nhịp quanh paragraph, table, và figure ổn định hơn. \\ \hline
 		\texttt{v0.21-draft} & 2026-05-11 & Internal review copy & Chuẩn hóa chapter opening rhythm bằng shared helper cho block mở chương \textit{Mục tiêu chương}, giảm nhẹ khoảng sau chapter title, và cập nhật workflow/style rules để nhịp chapter title $\rightarrow$ lead block $\rightarrow$ first section được kiểm soát nhất quán ở mức template. \\ \hline
 		\texttt{v0.22-draft} & 2026-05-11 & Internal review copy & Roll back pass sửa targeted review issue trước đó theo feedback review, sau đó bổ sung shell-style command blocks cho chapter \textit{Deployment and Operations} để các lệnh terminal có khung hiển thị rõ ràng, dễ scan, và gần hơn với operator-facing shell snippets. \\ \hline
-		\texttt{v0.23-draft} & 2026-05-11 & Internal review copy & Đồng bộ deployment docs theo reviewed release tag \texttt{v4.3.0-dev}: thay placeholder repo URL bằng link repo thật, thêm release tag page + release archive cho operator bootstrap, và cập nhật chapter \textit{Deployment and Operations} để PDF handover bám cùng release-reference flow. \\ \hline
-		\texttt{v0.24-draft} & 2026-05-11 & Internal review copy & Sau khi release page sống trên GitHub, cập nhật thêm direct \textit{GitHub release page} link vào deployment runbook và technical PDF để operator có thể mở đúng trang release review thay vì chỉ tag tree hoặc archive link. \\ \hline
-	\end{tabularx}
-\end{table}
+			\texttt{v0.23-draft} & 2026-05-11 & Internal review copy & Đồng bộ deployment docs theo reviewed release tag \texttt{v4.3.0-dev}: thay placeholder repo URL bằng link repo thật, thêm release tag page + release archive cho operator bootstrap, và cập nhật chapter \textit{Deployment and Operations} để PDF handover bám cùng release-reference flow. \\ \hline
+			\texttt{v0.24-draft} & 2026-05-11 & Internal review copy & Sau khi release page sống trên GitHub, cập nhật thêm direct \textit{GitHub release page} link vào deployment runbook và technical PDF để operator có thể mở đúng trang release review thay vì chỉ tag tree hoặc archive link. \\ \hline
+			\texttt{v0.25-draft} & 2026-05-12 & Internal review copy & Cập nhật deployment bootstrap theo smoke test host mới: dùng \texttt{--no-create-home} để tránh clone vào thư mục home rỗng, ưu tiên Google Chrome \texttt{.deb} thay cho Chromium Snap khi export PDF, cảnh báo không dùng Desktop cá nhân làm staging path, thêm workaround icon outline cho tag \texttt{v4.3.0-dev}, và bổ sung restore \texttt{REPORT\_ANCHOR\_DATE} sau smoke. \\ \hline
+		\end{tabularx}
+	\end{table}
 
 Mục đích của bảng này không phải thay thế Git, mà là giúp người đọc PDF hiểu mốc trưởng thành của tài liệu mà không cần truy cập repository ngay lập tức.
 

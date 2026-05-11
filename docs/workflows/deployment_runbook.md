@@ -24,15 +24,34 @@ Install baseline tools as needed:
 
 ```bash
 sudo apt update
-sudo apt install -y git python3 python3-venv python3-pip poppler-utils
+sudo apt install -y git python3 python3-venv python3-pip ca-certificates curl netcat-openbsd poppler-utils
 ```
 
 Browser runtime requirement:
-- ensure Chrome or Chromium is installed and callable on the host
-- verify with one of:
+- prefer Google Chrome `.deb` on Ubuntu hosts used for service-account / `systemd` runs
+- Ubuntu `chromium` is commonly installed as a Snap package and may fail under `sudo -u energy-report` or `systemd` with a snap cgroup error
+- verify with:
 
 ```bash
+python3 --version
 which google-chrome || which chromium || which chromium-browser
+```
+
+Recommended Chrome install path if `google-chrome` is not already present:
+
+```bash
+curl -L -o /tmp/google-chrome.deb \
+  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo apt install -y /tmp/google-chrome.deb
+
+which google-chrome
+google-chrome --version
+
+sudo -u "$(whoami)" google-chrome \
+  --headless \
+  --disable-gpu \
+  --no-sandbox \
+  --dump-dom about:blank >/tmp/chrome-smoke.html
 ```
 
 Timezone rule:
@@ -67,7 +86,7 @@ Reviewed release reference for this deployment flow:
 If the host should deploy the exact reviewed snapshot, clone the tag directly:
 
 ```bash
-sudo useradd --system --create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report || true
+sudo useradd --system --no-create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report || true
 sudo mkdir -p /srv
 sudo chown energy-report:energy-report /srv
 sudo -u energy-report git clone --branch v4.3.0-dev --depth 1 \
@@ -82,8 +101,26 @@ sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 Important:
 - do **not** copy an old `venv/` from another machine
 - always recreate the virtual environment on the new host
+- `--no-create-home` is intentional; using `--create-home` creates `/srv/energy-report` before `git clone`, which makes clone fail because the destination exists and is not empty
 - if you intentionally deploy a moving branch instead of the reviewed release tag, change the `git clone --branch ...` target on purpose
 - if you do not use the `energy-report` service account or `/srv/energy-report` path, update the sample `systemd` files before installing them
+
+Reset only Step 2 on a test host:
+
+```bash
+sudo bash -lc 'set -e
+rm -rf /srv/energy-report
+id energy-report >/dev/null 2>&1 && userdel energy-report || true
+useradd --system --no-create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report
+mkdir -p /srv
+chown energy-report:energy-report /srv
+sudo -u energy-report git clone --branch v4.3.0-dev --depth 1 https://github.com/trantuyen1991/ETL_EMS_REPORT.git /srv/energy-report
+cd /srv/energy-report
+sudo -u energy-report python3 -m venv venv
+sudo -u energy-report ./venv/bin/pip install --upgrade pip
+sudo -u energy-report ./venv/bin/pip install -r requirements.txt
+'
+```
 
 ---
 
@@ -143,6 +180,7 @@ If the operator wants to keep everything on the recommended baseline, the only l
 ### 3.2 Critical operational notes
 
 - `OUTPUT_DIR` and `PRINT_STAGING_DIR` should point to a **non-hidden writable path**
+- do not set `PRINT_STAGING_DIR` to a personal desktop/home path such as `/home/trantuyen/Desktop/Report`; the `energy-report` service account usually cannot write there
 - `REPORT_FILENAME` should stay aligned with the accepted runtime naming: `energy_automatic_report`
 - `REPORT_ANCHOR_DATE` must normally be **blank** in scheduled production mode
 - only set `REPORT_ANCHOR_DATE` temporarily for smoke tests or backfill-style manual runs
@@ -152,7 +190,37 @@ Why `REPORT_ANCHOR_DATE` must be blank for scheduled mode:
 
 ---
 
-## 4. Run a manual smoke check before enabling schedule
+## 4. Check release asset compatibility
+
+For release tag `v4.3.0-dev`, if rendering fails with missing `assets/icon/outline/*.svg` while loading Sensor Monitoring templates, create these compatibility links before the smoke run:
+
+```bash
+cd /srv/energy-report
+
+sudo -u energy-report bash -lc '
+set -e
+cd /srv/energy-report
+mkdir -p src/templates/assets/icon/outline
+cd src/templates/assets/icon/outline
+
+ln -sf ../sensor/capacity.svg snowflake.svg
+ln -sf ../sensor/flow.svg wind.svg
+ln -sf ../steam.svg flame.svg
+ln -sf ../water.svg droplet.svg
+ln -sf ../energy.svg activity.svg
+ln -sf ../sensor/power.svg bell.svg
+ln -sf ../sensor/pressure.svg gauge.svg
+ln -sf ../sensor/temperature.svg thermometer.svg
+ln -sf ../sensor/power.svg alert-circle.svg
+ln -sf ../sensor/power.svg circle-check.svg
+'
+```
+
+This is a deployment workaround for the reviewed tag and should be replaced by a source release fix in the next release.
+
+---
+
+## 5. Run a manual smoke check before enabling schedule
 
 From the project root:
 
@@ -170,8 +238,10 @@ Expected baseline behavior:
 Check outputs under:
 
 ```bash
-find /srv/energy-report-output -maxdepth 3 -type f | sort | tail -n 20
+find /srv/energy-report-output -type f | sort | tail -n 30
 ```
+
+Expected successful PDF export includes `_view.html`, `_pdf_source.html`, and `.pdf` artifacts.
 
 If you need deterministic smoke anchors, use the companion runbook:
 - `docs/workflows/release_runbook.md`
@@ -187,9 +257,15 @@ After a temporary smoke anchor, restore:
 REPORT_ANCHOR_DATE=
 ```
 
+Command form:
+
+```bash
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
+```
+
 ---
 
-## 5. Install the ready-made `systemd` files
+## 6. Install the ready-made `systemd` files
 
 The repo now includes:
 - `deploy/systemd/energy-report-etl.service`
@@ -237,7 +313,7 @@ journalctl -u energy-report-etl.service -n 100 --no-pager
 
 ---
 
-## 6. Confirm the timer baseline
+## 7. Confirm the timer baseline
 
 The repo sample timer still uses the same runtime rule:
 - `OnCalendar=*-*-* 23:00:00`
@@ -257,7 +333,7 @@ systemctl list-timers energy-report-etl.timer --all
 
 ---
 
-## 7. Recommended deployment validation checklist
+## 8. Recommended deployment validation checklist
 
 Before calling the deployment usable, verify:
 - MySQL credentials in `config/.env` are correct
@@ -271,14 +347,14 @@ Before calling the deployment usable, verify:
 
 ---
 
-## 8. Operational troubleshooting notes
+## 9. Operational troubleshooting notes
 
 If the timer runs but outputs look wrong, check these first:
 
 1. `REPORT_ANCHOR_DATE` was accidentally left pinned
 2. host timezone is not the intended timezone
 3. `OUTPUT_DIR` or `PRINT_STAGING_DIR` points to an invalid or hidden path
-4. Chrome / Chromium is missing or cannot print
+4. Google Chrome is missing, or Chromium Snap cannot print from the service account
 5. database connectivity fails under the service user
 6. the service user lacks write permission to output/log folders
 
@@ -288,12 +364,12 @@ Useful commands:
 journalctl -u energy-report-etl.service -n 200 --no-pager
 timedatectl
 systemctl list-timers energy-report-etl.timer --all
-find /srv/energy-report-output -maxdepth 3 -type f | sort | tail -n 30
+find /srv/energy-report-output -type f | sort | tail -n 30
 ```
 
 ---
 
-## 9. Recommended document pairing
+## 10. Recommended document pairing
 
 Use these together:
 - deployment/bootstrap on a new host: `docs/workflows/deployment_runbook.md`
