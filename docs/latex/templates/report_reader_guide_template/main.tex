@@ -18,6 +18,8 @@
 \usepackage{enumitem}
 \usepackage{ragged2e}
 \usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{eso-pic}
 \usepackage[most]{tcolorbox}
 \usepackage{hyperref}
 \usepackage{fancyhdr}
@@ -37,10 +39,16 @@
 
 \newcommand{\GuideTitle}{HƯỚNG DẪN ĐỌC BÁO CÁO NĂNG LƯỢNG}
 \newcommand{\GuideProject}{Energy Consumption Reporting System}
-\newcommand{\GuideVersion}{v0.7-draft}
-\newcommand{\GuideStatus}{Bản nháp nội dung}
+\newcommand{\GuideVersion}{v0.8-draft}
+\newcommand{\GuideStatus}{Bản review nội bộ}
 \newcommand{\GuideAudience}{Dành cho người đọc báo cáo, cấp quản lý, và người dùng nghiệp vụ}
 \newcommand{\GuideDate}{Tháng 5/2026}
+\newcommand{\GuideCoverBackgroundImage}{../project_technical_documentation_template/figure/cover_background.jpg}
+\newcommand*{\GuideCoverBackground}{%
+  \AtPageLowerLeft{%
+    \includegraphics[width=\paperwidth,height=\paperheight]{\GuideCoverBackgroundImage}%
+  }%
+}
 
 \setlength{\headheight}{28pt}
 \newcommand{\ApplyGuidePageStyle}{%
@@ -90,25 +98,35 @@
 
 \begin{document}
 
+\AddToShipoutPictureBG*{\GuideCoverBackground}
 \begin{titlepage}
   \thispagestyle{empty}
-  \vspace*{2.1cm}
-  \begin{center}
-    {\fontsize{22}{28}\selectfont\bfseries\textcolor{BrandDark}{\GuideProject}}\\[0.8cm]
-    {\fontsize{20}{24}\selectfont\bfseries\textcolor{BrandBlue}{\GuideTitle}}\\[0.8cm]
-    {\normalsize \GuideAudience}\\[0.5cm]
-    {\normalsize \GuideVersion\ -\ \GuideStatus}\\[0.2cm]
-    {\normalsize \GuideDate}
-  \end{center}
-
-  \vspace{2.2cm}
-
-  \begin{ReaderNote}{Mục đích của tài liệu}
-  Tài liệu này được viết để giúp người đọc báo cáo hiểu nhanh ý nghĩa của từng phần trong báo cáo năng lượng, biết các số liệu quan trọng đang phản ánh điều gì, và tránh những cách hiểu sai thường gặp khi đọc các chỉ số tổng hợp, so sánh, và KPI.
-  \end{ReaderNote}
-
-  \vfill
+  \color{BrandDark}
+  \vspace*{4.7cm}
+  \hspace*{1.9cm}
+  \begin{minipage}{0.76\textwidth}
+    {\fontsize{15}{18}\selectfont\bfseries \GuideProject\par}
+    \vspace{0.55cm}
+    {\fontsize{21}{26}\selectfont\bfseries \GuideTitle\par}
+    \vspace{0.45cm}
+    {\fontsize{14}{18}\selectfont\bfseries Report Reader Guide\par}
+    \vspace{0.8cm}
+    {\color{BrandBlue}\rule{0.88\linewidth}{1.2pt}\par}
+    \vspace{0.8cm}
+    {\fontsize{12}{15}\selectfont
+      Version: \GuideVersion\par
+      Status: \GuideStatus\par
+      Audience: Người đọc báo cáo,\par
+      \hspace*{1.95cm}quản lý, người dùng nghiệp vụ\par
+      Prepared for: REAL Group\par
+      Updated: \GuideDate\par
+    }
+    \vspace{0.9cm}
+    {\fontsize{11}{14}\selectfont\color{BrandDark}
+    Tài liệu tra cứu nhanh giúp giải thích ý nghĩa từng phần của báo cáo, nguồn gốc số liệu quan trọng, logic so sánh, và các lưu ý diễn giải cần nhớ khi đọc Electricity, Utility, Sensor Monitoring, và KPI.\par}
+  \end{minipage}
 \end{titlepage}
+\ClearShipoutPictureBG
 
 \tableofcontents
 \clearpage
