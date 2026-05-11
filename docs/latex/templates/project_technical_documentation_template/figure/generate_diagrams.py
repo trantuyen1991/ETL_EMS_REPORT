@@ -32,8 +32,30 @@ def measure(draw, text, f):
     return box[2] - box[0], box[3] - box[1]
 
 
+def split_token_by_px(draw, token, f, max_width):
+    if measure(draw, token, f)[0] <= max_width:
+        return [token]
+    parts = []
+    current = ""
+    for ch in token:
+        trial = current + ch
+        if current and measure(draw, trial, f)[0] > max_width:
+            parts.append(current)
+            current = ch
+        else:
+            current = trial
+    if current:
+        parts.append(current)
+    return parts
+
+
 def wrap_by_px(draw, text, f, max_width):
-    words = text.split()
+    words = []
+    for token in text.split():
+        if measure(draw, token, f)[0] <= max_width:
+            words.append(token)
+        else:
+            words.extend(split_token_by_px(draw, token, f, max_width))
     lines = []
     current = ""
     for word in words:
@@ -83,7 +105,7 @@ def rounded_box(draw, rect, header_text, body_lines, header_color, body_color, h
 
 def note_bar(draw, rect, text, fill):
     draw.rounded_rectangle(rect, radius=18, fill=fill, outline="#E5E7EB", width=2)
-    draw_wrapped(draw, (rect[0] + 18, rect[1] + 14), text, font(24), rect[2] - rect[0] - 36, fill=COLORS["muted"])
+    draw_wrapped(draw, (rect[0] + 18, rect[1] + 14), text, font(25), rect[2] - rect[0] - 36, fill=COLORS["text"])
 
 
 def arrow_head(draw, tip, direction, color=COLORS["line"], size=16):
@@ -123,17 +145,17 @@ def make_architecture():
     y = 44
     y = centered_text(draw, y, "ENERGY REPORTING SYSTEM ARCHITECTURE", font(52, bold=True)) + 8
     y = centered_text(draw, y, "Current project runtime, data ownership, report context, and artifact flow", font(26), fill=COLORS["muted"]) + 24
-    note_bar(draw, (240, y, 2160, y + 64), "Daily run orchestration in main.py. Weekly runs are added on Sunday; monthly runs are added at month-end.", COLORS["light_gray"])
+    note_bar(draw, (180, y, 2220, y + 64), "Daily run orchestration in main.py. Weekly runs are added on Sunday; monthly runs are added at month-end.", COLORS["light_gray"])
 
     top_y = y + 110
-    left_top = (240, top_y, 1100, top_y + 250)
-    right_top = (1300, top_y, 2160, top_y + 250)
-    repo = (240, top_y + 320, 2160, top_y + 500)
-    service = (240, top_y + 580, 2160, top_y + 820)
-    unified = (420, top_y + 900, 1980, top_y + 1080)
-    left_out = (240, top_y + 1240, 1080, top_y + 1450)
-    right_out = (1320, top_y + 1240, 2160, top_y + 1450)
-    canonical = (420, top_y + 1570, 1980, top_y + 1715)
+    left_top = (180, top_y, 1140, top_y + 250)
+    right_top = (1260, top_y, 2220, top_y + 250)
+    repo = (180, top_y + 320, 2220, top_y + 500)
+    service = (180, top_y + 580, 2220, top_y + 820)
+    unified = (360, top_y + 900, 2040, top_y + 1080)
+    left_out = (180, top_y + 1240, 1080, top_y + 1450)
+    right_out = (1320, top_y + 1240, 2220, top_y + 1450)
+    canonical = (360, top_y + 1570, 2040, top_y + 1715)
 
     rounded_box(draw, left_top, "Runtime and Configuration Inputs", [
         "main.py bootstrap loads .env / app.yaml and configures logging and MySQL access.",
@@ -212,13 +234,13 @@ def make_flow():
     y = 42
     y = centered_text(draw, y, "REPORT GENERATION AND EXPORT DATA FLOW", font(50, bold=True)) + 8
     y = centered_text(draw, y, "Source retrieval, object building, rendering, and month-grouped artifact storage", font(26), fill=COLORS["muted"]) + 22
-    note_bar(draw, (200, y, 2200, y + 72), "Scheduling rule: daily always runs; weekly is added on Sunday; monthly is added at month-end when the anchor date is the last day of the month.", COLORS["note"])
+    note_bar(draw, (160, y, 2240, y + 72), "Scheduling rule: daily always runs; weekly is added on Sunday; monthly is added at month-end when the anchor date is the last day of the month.", COLORS["note"])
 
-    box_x1, box_x2 = 560, 2000
+    box_x1, box_x2 = 520, 2100
     box_w = box_x2 - box_x1
     start_y = y + 120
-    box_h = 120
-    gap = 76
+    box_h = 126
+    gap = 68
     colors = [
         (COLORS["blue"], COLORS["light_blue"]),
         (COLORS["gray"], COLORS["light_gray"]),
@@ -230,14 +252,14 @@ def make_flow():
         (COLORS["gray"], COLORS["light_gray"]),
     ]
     steps = [
-        ("1. Bootstrap runtime", "Initialize config, MySQL client, repositories, and runtime logging in main.py."),
-        ("2. Resolve periods for this run", "PeriodService determines anchor date, report types, and canonical export stems for the batch."),
-        ("3. Fetch source rows", "Repositories pull energy_kpi, utility_usage, area-energy, and selected sensor rows for current and comparison windows."),
-        ("4. Aggregate utility sensor statistics", "ProcessValueService and UtilityService compute min/avg/max, anomaly-ready metrics, and monitoring structures."),
-        ("5. Build domain objects", "EnergyService, KPIService, and UtilityService produce electricity, KPI, and utility blocks ready for rendering."),
-        ("6. Assemble unified report_context", "ReportBuilderService and ReportStyleService merge meta, sections, flags, labels, notes, and presentation tokens."),
-        ("7. Render and export artifacts", "Render view_html, render pdf_source_html, print PDF, and write the daily Excel workbook when the period is daily."),
-        ("8. Store canonical outputs", "Write files into output/reports/YYYY_MM/ and keep filename ordering with 01_monthly / 02_weekly / 03_daily prefixes."),
+        ("1. Bootstrap runtime", "Load config, MySQL client, repositories, and runtime logging."),
+        ("2. Resolve periods for this run", "Resolve anchor date, report types, and canonical export stems."),
+        ("3. Fetch source rows", "Fetch energy_kpi, utility_usage, area-energy, and selected sensor rows."),
+        ("4. Aggregate utility sensor statistics", "Compute sensor min/avg/max, monitoring stats, and anomaly-ready metrics."),
+        ("5. Build domain objects", "Build electricity, KPI, and utility domain objects for rendering."),
+        ("6. Assemble unified report_context", "Merge meta, sections, flags, labels, notes, and style tokens into report_context."),
+        ("7. Render and export artifacts", "Render view_html and pdf_source_html, print PDF, and write daily Excel when needed."),
+        ("8. Store canonical outputs", "Store files under output/reports/YYYY_MM/ with 01 / 02 / 03 prefixes."),
     ]
 
     rects = []
@@ -245,24 +267,23 @@ def make_flow():
         y1 = start_y + idx * (box_h + gap)
         rect = (box_x1, y1, box_x2, y1 + box_h)
         rects.append(rect)
-        rounded_box(draw, rect, title, [body], header_color, body_color, font(27, bold=True), font(22))
+        rounded_box(draw, rect, title, [body], header_color, body_color, font(28, bold=True), font(24))
 
     center_x = (box_x1 + box_x2) // 2
     for upper, lower in zip(rects, rects[1:]):
         polyline_arrow(draw, [(center_x, upper[3]), (center_x, lower[1])])
 
     # loop note with orthogonal connector to step 4
-    loop_box = (120, rects[3][1] + 24, 450, rects[6][3] - 24)
+    loop_box = (90, rects[3][1] + 24, 500, rects[6][3] - 24)
     draw.rounded_rectangle(loop_box, radius=18, fill="#F8FAFC", outline="#CBD5E1", width=3)
-    loop_text = "Loop for each\nscheduled period"
+    loop_text = "Per-period\nloop"
     tw, th = measure(draw, loop_text, font(26, bold=True))
-    draw.multiline_text((loop_box[0] + 40, loop_box[1] + 34), loop_text, font=font(26, bold=True), fill=COLORS["gray"], spacing=8)
-    draw.text((loop_box[0] + 40, loop_box[1] + 140), "Steps 4 to 7 repeat for each resolved daily, weekly, or monthly period in the run batch.", font=font(21), fill=COLORS["muted"])
+    draw.multiline_text((loop_box[0] + 36, loop_box[1] + 30), loop_text, font=font(27, bold=True), fill=COLORS["gray"], spacing=8)
     mid_y = (rects[3][1] + rects[6][3]) // 2
     draw.line([(loop_box[2] - 24, mid_y), (box_x1 - 70, mid_y)], fill=COLORS["line"], width=6)
     polyline_arrow(draw, [(box_x1 - 70, mid_y), (box_x1 - 70, rects[3][1] + 40), (box_x1, rects[3][1] + 40)])
 
-    note_bar(draw, (220, 1900, 2180, 1960), "Documentation PDF rebuild is a separate workflow and should be triggered only when documentation source files change.", COLORS["light_gray"])
+    note_bar(draw, (180, 1900, 2220, 1960), "Documentation PDF rebuild is a separate workflow and should be triggered only when documentation source files change.", COLORS["light_gray"])
     img.save(ROOT / "hinh1_2.png")
 
 

@@ -113,11 +113,11 @@ Bảng \ref{tab:repository_mapping} tóm tắt mapping giữa data sources và r
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Repository ownership mapping}
 	\label{tab:repository_mapping}
-	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.0cm}|>{\RaggedRight\arraybackslash}p{3.3cm}|>{\RaggedRight\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.9cm}|>{\RaggedRight\arraybackslash}p{4.0cm}|>{\RaggedRight\arraybackslash}X|}
 		\hline
 		\textbf{Source} & \textbf{Repository Owner} & \textbf{Repository Responsibility} \\ \hline
-		\texttt{diode\_energy}, \texttt{ico\_energy}, \texttt{sakari\_energy}, \texttt{utility\_usage}, \texttt{energy\_kpi} & \texttt{EnergyDataRepository} & fetch daily rows, inspect columns, expose meter columns, and provide structured tabular data for higher-level services. \\ \hline
-		\texttt{processvalue} & \texttt{ProcessValueRepository} & fetch raw timestamped sensor rows for selected columns and time windows only. \\ \hline
+		\texttt{diode\_energy}, \texttt{ico\_energy}, \texttt{sakari\_energy}, \texttt{utility\_usage}, \texttt{energy\_kpi} & \parbox[t]{\linewidth}{\centering\small EnergyData\\Repository} & fetch daily rows, inspect columns, expose meter columns, and provide structured tabular data for higher-level services. \\ \hline
+		\texttt{processvalue} & \parbox[t]{\linewidth}{\centering\small ProcessValue\\Repository} & fetch raw timestamped sensor rows for selected columns and time windows only. \\ \hline
 	\end{tabularx}
 \end{table}
 

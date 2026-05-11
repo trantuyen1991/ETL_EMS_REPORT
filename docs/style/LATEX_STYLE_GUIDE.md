@@ -161,6 +161,7 @@ For this template's current screen-first PDF convention, prefer the simplest sta
 . if a bordered table is used, include the explicit top border line instead of relying on the first row only
 . prefer breakable text columns such as `RaggedRight`-style `p{}` / `X` columns over overflow-prone rigid text blocks
 . for long file paths or code-like strings inside table cells, prefer breakable forms such as `\nolinkurl{}` or a shared helper macro instead of raw unbreakable `\texttt{}`
+. when a history/audit table can exceed one page, prefer `longtable` so it breaks cleanly instead of drifting into footer space
 . prefer flexible float placement such as `htbp` for normal tables/figures instead of forcing `h` unless there is a very specific layout reason
 . avoid custom table wrapper environments unless there is a clear repeated need and they are proven stable
 . avoid heavy full-black spreadsheet grids
@@ -193,6 +194,8 @@ For flowcharts and architecture diagrams:
 . use straight or orthogonal connectors only
 . prefer vertical, horizontal, or L-shaped routing
 . avoid diagonal arrows unless there is a very strong reason
+. use page width intentionally so the diagram reads comfortably in screen-review PDF mode
+. ensure label/body text wraps inside each diagram box instead of looking clipped or shrunken
 
 
 
