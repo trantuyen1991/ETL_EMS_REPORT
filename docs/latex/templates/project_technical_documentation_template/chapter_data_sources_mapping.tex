@@ -1,0 +1,246 @@
+\chapter{DATA SOURCES VÀ REPOSITORY / SERVICE MAPPING}
+
+\noindent\textbf{Mục tiêu chương}
+
+\begin{enumerate}[label=-]
+\item Mô tả rõ các data sources cốt lõi đang nuôi hệ thống báo cáo năng lượng.
+\item Ghi nhận repository nào đọc từng source và service nào chịu trách nhiệm diễn giải dữ liệu đó.
+\item Tạo một ownership map giữa database layer, repository layer, service layer, và report context builder.
+\item Giúp người phát triển mới hoặc người bàn giao có thể lần theo luồng dữ liệu từ bảng nguồn đến artifact cuối cùng.
+\end{enumerate}
+
+\section{Vai trò của chapter data sources và mapping}
+
+Trong một hệ thống reporting hoặc ETL, việc hiểu đúng data ownership quan trọng không kém việc hiểu đúng business rules. Nếu business rules trả lời câu hỏi \textit{dữ liệu phải được dùng như thế nào}, thì chapter mapping này trả lời câu hỏi \textit{dữ liệu đang đi từ đâu đến đâu, và lớp nào chịu trách nhiệm cho mỗi bước}. Đây là nền tảng giúp người đọc đối chiếu tài liệu với codebase thực tế và giảm rủi ro sửa sai tầng logic \cite{ref_kimball,ref_mysql,ref_python}.
+
+Đối với dự án này, luồng chuẩn cần được hiểu theo các lớp sau:
+
+\begin{enumerate}[label=-]
+\item database objects và raw source tables/views;
+\item repositories chịu trách nhiệm query và trả về raw structured rows;
+\item services chịu trách nhiệm áp dụng rule, aggregate, và chuẩn hóa thành domain objects;
+\item report context builder chịu trách nhiệm hợp nhất các domain objects vào một \texttt{report\_context};
+\item rendering/export layer chuyển \texttt{report\_context} thành HTML, PDF, và Excel artifacts.
+\end{enumerate}
+
+\section{Primary data sources}
+
+\subsection{Configured logical datasets}
+
+Module \texttt{src/config/data\_sources.py} hiện cấu hình các logical dataset sau:
+
+\begin{enumerate}[label=-]
+\item \texttt{all\_energy}
+\item \texttt{diode\_energy}
+\item \texttt{ico\_energy}
+\item \texttt{sakari\_energy}
+\item \texttt{utility\_usage}
+\item \texttt{energy\_kpi}
+\end{enumerate}
+
+Trong số này, \texttt{diode\_energy}, \texttt{ico\_energy}, và \texttt{sakari\_energy} là các view phục vụ electricity detail và comparison theo area. \texttt{utility\_usage} là view phục vụ Utility reporting. \texttt{energy\_kpi} là table đặc biệt vì nó mang vai trò source-of-truth cho KPI reporting và official totals.
+
+\subsection{Source-of-truth tables and views}
+
+Bảng \ref{tab:data_source_inventory} tóm tắt inventory nguồn dữ liệu hiện hành theo góc nhìn kỹ thuật.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Configured data source inventory}
+	\label{tab:data_source_inventory}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Logical Dataset} & \textbf{Object Type} & \textbf{Date Column} & \textbf{Primary Use} \\
+		\midrule
+		\texttt{all\_energy} & view & \texttt{dt} & nguồn tổng quát cho energy-related exploration hoặc future aggregation slices. \\
+		\texttt{diode\_energy} & view & \texttt{dt} & chi tiết điện năng theo area DIODE. \\
+		\texttt{ico\_energy} & view & \texttt{dt} & chi tiết điện năng theo area ICO. \\
+		\texttt{sakari\_energy} & view & \texttt{dt} & chi tiết điện năng theo area SAKARI. \\
+		\texttt{utility\_usage} & view & \texttt{dt} & utility daily detail, utility summary, và utility comparison blocks. \\
+		\texttt{energy\_kpi} & table & none at config level & source-of-truth cho KPI rows, official totals, production values, và energy-linked KPI reporting. \\
+		\texttt{processvalue} & raw table & \texttt{Time\_Stamp} & raw utility sensor rows cho sensor monitoring, anomaly-ready aggregation, và trend context. \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\subsection{Energy KPI as authoritative source}
+
+\texttt{energy\_kpi} là nguồn quan trọng nhất về mặt nghiệp vụ. Table này không chỉ chứa KPI values mà còn chứa official plant totals, official area totals, production context, và các stored blocks cần cho KPI coverage logic. Chính vì vậy:
+
+\begin{enumerate}[label=-]
+\item Electricity official totals phải dựa trên \texttt{energy\_kpi};
+\item KPI reporting phải dựa trên \texttt{energy\_kpi};
+\item production-linked reporting cũng phải tham chiếu \texttt{energy\_kpi};
+\item không được tự reconstruct hoặc recompute KPI từ raw energy views nếu rule không cho phép.
+\end{enumerate}
+
+\subsection{Processvalue as raw sensor source}
+
+\texttt{processvalue} là raw sensor source cho utility sensor monitoring. Bảng này được đọc ở granularity timestamped rows và sau đó mới được aggregate thành daily sensor statistics. Điều đó có nghĩa là \texttt{processvalue} không phải business-ready surface; nó là nguồn thô cho một nhánh xử lý riêng trước khi dữ liệu được đưa vào \texttt{report\_context}.
+
+\section{Repository layer mapping}
+
+\subsection{EnergyDataRepository}
+
+\texttt{EnergyDataRepository} là repository tổng quát dùng cho các energy-like tabular sources. Repository này chịu trách nhiệm:
+
+\begin{enumerate}[label=-]
+\item validate source configuration;
+\item introspect metadata columns qua \texttt{INFORMATION\_SCHEMA};
+\item xác định meter columns hợp lệ dựa trên numeric MySQL types;
+\item truy vấn daily detail rows;
+\item truy vấn meter totals hoặc top-N related aggregations cho các sources có cấu trúc dạng energy table/view.
+\end{enumerate}
+
+Điểm mạnh của repository này là không hard-code database object cụ thể vào logic query. Thay vào đó, nó nhận \texttt{DataSourceConfig} và dùng cùng một abstraction cho nhiều logical datasets khác nhau.
+
+\subsection{ProcessValueRepository}
+
+\texttt{ProcessValueRepository} có phạm vi hẹp hơn nhưng rõ ràng hơn. Repository này chỉ làm một việc chính: đọc raw sensor rows từ \texttt{ems\_db.processvalue}. Nó:
+
+\begin{enumerate}[label=-]
+\item nhận khoảng thời gian \texttt{start\_dt} và \texttt{end\_dt\_exclusive};
+\item nhận danh sách sensor columns cần chọn;
+\item build SELECT an toàn cho \texttt{Time\_Stamp} cộng các sensor columns;
+\item trả về danh sách rows theo format chuẩn có khóa \texttt{dt}.
+\end{enumerate}
+
+Repository này không aggregate, không format, và không áp business rules. Điều đó giữ cho raw sensor access đơn giản và dễ test.
+
+\subsection{Repository ownership matrix}
+
+Bảng \ref{tab:repository_mapping} tóm tắt mapping giữa data sources và repository ownership.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Repository ownership mapping}
+	\label{tab:repository_mapping}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Source} & \textbf{Repository Owner} & \textbf{Repository Responsibility} \\
+		\midrule
+		\texttt{diode\_energy}, \texttt{ico\_energy}, \texttt{sakari\_energy}, \texttt{utility\_usage}, \texttt{energy\_kpi} & \texttt{EnergyDataRepository} & fetch daily rows, inspect columns, expose meter columns, and provide structured tabular data for higher-level services. \\
+		\texttt{processvalue} & \texttt{ProcessValueRepository} & fetch raw timestamped sensor rows for selected columns and time windows only. \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\section{Service layer mapping}
+
+\subsection{EnergyService}
+
+\texttt{EnergyService} chịu trách nhiệm dựng domain object cho Electricity. Nó nhận area rows, area columns, KPI-linked summary inputs, và trả ra các nhóm dữ liệu như:
+
+\begin{enumerate}[label=-]
+\item summary;
+\item top meter comparison;
+\item daily summary rows;
+\item daily area tables;
+\item anomalies và topology-aware diagnostics khi cần.
+\end{enumerate}
+
+Một chi tiết quan trọng là \texttt{EnergyService} không xem raw view totals là official totals. Nó sử dụng KPI-linked values làm reference cho plant total và area total theo các rule đã chốt.
+
+\subsection{KPIService}
+
+\texttt{KPIService} là lớp xử lý raw KPI rows trước khi chúng trở thành business-approved KPI objects. Nó chịu trách nhiệm:
+
+\begin{enumerate}[label=-]
+\item deduplicate rows theo \texttt{dt\_start}, \texttt{dt\_end}, và \texttt{time\_frame};
+\item chọn row mới nhất theo \texttt{dt\_lastupdate};
+\item resolve best KPI rows cho một report period theo coverage-first logic;
+\item build KPI summary và daily detail surface từ các selected rows đã hợp lệ.
+\end{enumerate}
+
+Nói cách khác, \texttt{KPIService} là lớp hiện thực hóa rule Day $>$ Week $>$ Month $>$ Year, no-prorating, no-overlap, và no-reconstruction-from-raw-views.
+
+\subsection{UtilityService}
+
+\texttt{UtilityService} chịu trách nhiệm chuyển \texttt{utility\_usage} rows thành utility reporting object ở cấp domain. Nó:
+
+\begin{enumerate}[label=-]
+\item build utility summary;
+\item build dense daily utility timeseries;
+\item build current/previous comparison blocks;
+\item gắn sensor monitoring context vào utility object;
+\item map raw utility columns thành business-friendly metric structures.
+\end{enumerate}
+
+\subsection{ProcessValueService}
+
+\texttt{ProcessValueService} là service aggregate dành riêng cho raw \texttt{processvalue} rows. Nó không biết gì về utility dashboard ở cấp business. Vai trò của nó là:
+
+\begin{enumerate}[label=-]
+\item gom rows theo ngày;
+\item tính \texttt{min}, \texttt{avg}, \texttt{max}, \texttt{value\_sum}, \texttt{latest};
+\item đếm \texttt{sample\_count}, \texttt{non\_null\_count}, \texttt{zero\_count}, \texttt{negative\_count};
+\item trả về daily sensor statistics để \texttt{UtilityService} và sensor-monitoring flow có thể dùng tiếp.
+\end{enumerate}
+
+Sự tách lớp giữa \texttt{ProcessValueRepository} và \texttt{ProcessValueService} rất có giá trị vì nó giữ ranh giới rõ giữa raw data access và aggregation logic.
+
+\subsection{Style and render-context services}
+
+Ngoài các domain services, còn có một service đặc biệt tham gia vào report context assembly là \texttt{ReportStyleService}. Service này không xử lý dữ liệu nghiệp vụ; nó xử lý presentation tokens từ \texttt{config/report\_style.json} và merge chúng vào render context để view/PDF layers có thể dùng chung một nguồn style đã được normalize.
+
+\section{End-to-end build mapping in main.py}
+
+Từ góc nhìn orchestration, \texttt{src/main.py} thực hiện mapping các lớp như sau:
+
+\begin{enumerate}[label=-]
+\item \texttt{\_bootstrap()} load config, tạo MySQL client, và khởi tạo repositories từ \texttt{get\_data\_sources()};
+\item \texttt{\_build\_kpi\_object()} dùng repository \texttt{energy\_kpi} và \texttt{KPIService};
+\item \texttt{\_build\_sensor\_monitoring\_context()} dùng \texttt{ProcessValueRepository}, \texttt{ProcessValueService}, và \texttt{UtilityService};
+\item \texttt{\_build\_utility\_object()} dùng repository \texttt{utility\_usage} và utility sensor monitoring context;
+\item \texttt{\_build\_energy\_object()} dùng area energy repositories cộng KPI-linked summary inputs;
+\item \texttt{\_build\_report\_context()} dùng \texttt{ReportBuilderService} và \texttt{ReportStyleService};
+\item \texttt{\_render\_report\_artifacts()} dùng \texttt{TemplateRenderingService}, \texttt{PDFService}, và \texttt{ExcelExportService} để sinh output artifacts.
+\end{enumerate}
+
+Công thức lineage ngắn gọn của dự án có thể được mô tả như sau:
+
+\begin{equation}
+	\text{Database Sources} \rightarrow \text{Repositories} \rightarrow \text{Services} \rightarrow \text{report\_context} \rightarrow \text{HTML / PDF / Excel Artifacts}
+	\label{eq:data_lineage}
+\end{equation}
+
+\section{Ownership map by domain}
+
+Bảng \ref{tab:domain_owner_map} tổng hợp ownership ở cấp domain và execution flow.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Domain owner map from source to output}
+	\label{tab:domain_owner_map}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Domain} & \textbf{Primary Source} & \textbf{Repository / Service Path} & \textbf{Output Contribution} \\
+		\midrule
+		Electricity & area energy views + \texttt{energy\_kpi} & \texttt{EnergyDataRepository} $\rightarrow$ \texttt{EnergyService} & electricity summary cards, top meter tables, daily detail tables, comparison blocks \\
+		KPI & \texttt{energy\_kpi} & \texttt{EnergyDataRepository} $\rightarrow$ \texttt{KPIService} & KPI summary, coverage notes, daily KPI detail, comparison surfaces \\
+		Utility usage & \texttt{utility\_usage} & \texttt{EnergyDataRepository} $\rightarrow$ \texttt{UtilityService} & utility summary, dense utility tables, utility comparison blocks \\
+		Sensor monitoring & \texttt{processvalue} + sensor metadata & \texttt{ProcessValueRepository} $\rightarrow$ \texttt{ProcessValueService} $\rightarrow$ \texttt{UtilityService} & sensor overview cards, daily sensor rows, anomaly-ready payloads, periodic detail tables \\
+		Rendering context & \texttt{report\_style.json} + domain objects & \texttt{ReportStyleService} + \texttt{ReportBuilderService} & unified render-ready context for HTML/PDF templates \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\section{Implementation guardrails for future changes}
+
+Khi thay đổi một source hoặc một service, nên giữ các guardrail sau:
+
+\begin{enumerate}[label=-]
+\item nếu một metric đang lấy từ \texttt{energy\_kpi}, không được tự chuyển sang raw view chỉ để tiện implementation;
+\item nếu một repository chỉ chịu trách nhiệm fetch raw rows, không đẩy business logic xuống repository layer;
+\item nếu một service đang aggregate hoặc resolve coverage, không dời logic đó xuống template;
+\item nếu thay đổi metadata mappings hoặc sensor columns, phải rà lại impact lên cả utility object và sensor monitoring payload;
+\item nếu thay đổi context structure, phải rà lại HTML view, PDF source HTML, PDF render, và Excel export cùng lúc;
+\item docs của technical manual phải được cập nhật song song khi ownership map hoặc data lineage thay đổi đáng kể.
+\end{enumerate}
+
+\section{Tổng kết chương}
+
+Chapter này xác định rõ data lineage của hệ thống: từ các nguồn \texttt{energy\_kpi}, energy views, \texttt{utility\_usage}, và \texttt{processvalue}; qua các repositories và services tương ứng; đến \texttt{report\_context} và các artifacts cuối cùng. Sau chapter này, bộ technical manual đã có thêm lớp mô tả rất quan trọng để người đọc hiểu không chỉ \textit{rule gì đang áp dụng}, mà còn \textit{dữ liệu đi qua những lớp nào trước khi thành báo cáo}. 
