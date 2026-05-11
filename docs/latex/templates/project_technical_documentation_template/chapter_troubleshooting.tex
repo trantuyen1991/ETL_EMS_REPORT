@@ -1,0 +1,50 @@
+\chapter{TROUBLESHOOTING PLAYBOOK}
+
+\noindent\textbf{Mục tiêu chương}
+
+\begin{enumerate}[label=-]
+\item Tạo một điểm tra cứu riêng cho các lỗi export, scheduling, và docs/runtime drift.
+\item Giữ thứ tự kiểm tra sự cố rõ ràng để người vận hành không phải đoán bắt đầu từ đâu.
+\item Tách phần xử lý sự cố ra khỏi chapter deployment để manual dễ scan hơn khi handover.
+\end{enumerate}
+
+\section{Vai trò của chapter troubleshooting}
+
+Sau khi output conventions và deployment flow đã được mô tả riêng, chapter này tập trung vào câu hỏi cuối cùng của operator: nếu report artifacts, PDF export, hoặc runtime behavior có vấn đề, nên kiểm tra gì trước.
+
+\section{Troubleshooting matrix}
+
+Bảng \ref{tab:troubleshooting_matrix} tóm tắt một số vấn đề hay gặp và thứ tự kiểm tra nên ưu tiên.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Troubleshooting matrix for report export and release checks}
+	\label{tab:troubleshooting_matrix}
+	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+		\textbf{Symptom} & \textbf{Likely Cause} & \textbf{First Checks} \\ \hline
+		PDF bị co nhỏ hoặc sai scale & document width overflow, wide periodic tables, hoặc print path không dùng baseline ổn định & kiểm tra table overflow, chart container width, và xác nhận CDP path với \texttt{scale=1.0}, \texttt{preferCSSPageSize=true}. \\ \hline
+		PDF thiếu chart & chart lifecycle trong PDF mode không được kick off hoặc chart không được freeze thành static SVG trước print & kiểm tra PDF chart init flow, xác nhận \texttt{renderer: "svg"}, \texttt{animation: false}, và kickoff sau \texttt{window.load}. \\ \hline
+		Artifact không xuất hiện ở canonical month folder & copy-back từ staging path thất bại hoặc export path resolve sai & kiểm tra \texttt{output/reports/YYYY\_MM/}, staging directory, và logic copy từ staged PDF về canonical PDF folder. \\ \hline
+		PDF source staging bị lỗi trên hidden path & Chromium không truy cập ổn staging directory vì path hidden & xác nhận \texttt{PRINT\_STAGING\_DIR} hoặc \texttt{OUTPUT\_DIR} đang trỏ tới non-hidden path. \\ \hline
+		Excel xuất sai scope & logic daily-only của Excel export bị thay đổi hoặc anchor/scheduling bị hiểu sai & xác nhận Excel chỉ được tạo cho \textit{daily}, không tạo cho weekly/monthly. \\ \hline
+		Tên file sai prefix hoặc sai base name & config naming drift hoặc helper naming rules bị sửa lệch & kiểm tra \texttt{REPORT\_FILENAME}, các prefix \texttt{01/02/03}, và output examples trong runbook/checklist. \\ \hline
+		Docs kỹ thuật và runtime không còn khớp nhau & docs chưa được cập nhật sau khi implementation đổi & rà lại \texttt{project\_status}, runbook, checklist, và technical PDF chapter tương ứng. \\ \hline
+	\end{tabularx}
+\end{table}
+
+\section{First-response triage order}
+
+Khi cần khoanh vùng nhanh một lỗi runtime hoặc export issue, thứ tự kiểm tra khuyến nghị là:
+
+\begin{enumerate}[label=-]
+\item xác nhận anchor behavior và naming outputs có đúng kỳ vọng không;
+\item xác nhận staging path, output path, và browser runtime còn hợp lệ;
+\item xác nhận chart/PDF rendering vẫn bám các print rules ổn định;
+\item xác nhận schedule và \texttt{REPORT\_ANCHOR\_DATE} không bị drift khỏi trạng thái intended;
+\item cuối cùng mới đối chiếu lại docs nếu runtime có vẻ đã thay đổi nhưng manual chưa cập nhật.
+\end{enumerate}
+
+\section{Tổng kết chương}
+
+Chapter này giữ phần xử lý sự cố ở một chỗ riêng để operator có thể dùng như quick triage sheet. Cùng với chapter output/release và chapter deployment and operations, technical manual hiện đã có ba lớp vận hành tách bạch: artifacts and release rules, deployment setup, và troubleshooting.

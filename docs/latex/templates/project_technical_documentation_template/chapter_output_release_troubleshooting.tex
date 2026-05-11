@@ -1,26 +1,26 @@
-\chapter{OUTPUT STRUCTURE, RELEASE WORKFLOW, VÀ TROUBLESHOOTING}
+\chapter{OUTPUT STRUCTURE AND RELEASE WORKFLOW}
 
 \noindent\textbf{Mục tiêu chương}
 
 \begin{enumerate}[label=-]
 \item Mô tả cấu trúc output hiện hành của hệ thống báo cáo năng lượng.
-\item Ghi nhận release workflow, deployment baseline, và các manual smoke checks đang được chấp nhận.
-\item Tóm tắt các điểm cần rà soát khi PDF export hoặc artifact generation gặp lỗi.
-\item Tạo một chapter vận hành để technical PDF có thể dùng như tài liệu bàn giao hoặc checklist kiểm tra nhanh.
+\item Ghi nhận release workflow, naming conventions, và các manual smoke checks đang được chấp nhận.
+\item Tóm tắt PDF staging, print-path baseline, và release-readiness rules đang được dùng thật.
+\item Giữ chapter này tập trung vào output artifacts và release workflow, còn deployment và troubleshooting được tách sang chapter riêng.
 \end{enumerate}
 
-\section{Vai trò của chapter vận hành}
+\section{Vai trò của chapter output/release}
 
-Sau khi đã mô tả kiến trúc, data flow, và business rules, bộ tài liệu kỹ thuật cần có một chapter vận hành để trả lời ba câu hỏi thực tế:
+Sau khi đã mô tả kiến trúc, data flow, và business rules, bộ tài liệu kỹ thuật cần có một chapter output/release để trả lời các câu hỏi thực tế sau:
 
 \begin{enumerate}[label=-]
 \item hệ thống đang ghi output ở đâu;
 \item cần kiểm tra gì trước khi gọi một bản build là ổn để phát hành;
-\item deploy một máy mới theo baseline nào;
-\item nếu PDF hoặc artifact flow có vấn đề thì nên kiểm tra theo thứ tự nào.
+\item manual smoke anchors nào đang được chấp nhận cho runtime hiện tại;
+\item khi nào documentation PDF cần rebuild sau một thay đổi ở source docs.
 \end{enumerate}
 
-Chapter này được tổng hợp từ workflow thực tế của dự án và nên được giữ đồng bộ với các tài liệu nguồn như \texttt{docs/workflows/deployment\_runbook.md}, \texttt{docs/workflows/release\_runbook.md}, \texttt{docs/workflows/release\_checklist.md}, và \texttt{docs/workflows/pdf\_export\_flow.md}.
+Chapter này được tổng hợp từ workflow thực tế của dự án và nên được giữ đồng bộ với các tài liệu nguồn như \texttt{docs/workflows/release\_runbook.md}, \texttt{docs/workflows/release\_checklist.md}, và \texttt{docs/workflows/pdf\_export\_flow.md}. Phần bootstrap host mới và schedule enable flow được tách sang chapter \textit{Deployment and Operations} để giảm việc trộn lẫn giữa release rules và operator setup.
 
 \section{Canonical output structure}
 
@@ -165,132 +165,6 @@ Các anchor phổ biến đang được dùng trong runbook gồm:
 
 Các anchor này đủ để xác minh cả period scheduling, canonical naming, month grouping, và daily-only Excel behavior trong runtime hiện tại.
 
-\section{Deploy baseline trên máy mới}
-
-Khi clone project sang một host Ubuntu / systemd mới, baseline an toàn nên gồm các bước sau:
-
-\begin{enumerate}[label=-]
-\item dùng baseline triển khai khuyến nghị: service account \texttt{energy-report} và project root \texttt{/srv/energy-report};
-\item clone repository vào project path đó và tạo lại \texttt{venv} mới ngay trên host;
-\item xác nhận Chrome hoặc Chromium hiện diện để PDF export có thể chạy;
-\item cấu hình \texttt{config/.env} với đúng MySQL credentials, output path, và naming settings;
-\item giữ \texttt{REPORT\_ANCHOR\_DATE} ở trạng thái trống trong steady-state scheduled mode;
-\item chạy một manual smoke bằng \texttt{./venv/bin/python -m src.main} trước khi bật scheduler.
-\end{enumerate}
-
-Để deployment gần với kiểu operator docs chỉ cần copy-paste, runbook hiện đã có một block terminal duy nhất để ghi \texttt{config/.env}. Người cài chỉ cần thay các giá trị host-specific như MySQL credentials, output path, staging path, và khi cần thì đổi \texttt{WORKSHOP\_NAME} / \texttt{ENERGY\_UNIT}, sau đó paste một lần vào terminal.
-
-Các guardrail triển khai cần nhớ:
-
-\begin{enumerate}[label=-]
-\item không copy \texttt{venv/} từ máy cũ sang máy mới, luôn recreate environment;
-\item \texttt{OUTPUT\_DIR} và \texttt{PRINT\_STAGING\_DIR} phải trỏ tới non-hidden writable path;
-\item nếu host phải chạy theo giờ Việt Nam, cần xác nhận timezone host trước khi bật timer;
-\item nếu \texttt{REPORT\_ANCHOR\_DATE} bị để lại một ngày cố định từ lúc smoke test, scheduler sẽ lặp lại ngày đó thay vì chạy theo current date thực tế.
-\end{enumerate}
-
-\section{Systemd service và fixed daily schedule}
-
-Với runtime hiện tại, cách vận hành đơn giản và dễ bàn giao nhất là dùng \texttt{systemd} \textit{oneshot service} kết hợp \texttt{timer}, thay vì giữ một daemon ETL chạy thường trú.
-
-\subsection{Service baseline}
-
-Repo hiện đã có ba artifact hỗ trợ triển khai nhanh:
-
-\begin{enumerate}[label=-]
-\item \texttt{deploy/systemd/energy-report-etl.service};
-\item \texttt{deploy/systemd/energy-report-etl.timer};
-\item \texttt{deploy/systemd/install\_systemd\_units.sh}.
-\end{enumerate}
-
-Với host bám đúng baseline khuyến nghị, helper script này có thể backup unit cũ nếu có, copy sample files sang \texttt{/etc/systemd/system/}, reload \texttt{systemd}, rồi enable timer trong một lần chạy.
-
-Service chuẩn hiện dùng các thành phần chính sau:
-
-\begin{enumerate}[label=-]
-\item unit file repo mẫu: \texttt{deploy/systemd/energy-report-etl.service};
-\item install target: \texttt{/etc/systemd/system/energy-report-etl.service};
-\item \texttt{Type=oneshot};
-\item \texttt{User=energy-report} và \texttt{Group=energy-report};
-\item \texttt{WorkingDirectory=/srv/energy-report};
-\item \texttt{ExecStart=/srv/energy-report/venv/bin/python -m src.main};
-\item \texttt{After=network-online.target} để tránh chạy trước khi network sẵn sàng.
-\end{enumerate}
-
-Sau khi tạo service, nên test thủ công bằng:
-
-\begin{enumerate}[label=-]
-\item \texttt{sudo systemctl daemon-reload}
-\item \texttt{sudo systemctl start energy-report-etl.service}
-\item \texttt{sudo systemctl status energy-report-etl.service --no-pager}
-\item \texttt{journalctl -u energy-report-etl.service -n 100 --no-pager}
-\end{enumerate}
-
-\subsection{Timer baseline cho 23:00 mỗi ngày}
-
-Repo sample timer vẫn dùng trực tiếp được nếu host bám theo mốc triển khai khuyến nghị của dự án.
-
-Timer chuẩn nên dùng:
-
-\begin{enumerate}[label=-]
-\item unit file repo mẫu: \texttt{deploy/systemd/energy-report-etl.timer};
-\item install target: \texttt{/etc/systemd/system/energy-report-etl.timer};
-\item \texttt{OnCalendar=*-*-* 23:00:00};
-\item \texttt{Persistent=true};
-\item \texttt{Unit=energy-report-etl.service}.
-\end{enumerate}
-
-Ý nghĩa vận hành:
-
-\begin{enumerate}[label=-]
-\item mốc \texttt{23:00:00} được hiểu theo host local timezone;
-\item \texttt{Persistent=true} cho phép host catch up lần chạy bị bỏ lỡ sau khi boot lại;
-\item scheduler sẽ tự resolve daily / weekly / monthly artifacts dựa trên anchor day của lúc chạy thực tế.
-\end{enumerate}
-
-Lệnh enable và kiểm tra timer:
-
-\begin{enumerate}[label=-]
-\item \texttt{sudo systemctl daemon-reload}
-\item \texttt{sudo systemctl enable --now energy-report-etl.timer}
-\item \texttt{sudo systemctl status energy-report-etl.timer --no-pager}
-\item \texttt{systemctl list-timers energy-report-etl.timer --all}
-\end{enumerate}
-
-\subsection{Operational deployment checklist}
-
-Trước khi coi host mới là usable cho production-like schedule, nên xác nhận tối thiểu:
-
-\begin{enumerate}[label=-]
-\item MySQL credentials đúng;
-\item browser runtime có sẵn;
-\item output path writable;
-\item manual run thành công;
-\item service start thủ công thành công;
-\item timer đã enabled và hiển thị next run đúng 23:00 theo timezone mong muốn.
-\end{enumerate}
-
-\section{Troubleshooting playbook}
-
-Bảng \ref{tab:troubleshooting_matrix} tóm tắt một số vấn đề hay gặp và thứ tự kiểm tra nên ưu tiên.
-
-\begin{table}[h]
-	\centering
-	\renewcommand{\arraystretch}{1.3}
-	\caption{Troubleshooting matrix for report export and release checks}
-	\label{tab:troubleshooting_matrix}
-	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
-		\textbf{Symptom} & \textbf{Likely Cause} & \textbf{First Checks} \\ \hline
-		PDF bị co nhỏ hoặc sai scale & document width overflow, wide periodic tables, hoặc print path không dùng baseline ổn định & kiểm tra table overflow, chart container width, và xác nhận CDP path với \texttt{scale=1.0}, \texttt{preferCSSPageSize=true}. \\ \hline
-		PDF thiếu chart & chart lifecycle trong PDF mode không được kick off hoặc chart không được freeze thành static SVG trước print & kiểm tra PDF chart init flow, xác nhận \texttt{renderer: \"svg\"}, \texttt{animation: false}, và kickoff sau \texttt{window.load}. \\ \hline
-		Artifact không xuất hiện ở canonical month folder & copy-back từ staging path thất bại hoặc export path resolve sai & kiểm tra \texttt{output/reports/YYYY\_MM/}, staging directory, và logic copy từ staged PDF về canonical PDF folder. \\ \hline
-		PDF source staging bị lỗi trên hidden path & Chromium không truy cập ổn staging directory vì path hidden & xác nhận \texttt{PRINT\_STAGING\_DIR} hoặc \texttt{OUTPUT\_DIR} đang trỏ tới non-hidden path. \\ \hline
-		Excel xuất sai scope & logic daily-only của Excel export bị thay đổi hoặc anchor/scheduling bị hiểu sai & xác nhận Excel chỉ được tạo cho \textit{daily}, không tạo cho weekly/monthly. \\ \hline
-		Tên file sai prefix hoặc sai base name & config naming drift hoặc helper naming rules bị sửa lệch & kiểm tra \texttt{REPORT\_FILENAME}, các prefix \texttt{01/02/03}, và output examples trong runbook/checklist. \\ \hline
-		Docs kỹ thuật và runtime không còn khớp nhau & docs chưa được cập nhật sau khi implementation đổi & rà lại \texttt{project\_status}, runbook, checklist, và technical PDF chapter tương ứng. \\ \hline
-	\end{tabularx}
-\end{table}
-
 \section{Documentation PDF rebuild rule}
 
 Subsystem tài liệu kỹ thuật có workflow riêng. PDF của bộ documentation không cần rebuild cho mọi thay đổi code. Chỉ nên rebuild khi một trong các nhóm sau thay đổi:
@@ -319,4 +193,4 @@ Trước khi xem một batch output hoặc một technical PDF là sẵn sàng c
 
 \section{Tổng kết chương}
 
-Chapter này hoàn thiện phần vận hành của technical PDF bằng cách mô tả canonical outputs, staging/print rules, release smoke workflow, và troubleshooting playbook. Sau chapter này, bộ tài liệu đã có đủ bốn lớp chính: tổng quan dự án, sơ đồ hệ thống, business rules/KPI rules, và output/release operations.
+Chapter này giữ riêng phần output artifacts, release workflow, PDF rebuild rules, và release-readiness checklist. Deployment setup và troubleshooting playbook đã được tách sang các chapter kế tiếp để người đọc tra cứu nhanh hơn trong tình huống handover hoặc vận hành thật.
