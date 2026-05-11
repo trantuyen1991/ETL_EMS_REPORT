@@ -111,7 +111,7 @@
 \newcommand{\DocumentTypeLabel}{TÀI LIỆU KỸ THUẬT DỰ ÁN}
 \newcommand{\ProjectName}{Energy Consumption Reporting System}
 \newcommand{\DocumentShortTitle}{Project Technical Manual}
-\newcommand{\DocumentVersionLabel}{v0.20-draft}
+\newcommand{\DocumentVersionLabel}{v0.21-draft}
 \newcommand{\DocumentStatusLabel}{Internal review copy}
 \newcommand{\DocumentOwnerLabel}{Tuyen Tran}
 \newcommand{\DocumentReviewerLabel}{Reviewer assignment pending}
@@ -171,6 +171,18 @@
 	#1
 }
 
+\newcommand{\ChapterLeadHeading}[1]{%
+	\noindent{\bfseries\fontsize{12}{14}\selectfont #1}\par\vspace{4pt}%
+}
+
+\newenvironment{ChapterObjectives}{%
+	\ChapterLeadHeading{Mục tiêu chương}%
+	\begin{enumerate}[label=-,leftmargin=*,labelsep=0.6em,topsep=2pt,itemsep=2pt,parsep=0pt,partopsep=0pt]
+}{%
+	\end{enumerate}\vspace{-2pt}%
+}
+
+
 
 % ==================================================
 % ================== CHAPTER STYLE =================
@@ -183,7 +195,7 @@
 {0.6em}
 {\MakeUppercase}
 
-\titlespacing*{\chapter}{0pt}{0pt}{10pt}
+\titlespacing*{\chapter}{0pt}{0pt}{8pt}
 
 % ==================================================
 % ================= SECTION STYLE ==================

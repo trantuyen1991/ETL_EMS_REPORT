@@ -1,13 +1,11 @@
 \chapter{DOCUMENT METADATA VÀ REVISION HISTORY}
 
-\noindent\textbf{Mục tiêu chương}
-
-\begin{enumerate}[label=-]
+\begin{ChapterObjectives}
 \item Xác định các metadata quản trị tài liệu cần có cho bộ technical manual của dự án.
 \item Ghi nhận version, owner, reviewer, approval status, và change log theo cách phù hợp với trạng thái hiện tại của project.
 \item Tạo một baseline revision chapter để các lần cập nhật sau có thể nối tiếp thay vì quản lý tài liệu rời rạc.
 \item Giúp tài liệu gần hơn với một bản release-ready handover manual thay vì chỉ là một tập hợp chapter kỹ thuật.
-\end{enumerate}
+\end{ChapterObjectives}
 
 \section{Vai trò của document metadata}
 
@@ -39,7 +37,7 @@ Bảng \ref{tab:document_metadata} là baseline metadata cho bộ technical manu
 		Project name & Energy Consumption Reporting System \\ \hline
 		Document type & Project technical manual / engineering reference document \\ \hline
 		Document scope & Architecture, data sources, repository/service mapping, business rules, KPI rules, output structure, release workflow, deployment and operations, scheduling, troubleshooting, glossary, and naming conventions \\ \hline
-		Current document version & \texttt{v0.20-draft} \\ \hline
+		Current document version & \texttt{v0.21-draft} \\ \hline
 		Document status & Internal review copy \\ \hline
 		Primary owner / author & Tuyen Tran \\ \hline
 		Reviewer & Reviewer assignment pending \\ \hline
@@ -131,6 +129,7 @@ Bảng \ref{tab:revision_history} là baseline revision history của bộ techn
 		\texttt{v0.18-draft} & 2026-05-11 & Internal review copy & Chuẩn hóa thêm vertical rhythm ở mức template: tinh chỉnh section/subsection spacing, chapter-after spacing, float spacing, và caption spacing để nhịp giữa paragraph, section title, và table title đều tay hơn trong screen-review PDF. \\ \hline
 		\texttt{v0.19-draft} & 2026-05-11 & Internal review copy & Thực hiện một pass chuyên biệt cho list rhythm: chuẩn hóa global \texttt{enumitem} spacing cho enumerate/itemize và cập nhật workflow/style rules để paragraph-to-list cùng list-to-paragraph transitions ổn định hơn trên toàn manual. \\ \hline
 		\texttt{v0.20-draft} & 2026-05-11 & Internal review copy & Thực hiện pass chuyên biệt cho float placement rhythm: nới float placement từ ép cứng \texttt{h} sang \texttt{htbp} cho tables/figures thường, đồng thời thêm shared float-placement rules và tinh chỉnh float spacing để nhịp quanh paragraph, table, và figure ổn định hơn. \\ \hline
+		\texttt{v0.21-draft} & 2026-05-11 & Internal review copy & Chuẩn hóa chapter opening rhythm bằng shared helper cho block mở chương \textit{Mục tiêu chương}, giảm nhẹ khoảng sau chapter title, và cập nhật workflow/style rules để nhịp chapter title $\rightarrow$ lead block $\rightarrow$ first section được kiểm soát nhất quán ở mức template. \\ \hline
 	\end{tabularx}
 \end{table}
 

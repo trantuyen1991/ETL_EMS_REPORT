@@ -93,6 +93,7 @@ For this template's current screen-first PDF workflow, verify that:
 - header/footer placement does not alternate like a print-spread layout
 - header-to-content spacing is not overly loose
 - content-to-footer spacing is not overly loose
+- chapter opening rhythm from chapter title -> lead block -> first section feels intentional and consistent
 - vertical rhythm between paragraph blocks, section titles, and table/figure captions feels consistent rather than accidental
 - paragraph-to-list and list-to-paragraph spacing feels consistent across chapters instead of tightening or opening unpredictably
 - paragraph-to-float and float-to-paragraph spacing feels consistent instead of leaving obvious holes

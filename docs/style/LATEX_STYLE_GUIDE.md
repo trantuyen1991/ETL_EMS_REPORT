@@ -115,6 +115,8 @@ Use:
 
 Aim for a stable vertical rhythm between:
 
+. chapter title and chapter-opening lead block
+. chapter-opening lead block and the first numbered section
 . paragraph blocks
 . section titles
 . subsection titles
@@ -138,6 +140,7 @@ If spacing is adjusted:
 . prefer `geometry`, `titlesec`, `caption`, `enumitem`, float-spacing parameters, or shared helper macro updates
 . verify representative pages such as control/info pages, TOC pages, and normal content pages
 . verify both header-to-content spacing and content-to-footer spacing after the change
+. verify at least one page containing a chapter title -> lead block -> first section transition
 . verify at least one page containing a paragraph -> section -> table transition
 . verify at least one page containing a paragraph -> list -> paragraph transition
 
