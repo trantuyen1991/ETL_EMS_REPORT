@@ -70,7 +70,7 @@ The new PDF should avoid going deep into:
 ## Checkpoints
 
 - [x] Checkpoint 1. Freeze scope, audience, and chapter outline for the new reader guide
-- [ ] Checkpoint 2. Create the new LaTeX source set for the reader guide and build a first skeleton PDF
+- [x] Checkpoint 2. Create the new LaTeX source set for the reader guide and build a first skeleton PDF
 - [ ] Checkpoint 3. Write report anatomy + header/period reading chapters
 - [ ] Checkpoint 4. Write Electricity interpretation chapter
 - [ ] Checkpoint 5. Write Utility + Sensor Monitoring interpretation chapter

@@ -1,0 +1,33 @@
+\chapter{NGUỒN DỮ LIỆU VÀ RULE ẢNH HƯỞNG ĐẾN CÁCH HIỂU SỐ LIỆU}
+
+\section{Nguồn dữ liệu chính theo góc nhìn người đọc report}
+
+Ở mức reader-facing, các nguồn cần nhớ trước tiên là:
+
+\begin{enumerate}[label=-]
+\item \texttt{energy\_kpi}: nguồn chính thức cho KPI reporting và official energy totals;
+\item \texttt{utility\_usage}: nền cho utility usage surfaces;
+\item \texttt{processvalue}: nền cho sensor monitoring và các thống kê sensor-level.
+\end{enumerate}
+
+\section{Những rule ảnh hưởng trực tiếp đến cách đọc report}
+
+Một số rule quan trọng sẽ cần được viết kỹ hơn ở các checkpoint sau:
+
+\begin{enumerate}[label=-]
+\item official totals không nên bị hiểu như số recompute tùy ý từ raw views;
+\item zero là dữ liệu hợp lệ, còn missing value phải được hiểu khác zero;
+\item current vs previous comparison chỉ có ý nghĩa đầy đủ khi kỳ đối chiếu phù hợp;
+\item KPI dùng coverage-first logic, nên coverage status ảnh hưởng trực tiếp đến cách diễn giải kết quả;
+\item weekly và monthly surfaces không đơn giản chỉ là daily phóng to, mà có các rule chọn kỳ và layout riêng.
+\end{enumerate}
+
+\section{Mục tiêu của chapter này ở bản hoàn chỉnh}
+
+Ở các checkpoint nội dung sau, chapter này sẽ nối từng phần trong report với:
+
+\begin{enumerate}[label=-]
+\item nguồn dữ liệu tương ứng;
+\item rule tổng hợp hoặc rule chọn số liệu;
+\item caveat diễn giải mà người đọc báo cáo cần biết.
+\end{enumerate}

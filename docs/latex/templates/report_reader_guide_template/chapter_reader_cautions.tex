@@ -1,0 +1,25 @@
+\chapter{CÁC LƯU Ý ĐỂ KHÔNG HIỂU SAI BÁO CÁO}
+
+\section{Zero và missing không giống nhau}
+
+Một số block trong report cho phép giá trị bằng 0 là hợp lệ. Vì vậy, người đọc không nên tự động coi mọi giá trị thấp hoặc bằng 0 là lỗi dữ liệu. Ngược lại, giá trị thiếu phải được nhận diện như một trạng thái khác với zero.
+
+\section{Coverage ảnh hưởng đến KPI interpretation}
+
+KPI không chỉ là một phép chia đơn giản. Khi coverage không đủ, cách hiểu KPI phải cẩn thận hơn, và reader guide hoàn chỉnh sẽ chỉ rõ cách đọc coverage note, preferred period selection, và các trường hợp không nên kết luận quá mức từ một KPI surface.
+
+\section{Comparison cần được đọc đúng ngữ cảnh}
+
+So sánh current với previous giúp thấy xu hướng, nhưng không phải mọi delta đều mang cùng ý nghĩa. Với một số section, reader cần nhìn đồng thời:
+
+\begin{enumerate}[label=-]
+\item giá trị hiện tại;
+\item giá trị kỳ trước;
+\item delta tuyệt đối;
+\item delta phần trăm;
+\item note hoặc condition đi kèm nếu previous bằng 0 hoặc coverage không tương thích.
+\end{enumerate}
+
+\begin{ReaderNote}{Planned next expansion}
+Ở các checkpoint tiếp theo, guide này sẽ được mở rộng từ skeleton hiện tại sang từng chapter giải thích cụ thể cho Electricity, Utility / Sensor Monitoring, và KPI bằng ngôn ngữ reader-facing hơn, gắn trực tiếp với các object đang có trong report thật.
+\end{ReaderNote}

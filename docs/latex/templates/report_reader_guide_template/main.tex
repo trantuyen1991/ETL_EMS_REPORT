@@ -1,0 +1,120 @@
+% !TeX program = xelatex
+\documentclass[12pt,oneside,openany]{book}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{geometry}
+\geometry{
+  paperwidth=19cm,
+  paperheight=27cm,
+  top=2cm,
+  bottom=2cm,
+  left=2.5cm,
+  right=2.5cm,
+  headsep=0.6cm,
+  footskip=1.05cm
+}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+
+\justifying
+\setlength{\parindent}{0.6cm}
+\setlength{\parskip}{6pt}
+\linespread{1.0}
+\flushbottom
+\setlist[enumerate]{leftmargin=*,labelsep=0.6em,topsep=2pt,itemsep=2pt,parsep=0pt,partopsep=0pt}
+\setlist[itemize]{leftmargin=*,labelsep=0.6em,topsep=2pt,itemsep=2pt,parsep=0pt,partopsep=0pt}
+
+\definecolor{BrandBlue}{HTML}{005496}
+\definecolor{BrandDark}{HTML}{003B6B}
+\definecolor{BrandGray}{HTML}{5B6770}
+
+\newcommand{\GuideTitle}{REPORT READER GUIDE}
+\newcommand{\GuideProject}{Energy Consumption Reporting System}
+\newcommand{\GuideVersion}{v0.1-draft}
+\newcommand{\GuideStatus}{Outline baseline}
+\newcommand{\GuideAudience}{Report readers / managers / business users}
+\newcommand{\GuideDate}{May 2026}
+
+\setlength{\headheight}{28pt}
+\newcommand{\ApplyGuidePageStyle}{%
+  \fancyhf{}%
+  \fancyhead[L]{\fontsize{8}{10}\selectfont\textbf{\GuideProject}\\\fontsize{7}{9}\selectfont\GuideTitle}%
+  \fancyhead[R]{\fontsize{8}{10}\selectfont\textbf{\GuideVersion}\\\fontsize{7}{9}\selectfont\GuideStatus}%
+  \fancyfoot[L]{\fontsize{8}{10}\selectfont REAL Group}%
+  \fancyfoot[C]{\fontsize{9}{11}\selectfont\thepage}%
+  \fancyfoot[R]{\fontsize{8}{10}\selectfont Tuyen Tran}%
+  \renewcommand{\headrulewidth}{0.6pt}%
+  \renewcommand{\footrulewidth}{0.6pt}%
+}
+\pagestyle{fancy}
+\ApplyGuidePageStyle
+\fancypagestyle{plain}{\ApplyGuidePageStyle}
+
+\titleformat{\chapter}[block]
+{\filcenter\bfseries\fontsize{15}{18}\selectfont}
+{\MakeUppercase{Chương~\thechapter.}}
+{0.6em}
+{\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{0pt}{8pt}
+
+\titleformat{\section}
+{\bfseries\fontsize{12}{14}\selectfont}
+{\thesection}{0.8em}{}
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+
+\newtcolorbox{ReaderNote}[2][]{
+  enhanced,
+  breakable,
+  width=0.92\textwidth,
+  colback=BrandBlue!4,
+  colframe=BrandBlue!55,
+  colbacktitle=BrandBlue,
+  coltitle=white,
+  fonttitle=\bfseries,
+  title={#2},
+  arc=3mm,
+  boxrule=0.6pt,
+  left=8pt,
+  right=8pt,
+  top=8pt,
+  bottom=8pt,
+  #1
+}
+
+\begin{document}
+
+\begin{titlepage}
+  \thispagestyle{empty}
+  \vspace*{2.5cm}
+  \begin{center}
+    {\fontsize{24}{30}\selectfont\bfseries\textcolor{BrandDark}{\GuideProject}}\\[1.0cm]
+    {\fontsize{20}{24}\selectfont\bfseries\textcolor{BrandBlue}{\GuideTitle}}\\[0.8cm]
+    {\large \GuideVersion}\\[0.2cm]
+    {\normalsize \GuideStatus}\\[1.0cm]
+    {\normalsize Audience: \GuideAudience}\\[0.2cm]
+    {\normalsize \GuideDate}
+  \end{center}
+
+  \vfill
+
+  \begin{ReaderNote}{Draft scope}
+  This first baseline is a short reader-facing guide, separate from the technical handover manual. It is intended to help report consumers understand what each report section means, where important values come from, and how key comparison / interpretation rules affect the reading of the final report output.
+  \end{ReaderNote}
+\end{titlepage}
+
+\tableofcontents
+\clearpage
+
+\input{chapter_guide_purpose_scope}
+\input{chapter_report_anatomy}
+\input{chapter_sources_and_rules}
+\input{chapter_reader_cautions}
+
+\end{document}
