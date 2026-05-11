@@ -4,9 +4,9 @@
 
 \begin{enumerate}[label=-]
 \item Tách phần triển khai và vận hành khỏi chapter output/release để operator tìm đúng chỗ nhanh hơn.
-\item Chốt baseline host mới, runtime configuration, manual smoke, và schedule enable flow.
-\item Đưa guidance của technical PDF tiến gần hơn kiểu operator docs, nhưng vẫn giữ được tính handover-ready.
-\item Ghi rõ các guardrail vận hành để giảm lỗi cấu hình khi triển khai sang máy mới.
+\item Đưa chapter này tiến gần mức copy-paste end-to-end, không chỉ dừng ở baseline notes.
+\item Chốt rõ bootstrap flow cho host mới, runtime configuration, manual smoke, và schedule enable flow.
+\item Giữ đủ guardrail kỹ thuật để deployment vừa nhanh vừa an toàn cho handover vận hành.
 \end{enumerate}
 
 \section{Vai trò của chapter deployment and operations}
@@ -16,13 +16,14 @@ Chapter này trả lời nhóm câu hỏi thực tế khi đem project sang mộ
 \begin{enumerate}[label=-]
 \item clone và bootstrap theo baseline nào;
 \item các giá trị runtime nào bắt buộc phải thay theo từng hệ thống;
+\item có thể copy-paste những block nào để giảm thao tác tay;
 \item nên manual smoke ra sao trước khi bật scheduler;
 \item cài và xác nhận \texttt{systemd} service / timer thế nào để vận hành ổn định.
 \end{enumerate}
 
 Nội dung chương này phải được giữ đồng bộ với \texttt{docs/workflows/deployment\_runbook.md} vì đó là nguồn operator-facing chi tiết nhất cho thao tác triển khai thật.
 
-\section{New-host bootstrap baseline}
+\section{Recommended deployment baseline}
 
 Baseline triển khai đang được khuyến nghị cho dự án là:
 
@@ -44,13 +45,16 @@ Các guardrail bootstrap cần giữ:
 \item giữ rõ ranh giới giữa canonical output path và staging path dùng cho PDF export.
 \end{enumerate}
 
-\section{Operator-first runtime configuration}
+\section{Operator-first full bootstrap flow}
 
-\subsection{Host-specific values cần rà soát}
+Flow dưới đây được viết cho đúng baseline khuyến nghị của dự án. Nếu host khác baseline, operator phải chỉnh lại user, group, project root, output path, và \texttt{systemd} sample files cho đồng bộ trước khi chạy.
 
-Để tránh việc operator phải mở \texttt{config/.env} rồi sửa thủ công từng dòng, deployment runbook hiện đã có block terminal paste-ready. Trước khi paste, người cài chỉ cần xác nhận các giá trị host-specific sau:
+\subsection{Các giá trị cần thay theo từng host}
+
+Trước khi paste các block bên dưới, người cài chỉ cần thay các giá trị host-specific sau:
 
 \begin{enumerate}[label=-]
+\item \texttt{<YOUR\_REPO\_URL>};
 \item \texttt{MYSQL\_HOST};
 \item \texttt{MYSQL\_PORT};
 \item \texttt{MYSQL\_DATABASE};
@@ -61,12 +65,62 @@ Các guardrail bootstrap cần giữ:
 \item khi cần, \texttt{WORKSHOP\_NAME} và \texttt{ENERGY\_UNIT}.
 \end{enumerate}
 
-\subsection{Paste-ready block để ghi \texttt{config/.env}}
+Nếu host bám đúng baseline chuẩn, đa số trường hợp chỉ cần thay repo URL và các giá trị MySQL.
+
+\subsection{Step 1. Chuẩn bị host mới}
+
+\begingroup
+\footnotesize
+\begin{verbatim}
+sudo apt update
+sudo apt install -y \
+  git \
+  python3 \
+  python3-venv \
+  python3-pip \
+  poppler-utils
+
+which google-chrome || which chromium || which chromium-browser
+timedatectl
+# If needed:
+# sudo timedatectl set-timezone Asia/Ho_Chi_Minh
+\end{verbatim}
+\endgroup
+
+Block này chỉ mới xác nhận baseline runtime. Nếu host chưa có Chrome hoặc Chromium, deployment chưa nên đi tiếp tới bước PDF smoke.
+
+\subsection{Step 2. Tạo service account, clone repo, và dựng venv}
+
+\begingroup
+\footnotesize
+\begin{verbatim}
+sudo useradd --system \
+  --create-home \
+  --home-dir /srv/energy-report \
+  --shell /usr/sbin/nologin \
+  energy-report || true
+
+sudo mkdir -p /srv
+sudo chown energy-report:energy-report /srv
+sudo -u energy-report git clone \
+  <YOUR_REPO_URL> \
+  /srv/energy-report
+
+cd /srv/energy-report
+sudo -u energy-report python3 -m venv venv
+sudo -u energy-report ./venv/bin/pip install --upgrade pip
+sudo -u energy-report ./venv/bin/pip install -r requirements.txt
+\end{verbatim}
+\endgroup
+
+Đây là baseline end-to-end cho host mới. \texttt{venv} phải luôn được tạo lại ngay trên máy đích, không copy từ host khác.
+
+\subsection{Step 3. Ghi \texttt{config/.env} bằng block paste-ready}
 
 Block bên dưới phản ánh operator-first flow hiện tại. Canonical source vẫn là \texttt{docs/workflows/deployment\_runbook.md}, nhưng technical PDF giữ lại block này để người vận hành đọc tài liệu bàn giao vẫn nhìn được đúng mẫu cấu hình cần paste.
 
 \begingroup
-\small
+\footnotesize
 \begin{verbatim}
 sudo tee /srv/energy-report/config/.env >/dev/null <<'EOF'
 # --- Change these values to match the target system ---
@@ -108,47 +162,63 @@ Các điểm bắt buộc phải nhớ khi dùng block này:
 \item nếu host không dùng baseline \texttt{/srv/energy-report}, block và \texttt{systemd} units phải được chỉnh đồng bộ.
 \end{enumerate}
 
-\section{Manual smoke trước khi bật schedule}
+\subsection{Step 4. Manual smoke trước khi bật schedule}
 
-Trước khi enable timer, host mới nên đi qua ít nhất một vòng manual smoke:
+\begingroup
+\footnotesize
+\begin{verbatim}
+cd /srv/energy-report
+sudo -u energy-report ./venv/bin/python -m src.main
+find /srv/energy-report-output -maxdepth 3 -type f | sort | tail -n 20
+\end{verbatim}
+\endgroup
 
-\begin{enumerate}[label=-]
-\item chạy \texttt{./venv/bin/python -m src.main};
-\item xác nhận daily artifacts được tạo ra đúng canonical month folder;
-\item khi cần, dùng các anchor đã chấp nhận là \texttt{2025-06-25}, \texttt{2025-06-29}, và \texttt{2025-05-31} để kiểm tra daily-only, Sunday, và month-end behavior;
-\item sau khi smoke xong, trả \texttt{REPORT\_ANCHOR\_DATE} về trạng thái trống trước khi chuyển sang schedule thật.
-\end{enumerate}
-
-\section{Systemd installation và fixed daily schedule}
-
-Runtime hiện tại được vận hành an toàn nhất bằng \texttt{systemd} \textit{oneshot service} kết hợp \texttt{timer}. Repo đang cung cấp ba artifact hỗ trợ flow này:
+Expected baseline behavior:
 
 \begin{enumerate}[label=-]
-\item \texttt{deploy/systemd/energy-report-etl.service};
-\item \texttt{deploy/systemd/energy-report-etl.timer};
-\item \texttt{deploy/systemd/install\_systemd\_units.sh}.
+\item luôn có một batch \textit{daily};
+\item \textit{weekly} chỉ xuất hiện khi anchor day là Chủ nhật;
+\item \textit{monthly} chỉ xuất hiện khi anchor day là ngày cuối tháng;
+\item daily run cũng tạo một workbook Excel theo đúng scope hiện hành.
 \end{enumerate}
 
-Helper script dùng để giảm thao tác tay khi host bám đúng baseline. Nó tự backup unit cũ nếu có, copy sample files sang \texttt{/etc/systemd/system/}, reload \texttt{systemd}, rồi enable timer trong một lần chạy.
+Nếu cần deterministic smoke anchors cho Sunday hoặc month-end, operator nên dùng \texttt{docs/workflows/release\_runbook.md} để bám đúng các anchor đã được chấp nhận, thay vì tự đoán ngày kiểm tra.
 
-Baseline service/timer hiện hành gồm:
+\subsection{Step 5. Cài \texttt{systemd} service và timer bằng helper}
+
+\begingroup
+\footnotesize
+\begin{verbatim}
+cd /srv/energy-report
+./deploy/systemd/install_systemd_units.sh
+\end{verbatim}
+\endgroup
+
+Helper script hiện làm các việc sau trong một lần chạy:
 
 \begin{enumerate}[label=-]
-\item \texttt{User=energy-report} và \texttt{Group=energy-report};
-\item \texttt{WorkingDirectory=/srv/energy-report};
-\item \texttt{ExecStart=/srv/energy-report/venv/bin/python -m src.main};
-\item \texttt{OnCalendar=*-*-* 23:00:00};
-\item \texttt{Persistent=true}.
+\item tự gọi \texttt{sudo} khi cần;
+\item backup unit cũ nếu đã tồn tại;
+\item copy sample \texttt{service} và \texttt{timer} sang \texttt{/etc/systemd/system/};
+\item chạy \texttt{systemctl daemon-reload};
+\item chạy \texttt{systemctl enable --now energy-report-etl.timer};
+\item in ra timer status và schedule summary.
 \end{enumerate}
 
-Lệnh xác nhận tối thiểu sau khi cài:
+\subsection{Step 6. Xác nhận service, timer, và output sau cài đặt}
 
-\begin{enumerate}[label=-]
-\item \texttt{sudo systemctl status energy-report-etl.service --no-pager};
-\item \texttt{sudo systemctl status energy-report-etl.timer --no-pager};
-\item \texttt{systemctl list-timers energy-report-etl.timer --all};
-\item \texttt{journalctl -u energy-report-etl.service -n 100 --no-pager}.
-\end{enumerate}
+\begingroup
+\footnotesize
+\begin{verbatim}
+sudo systemctl status energy-report-etl.service --no-pager
+sudo systemctl status energy-report-etl.timer --no-pager
+systemctl list-timers energy-report-etl.timer --all
+journalctl -u energy-report-etl.service -n 100 --no-pager
+find /srv/energy-report-output -maxdepth 3 -type f | sort | tail -n 30
+\end{verbatim}
+\endgroup
+
+Nếu timer đã enabled nhưng output không như kỳ vọng, operator nên quay sang chapter \textit{Troubleshooting Playbook} để kiểm tra theo đúng thứ tự triage đã chuẩn hóa.
 
 \section{Operational validation checklist}
 
@@ -166,4 +236,4 @@ Trước khi coi host mới là usable cho production-like schedule, nên xác n
 
 \section{Tổng kết chương}
 
-Chapter này tách riêng phần triển khai và vận hành để technical manual gần hơn với operator docs. Sau chapter output/release, người đọc giờ có một chỗ độc lập để tra baseline máy mới, runtime configuration, manual smoke flow, và \texttt{systemd} schedule setup mà không phải lọc chúng ra khỏi troubleshooting content.
+Chapter này đã được đẩy gần hơn mức copy-paste end-to-end cho handover vận hành. Sau chapter output/release, người đọc giờ có một chỗ độc lập để tra baseline máy mới, bootstrap commands, runtime configuration, manual smoke flow, và \texttt{systemd} schedule setup mà không phải lọc chúng ra khỏi troubleshooting content.
