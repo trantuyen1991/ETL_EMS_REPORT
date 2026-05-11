@@ -61,13 +61,18 @@ Do not change:
 
 Keep:
 
-. existing margins
-. paper size
+. existing paper size
 . chapter formatting
 . section formatting
-. table formatting
 . bibliography formatting
 . caption formatting
+
+For this template's current target use:
+
+. optimize for screen-first PDF reading and review
+. use symmetric left/right margins
+. avoid book-style twoside inner/outer asymmetry unless explicitly requested later for print binding
+. keep header/footer visually fixed across pages instead of alternating by spread
 
 Do not introduce random styling changes.
 
@@ -124,14 +129,19 @@ Preferred packages:
 . tabularx
 . longtable
 
-Avoid:
+For this template's current screen-first PDF convention, use a hybrid table style:
 
-. vertical table borders unless necessary
+. subtle outer border
+. subtle inner row separators
+. subtle inner column separators when they improve scanability
+. emphasized header row
+. avoid heavy full-black spreadsheet grids
 
 Use:
 
 . concise headers
 . engineering-friendly naming
+. light grid lines rather than borderless tables when the PDF is primarily reviewed on screen
 
 
 

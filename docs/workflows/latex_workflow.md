@@ -85,6 +85,12 @@ When the change touches layout or template chrome, also visually verify represen
 - TOC/list pages
 - a normal chapter/content page
 - any page containing a note/callout banner or long metadata paths
+- at least one multi-column table page
+
+For this template's current screen-first PDF workflow, verify that:
+- left/right content margins stay visually symmetric across consecutive pages
+- header/footer placement does not alternate like a print-spread layout
+- table borders remain subtle but visible enough for on-screen reading
 
 ---
 

@@ -24,22 +24,19 @@ Bảng \ref{tab:core_glossary_terms} tóm tắt các thuật ngữ quan trọng 
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Core glossary for system and data terms}
 	\label{tab:core_glossary_terms}
-	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}X}
-		\toprule
-		\textbf{Term} & \textbf{Primary Layer} & \textbf{Meaning in this project} \\
-		\midrule
-		\texttt{energy\_kpi} & database / business source & Table nguồn chuẩn cho KPI reporting, official totals, production-linked values, và các KPI rows đã được business chấp nhận. \\
-		\texttt{processvalue} & database / raw sensor source & Raw timestamped sensor table dùng cho sensor monitoring và utility-adjacent aggregation trước khi dữ liệu trở thành business-friendly structures. \\
-		\texttt{report\_context} & render-context layer & Unified dictionary/object được build từ domain services và style service, dùng chung cho HTML view, PDF source HTML, final PDF, và Excel export. \\
-		Source-of-truth & business rules & Khái niệm chỉ nguồn dữ liệu được coi là authoritative cho một metric hoặc report block. Với KPI và official energy totals, source-of-truth hiện tại là \texttt{energy\_kpi}. \\
-		Coverage-first logic & KPI rules & Cách chọn KPI rows theo thứ tự ưu tiên Day $>$ Week $>$ Month $>$ Year, không prorate, không giả lập số liệu thiếu từ raw views. \\
-		Residual load & electricity domain & Phần điện năng còn lại sau khi so tổng đã chấp nhận với các meter hoặc area breakdown có trong report, chỉ xuất hiện khi rule xác thực cho phép. \\
-		Anchor date & runtime scheduling & Ngày đầu vào dùng để resolve daily, weekly, và monthly periods mà ETL/report runtime cần export. \\
-		Canonical output & artifact management & Artifact path hoặc filename được xem là đích chuẩn để review, release, hoặc lưu trữ sau khi staging hoặc render hoàn tất. \\
-		Staging directory & PDF export pipeline & Thư mục non-hidden, Chromium-safe dùng tạm trong quá trình print PDF trước khi copy-back về canonical output path. \\
-		Daily Excel workbook & export extension & Workbook \texttt{.xlsx} daily-only của v1 export scope, không áp dụng cho weekly hoặc monthly ở trạng thái hiện tại. \\
-		\bottomrule
-	\end{tabularx}
+	\begin{DocHybridTable}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|}
+		\textbf{Term} & \textbf{Primary Layer} & \textbf{Meaning in this project} \\ \hline
+		\texttt{energy\_kpi} & database / business source & Table nguồn chuẩn cho KPI reporting, official totals, production-linked values, và các KPI rows đã được business chấp nhận. \\ \hline
+		\texttt{processvalue} & database / raw sensor source & Raw timestamped sensor table dùng cho sensor monitoring và utility-adjacent aggregation trước khi dữ liệu trở thành business-friendly structures. \\ \hline
+		\texttt{report\_context} & render-context layer & Unified dictionary/object được build từ domain services và style service, dùng chung cho HTML view, PDF source HTML, final PDF, và Excel export. \\ \hline
+		Source-of-truth & business rules & Khái niệm chỉ nguồn dữ liệu được coi là authoritative cho một metric hoặc report block. Với KPI và official energy totals, source-of-truth hiện tại là \texttt{energy\_kpi}. \\ \hline
+		Coverage-first logic & KPI rules & Cách chọn KPI rows theo thứ tự ưu tiên Day $>$ Week $>$ Month $>$ Year, không prorate, không giả lập số liệu thiếu từ raw views. \\ \hline
+		Residual load & electricity domain & Phần điện năng còn lại sau khi so tổng đã chấp nhận với các meter hoặc area breakdown có trong report, chỉ xuất hiện khi rule xác thực cho phép. \\ \hline
+		Anchor date & runtime scheduling & Ngày đầu vào dùng để resolve daily, weekly, và monthly periods mà ETL/report runtime cần export. \\ \hline
+		Canonical output & artifact management & Artifact path hoặc filename được xem là đích chuẩn để review, release, hoặc lưu trữ sau khi staging hoặc render hoàn tất. \\ \hline
+		Staging directory & PDF export pipeline & Thư mục non-hidden, Chromium-safe dùng tạm trong quá trình print PDF trước khi copy-back về canonical output path. \\ \hline
+		Daily Excel workbook & export extension & Workbook \texttt{.xlsx} daily-only của v1 export scope, không áp dụng cho weekly hoặc monthly ở trạng thái hiện tại. \\ \hline
+	\end{DocHybridTable}
 \end{table}
 
 \section{Glossary for artifact families and output folders}
@@ -51,18 +48,15 @@ Một phần nhầm lẫn thường gặp là đọc đúng report nhưng nhầm
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Glossary for output artifact families}
 	\label{tab:artifact_glossary_terms}
-	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}X}
-		\toprule
-		\textbf{Artifact / Folder} & \textbf{Canonical Form} & \textbf{Meaning in this project} \\
-		\midrule
-		\texttt{view\_html} & \texttt{output/reports/YYYY\_MM/view\_html/} & Browser-readable HTML artifact dùng để đọc report, rà layout logic, và debug content structure ngoài print path. \\
-		\texttt{pdf\_source\_html} & \texttt{output/reports/YYYY\_MM/pdf\_source\_html/} & HTML nguồn dùng cho PDF export, phản ánh print-safe structure gần nhất trước khi gọi Chromium/CDP print. \\
-		\texttt{pdf} & \texttt{output/reports/YYYY\_MM/pdf/} & PDF artifact cuối cùng dùng cho release review, chia sẻ nội bộ, và lưu trữ theo kỳ báo cáo. \\
-		\texttt{excel} & \texttt{output/reports/YYYY\_MM/excel/} & Folder chứa workbook Excel daily-only ở scope export hiện tại. \\
-		\texttt{docs/output/} & documentation output & Nơi chứa generated technical-documentation PDF của subsystem LaTeX; các file PDF ở đây là build artifacts, không phải source tài liệu. \\
-		\texttt{\_legacy\_backup\_2026\_05\_11/} & recoverable backup folder & Backup nội bộ dùng để di chuyển legacy output artifacts ra khỏi canonical root mà không xóa hẳn. \\
-		\bottomrule
-	\end{tabularx}
+	\begin{DocHybridTable}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|}
+		\textbf{Artifact / Folder} & \textbf{Canonical Form} & \textbf{Meaning in this project} \\ \hline
+		\texttt{view\_html} & \texttt{output/reports/YYYY\_MM/view\_html/} & Browser-readable HTML artifact dùng để đọc report, rà layout logic, và debug content structure ngoài print path. \\ \hline
+		\texttt{pdf\_source\_html} & \texttt{output/reports/YYYY\_MM/pdf\_source\_html/} & HTML nguồn dùng cho PDF export, phản ánh print-safe structure gần nhất trước khi gọi Chromium/CDP print. \\ \hline
+		\texttt{pdf} & \texttt{output/reports/YYYY\_MM/pdf/} & PDF artifact cuối cùng dùng cho release review, chia sẻ nội bộ, và lưu trữ theo kỳ báo cáo. \\ \hline
+		\texttt{excel} & \texttt{output/reports/YYYY\_MM/excel/} & Folder chứa workbook Excel daily-only ở scope export hiện tại. \\ \hline
+		\texttt{docs/output/} & documentation output & Nơi chứa generated technical-documentation PDF của subsystem LaTeX; các file PDF ở đây là build artifacts, không phải source tài liệu. \\ \hline
+		\texttt{\_legacy\_backup\_2026\_05\_11/} & recoverable backup folder & Backup nội bộ dùng để di chuyển legacy output artifacts ra khỏi canonical root mà không xóa hẳn. \\ \hline
+	\end{DocHybridTable}
 \end{table}
 
 \section{Naming conventions for report artifacts}
@@ -113,18 +107,15 @@ Bảng \ref{tab:internal_naming_conventions} chuẩn hóa một số tên gọi 
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Internal naming conventions used across docs and implementation}
 	\label{tab:internal_naming_conventions}
-	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{3.1cm} >{\raggedright\arraybackslash}X}
-		\toprule
-		\textbf{Name} & \textbf{Expected Style} & \textbf{Guidance} \\
-		\midrule
-		\texttt{report\_context} & snake\_case shared render key & Dùng nhất quán khi nói về unified render object; không đổi sang camelCase hoặc tên chung chung như ``payload'' trong docs kỹ thuật. \\
-		\texttt{EnergyDataRepository}, \texttt{KPIService}, \texttt{UtilityService} & PascalCase Python class names & Khi mô tả layer ownership trong technical PDF, nên giữ đúng class names để người đọc đối chiếu với code nhanh hơn. \\
-		\texttt{\_build\_report\_context()} và các helper tương tự & snake\_case function names & Khi trích dẫn orchestration helpers trong docs, nên dùng đúng function names thay vì viết lại thành prose mơ hồ. \\
-		\texttt{report\_style.json} & lowercase file name with underscores & File style source-of-truth cần được gọi đúng tên, tránh nhầm với các khái niệm theme JSON hoặc front-end token bundle khác. \\
-		\texttt{PRINT\_STAGING\_DIR}, \texttt{REPORT\_FILENAME} & UPPER\_SNAKE\_CASE env/config keys & Khi nói về environment-driven configuration, dùng đúng config key để tránh drift giữa docs và runtime. \\
-		\texttt{view\_html}, \texttt{pdf\_source\_html}, \texttt{excel} & lowercase folder-family names & Dùng thống nhất trong runbook, release checklist, và artifact walkthroughs; không đổi sang các biến thể như ``pdf-source'' hoặc ``html-view''. \\
-		\bottomrule
-	\end{tabularx}
+	\begin{DocHybridTable}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}X|}
+		\textbf{Name} & \textbf{Expected Style} & \textbf{Guidance} \\ \hline
+		\texttt{report\_context} & snake\_case shared render key & Dùng nhất quán khi nói về unified render object; không đổi sang camelCase hoặc tên chung chung như ``payload'' trong docs kỹ thuật. \\ \hline
+		\texttt{EnergyDataRepository}, \texttt{KPIService}, \texttt{UtilityService} & PascalCase Python class names & Khi mô tả layer ownership trong technical PDF, nên giữ đúng class names để người đọc đối chiếu với code nhanh hơn. \\ \hline
+		\texttt{\_build\_report\_context()} và các helper tương tự & snake\_case function names & Khi trích dẫn orchestration helpers trong docs, nên dùng đúng function names thay vì viết lại thành prose mơ hồ. \\ \hline
+		\texttt{report\_style.json} & lowercase file name with underscores & File style source-of-truth cần được gọi đúng tên, tránh nhầm với các khái niệm theme JSON hoặc front-end token bundle khác. \\ \hline
+		\texttt{PRINT\_STAGING\_DIR}, \texttt{REPORT\_FILENAME} & UPPER\_SNAKE\_CASE env/config keys & Khi nói về environment-driven configuration, dùng đúng config key để tránh drift giữa docs và runtime. \\ \hline
+		\texttt{view\_html}, \texttt{pdf\_source\_html}, \texttt{excel} & lowercase folder-family names & Dùng thống nhất trong runbook, release checklist, và artifact walkthroughs; không đổi sang các biến thể như ``pdf-source'' hoặc ``html-view''. \\ \hline
+	\end{DocHybridTable}
 \end{table}
 
 \section{Recommended naming guardrails}

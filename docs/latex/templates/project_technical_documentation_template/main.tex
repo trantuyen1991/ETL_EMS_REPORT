@@ -1,5 +1,5 @@
 % !TeX program = xelatex
-\documentclass[12pt,twoside,openany]{book}
+\documentclass[12pt,oneside,openany]{book}
 \setlength{\parskip}{6pt}
 
 % ==================================================
@@ -17,11 +17,10 @@
 	paperheight=27cm,
 	top=2cm,
 	bottom=2cm,
-	inner=3cm,
-	outer=2cm,
+	left=2.5cm,
+	right=2.5cm,
 	headsep=0.8cm,
-	footskip=1.27cm,
-	twoside
+	footskip=1.27cm
 }
 
 % ==================================================
@@ -63,6 +62,7 @@
 \usepackage{subcaption}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{colortbl}
 \usepackage{tabularx}
 \usepackage{amsmath}
 \numberwithin{equation}{chapter}
@@ -103,7 +103,7 @@
 \newcommand{\DocumentTypeLabel}{TÀI LIỆU KỸ THUẬT DỰ ÁN}
 \newcommand{\ProjectName}{Energy Consumption Reporting System}
 \newcommand{\DocumentShortTitle}{Project Technical Manual}
-\newcommand{\DocumentVersionLabel}{v0.8-draft}
+\newcommand{\DocumentVersionLabel}{v0.9-draft}
 \newcommand{\DocumentStatusLabel}{Internal review copy}
 \newcommand{\DocumentOwnerLabel}{Tuyen Tran}
 \newcommand{\DocumentReviewerLabel}{Reviewer assignment pending}
@@ -161,6 +161,26 @@
 	top=8pt,
 	bottom=8pt,
 	#1
+}
+
+\NewEnviron{DocHybridTable}[1]{%
+	\setlength{\arrayrulewidth}{0.35pt}%
+	\arrayrulecolor{BrandBlue!45}%
+	\renewcommand{\arraystretch}{1.25}%
+	\begin{tabularx}{\linewidth}{#1}\hline
+	\rowcolor{BrandBlue!10}
+	\BODY
+	\end{tabularx}
+}
+
+\NewEnviron{DocHybridTabular}[1]{%
+	\setlength{\arrayrulewidth}{0.35pt}%
+	\arrayrulecolor{BrandBlue!45}%
+	\renewcommand{\arraystretch}{1.2}%
+	\begin{tabular}{#1}\hline
+	\rowcolor{BrandBlue!10}
+	\BODY
+	\end{tabular}
 }
 
 % ==================================================

@@ -108,17 +108,14 @@ Bảng \ref{tab:component_matrix} là ví dụ về cách trình bày một bả
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Project component matrix for the energy reporting system}
 	\label{tab:component_matrix}
-	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
-		\toprule
-		\textbf{Component} & \textbf{Primary Responsibility} & \textbf{Typical Output} \\
-		\midrule
-		Electricity domain & Official totals, area totals, comparison blocks, Top 10 meters, and detail tables & HTML sections, PDF sections, Excel detail sheets \\
-		Utility domain & Utility consumption, utility energy, sensor monitoring, and anomaly-ready summaries & HTML/PDF tables, sensor monitoring cards, Excel utility sheets \\
-		KPI domain & Coverage-first KPI context, production linkage, variance analysis, and comparison charts & KPI summary cards, matrices, detail blocks, charts \\
-		Export workflow & Render view HTML, PDF source HTML, PDF, and daily Excel workbook with canonical naming & Month-grouped output artifacts under the project output tree \\
-		Documentation workflow & Maintain project technical documentation, rebuild PDF when docs change, and preserve release-ready references & Versioned technical PDF under \texttt{docs/output/} \\
-		\bottomrule
-	\end{tabularx}
+	\begin{DocHybridTable}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+		\textbf{Component} & \textbf{Primary Responsibility} & \textbf{Typical Output} \\ \hline
+		Electricity domain & Official totals, area totals, comparison blocks, Top 10 meters, and detail tables & HTML sections, PDF sections, Excel detail sheets \\ \hline
+		Utility domain & Utility consumption, utility energy, sensor monitoring, and anomaly-ready summaries & HTML/PDF tables, sensor monitoring cards, Excel utility sheets \\ \hline
+		KPI domain & Coverage-first KPI context, production linkage, variance analysis, and comparison charts & KPI summary cards, matrices, detail blocks, charts \\ \hline
+		Export workflow & Render view HTML, PDF source HTML, PDF, and daily Excel workbook with canonical naming & Month-grouped output artifacts under the project output tree \\ \hline
+		Documentation workflow & Maintain project technical documentation, rebuild PDF when docs change, and preserve release-ready references & Versioned technical PDF under \texttt{docs/output/} \\ \hline
+	\end{DocHybridTable}
 \end{table}
 
 \section{Quy tắc nghiệp vụ và nguyên tắc tính toán}
@@ -147,11 +144,11 @@ Một ví dụ đơn giản nhưng sát ngữ cảnh dự án là công thức i
 
 Công thức \ref{eq:energy_intensity} nên chỉ được áp dụng khi cả hai thành phần năng lượng và sản lượng đều có coverage hợp lệ và đáp ứng business rule của kỳ báo cáo.
 
-\begin{tabular}{p{0.5cm}ll}
-	& $\text{Total Energy Consumption}$ &: Tổng năng lượng của kỳ báo cáo;\\
-	& $\text{Production Output}$ &: Sản lượng hợp lệ của cùng kỳ;\\
-	& $\text{Energy Intensity}$ &: Chỉ số năng lượng trên đơn vị sản lượng.\\
-\end{tabular}
+\begin{DocHybridTabular}{|p{0.5cm}|l|l|}
+	& $\text{Total Energy Consumption}$ &: Tổng năng lượng của kỳ báo cáo;\\ \hline
+	& $\text{Production Output}$ &: Sản lượng hợp lệ của cùng kỳ;\\ \hline
+	& $\text{Energy Intensity}$ &: Chỉ số năng lượng trên đơn vị sản lượng.\\ \hline
+\end{DocHybridTabular}
 
 Khi tài liệu mô tả các công thức cụ thể hơn, nên nêu kèm điều kiện áp dụng, quy tắc coverage, và các trường hợp không được tính để tránh hiểu sai logic implementation.
 
