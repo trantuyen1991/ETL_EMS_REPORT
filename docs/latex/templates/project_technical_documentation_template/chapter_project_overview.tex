@@ -1,0 +1,240 @@
+\chapter{TỔNG QUAN DỰ ÁN VÀ PHẠM VI TÀI LIỆU}
+
+\noindent\textbf{Mục tiêu chương}
+
+\begin{enumerate}[label=-]
+\item Xác định mục đích của bộ tài liệu kỹ thuật cho hệ thống báo cáo năng lượng.
+\item Mô tả phạm vi tài liệu, đối tượng sử dụng, và các thành phần cần được duy trì xuyên suốt vòng đời dự án.
+\item Cung cấp một chapter mẫu theo phong cách technical manual để nhóm dự án có thể tái sử dụng cho các phần mô tả tính năng, quy tắc nghiệp vụ, và cách tính toán.
+\item Minh họa cách trình bày hình, bảng, công thức, và checklist vận hành trong cùng chuẩn LaTeX của dự án.
+\end{enumerate}
+
+\section{Mục đích của tài liệu kỹ thuật}
+
+Tài liệu kỹ thuật của dự án được sử dụng để mô tả hệ thống báo cáo năng lượng theo hướng có thể bảo trì, rà soát, và bàn giao. Nội dung trọng tâm của bộ tài liệu này bao gồm:
+
+\begin{enumerate}[label=-]
+\item mô tả mục tiêu và phạm vi của hệ thống;
+\item mô tả kiến trúc, luồng dữ liệu, và các thành phần chính;
+\item mô tả các tính năng quan trọng theo từng domain như Electricity, Utility, và KPI;
+\item ghi nhận các business rules, source-of-truth rules, và nguyên tắc tính toán;
+\item mô tả workflow xuất báo cáo và các lưu ý vận hành, phát hành, kiểm tra lỗi.
+\end{enumerate}
+
+Cách tổ chức tài liệu này phù hợp với tư duy Documentation-as-Code và vận hành kỹ thuật có kiểm soát thay đổi. Với các dự án ETL hoặc reporting pipeline, tài liệu cần bám sát implementation thực tế thay vì chỉ mô tả ý tưởng tổng quát \cite{ref_kimball,ref_python}.
+
+\section{Phạm vi và đối tượng sử dụng}
+
+Bộ tài liệu này hướng tới các nhóm sử dụng sau:
+
+\begin{enumerate}[label=-]
+\item kỹ sư backend và ETL, những người duy trì logic tổng hợp dữ liệu và workflow xuất báo cáo;
+\item kỹ sư phụ trách UI hoặc PDF render, những người cần hiểu report context, output artifacts, và layout constraints;
+\item người vận hành hệ thống, những người cần biết cách chạy, kiểm tra, và chẩn đoán lỗi pipeline;
+\item người rà soát nghiệp vụ, những người cần kiểm tra nguồn dữ liệu, quy tắc KPI, và tính nhất quán của báo cáo.
+\end{enumerate}
+
+Phạm vi tài liệu nên tập trung vào các phần có giá trị vận hành dài hạn:
+
+\begin{enumerate}[label=-]
+\item project overview;
+\item system architecture;
+\item data sources và data flow;
+\item domain-specific business rules;
+\item KPI calculation rules;
+\item export conventions và output structure;
+\item troubleshooting và release checklist.
+\end{enumerate}
+
+\section{Cấu trúc nội dung khuyến nghị}
+
+Một bộ technical manual cho dự án này nên ưu tiên cấu trúc sau:
+
+\begin{enumerate}
+\item Project Overview;
+\item System Architecture;
+\item Data Sources and Ownership;
+\item Business Rules;
+\item KPI Calculation Rules;
+\item Output and Export Workflow;
+\item Operational Notes;
+\item Troubleshooting;
+\item Appendix and References.
+\end{enumerate}
+
+Cấu trúc trên phù hợp với hệ thống báo cáo năng lượng nơi logic backend, quy tắc dữ liệu, và output artifacts phải luôn được mô tả nhất quán với implementation thực tế.
+
+\section{Tổng quan kiến trúc hệ thống}
+
+Ở mức khái quát, hệ thống hiện vận hành theo mô hình nhiều lớp:
+
+\begin{enumerate}[label=-]
+\item \textbf{Database Layer}: cung cấp dữ liệu đầu vào từ các bảng nghiệp vụ như \texttt{energy\_kpi} và các nguồn sensor/process value.
+\item \textbf{Repository Layer}: truy vấn dữ liệu và trả về cấu trúc thô có thể tái sử dụng.
+\item \textbf{Service Layer}: áp dụng business rules, coverage rules, mapping metadata, và các logic biến đổi dữ liệu.
+\item \textbf{Report Context Builder}: gom toàn bộ dữ liệu thành một \texttt{report\_context} thống nhất.
+\item \textbf{Template Rendering}: render HTML view, HTML PDF source, PDF, và các output phụ như Excel.
+\item \textbf{Output Layer}: lưu artifacts theo tháng, theo loại output, và theo naming convention chuẩn của dự án.
+\end{enumerate}
+
+Kiến trúc dạng tầng này giúp tài liệu kỹ thuật có thể map trực tiếp sang codebase và workflow thực thi. Đối với các dự án reporting hoặc warehouse-oriented, việc mô tả rõ ownership giữa source data, transformation, và presentation là rất quan trọng \cite{ref_kimball,ref_mysql}.
+
+\section{Minh họa sơ đồ kỹ thuật}
+
+Hai hình dưới đây là \textit{placeholder figures} để giữ nguyên ví dụ về layout hình, caption, và tham chiếu chéo trong template. Khi sử dụng cho tài liệu chính thức, nhóm dự án nên thay bằng sơ đồ kiến trúc hệ thống và sơ đồ data flow thực tế của project.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figure/hinh1_1}
+	\caption{Placeholder figure for system architecture documentation. Replace with the real project architecture diagram before release.}
+	\label{fig:architecture_placeholder}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{figure/hinh1_2}
+	\caption{Placeholder figure for data flow documentation. Replace with the real ETL or report generation flow diagram before release.}
+	\label{fig:dataflow_placeholder}
+\end{figure}
+
+Trong tài liệu kỹ thuật chính thức, Hình \ref{fig:architecture_placeholder} nên thể hiện quan hệ giữa database, services, report context builder, renderers, và output artifacts. Hình \ref{fig:dataflow_placeholder} nên thể hiện rõ chu trình từ source update đến report export và kiểm tra phát hành.
+
+\section{Ma trận thành phần chính}
+
+Bảng \ref{tab:component_matrix} là ví dụ về cách trình bày một bảng kỹ thuật ngắn gọn, tập trung vào trách nhiệm chính và output của từng domain.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Project component matrix for the energy reporting system}
+	\label{tab:component_matrix}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Component} & \textbf{Primary Responsibility} & \textbf{Typical Output} \\
+		\midrule
+		Electricity domain & Official totals, area totals, comparison blocks, Top 10 meters, and detail tables & HTML sections, PDF sections, Excel detail sheets \\
+		Utility domain & Utility consumption, utility energy, sensor monitoring, and anomaly-ready summaries & HTML/PDF tables, sensor monitoring cards, Excel utility sheets \\
+		KPI domain & Coverage-first KPI context, production linkage, variance analysis, and comparison charts & KPI summary cards, matrices, detail blocks, charts \\
+		Export workflow & Render view HTML, PDF source HTML, PDF, and daily Excel workbook with canonical naming & Month-grouped output artifacts under the project output tree \\
+		Documentation workflow & Maintain project technical documentation, rebuild PDF when docs change, and preserve release-ready references & Versioned technical PDF under \texttt{docs/output/} \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\section{Quy tắc nghiệp vụ và nguyên tắc tính toán}
+
+Các tài liệu kỹ thuật trong dự án nên mô tả rõ các nguyên tắc cốt lõi sau:
+
+\begin{enumerate}[label=-]
+\item \textbf{Source of truth}: \texttt{energy\_kpi} là nguồn chính thức cho KPI reporting và official energy totals.
+\item \textbf{Coverage-first KPI logic}: không prorate KPI blocks và luôn ưu tiên kỳ có coverage hợp lệ.
+\item \textbf{Missing vs zero}: giá trị bằng 0 là dữ liệu hợp lệ, còn dữ liệu thiếu phải được thể hiện rõ ràng.
+\item \textbf{Dense period rendering}: các bảng theo ngày hoặc theo kỳ phải render đủ các mốc cần thiết, không bỏ sót hàng chỉ vì thiếu giá trị.
+\item \textbf{Backend-first business logic}: business rules nằm ở service/backend layer, không nhân bản logic trong template.
+\item \textbf{Output consistency}: view HTML, PDF source HTML, PDF, và Excel phải bám cùng report context và cùng naming convention đã được chấp nhận.
+\end{enumerate}
+
+Các nguyên tắc vận hành năng lượng và quản lý hệ thống năng lượng như ISO 50001 là nguồn tham chiếu phù hợp khi xây dựng các mô tả ở mức policy hoặc quản trị tổng thể \cite{ref_iso50001}.
+
+\section{Ví dụ công thức KPI}
+
+Một ví dụ đơn giản nhưng sát ngữ cảnh dự án là công thức intensity-based KPI:
+
+\begin{equation}
+	\text{Energy Intensity} = \frac{\text{Total Energy Consumption}}{\text{Production Output}}
+	\label{eq:energy_intensity}
+\end{equation}
+
+Công thức \ref{eq:energy_intensity} nên chỉ được áp dụng khi cả hai thành phần năng lượng và sản lượng đều có coverage hợp lệ và đáp ứng business rule của kỳ báo cáo.
+
+\begin{tabular}{p{0.5cm}ll}
+	& $\text{Total Energy Consumption}$ &: Tổng năng lượng của kỳ báo cáo;\\
+	& $\text{Production Output}$ &: Sản lượng hợp lệ của cùng kỳ;\\
+	& $\text{Energy Intensity}$ &: Chỉ số năng lượng trên đơn vị sản lượng.\\
+\end{tabular}
+
+Khi tài liệu mô tả các công thức cụ thể hơn, nên nêu kèm điều kiện áp dụng, quy tắc coverage, và các trường hợp không được tính để tránh hiểu sai logic implementation.
+
+\section{Workflow cập nhật tài liệu và phát hành PDF}
+
+Workflow khuyến nghị cho subsystem tài liệu kỹ thuật là:
+
+\begin{enumerate}[label=-]
+\item cập nhật source Markdown hoặc LaTeX liên quan đến project documentation;
+\item kiểm tra lại hình, biểu đồ, tài liệu tham khảo, và các file \texttt{\textbackslash input};
+\item build lại PDF bằng \texttt{latexmk + XeLaTeX + biber};
+\item kiểm tra PDF đầu ra trong \texttt{docs/output/};
+\item chỉ phát hành hoặc chia sẻ khi nội dung tài liệu khớp với trạng thái implementation và naming rules hiện tại.
+\end{enumerate}
+
+Đối với project này, PDF không cần rebuild cho mọi thay đổi code. PDF chỉ cần rebuild khi các source tài liệu, hình minh họa, tài liệu tham khảo, hoặc workflow/rules của documentation thay đổi. Cách tiếp cận này phù hợp với mục tiêu giữ tài liệu luôn đồng bộ mà không tạo thêm noise không cần thiết trong pipeline vận hành.
+
+\section{Kiểm soát thay đổi và checklist phát hành}
+
+Trước khi phát hành một bản technical PDF mới, nên rà soát tối thiểu các hạng mục sau:
+
+\begin{enumerate}[label=-]
+\item tên tài liệu, phạm vi, và phiên bản tài liệu;
+\item tính nhất quán giữa nội dung mô tả và code hiện tại;
+\item tính đúng đắn của business rules và KPI calculation notes;
+\item tính hợp lệ của figures, tables, cross references, và bibliography;
+\item output naming và vị trí lưu file PDF;
+\item việc có hay không cần cập nhật checklist, runbook, hoặc project status song song với tài liệu PDF.
+\end{enumerate}
+
+\section{Tổng kết chương}
+
+Chapter mẫu này chuyển template từ phong cách học thuật tổng quát sang phong cách technical manual cho dự án báo cáo năng lượng. Khi mở rộng tài liệu, nhóm dự án nên tạo thêm các chapter chuyên biệt cho từng chủ đề như kiến trúc hệ thống, business rules, KPI calculation rules, export workflow, và troubleshooting.
+
+% ================== CHECKLIST CẬP NHẬT TÀI LIỆU ==================
+\newpage
+\section*{}
+\begin{center}
+	\bfseries\fontsize{12}{14}\selectfont
+	Checklist cập nhật tài liệu
+\end{center}
+\addcontentsline{toc}{section}{Checklist cập nhật tài liệu}
+
+\noindent\textbf{Mục 1.} Xác nhận phạm vi update của tài liệu.
+
+\noindent\textbf{Mục 2.} Xác nhận các screenshot, sơ đồ, và bảng biểu phản ánh đúng implementation hiện tại.
+
+\noindent\textbf{Mục 3.} Xác nhận business rules và KPI formulas đã được rà soát lại với source-of-truth rules.
+
+\noindent\textbf{Mục 4.} Build lại PDF và kiểm tra \texttt{docs/output/}.
+
+\noindent\textbf{Mục 5.} Chỉ phát hành bản PDF sau khi hoàn thành rà soát nội dung và formatting.
+
+\noindent\textbf{Lưu ý:}
+
+\begin{enumerate}[label=-]
+\item Tài liệu kỹ thuật phải được cập nhật khi docs source thay đổi có ý nghĩa, không để trôi xa implementation.
+\item Generated PDFs là output artifacts, không phải primary source.
+\item Nếu build lỗi, cần giữ log và báo lỗi rõ thay vì bỏ qua bước phát hành PDF.
+\end{enumerate}
+
+% ================== GHI CHÚ PHIÊN BẢN ==================
+\newpage
+\section*{}
+\begin{center}
+	\bfseries\fontsize{15}{14}\selectfont
+	GHI CHÚ PHIÊN BẢN
+\end{center}
+
+\noindent\textbf{Version x.y.z}
+
+\begin{enumerate}[label=-]
+\item Tóm tắt ngắn gọn các thay đổi quan trọng của tài liệu.
+\item Liệt kê các phần đã được cập nhật như tính năng mới, business rules mới, hoặc thay đổi naming/output.
+\item Nếu cần, dẫn chiếu commit hoặc checkpoint phát hành tương ứng.
+\end{enumerate}
+
+% ================== PHỤ LỤC ==================
+\newpage
+\section*{}
+\begin{center}
+	\bfseries\fontsize{15}{14}\selectfont
+	PHỤ LỤC
+\end{center}
+
+Phần phụ lục có thể dùng để đặt glossary, mapping bảng dữ liệu, naming conventions, danh sách output artifacts, hoặc sơ đồ mở rộng không phù hợp để đặt trong nội dung chính.
