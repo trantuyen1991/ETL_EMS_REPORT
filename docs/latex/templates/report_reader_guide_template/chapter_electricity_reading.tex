@@ -1,0 +1,144 @@
+\chapter{CÁCH ĐỌC PHẦN ĐIỆN NĂNG}
+
+\section{Phần Electricity đang giúp người đọc trả lời điều gì}
+
+Phần \texttt{Electricity Consumption} giúp người đọc trả lời bốn câu hỏi chính:
+
+\begin{enumerate}[label=-]
+\item tổng điện năng của kỳ hiện tại đang ở mức nào;
+\item khu vực hoặc workshop nào đang chiếm phần tiêu thụ đáng chú ý;
+\item mức tiêu thụ đang tăng hay giảm so với kỳ đối chiếu;
+\item meter hoặc nhóm meter nào đang góp phần nhiều nhất vào biến động.
+\end{enumerate}
+
+Với người đọc report, đây thường là phần nên xem ngay sau phần đầu báo cáo, vì nó cho bức tranh tổng quát nhất về quy mô tiêu thụ điện của kỳ đang đọc.
+
+\section{Cách đọc thẻ \texttt{TOTAL}}
+
+Thẻ \texttt{TOTAL} là nơi nên nhìn đầu tiên trong phần điện. Đây là bề mặt tóm tắt mức tiêu thụ điện chung của toàn plant trong kỳ hiện tại.
+
+Khi đọc thẻ này, người đọc nên hiểu từng dòng như sau:
+
+\begin{enumerate}[label=-]
+\item giá trị lớn ở giữa thẻ là tổng điện năng của kỳ hiện tại;
+\item cặp \texttt{current} và \texttt{last} cho biết số kỳ hiện tại và kỳ trước để đối chiếu trực tiếp;
+\item \texttt{Delta} cho biết mức tăng hoặc giảm tuyệt đối;
+\item dòng phần trăm phía dưới cho biết mức biến động tương đối so với kỳ trước;
+\item \texttt{Meter} cho biết số đồng hồ có dữ liệu active trên tổng số đồng hồ thuộc bề mặt theo dõi hiện hành.
+\end{enumerate}
+
+\begin{ReaderNote}{Cách hiểu đúng về total điện}
+Total điện ở đây nên được hiểu là \textbf{official total} của report. Người đọc không nên tự suy luận rằng total này luôn bằng cách cộng tất cả meter đang nhìn thấy ở bảng chi tiết, vì report dùng bề mặt tổng hợp đã được chốt sẵn và có rule loại trừ main feeder cũng như xử lý overlap ở downstream.
+\end{ReaderNote}
+
+\subsection{Cách dùng badge \texttt{GOOD / WATCH / STABLE}}
+
+Badge màu trên thẻ \texttt{TOTAL} chỉ nên được hiểu là tín hiệu đọc nhanh về hướng biến động. Nó hữu ích để quét nhanh report, nhưng không nên được dùng như kết luận cuối cùng nếu người đọc chưa xem thêm workshop cards, Top meter, hoặc bảng detail.
+
+\section{Cách đọc các thẻ workshop hoặc area}
+
+Ngay sau thẻ \texttt{TOTAL}, report hiển thị các thẻ cho từng khu vực hoặc workshop như \texttt{DIODE}, \texttt{ICO}, và \texttt{SAKARI}. Các thẻ này nên được hiểu là phần tách nhỏ official electricity surface theo từng area.
+
+Người đọc nên dùng các thẻ này để:
+
+\begin{enumerate}[label=-]
+\item xác định workshop nào đang tiêu thụ lớn nhất trong kỳ;
+\item xem workshop nào tăng hoặc giảm mạnh hơn so với kỳ trước;
+\item khoanh nhanh vùng cần đọc sâu hơn ở phần chart, Top meter, hoặc bảng detail.
+\end{enumerate}
+
+Nếu một workshop có total không quá lớn nhưng \texttt{Delta} hoặc \texttt{delta \%} thay đổi mạnh, đó thường là tín hiệu cần xem tiếp phần so sánh và Top meter của chính workshop đó thay vì chỉ nhìn total toàn plant.
+
+\section{Cách đọc phần comparison và chart biến động}
+
+Phần chart trong Electricity thường được dùng để trả lời câu hỏi \textit{biến động đang diễn ra ở đâu và theo hướng nào}. Ở trạng thái hiện tại, người đọc có thể gặp các bề mặt sau:
+
+\begin{enumerate}[label=-]
+\item chart xu hướng tiêu thụ theo ngày hoặc theo chuỗi kỳ trong bề mặt đang đọc;
+\item chart so sánh area để nhìn current so với previous;
+\item với weekly hoặc monthly, có thể có thêm heatmap và chart delta theo area.
+\end{enumerate}
+
+\subsection{Cách đọc \texttt{current vs previous}}
+
+Ở phần Electricity, logic so sánh cơ bản luôn là:
+
+\begin{enumerate}[label=-]
+\item \texttt{current}: giá trị của kỳ đang đọc;
+\item \texttt{previous}: giá trị của kỳ đối chiếu cùng loại và cùng độ dài;
+\item \texttt{delta}: chênh lệch tuyệt đối giữa current và previous;
+\item \texttt{delta \%}: chênh lệch tương đối, chỉ có ý nghĩa đầy đủ khi previous khác 0.
+\end{enumerate}
+
+Nếu \texttt{delta \%} hiển thị \texttt{-}, người đọc không nên hiểu là hệ thống lỗi. Trong nhiều trường hợp, đó là cách report tránh đưa ra phần trăm gây hiểu sai khi kỳ trước bằng 0 hoặc không đủ cơ sở tính toán.
+
+\subsection{Cách đọc chart area comparison}
+
+Chart so sánh area phù hợp để nhìn nhanh workshop nào là nguồn chính của biến động. Nếu total plant tăng, nhưng chỉ một workshop tăng mạnh còn các workshop khác đi ngang, người đọc nên hiểu rằng biến động toàn plant đang chủ yếu đến từ workshop đó.
+
+Ngược lại, nếu total plant thay đổi rõ nhưng từng workshop card không thay đổi tương xứng, người đọc nên xem tiếp Top meter, residual-related rows nếu có, hoặc phần detail để tìm phần tiêu thụ chưa hiện rõ ở lớp tổng quan.
+
+\section{Cách đọc bảng \texttt{Top N Meter Consumption}}
+
+Bảng \texttt{Top N Meter Consumption} là lớp giúp người đọc đi từ mức area xuống mức meter. Đây là nơi phù hợp để trả lời câu hỏi \textit{meter nào đang tiêu thụ nhiều nhất trong kỳ hiện tại}.
+
+Người đọc nên hiểu bảng này theo các nguyên tắc sau:
+
+\begin{enumerate}[label=-]
+\item bảng được sắp xếp theo mức tiêu thụ của kỳ hiện tại, không phải theo kỳ trước;
+\item giới hạn hiển thị hiện hành là Top 10 cho daily và weekly, Top 5 cho monthly;
+\item các main feeder bị loại khỏi ranking này;
+\item khi hợp lệ, \texttt{Residual Load} có thể xuất hiện như một virtual meter;
+\item vì là bảng xếp hạng, đây không phải toàn bộ danh sách meter của hệ thống.
+\end{enumerate}
+
+\begin{ReaderNote}{Vì sao total và Top N không phải lúc nào cũng khớp trực giác}
+Người đọc không nên kỳ vọng cộng vài dòng Top meter rồi ra ngay total area hoặc total plant. Top N chỉ là nhóm meter tiêu thụ lớn nhất sau khi áp dụng rule loại trừ feeder và rule ranking. Trong khi đó, official total của area hoặc plant đi theo bề mặt tổng hợp nghiệp vụ của report.
+\end{ReaderNote}
+
+Nếu một meter đứng rất cao trong Top N nhưng total workshop không tăng nhiều, người đọc nên kiểm tra thêm kỳ trước của meter đó và tương quan với các meter khác, thay vì kết luận ngay rằng meter đó là nguyên nhân duy nhất của biến động.
+
+\section{Cách đọc \texttt{Daily Energy Summary}}
+
+Ở weekly và monthly report, phần Electricity còn có bảng \texttt{Daily Energy Summary}. Bảng này giúp người đọc nhìn sự phân bố theo ngày bên trong một kỳ dài hơn.
+
+Người đọc có thể hiểu nhanh như sau:
+
+\begin{enumerate}[label=-]
+\item mỗi dòng là một ngày nằm trong kỳ weekly hoặc monthly;
+\item mỗi area có hai cột chính: \texttt{Total} và \texttt{Avg / meter active};
+\item \texttt{Total} giúp nhìn ngày nào area tiêu thụ cao hay thấp;
+\item \texttt{Avg / meter active} giúp nhìn mức tải trung bình trên các meter đang active, hữu ích khi muốn phân biệt tăng do quy mô active rộng hơn hay tăng do mức dùng trên từng meter cao hơn.
+\end{enumerate}
+
+Nếu một ngày có \texttt{Total} cao nhưng \texttt{Avg / meter active} không tăng tương ứng, người đọc có thể hiểu sơ bộ rằng biến động đến từ số lượng meter active nhiều hơn. Nếu cả hai cùng tăng, khả năng cao mức tải bình quân cũng đang tăng.
+
+\section{Cách đọc \texttt{Daily Energy Detail}}
+
+\texttt{Daily Energy Detail} là lớp chi tiết nhất trong phần Electricity. Phần này phù hợp khi người đọc đã biết mình cần truy nguyên biến động ở workshop hoặc meter nào.
+
+Hiện tại, phần detail được đọc theo các nguyên tắc sau:
+
+\begin{enumerate}[label=-]
+\item report cố gắng giữ đủ các ngày trong kỳ, kể cả khi một số ngày không có dữ liệu đầy đủ;
+\item các meter được hiển thị theo cấu hình của area, không chỉ những meter đang có số đẹp;
+\item nếu số cột quá nhiều, bảng có thể được tách thành nhiều phần \texttt{Part 1}, \texttt{Part 2}, ... để dễ đọc;
+\item dấu \texttt{-} nên được hiểu là thiếu dữ liệu hoặc không có giá trị hiển thị phù hợp, không phải mặc định bằng 0;
+\item giá trị 0 nếu xuất hiện thì vẫn là dữ liệu hợp lệ.
+\end{enumerate}
+
+Với daily report, detail có thể được trình bày theo block dọc để người đọc nhìn nhanh meter nào cao nhất trong area. Với weekly hoặc monthly report, detail thường quay về dạng bảng ngày nhân với meter để thuận tiện dò ngày biến động.
+
+\section{Cách đọc đúng các biến động điện}
+
+Nếu muốn đọc phần Electricity theo hướng tìm nguyên nhân, thứ tự khuyến nghị là:
+
+\begin{enumerate}[label=-]
+\item nhìn \texttt{TOTAL} để xác nhận toàn plant đang tăng, giảm, hay đi ngang;
+\item nhìn các thẻ workshop để xác định area nào đóng góp lớn nhất vào biến động;
+\item nhìn chart comparison để xem biến động đó diễn ra đều hay chỉ tập trung vào vài điểm;
+\item nhìn Top N để nhận diện meter nổi bật;
+\item cuối cùng dùng Daily Summary hoặc Daily Detail để truy ngày và truy meter cụ thể.
+\end{enumerate}
+
+Một cách hiểu sai thường gặp là nhìn thấy một meter tăng mạnh rồi kết luận ngay đó là nguyên nhân duy nhất của toàn bộ biến động plant. Cách đọc an toàn hơn là luôn đi từ total, xuống area, rồi mới xuống meter. Cách này giúp tránh bỏ sót các phần tiêu thụ còn lại, đặc biệt khi report có residual-like contribution hoặc khi ranking chỉ hiển thị một nhóm meter nổi bật nhất.
