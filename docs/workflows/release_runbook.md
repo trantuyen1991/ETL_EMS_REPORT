@@ -2,6 +2,9 @@
 
 Use this runbook for quick manual release smoke checks.
 
+Companion deployment guide:
+- `docs/workflows/deployment_runbook.md`
+
 Notes:
 - Run from `/home/nbt/workspace/02_MySQL`
 - Each command temporarily rewrites `REPORT_ANCHOR_DATE` in `config/.env`, runs production, lists matching artifacts under `output/reports/`, then restores the original `.env`
