@@ -1,0 +1,225 @@
+\chapter{OUTPUT STRUCTURE, RELEASE WORKFLOW, VÀ TROUBLESHOOTING}
+
+\noindent\textbf{Mục tiêu chương}
+
+\begin{enumerate}[label=-]
+\item Mô tả cấu trúc output hiện hành của hệ thống báo cáo năng lượng.
+\item Ghi nhận release workflow và các manual smoke checks đang được chấp nhận.
+\item Tóm tắt các điểm cần rà soát khi PDF export hoặc artifact generation gặp lỗi.
+\item Tạo một chapter vận hành để technical PDF có thể dùng như tài liệu bàn giao hoặc checklist kiểm tra nhanh.
+\end{enumerate}
+
+\section{Vai trò của chapter vận hành}
+
+Sau khi đã mô tả kiến trúc, data flow, và business rules, bộ tài liệu kỹ thuật cần có một chapter vận hành để trả lời ba câu hỏi thực tế:
+
+\begin{enumerate}[label=-]
+\item hệ thống đang ghi output ở đâu;
+\item cần kiểm tra gì trước khi gọi một bản build là ổn để phát hành;
+\item nếu PDF hoặc artifact flow có vấn đề thì nên kiểm tra theo thứ tự nào.
+\end{enumerate}
+
+Chapter này được tổng hợp từ workflow thực tế của dự án và nên được giữ đồng bộ với các tài liệu nguồn như \texttt{docs/workflows/release\_runbook.md}, \texttt{docs/workflows/release\_checklist.md}, và \texttt{docs/workflows/pdf\_export\_flow.md}.
+
+\section{Canonical output structure}
+
+Hệ thống hiện ghi artifacts theo tháng, thay vì dùng dated run folders như trước. Root chuẩn là \texttt{output/reports/YYYY\_MM/}. Mỗi tháng được tách thành các nhóm output sau:
+
+\begin{enumerate}[label=-]
+\item \texttt{view\_html/}: HTML view phục vụ đọc và kiểm tra trên browser;
+\item \texttt{pdf\_source\_html/}: HTML nguồn dùng cho PDF export và kiểm tra print layout;
+\item \texttt{pdf/}: PDF cuối cùng sau khi Chromium hoặc Chrome DevTools Protocol hoàn tất print;
+\item \texttt{excel/}: workbook Excel daily-only của version hiện tại.
+\end{enumerate}
+
+Bảng \ref{tab:artifact_structure} tóm tắt output conventions đang được chấp nhận.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Canonical output artifact structure}
+	\label{tab:artifact_structure}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Artifact Family} & \textbf{Location} & \textbf{Purpose} \\
+		\midrule
+		View HTML & \texttt{output/reports/YYYY\_MM/view\_html/} & Browser-readable version dùng để đọc report, kiểm tra cấu trúc, và debug render output. \\
+		PDF source HTML & \texttt{output/reports/YYYY\_MM/pdf\_source\_html/} & HTML nguồn cho PDF export, phản ánh print-safe shell và compact print styling trước khi in. \\
+		Final PDF & \texttt{output/reports/YYYY\_MM/pdf/} & PDF A4 cuối cùng, dùng cho phát hành và lưu trữ. \\
+		Daily Excel workbook & \texttt{output/reports/YYYY\_MM/excel/} & Workbook daily-only của v1 Excel export, phục vụ tabular extraction. \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\subsection{Filename ordering rules}
+
+Filename ordering được kiểm soát bằng prefix số để việc sort nhất quán trên nhiều môi trường file system:
+
+\begin{enumerate}[label=-]
+\item \texttt{01\_monthly}
+\item \texttt{02\_weekly}
+\item \texttt{03\_daily}
+\end{enumerate}
+
+Base name hiện tại của report artifacts là \texttt{energy\_automatic\_report}. Như vậy các ví dụ canonical gồm:
+
+\begin{enumerate}[label=-]
+\item \texttt{01\_monthly\_energy\_automatic\_report\_20250531.pdf}
+\item \texttt{02\_weekly\_energy\_automatic\_report\_20250629.pdf}
+\item \texttt{03\_daily\_energy\_automatic\_report\_20250629.xlsx}
+\end{enumerate}
+
+Naming discipline này quan trọng vì nó ảnh hưởng trực tiếp đến khả năng rà soát output, diff artifact giữa các lần chạy, và logic release smoke checks.
+
+\section{Runtime scheduling và artifact expectations}
+
+Runtime hiện tại tuân theo các scheduling rules sau:
+
+\begin{enumerate}[label=-]
+\item luôn export \textit{daily};
+\item export \textit{weekly} khi anchor day là Chủ nhật;
+\item export \textit{monthly} khi anchor day là ngày cuối tháng;
+\item nếu cả hai điều kiện cùng đúng, runtime export đầy đủ các report tương ứng trong một lần chạy.
+\end{enumerate}
+
+Bảng \ref{tab:scheduled_artifacts} tóm tắt kỳ vọng artifacts theo từng tình huống smoke test tiêu biểu.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Expected artifacts for common smoke scenarios}
+	\label{tab:scheduled_artifacts}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.7cm} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Scenario} & \textbf{Expected Periods} & \textbf{Expected Canonical Outputs} \\
+		\midrule
+		Daily-only anchor & Daily & view HTML, PDF source HTML, final PDF, và daily Excel workbook dưới prefix \texttt{03\_daily}. \\
+		Sunday anchor & Daily + Weekly & toàn bộ artifact daily cộng thêm bộ weekly dưới prefix \texttt{02\_weekly}; không có monthly. \\
+		Month-end anchor & Daily + Monthly & toàn bộ artifact daily cộng thêm bộ monthly dưới prefix \texttt{01\_monthly}; không có weekly. \\
+		Sunday + month-end & Daily + Weekly + Monthly & runtime xuất đủ cả ba period families trong cùng tháng output tương ứng. \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\section{PDF staging và print path}
+
+PDF export của dự án tách rõ giữa canonical artifact path và staging path dùng cho Chromium print. Điều này giúp tránh các vấn đề với hidden directories và giữ cho output cuối cùng ổn định hơn.
+
+\subsection{Canonical path và staging path}
+
+\begin{enumerate}[label=-]
+\item canonical project output root là \texttt{output/reports/};
+\item mỗi report được ghi vào month-grouped directories bên dưới canonical root;
+\item PDF print flow đồng thời tạo staging HTML và staging PDF ở một \textit{Chromium-safe non-hidden directory};
+\item sau khi print thành công, staged PDF được copy ngược lại vào canonical PDF directory của tháng tương ứng.
+\end{enumerate}
+
+\subsection{Staging resolution order}
+
+Thứ tự resolve staging directory hiện hành là:
+
+\begin{enumerate}[label=-]
+\item dùng \texttt{PRINT\_STAGING\_DIR} nếu được cấu hình rõ ràng;
+\item nếu không có, dùng \texttt{OUTPUT\_DIR} khi path này không hidden;
+\item nếu vẫn chưa có, dùng canonical project output dir nếu bản thân path đó không hidden;
+\item fallback cuối cùng là \texttt{\textasciitilde/Reports}.
+\end{enumerate}
+
+Cách phân tầng này giúp tách bài toán artifact ownership với bài toán trình duyệt headless có thể truy cập được thư mục staging hay không.
+
+\subsection{Stable PDF export baseline}
+
+Print baseline hiện tại nên được xem là rule vận hành chính thức:
+
+\begin{enumerate}[label=-]
+\item ưu tiên Chrome DevTools Protocol print path;
+\item dùng \texttt{scale=1.0};
+\item dùng \texttt{preferCSSPageSize=true};
+\item dùng \texttt{printBackground=true};
+\item chỉ fallback sang Chromium CLI path khi CDP print thực sự thất bại.
+\end{enumerate}
+
+Đây là điểm mấu chốt để giữ sự ổn định giữa các report family và tránh hiện tượng document shrink hoặc auto-fit không mong muốn.
+
+\section{Release workflow và smoke checks}
+
+\subsection{Release workflow tối thiểu}
+
+Trước khi một bản chạy được xem là đủ tốt cho release review, nên đi theo chu trình sau:
+
+\begin{enumerate}[label=-]
+\item xác nhận working copy và runtime environment đúng project path;
+\item xác nhận Chrome hoặc Chromium hiện diện trên host;
+\item kiểm tra các cấu hình như \texttt{REPORT\_ANCHOR\_DATE}, \texttt{OUTPUT\_DIR}, và \texttt{PRINT\_STAGING\_DIR};
+\item chạy automated checks hoặc pytest phù hợp nếu chúng nằm trong scope hiện tại;
+\item chạy manual smoke cho ít nhất một daily anchor;
+\item chạy thêm Sunday anchor và month-end anchor để xác thực weekly/monthly scheduling khi cần;
+\item mở PDF cuối để kiểm tra layout width, chart sizing, table overflow, và artifact copy-back;
+\item ghi lại commit SHA và kết quả kiểm tra trước khi xin sign-off.
+\end{enumerate}
+
+\subsection{Manual smoke anchors}
+
+Các anchor phổ biến đang được dùng trong runbook gồm:
+
+\begin{enumerate}[label=-]
+\item daily-only smoke: \texttt{2025-06-25};
+\item Sunday smoke: \texttt{2025-06-29};
+\item month-end smoke: \texttt{2025-05-31}.
+\end{enumerate}
+
+Các anchor này đủ để xác minh cả period scheduling, canonical naming, month grouping, và daily-only Excel behavior trong runtime hiện tại.
+
+\section{Troubleshooting playbook}
+
+Bảng \ref{tab:troubleshooting_matrix} tóm tắt một số vấn đề hay gặp và thứ tự kiểm tra nên ưu tiên.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Troubleshooting matrix for report export and release checks}
+	\label{tab:troubleshooting_matrix}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Symptom} & \textbf{Likely Cause} & \textbf{First Checks} \\
+		\midrule
+		PDF bị co nhỏ hoặc sai scale & document width overflow, wide periodic tables, hoặc print path không dùng baseline ổn định & kiểm tra table overflow, chart container width, và xác nhận CDP path với \texttt{scale=1.0}, \texttt{preferCSSPageSize=true}. \\
+		PDF thiếu chart & chart lifecycle trong PDF mode không được kick off hoặc chart không được freeze thành static SVG trước print & kiểm tra PDF chart init flow, xác nhận \texttt{renderer: \"svg\"}, \texttt{animation: false}, và kickoff sau \texttt{window.load}. \\
+		Artifact không xuất hiện ở canonical month folder & copy-back từ staging path thất bại hoặc export path resolve sai & kiểm tra \texttt{output/reports/YYYY\_MM/}, staging directory, và logic copy từ staged PDF về canonical PDF folder. \\
+		PDF source staging bị lỗi trên hidden path & Chromium không truy cập ổn staging directory vì path hidden & xác nhận \texttt{PRINT\_STAGING\_DIR} hoặc \texttt{OUTPUT\_DIR} đang trỏ tới non-hidden path. \\
+		Excel xuất sai scope & logic daily-only của Excel export bị thay đổi hoặc anchor/scheduling bị hiểu sai & xác nhận Excel chỉ được tạo cho \textit{daily}, không tạo cho weekly/monthly. \\
+		Tên file sai prefix hoặc sai base name & config naming drift hoặc helper naming rules bị sửa lệch & kiểm tra \texttt{REPORT\_FILENAME}, các prefix \texttt{01/02/03}, và output examples trong runbook/checklist. \\
+		Docs kỹ thuật và runtime không còn khớp nhau & docs chưa được cập nhật sau khi implementation đổi & rà lại \texttt{project\_status}, runbook, checklist, và technical PDF chapter tương ứng. \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\section{Documentation PDF rebuild rule}
+
+Subsystem tài liệu kỹ thuật có workflow riêng. PDF của bộ documentation không cần rebuild cho mọi thay đổi code. Chỉ nên rebuild khi một trong các nhóm sau thay đổi:
+
+\begin{enumerate}[label=-]
+\item source LaTeX hoặc Markdown của project documentation;
+\item figures hoặc diagrams được chèn vào technical PDF;
+\item bibliography hoặc references;
+\item workflow rules hoặc release rules được mô tả trong technical manual.
+\end{enumerate}
+
+Quy tắc này giúp tài liệu luôn sát implementation nhưng không làm build pipeline bị ồn vì những thay đổi code không ảnh hưởng đến nội dung docs.
+
+\section{Release-readiness checklist}
+
+Trước khi xem một batch output hoặc một technical PDF là sẵn sàng cho bước review tiếp theo, nên xác nhận tối thiểu các điểm sau:
+
+\begin{enumerate}[label=-]
+\item naming và month grouping của artifacts đúng theo conventions hiện tại;
+\item daily, weekly, monthly scheduling hoạt động đúng với anchor day tương ứng;
+\item PDF cuối cùng không có lỗi scale, missing charts, hoặc overflow nghiêm trọng;
+\item daily Excel workbook chỉ xuất hiện ở đúng daily scope;
+\item docs, runbook, checklist, và technical PDF vẫn phản ánh runtime thật;
+\item commit SHA và kết quả smoke test đã được ghi nhận trước khi xin sign-off.
+\end{enumerate}
+
+\section{Tổng kết chương}
+
+Chapter này hoàn thiện phần vận hành của technical PDF bằng cách mô tả canonical outputs, staging/print rules, release smoke workflow, và troubleshooting playbook. Sau chapter này, bộ tài liệu đã có đủ bốn lớp chính: tổng quan dự án, sơ đồ hệ thống, business rules/KPI rules, và output/release operations.
