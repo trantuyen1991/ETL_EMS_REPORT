@@ -108,20 +108,33 @@ Use:
 . compact `headsep`
 . compact but safe `footskip`
 . controlled chapter/title spacing
+. controlled section/subsection spacing where the space before a heading is intentionally larger than the space after it
+. controlled caption spacing for tables and figures
 . helper macros for title pages and TOC-style pages
 . shared page-building rules such as `flushbottom` when bottom whitespace becomes visually inconsistent
+
+Aim for a stable vertical rhythm between:
+
+. paragraph blocks
+. section titles
+. subsection titles
+. table/figure captions
+. the next content block after a float
 
 Avoid:
 
 . large dead zones between the header rule and the first heading/content block
 . unusually large gaps between the last content block and the footer rule when the issue can be fixed at template level
+. section headings whose top/bottom spacing feels arbitrary from page to page
+. table titles that sit noticeably tighter or looser than nearby section headings without a deliberate reason
 . manual one-off `\vspace` fixes that only hide the real spacing problem
 
 If spacing is adjusted:
 
-. prefer `geometry`, `titlesec`, or shared helper macro updates
+. prefer `geometry`, `titlesec`, `caption`, float-spacing parameters, or shared helper macro updates
 . verify representative pages such as control/info pages, TOC pages, and normal content pages
 . verify both header-to-content spacing and content-to-footer spacing after the change
+. verify at least one page containing a paragraph -> section -> table transition
 
 
 

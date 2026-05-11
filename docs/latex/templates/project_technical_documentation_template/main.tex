@@ -27,6 +27,7 @@
 % ============== CĂN ĐOẠN & GIÃN DÒNG ==============
 % ==================================================
 \usepackage{enumitem}
+\setlist{topsep=3pt,itemsep=2pt,parsep=0pt,partopsep=0pt}
 \usepackage{ragged2e}
 \justifying
 \setlength{\parindent}{0.6cm}
@@ -38,17 +39,6 @@
 % ============== TIÊU ĐỀ / ĐỊNH DẠNG ===============
 % ==================================================
 \usepackage{titlesec}
-
-\titleformat{\section}[block]
-{\normalfont\bfseries\fontsize{12}{14}\selectfont\centering}
-{}
-{0pt}
-{}
-
-\titlespacing*{\section}
-{0pt}
-{16pt}
-{16pt}
 
 % ==================================================
 % ================== HÌNH ẢNH & BẢNG ===============
@@ -76,7 +66,8 @@
 	font=capfont,
 	labelfont=bf,
 	labelsep=period,
-	justification=centering
+	justification=centering,
+	skip=6pt
 }
 
 \DeclareCaptionLabelFormat{tablebold}{\textbf{#1~#2}}
@@ -84,8 +75,14 @@
 	font=capfont,
 	labelformat=tablebold,
 	labelsep=period,
-	justification=centering
+	justification=centering,
+	skip=6pt
 }
+
+% ---- Vertical rhythm for floats ----
+\setlength{\intextsep}{11pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{11pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
 
 % ---- Nội dung bảng size 11 ----
 \setlength{\extrarowheight}{3pt}
@@ -104,7 +101,7 @@
 \newcommand{\DocumentTypeLabel}{TÀI LIỆU KỸ THUẬT DỰ ÁN}
 \newcommand{\ProjectName}{Energy Consumption Reporting System}
 \newcommand{\DocumentShortTitle}{Project Technical Manual}
-\newcommand{\DocumentVersionLabel}{v0.17-draft}
+\newcommand{\DocumentVersionLabel}{v0.18-draft}
 \newcommand{\DocumentStatusLabel}{Internal review copy}
 \newcommand{\DocumentOwnerLabel}{Tuyen Tran}
 \newcommand{\DocumentReviewerLabel}{Reviewer assignment pending}
@@ -176,7 +173,7 @@
 {0.6em}
 {\MakeUppercase}
 
-\titlespacing*{\chapter}{0pt}{0pt}{16pt}
+\titlespacing*{\chapter}{0pt}{0pt}{10pt}
 
 % ==================================================
 % ================= SECTION STYLE ==================
@@ -184,12 +181,12 @@
 \titleformat{\section}
 {\bfseries\fontsize{12}{14}\selectfont}
 {\thesection}{0.8em}{}
-\titlespacing*{\section}{0pt}{6pt}{6pt}
+\titlespacing*{\section}{0pt}{14pt}{6pt}
 
 \titleformat{\subsection}
 {\bfseries\fontsize{12}{14}\selectfont}
 {\thesubsection}{0.8em}{}
-\titlespacing*{\subsection}{0pt}{6pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{5pt}
 
 % ==================================================
 % =============== MỤC LỤC / DANH MỤC ===============

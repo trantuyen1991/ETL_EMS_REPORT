@@ -93,6 +93,7 @@ For this template's current screen-first PDF workflow, verify that:
 - header/footer placement does not alternate like a print-spread layout
 - header-to-content spacing is not overly loose
 - content-to-footer spacing is not overly loose
+- vertical rhythm between paragraph blocks, section titles, and table/figure captions feels consistent rather than accidental
 - bordered tables keep their explicit top border line
 - long file paths or code-like table cells wrap inside the table instead of clipping past the right edge
 - table borders remain readable on screen without relying on fragile custom wrappers
