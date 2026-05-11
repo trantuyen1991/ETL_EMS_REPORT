@@ -97,13 +97,11 @@ For this template's current screen-first PDF workflow, verify that:
 - vertical rhythm between paragraph blocks, section titles, and table/figure captions feels consistent rather than accidental
 - paragraph-to-list and list-to-paragraph spacing feels consistent across chapters instead of tightening or opening unpredictably
 - paragraph-to-float and float-to-paragraph spacing feels consistent instead of leaving obvious holes
-- long history/revision tables break across pages cleanly instead of colliding with the footer area
 - bordered tables keep their explicit top border line
 - long file paths or code-like table cells wrap inside the table instead of clipping past the right edge
 - tables and figures are not over-forced into `h` placement when `htbp` would produce cleaner rhythm
 - table borders remain readable on screen without relying on fragile custom wrappers
 - flowchart connectors use straight or orthogonal routing instead of diagonal arrows
-- diagrams are large enough for screen review and their text stays wrapped inside the intended container boxes
 
 ---
 
