@@ -109,7 +109,8 @@ Bảng \ref{tab:component_matrix} là ví dụ về cách trình bày một bả
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Project component matrix for the energy reporting system}
 	\label{tab:component_matrix}
-	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.0cm}|>{\RaggedRight\arraybackslash}X|>{\RaggedRight\arraybackslash}X|}
+		\hline
 		\textbf{Component} & \textbf{Primary Responsibility} & \textbf{Typical Output} \\ \hline
 		Electricity domain & Official totals, area totals, comparison blocks, Top 10 meters, and detail tables & HTML sections, PDF sections, Excel detail sheets \\ \hline
 		Utility domain & Utility consumption, utility energy, sensor monitoring, and anomaly-ready summaries & HTML/PDF tables, sensor monitoring cards, Excel utility sheets \\ \hline
@@ -146,6 +147,7 @@ Một ví dụ đơn giản nhưng sát ngữ cảnh dự án là công thức i
 Công thức \ref{eq:energy_intensity} nên chỉ được áp dụng khi cả hai thành phần năng lượng và sản lượng đều có coverage hợp lệ và đáp ứng business rule của kỳ báo cáo.
 
 \begin{tabular}{|p{0.5cm}|l|l|}
+	\hline
 	& $\text{Total Energy Consumption}$ &: Tổng năng lượng của kỳ báo cáo;\\ \hline
 	& $\text{Production Output}$ &: Sản lượng hợp lệ của cùng kỳ;\\ \hline
 	& $\text{Energy Intensity}$ &: Chỉ số năng lượng trên đơn vị sản lượng.\\ \hline

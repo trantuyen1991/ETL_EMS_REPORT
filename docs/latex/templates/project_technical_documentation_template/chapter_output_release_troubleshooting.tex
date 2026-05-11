@@ -40,12 +40,13 @@ Bảng \ref{tab:artifact_structure} tóm tắt output conventions đang được
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Canonical output artifact structure}
 	\label{tab:artifact_structure}
-	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.6cm}|>{\RaggedRight\arraybackslash}p{3.2cm}|>{\RaggedRight\arraybackslash}X|}
+		\hline
 		\textbf{Artifact Family} & \textbf{Location} & \textbf{Purpose} \\ \hline
-		View HTML & \texttt{output/reports/YYYY\_MM/view\_html/} & Browser-readable version dùng để đọc report, kiểm tra cấu trúc, và debug render output. \\ \hline
-		PDF source HTML & \texttt{output/reports/YYYY\_MM/pdf\_source\_html/} & HTML nguồn cho PDF export, phản ánh print-safe shell và compact print styling trước khi in. \\ \hline
-		Final PDF & \texttt{output/reports/YYYY\_MM/pdf/} & PDF A4 cuối cùng, dùng cho phát hành và lưu trữ. \\ \hline
-		Daily Excel workbook & \texttt{output/reports/YYYY\_MM/excel/} & Workbook daily-only của v1 Excel export, phục vụ tabular extraction. \\ \hline
+		View HTML & \TablePath{output/reports/YYYY_MM/view_html/} & Browser-readable version dùng để đọc report, kiểm tra cấu trúc, và debug render output. \\ \hline
+		PDF source HTML & \TablePath{output/reports/YYYY_MM/pdf_source_html/} & HTML nguồn cho PDF export, phản ánh print-safe shell và compact print styling trước khi in. \\ \hline
+		Final PDF & \TablePath{output/reports/YYYY_MM/pdf/} & PDF A4 cuối cùng, dùng cho phát hành và lưu trữ. \\ \hline
+		Daily Excel workbook & \TablePath{output/reports/YYYY_MM/excel/} & Workbook daily-only của v1 Excel export, phục vụ tabular extraction. \\ \hline
 	\end{tabularx}
 \end{table}
 
@@ -87,7 +88,8 @@ Bảng \ref{tab:scheduled_artifacts} tóm tắt kỳ vọng artifacts theo từn
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Expected artifacts for common smoke scenarios}
 	\label{tab:scheduled_artifacts}
-	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.7cm}|>{\RaggedRight\arraybackslash}p{2.6cm}|>{\RaggedRight\arraybackslash}X|}
+		\hline
 		\textbf{Scenario} & \textbf{Expected Periods} & \textbf{Expected Canonical Outputs} \\ \hline
 		Daily-only anchor & Daily & view HTML, PDF source HTML, final PDF, và daily Excel workbook dưới prefix \texttt{03\_daily}. \\ \hline
 		Sunday anchor & Daily + Weekly & toàn bộ artifact daily cộng thêm bộ weekly dưới prefix \texttt{02\_weekly}; không có monthly. \\ \hline

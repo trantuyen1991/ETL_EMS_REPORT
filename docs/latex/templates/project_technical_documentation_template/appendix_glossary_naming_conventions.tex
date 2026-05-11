@@ -24,7 +24,8 @@ Bảng \ref{tab:core_glossary_terms} tóm tắt các thuật ngữ quan trọng 
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Core glossary for system and data terms}
 	\label{tab:core_glossary_terms}
-	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.0cm}|>{\RaggedRight\arraybackslash}p{3.4cm}|>{\RaggedRight\arraybackslash}X|}
+		\hline
 		\textbf{Term} & \textbf{Primary Layer} & \textbf{Meaning in this project} \\ \hline
 		\texttt{energy\_kpi} & database / business source & Table nguồn chuẩn cho KPI reporting, official totals, production-linked values, và các KPI rows đã được business chấp nhận. \\ \hline
 		\texttt{processvalue} & database / raw sensor source & Raw timestamped sensor table dùng cho sensor monitoring và utility-adjacent aggregation trước khi dữ liệu trở thành business-friendly structures. \\ \hline
@@ -48,14 +49,15 @@ Một phần nhầm lẫn thường gặp là đọc đúng report nhưng nhầm
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Glossary for output artifact families}
 	\label{tab:artifact_glossary_terms}
-	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.2cm}|>{\RaggedRight\arraybackslash}p{3.4cm}|>{\RaggedRight\arraybackslash}X|}
+		\hline
 		\textbf{Artifact / Folder} & \textbf{Canonical Form} & \textbf{Meaning in this project} \\ \hline
-		\texttt{view\_html} & \texttt{output/reports/YYYY\_MM/view\_html/} & Browser-readable HTML artifact dùng để đọc report, rà layout logic, và debug content structure ngoài print path. \\ \hline
-		\texttt{pdf\_source\_html} & \texttt{output/reports/YYYY\_MM/pdf\_source\_html/} & HTML nguồn dùng cho PDF export, phản ánh print-safe structure gần nhất trước khi gọi Chromium/CDP print. \\ \hline
-		\texttt{pdf} & \texttt{output/reports/YYYY\_MM/pdf/} & PDF artifact cuối cùng dùng cho release review, chia sẻ nội bộ, và lưu trữ theo kỳ báo cáo. \\ \hline
-		\texttt{excel} & \texttt{output/reports/YYYY\_MM/excel/} & Folder chứa workbook Excel daily-only ở scope export hiện tại. \\ \hline
-		\texttt{docs/output/} & documentation output & Nơi chứa generated technical-documentation PDF của subsystem LaTeX; các file PDF ở đây là build artifacts, không phải source tài liệu. \\ \hline
-		\texttt{\_legacy\_backup\_2026\_05\_11/} & recoverable backup folder & Backup nội bộ dùng để di chuyển legacy output artifacts ra khỏi canonical root mà không xóa hẳn. \\ \hline
+		\texttt{view\_html} & \TablePath{output/reports/YYYY_MM/view_html/} & Browser-readable HTML artifact dùng để đọc report, rà layout logic, và debug content structure ngoài print path. \\ \hline
+		\texttt{pdf\_source\_html} & \TablePath{output/reports/YYYY_MM/pdf_source_html/} & HTML nguồn dùng cho PDF export, phản ánh print-safe structure gần nhất trước khi gọi Chromium/CDP print. \\ \hline
+		\texttt{pdf} & \TablePath{output/reports/YYYY_MM/pdf/} & PDF artifact cuối cùng dùng cho release review, chia sẻ nội bộ, và lưu trữ theo kỳ báo cáo. \\ \hline
+		\texttt{excel} & \TablePath{output/reports/YYYY_MM/excel/} & Folder chứa workbook Excel daily-only ở scope export hiện tại. \\ \hline
+		\TablePath{docs/output/} & documentation output & Nơi chứa generated technical-documentation PDF của subsystem LaTeX; các file PDF ở đây là build artifacts, không phải source tài liệu. \\ \hline
+		\TablePath{_legacy_backup_2026_05_11/} & recoverable backup folder & Backup nội bộ dùng để di chuyển legacy output artifacts ra khỏi canonical root mà không xóa hẳn. \\ \hline
 	\end{tabularx}
 \end{table}
 
@@ -107,7 +109,8 @@ Bảng \ref{tab:internal_naming_conventions} chuẩn hóa một số tên gọi 
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Internal naming conventions used across docs and implementation}
 	\label{tab:internal_naming_conventions}
-	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.2cm}|>{\RaggedRight\arraybackslash}p{3.1cm}|>{\RaggedRight\arraybackslash}X|}
+		\hline
 		\textbf{Name} & \textbf{Expected Style} & \textbf{Guidance} \\ \hline
 		\texttt{report\_context} & snake\_case shared render key & Dùng nhất quán khi nói về unified render object; không đổi sang camelCase hoặc tên chung chung như ``payload'' trong docs kỹ thuật. \\ \hline
 		\texttt{EnergyDataRepository}, \texttt{KPIService}, \texttt{UtilityService} & PascalCase Python class names & Khi mô tả layer ownership trong technical PDF, nên giữ đúng class names để người đọc đối chiếu với code nhanh hơn. \\ \hline

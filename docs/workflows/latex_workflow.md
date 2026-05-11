@@ -86,10 +86,15 @@ When the change touches layout or template chrome, also visually verify represen
 - a normal chapter/content page
 - any page containing a note/callout banner or long metadata paths
 - at least one multi-column table page
+- at least one page where the last content block sits close to the footer area
 
 For this template's current screen-first PDF workflow, verify that:
 - left/right content margins stay visually symmetric across consecutive pages
 - header/footer placement does not alternate like a print-spread layout
+- header-to-content spacing is not overly loose
+- content-to-footer spacing is not overly loose
+- bordered tables keep their explicit top border line
+- long file paths or code-like table cells wrap inside the table instead of clipping past the right edge
 - table borders remain readable on screen without relying on fragile custom wrappers
 - flowchart connectors use straight or orthogonal routing instead of diagonal arrows
 

@@ -106,18 +106,22 @@ Header-to-content spacing must be explicitly controlled.
 Use:
 
 . compact `headsep`
+. compact but safe `footskip`
 . controlled chapter/title spacing
 . helper macros for title pages and TOC-style pages
+. shared page-building rules such as `flushbottom` when bottom whitespace becomes visually inconsistent
 
 Avoid:
 
 . large dead zones between the header rule and the first heading/content block
+. unusually large gaps between the last content block and the footer rule when the issue can be fixed at template level
 . manual one-off `\vspace` fixes that only hide the real spacing problem
 
 If spacing is adjusted:
 
 . prefer `geometry`, `titlesec`, or shared helper macro updates
 . verify representative pages such as control/info pages, TOC pages, and normal content pages
+. verify both header-to-content spacing and content-to-footer spacing after the change
 
 
 
@@ -133,6 +137,9 @@ For this template's current screen-first PDF convention, prefer the simplest sta
 
 . use direct `tabularx` / `tabular` definitions in the chapter source
 . use built-in column specs, `|`, and `\hline` when borders are needed
+. if a bordered table is used, include the explicit top border line instead of relying on the first row only
+. prefer breakable text columns such as `RaggedRight`-style `p{}` / `X` columns over overflow-prone rigid text blocks
+. for long file paths or code-like strings inside table cells, prefer breakable forms such as `\nolinkurl{}` or a shared helper macro instead of raw unbreakable `\texttt{}`
 . avoid custom table wrapper environments unless there is a clear repeated need and they are proven stable
 . avoid heavy full-black spreadsheet grids
 
@@ -141,6 +148,7 @@ Use:
 . concise headers
 . engineering-friendly naming
 . light, readable table borders suitable for on-screen PDF review
+. cell content that wraps cleanly instead of clipping past the right border
 
 
 

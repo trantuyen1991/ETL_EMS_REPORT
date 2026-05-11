@@ -19,8 +19,8 @@
 	bottom=2cm,
 	left=2.5cm,
 	right=2.5cm,
-	headsep=0.8cm,
-	footskip=1.27cm
+	headsep=0.6cm,
+	footskip=1.05cm
 }
 
 % ==================================================
@@ -32,7 +32,7 @@
 \setlength{\parindent}{0.6cm}
 \setlength{\parskip}{6pt}
 \linespread{1.0}
-\raggedbottom
+\flushbottom
 
 % ==================================================
 % ============== TIÊU ĐỀ / ĐỊNH DẠNG ===============
@@ -89,8 +89,10 @@
 
 % ---- Nội dung bảng size 11 ----
 \setlength{\extrarowheight}{3pt}
+\setlength{\tabcolsep}{4.5pt}
 \AtBeginEnvironment{tabular}{\fontsize{11}{13}\selectfont}
 \AtBeginEnvironment{tabularx}{\fontsize{11}{13}\selectfont}
+\newcommand{\TablePath}[1]{{\small\nolinkurl{#1}}}
 
 % ==================================================
 % ============ DOCUMENT IDENTITY & BRAND ===========
@@ -102,7 +104,7 @@
 \newcommand{\DocumentTypeLabel}{TÀI LIỆU KỸ THUẬT DỰ ÁN}
 \newcommand{\ProjectName}{Energy Consumption Reporting System}
 \newcommand{\DocumentShortTitle}{Project Technical Manual}
-\newcommand{\DocumentVersionLabel}{v0.16-draft}
+\newcommand{\DocumentVersionLabel}{v0.17-draft}
 \newcommand{\DocumentStatusLabel}{Internal review copy}
 \newcommand{\DocumentOwnerLabel}{Tuyen Tran}
 \newcommand{\DocumentReviewerLabel}{Reviewer assignment pending}

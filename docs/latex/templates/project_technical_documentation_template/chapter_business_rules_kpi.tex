@@ -54,7 +54,8 @@ Bảng \ref{tab:rule_ownership_matrix} tóm tắt nguồn dữ liệu chính th�
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Rule ownership and source-of-truth matrix}
 	\label{tab:rule_ownership_matrix}
-	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.1cm}|>{\RaggedRight\arraybackslash}p{3.2cm}|>{\RaggedRight\arraybackslash}X|}
+		\hline
 		\textbf{Domain} & \textbf{Primary Source / Owner} & \textbf{Critical Rule} \\ \hline
 		Electricity official totals & \texttt{energy\_kpi} & Plant totals và area official totals phải dùng giá trị đã được phê duyệt, không tự cộng lại từ raw energy views. \\ \hline
 		KPI values and production-linked reporting & \texttt{energy\_kpi} & KPI reporting chỉ dùng các block đã tính sẵn và đã được lưu, tuân thủ coverage-first logic. \\ \hline
@@ -168,7 +169,8 @@ Bảng \ref{tab:kpi_block_rules} tóm tắt điều kiện chấp nhận hoặc 
 	\renewcommand{\arraystretch}{1.3}
 	\caption{KPI block selection rules}
 	\label{tab:kpi_block_rules}
-	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.2cm}|>{\RaggedRight\arraybackslash}X|>{\RaggedRight\arraybackslash}X|}
+		\hline
 		\textbf{Block Type} & \textbf{Accepted When} & \textbf{Reject When} \\ \hline
 		Day & row khớp chính xác một ngày cần hiển thị & row trùng nhưng có \texttt{dt\_lastupdate} cũ hơn block mới hơn \\ \hline
 		Week & block tuần nằm trọn trong uncovered range và không chồng lên các ngày đã có Day coverage hợp lệ & block chỉ overlap một phần hoặc cần bị chia nhỏ để dùng \\ \hline
