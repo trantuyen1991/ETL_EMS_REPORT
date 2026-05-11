@@ -75,7 +75,7 @@ The new PDF should avoid going deep into:
 - [x] Checkpoint 4. Write Electricity interpretation chapter
 - [x] Checkpoint 5. Write Utility + Sensor Monitoring interpretation chapter
 - [x] Checkpoint 6. Write KPI interpretation chapter
-- [ ] Checkpoint 7. Write source-of-truth, comparison, coverage, zero-vs-missing, and caveat chapter
+- [x] Checkpoint 7. Write source-of-truth, comparison, coverage, zero-vs-missing, and caveat chapter
 - [ ] Checkpoint 8. Add quick glossary / reader cheat sheet and do visual cleanup
 - [ ] Checkpoint 9. Final review pass, PDF rebuild, and checkpoint summary
 

@@ -1,25 +1,159 @@
 \chapter{CÁC LƯU Ý ĐỂ KHÔNG HIỂU SAI BÁO CÁO}
 
-\section{Zero và missing không giống nhau}
+\section{Dấu \texttt{-} và số 0 không giống nhau}
 
-Một số block trong report cho phép giá trị bằng 0 là hợp lệ. Vì vậy, người đọc không nên tự động coi mọi giá trị thấp hoặc bằng 0 là lỗi dữ liệu. Ngược lại, giá trị thiếu phải được nhận diện như một trạng thái khác với zero.
+Đây là một trong những chỗ bị đọc nhầm nhiều nhất trong report.
 
-\section{Coverage ảnh hưởng đến KPI interpretation}
-
-KPI không chỉ là một phép chia đơn giản. Khi coverage không đủ, cách hiểu KPI phải cẩn thận hơn, và reader guide hoàn chỉnh sẽ chỉ rõ cách đọc coverage note, preferred period selection, và các trường hợp không nên kết luận quá mức từ một KPI surface.
-
-\section{Comparison cần được đọc đúng ngữ cảnh}
-
-So sánh current với previous giúp thấy xu hướng, nhưng không phải mọi delta đều mang cùng ý nghĩa. Với một số section, reader cần nhìn đồng thời:
+Người đọc nên luôn phân biệt:
 
 \begin{enumerate}[label=-]
-\item giá trị hiện tại;
-\item giá trị kỳ trước;
-\item delta tuyệt đối;
-\item delta phần trăm;
-\item note hoặc condition đi kèm nếu previous bằng 0 hoặc coverage không tương thích.
+\item \texttt{0} là một giá trị số hợp lệ khi hệ thống thực sự có dữ liệu bằng 0;
+\item \texttt{-} là trạng thái không có giá trị hiển thị phù hợp, hoặc không đủ điều kiện để hiển thị một con số.
 \end{enumerate}
 
-\begin{ReaderNote}{Planned next expansion}
-Ở các checkpoint tiếp theo, guide này sẽ được mở rộng từ skeleton hiện tại sang từng chapter giải thích cụ thể cho Electricity, Utility / Sensor Monitoring, và KPI bằng ngôn ngữ reader-facing hơn, gắn trực tiếp với các object đang có trong report thật.
+Vì vậy:
+
+\begin{enumerate}[label=-]
+\item không nên tự đổi mọi \texttt{-} thành 0 khi đọc bảng;
+\item cũng không nên thấy số 0 rồi kết luận ngay là lỗi sensor hay lỗi ETL;
+\item phải nhìn thêm context của section đó, nhất là daily detail, coverage note, hoặc cột \texttt{Status}.
+\end{enumerate}
+
+\section{Delta \% mạnh chưa chắc là biến động lớn nhất}
+
+Phần trăm biến động rất hữu ích để quét nhanh, nhưng nó cũng dễ gây hiểu sai nếu đứng một mình.
+
+Người đọc nên nhớ:
+
+\begin{enumerate}[label=-]
+\item \texttt{delta \%} lớn không đồng nghĩa tuyệt đối là ảnh hưởng nghiệp vụ lớn nhất;
+\item khi baseline kỳ trước nhỏ, phần trăm có thể phóng đại cảm giác biến động;
+\item khi previous bằng 0, report sẽ ưu tiên hiện \texttt{-} thay vì tính ra một phần trăm gây hiểu sai.
+\end{enumerate}
+
+Cách đọc an toàn hơn là luôn nhìn đồng thời:
+
+\begin{enumerate}[label=-]
+\item current;
+\item previous;
+\item delta tuyệt đối;
+\item rồi mới đến delta \%.
+\end{enumerate}
+
+\section{Top N không phải toàn bộ bức tranh}
+
+Phần \texttt{Top N Meter Consumption} hoặc các ranking tương tự chỉ là lớp giúp người đọc nhìn nhanh các điểm nổi bật nhất. Nó không phải toàn bộ danh sách đo đếm của hệ thống.
+
+Người đọc không nên suy diễn rằng:
+
+\begin{enumerate}[label=-]
+\item cộng vài dòng Top N sẽ ra official total;
+\item meter đứng đầu ranking chắc chắn là nguyên nhân duy nhất của biến động toàn plant;
+\item meter không xuất hiện trong Top N thì không có vai trò gì.
+\end{enumerate}
+
+Ngoài ra, report còn có các rule như:
+
+\begin{enumerate}[label=-]
+\item main feeder bị loại khỏi ranking;
+\item \texttt{Residual Load} có thể xuất hiện như một virtual meter hợp lệ;
+\item display limit thay đổi theo loại kỳ, nên monthly có thể cho ít dòng hơn daily hoặc weekly.
+\end{enumerate}
+
+\section{Utility consumption, Utility Energy, và Sensor Monitoring là ba lớp khác nhau}
+
+Trong domain Utility, người đọc rất dễ vô tình trộn ba lớp sau thành một:
+
+\begin{enumerate}[label=-]
+\item utility consumption theo nghĩa nghiệp vụ;
+\item \texttt{Utility Energy (Converted to kWh)} theo nghĩa quy đổi năng lượng;
+\item Sensor Monitoring theo nghĩa tín hiệu đo và chất lượng dữ liệu sensor.
+\end{enumerate}
+
+Ba lớp này liên quan với nhau, nhưng không đồng nghĩa với nhau.
+
+Ví dụ:
+
+\begin{enumerate}[label=-]
+\item utility flow tăng không bắt buộc converted utility energy phải tăng theo cùng trực giác;
+\item sensor có alert không tự động chứng minh có thất thoát utility;
+\item utility consumption thay đổi mạnh nhưng sensor trend có thể chỉ đang đóng vai trò manh mối điều tra, chưa phải kết luận cuối cùng.
+\end{enumerate}
+
+\section{Alert sensor là tín hiệu điều tra, không phải phán quyết cuối cùng}
+
+Khi thấy \texttt{Alert}, \texttt{Low coverage}, \texttt{Partial coverage}, hoặc anomaly reason trong Sensor Monitoring, cách đọc đúng là:
+
+\begin{enumerate}[label=-]
+\item đây là tín hiệu cần chú ý;
+\item cần xem thêm anomaly scan, trend, và daily/period detail;
+\item chỉ sau đó mới liên hệ ngược lại với utility consumption hoặc vận hành thực tế.
+\end{enumerate}
+
+Nói ngắn gọn, report đang giúp người đọc \textbf{khoanh vùng nghi vấn}, chứ không tự động thay thế bước điều tra vận hành.
+
+\section{KPI là nơi không nên kết luận vội nhất}
+
+KPI là phần dễ nhìn thành một con số duy nhất, nhưng cũng là nơi dễ kết luận sai nhất nếu bỏ qua coverage và production context.
+
+Người đọc nên tránh bốn kiểu hiểu sai sau:
+
+\begin{enumerate}[label=-]
+\item thấy KPI tăng rồi kết luận chắc chắn điện tăng mạnh;
+\item thấy điện tăng rồi kết luận chắc chắn KPI sẽ xấu đi;
+\item bỏ qua \texttt{Production day}, \texttt{Status}, hoặc \texttt{Source};
+\item thấy \texttt{Block} rồi tưởng report thiếu dữ liệu do lỗi hệ thống.
+\end{enumerate}
+
+Thực tế:
+
+\begin{enumerate}[label=-]
+\item KPI có thể xấu đi vì production giảm;
+\item KPI có thể tốt lên dù total energy không giảm mạnh;
+\item \texttt{Block} có thể là hành vi đúng của coverage-first logic;
+\item daily detail KPI được thiết kế để vừa là bảng đọc report, vừa là bề mặt giải thích coverage.
+\end{enumerate}
+
+\section{Khi nào nên tin chart, khi nào nên quay lại bảng số}
+
+Chart rất hữu ích để quét nhanh xu hướng, nhưng không phải lúc nào cũng là nơi chốt kết luận cuối cùng.
+
+Người đọc nên xem chart như:
+
+\begin{enumerate}[label=-]
+\item công cụ phát hiện nơi đáng chú ý;
+\item công cụ thấy hướng biến động;
+\item công cụ quyết định nên mở bảng detail ở đâu trước.
+\end{enumerate}
+
+Sau khi chart chỉ ra điểm nóng, người đọc nên quay lại bảng số khi cần:
+
+\begin{enumerate}[label=-]
+\item xác nhận giá trị cụ thể;
+\item xác nhận ngày cụ thể;
+\item kiểm tra \texttt{Status}, \texttt{Source}, hoặc \texttt{coverage note};
+\item xác nhận biến động đang đến từ total, area, meter, utility, hay production context.
+\end{enumerate}
+
+\section{Một checklist ngắn trước khi kết luận}
+
+Trước khi dùng report để kết luận hoặc báo cáo lại cho người khác, người đọc nên tự hỏi nhanh 6 câu sau:
+
+\begin{enumerate}[label=-]
+\item mình đang nhìn \textbf{official total}, \textbf{detail surface}, hay \textbf{sensor/anomaly surface}?
+\item số này đang so với đúng \texttt{previous} cùng loại kỳ chưa?
+\item dấu \texttt{-} ở đây là missing, hay là không đủ điều kiện tính tiếp?
+\item nếu là KPI, coverage đang full, partial, \texttt{Block}, hay \texttt{Missing}?
+\item chart này đang dùng để kết luận cuối cùng, hay chỉ để khoanh vùng vấn đề?
+\item có cần quay lại bảng detail để kiểm chứng trước khi kết luận không?
+\end{enumerate}
+
+\begin{ReaderNote}{Nếu chỉ nhớ 5 điều của cả guide này}
+\begin{enumerate}[label=-]
+\item official total không phải lúc nào cũng bằng phép cộng tay từ detail đang thấy;
+\item \texttt{-} không phải là 0;
+\item delta \% chỉ có ý nghĩa khi đặt cạnh current, previous, và delta tuyệt đối;
+\item sensor alert là tín hiệu điều tra, không phải bằng chứng cuối cùng;
+\item KPI phải luôn đọc cùng coverage và production context.
+\end{enumerate}
 \end{ReaderNote}

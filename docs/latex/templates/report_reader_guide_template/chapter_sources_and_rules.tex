@@ -1,33 +1,197 @@
 \chapter{NGUỒN DỮ LIỆU VÀ RULE ẢNH HƯỞNG ĐẾN CÁCH HIỂU SỐ LIỆU}
 
-\section{Nguồn dữ liệu chính theo góc nhìn người đọc report}
+\section{Vì sao chapter này quan trọng}
 
-Ở mức reader-facing, các nguồn cần nhớ trước tiên là:
+Các chapter trước giúp người đọc biết \textit{nhìn báo cáo như thế nào}. Chapter này giúp trả lời sâu hơn một lớp: \textit{vì sao con số lại nên được hiểu theo cách đó}.
 
-\begin{enumerate}[label=-]
-\item \texttt{energy\_kpi}: nguồn chính thức cho KPI reporting và official energy totals;
-\item \texttt{utility\_usage}: nền cho utility usage surfaces;
-\item \texttt{processvalue}: nền cho sensor monitoring và các thống kê sensor-level.
-\end{enumerate}
-
-\section{Những rule ảnh hưởng trực tiếp đến cách đọc report}
-
-Một số rule quan trọng sẽ cần được viết kỹ hơn ở các checkpoint sau:
+Đây là phần đặc biệt quan trọng khi người đọc muốn:
 
 \begin{enumerate}[label=-]
-\item official totals không nên bị hiểu như số recompute tùy ý từ raw views;
-\item zero là dữ liệu hợp lệ, còn missing value phải được hiểu khác zero;
-\item current vs previous comparison chỉ có ý nghĩa đầy đủ khi kỳ đối chiếu phù hợp;
-\item KPI dùng coverage-first logic, nên coverage status ảnh hưởng trực tiếp đến cách diễn giải kết quả;
-\item weekly và monthly surfaces không đơn giản chỉ là daily phóng to, mà có các rule chọn kỳ và layout riêng.
+\item đối chiếu giữa các section mà không kết luận sai;
+\item hiểu vì sao một số total không bằng phép cộng trực tiếp từ detail đang nhìn thấy;
+\item hiểu khi nào dấu \texttt{-} là thiếu dữ liệu, khi nào số 0 vẫn là dữ liệu hợp lệ;
+\item hiểu vì sao KPI có thể hiện \texttt{Block} hoặc coverage không đủ mà vẫn là hành vi đúng của report.
 \end{enumerate}
 
-\section{Mục tiêu của chapter này ở bản hoàn chỉnh}
+\section{Nguồn dữ liệu chính theo từng phần}
 
-Ở các checkpoint nội dung sau, chapter này sẽ nối từng phần trong report với:
+Ở góc nhìn người đọc report, có bốn lớp nguồn chính cần nhớ.
+
+\subsection{Electricity}
+
+Phần Electricity có hai lớp nguồn cần phân biệt:
 
 \begin{enumerate}[label=-]
-\item nguồn dữ liệu tương ứng;
-\item rule tổng hợp hoặc rule chọn số liệu;
-\item caveat diễn giải mà người đọc báo cáo cần biết.
+\item \textbf{official total} của plant và area lấy từ \texttt{energy\_kpi};
+\item lớp meter detail, Top N, và daily detail đến từ các bề mặt meter-level đã được cấu hình cho report.
 \end{enumerate}
+
+Điều này dẫn tới một rule đọc rất quan trọng: \textbf{official electricity total không nên bị hiểu là phép cộng trực tiếp của tất cả meter đang hiện trên màn hình}. Report chủ động tách hai lớp này vì còn có rule loại trừ main feeder, rule topology area, và khả năng xuất hiện \texttt{Residual Load} như một virtual meter hợp lệ.
+
+\subsection{Utility}
+
+Phần Utility dùng lớp dữ liệu \texttt{utility\_usage} làm nền cho các bề mặt utility theo nghĩa nghiệp vụ. Từ lớp này, backend map về các business metric dễ đọc hơn như \texttt{Domestic Water}, \texttt{ICO Chilled Water}, \texttt{DIODE Air}, hoặc \texttt{Steam}.
+
+Người đọc nên hiểu rằng đây là lớp \textbf{utility usage surface}, không phải cùng nghĩa với lớp raw sensor monitoring.
+
+\subsection{Sensor Monitoring}
+
+Phần Sensor Monitoring đi theo raw sensor data từ \texttt{processvalue}. Backend sau đó tổng hợp lại thành các bề mặt đọc báo cáo như:
+
+\begin{enumerate}[label=-]
+\item \texttt{min / avg / max / latest};
+\item số ngày có dữ liệu;
+\item số sensor active;
+\item anomaly scan;
+\item các trend theo ngày hoặc theo cluster.
+\end{enumerate}
+
+Vì vậy, Sensor Monitoring nên được hiểu là \textbf{lớp giám sát chất lượng và hình dạng tín hiệu}, không phải lớp utility consumption chính thức.
+
+\subsection{KPI}
+
+Phần KPI dùng \texttt{energy\_kpi} làm source of truth cho:
+
+\begin{enumerate}[label=-]
+\item production values;
+\item KPI values;
+\item official KPI-related energy totals;
+\item coverage-ready reporting blocks cho \texttt{Day}, \texttt{Week}, \texttt{Month}, hoặc \texttt{Year}.
+\end{enumerate}
+
+Đây là lý do report không recompute KPI từ raw electricity view hoặc raw utility view khi dựng phần KPI.
+
+\begin{ReaderNote}{Một quy tắc rất đáng nhớ}
+Nếu một số thuộc lớp \texttt{official total} hoặc \texttt{KPI official value}, người đọc nên ưu tiên hiểu nó như \textbf{con số nghiệp vụ đã được hệ thống chọn và chốt theo rule}, không phải con số mở để cộng tay lại từ mọi detail surface.
+\end{ReaderNote}
+
+\section{Cách hiểu đúng về current, previous, delta, và delta \%}
+
+Hầu hết các section trong report đều đi theo logic so sánh cùng một khung:
+
+\begin{enumerate}[label=-]
+\item \texttt{current}: kỳ đang đọc;
+\item \texttt{previous}: kỳ đối chiếu tương ứng;
+\item \texttt{delta} = current - previous;
+\item \texttt{delta \%}: chỉ được tính khi previous khác 0.
+\end{enumerate}
+
+Người đọc nên đặc biệt nhớ hai ý sau:
+
+\begin{enumerate}[label=-]
+\item kỳ \texttt{previous} luôn phải được hiểu trong cùng loại kỳ và cùng độ dài với kỳ hiện tại;
+\item nếu \texttt{delta \%} hiện \texttt{-}, đó thường là cách report tránh tạo ra một phần trăm gây hiểu sai, không phải dấu hiệu hệ thống lỗi.
+\end{enumerate}
+
+Ví dụ:
+
+\begin{enumerate}[label=-]
+\item daily thì thường là \texttt{Today} so với \texttt{Yesterday};
+\item weekly thì là \texttt{This Week} so với \texttt{Last Week};
+\item monthly thì là \texttt{This Month} so với \texttt{Last Month}.
+\end{enumerate}
+
+Người đọc không nên so chéo tùy ý giữa một weekly current với một daily previous chỉ vì hai con số nhìn gần nhau trên màn hình.
+
+\section{Vì sao report cố tình giữ dense rows}
+
+Một rule chung của report là các bảng daily phải giữ đủ mật độ ngày trong kỳ, kể cả khi một số ngày không có dữ liệu đầy đủ.
+
+Điều này có nghĩa là:
+
+\begin{enumerate}[label=-]
+\item nếu một ngày không có số, report vẫn có thể giữ dòng ngày đó;
+\item dấu \texttt{-} xuất hiện nhiều khi là chủ ý để nói \textit{ngày này có mặt trong kỳ nhưng không có giá trị hiển thị phù hợp};
+\item việc giữ đủ ngày giúp người đọc nhìn đúng timeline của kỳ, thay vì bị đánh lừa bởi một bảng đã tự bỏ bớt ngày trống.
+\end{enumerate}
+
+Rule này đặc biệt quan trọng với các bảng sau:
+
+\begin{enumerate}[label=-]
+\item \texttt{Daily Energy Detail};
+\item \texttt{Daily Utility Detail};
+\item \texttt{Daily KPI Detail}.
+\end{enumerate}
+
+\section{Coverage-first là gì và vì sao nó quan trọng với KPI}
+
+KPI là nơi rule chọn dữ liệu chặt nhất trong toàn bộ report. Ở đây, hệ thống đi theo nguyên tắc \textbf{coverage-first}.
+
+Người đọc nên hiểu rule này theo bốn ý:
+
+\begin{enumerate}[label=-]
+\item ưu tiên số đúng nhưng coverage chỉ một phần hơn là giả vờ đủ coverage;
+\item không prorate block \texttt{Week}, \texttt{Month}, hoặc \texttt{Year} thành các giá trị ngày nhân tạo;
+\item không cho block lớn đè lên block nhỏ hơn nếu block nhỏ đã cover hợp lệ;
+\item không giấu các ngày uncovered chỉ để report trông đẹp hơn.
+\end{enumerate}
+
+Thứ tự ưu tiên coverage hiện hành là:
+
+\begin{center}
+\texttt{Day > Week > Month > Year}
+\end{center}
+
+Ngoài ra, nếu nhiều row cùng đại diện cho một reporting block, hệ thống sẽ chọn row có \texttt{dt\_lastupdate} mới nhất.
+
+\subsection{Khi nào một KPI block bị từ chối}
+
+Một KPI block có thể bị loại khỏi report nếu rơi vào một trong các trường hợp sau:
+
+\begin{enumerate}[label=-]
+\item chỉ overlap một phần với khoảng báo cáo;
+\item cần phải prorate mới dùng được;
+\item đè lên coverage chi tiết hơn đã có;
+\item là bản duplicate cũ hơn của cùng reporting block.
+\end{enumerate}
+
+Với custom range, rule còn chặt hơn: block phải nằm trọn trong range thì mới được dùng.
+
+\section{Cách hiểu đúng về \texttt{Coverage}, \texttt{Block}, và \texttt{Missing}}
+
+Trong phần KPI, coverage không chỉ là ghi chú phụ. Nó thay đổi trực tiếp cách diễn giải số liệu.
+
+Người đọc nên hiểu ba lớp nghĩa sau:
+
+\begin{enumerate}[label=-]
+\item \texttt{Full coverage}: kỳ đang đọc được cover đủ theo rule chọn block;
+\item \texttt{Partial coverage}: vẫn có số đọc được, nhưng có ngày hoặc đoạn ngày chưa được cover đầy đủ;
+\item \texttt{Missing}: không có KPI row phù hợp cho ngày đó hoặc cho phần đó của kỳ.
+\end{enumerate}
+
+Trong \texttt{Daily KPI Detail}, trạng thái \texttt{Block} còn có một nghĩa rất riêng:
+
+\begin{enumerate}[label=-]
+\item ngày đó được cover bởi một block KPI rộng hơn;
+\item report vẫn giữ ngày đó trong bảng;
+\item nhưng report \textbf{không bẻ block lớn thành số ngày giả} để lấp ô trống.
+\end{enumerate}
+
+Vì vậy, \texttt{Block} nên được hiểu là \textbf{covered but not expanded into synthetic daily numbers}.
+
+\section{Vì sao weekly, monthly, và custom không phải chỉ là daily phóng to}
+
+Người đọc đôi khi dễ nghĩ weekly hoặc monthly chỉ là daily được ghép lại. Thực tế, report không vận hành đơn giản như vậy.
+
+\begin{enumerate}[label=-]
+\item weekly và monthly có rule chọn kỳ riêng;
+\item KPI của weekly/monthly có thể dùng block coverage khác daily;
+\item daily detail trong periodic report vẫn giữ vai trò giải thích, kiểm tra, và truy nguyên theo ngày;
+\item custom range là trường hợp chặt nhất với KPI block selection, vì block không nằm trọn trong range sẽ bị từ chối.
+\end{enumerate}
+
+Điều này giải thích vì sao cùng một giai đoạn thời gian, cách report hiển thị ở daily và monthly có thể không đơn giản là hai bản sao của nhau.
+
+\section{Thứ tự suy luận an toàn khi gặp số liệu khó hiểu}
+
+Khi một con số trong report có vẻ không khớp trực giác, người đọc nên kiểm lại theo thứ tự sau:
+
+\begin{enumerate}[label=-]
+\item đây là \textbf{official total}, \textbf{detail surface}, hay \textbf{sensor signal}?
+\item số đang so với \texttt{previous} nào, có cùng loại kỳ và cùng độ dài không?
+\item dấu \texttt{-} ở đây là missing hay là kết quả không đủ điều kiện tính toán?
+\item nếu là KPI, coverage của kỳ này là full, partial, hay có ngày \texttt{Block / Missing}?
+\item chart hoặc bảng này đang dùng để kết luận cuối cùng, hay chỉ để khoanh vùng nơi cần đọc sâu hơn?
+\end{enumerate}
+
+Chỉ cần đi đúng năm bước này, phần lớn các hiểu nhầm phổ biến khi đọc report sẽ giảm đi rất nhiều.
