@@ -81,8 +81,17 @@
 }
 
 % ---- Vertical rhythm for floats ----
-\setlength{\intextsep}{11pt plus 2pt minus 2pt}
-\setlength{\textfloatsep}{11pt plus 2pt minus 2pt}
+\floatplacement{table}{htbp}
+\floatplacement{figure}{htbp}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.8}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
 \setlength{\floatsep}{8pt plus 2pt minus 2pt}
 
 % ---- Nội dung bảng size 11 ----
@@ -102,7 +111,7 @@
 \newcommand{\DocumentTypeLabel}{TÀI LIỆU KỸ THUẬT DỰ ÁN}
 \newcommand{\ProjectName}{Energy Consumption Reporting System}
 \newcommand{\DocumentShortTitle}{Project Technical Manual}
-\newcommand{\DocumentVersionLabel}{v0.19-draft}
+\newcommand{\DocumentVersionLabel}{v0.20-draft}
 \newcommand{\DocumentStatusLabel}{Internal review copy}
 \newcommand{\DocumentOwnerLabel}{Tuyen Tran}
 \newcommand{\DocumentReviewerLabel}{Reviewer assignment pending}

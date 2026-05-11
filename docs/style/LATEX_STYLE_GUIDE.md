@@ -121,6 +121,8 @@ Aim for a stable vertical rhythm between:
 . table/figure captions
 . paragraph-to-list transitions
 . list-to-paragraph transitions
+. paragraph-to-float transitions
+. float-to-paragraph transitions
 . the next content block after a float
 
 Avoid:
@@ -156,6 +158,7 @@ For this template's current screen-first PDF convention, prefer the simplest sta
 . if a bordered table is used, include the explicit top border line instead of relying on the first row only
 . prefer breakable text columns such as `RaggedRight`-style `p{}` / `X` columns over overflow-prone rigid text blocks
 . for long file paths or code-like strings inside table cells, prefer breakable forms such as `\nolinkurl{}` or a shared helper macro instead of raw unbreakable `\texttt{}`
+. prefer flexible float placement such as `htbp` for normal tables/figures instead of forcing `h` unless there is a very specific layout reason
 . avoid custom table wrapper environments unless there is a clear repeated need and they are proven stable
 . avoid heavy full-black spreadsheet grids
 
