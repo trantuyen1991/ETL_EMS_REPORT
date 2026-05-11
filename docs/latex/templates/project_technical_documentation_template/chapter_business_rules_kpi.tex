@@ -54,14 +54,14 @@ Bảng \ref{tab:rule_ownership_matrix} tóm tắt nguồn dữ liệu chính th�
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Rule ownership and source-of-truth matrix}
 	\label{tab:rule_ownership_matrix}
-	\begin{DocHybridTable}{|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|}
 		\textbf{Domain} & \textbf{Primary Source / Owner} & \textbf{Critical Rule} \\ \hline
 		Electricity official totals & \texttt{energy\_kpi} & Plant totals và area official totals phải dùng giá trị đã được phê duyệt, không tự cộng lại từ raw energy views. \\ \hline
 		KPI values and production-linked reporting & \texttt{energy\_kpi} & KPI reporting chỉ dùng các block đã tính sẵn và đã được lưu, tuân thủ coverage-first logic. \\ \hline
 		Utility daily usage & utility usage source & Utility summary và daily detail phải so sánh current/previous và giữ dense rows cho khoảng ngày cần hiển thị. \\ \hline
 		Sensor monitoring & \texttt{processvalue} + sensor metadata mapping & Raw sensor rows phải được aggregate thành payload có chất lượng dữ liệu rõ ràng, hỗ trợ anomaly-ready analysis. \\ \hline
 		Presentation rules & backend services + render context & Template chỉ nhận dữ liệu đã chuẩn hóa từ \texttt{report\_context}; không tái tính nghiệp vụ trong view/PDF. \\ \hline
-	\end{DocHybridTable}
+	\end{tabularx}
 \end{table}
 
 Source-of-truth discipline này rất quan trọng vì nếu sai nguồn dữ liệu hoặc sai grain tổng hợp, toàn bộ report có thể trở nên nhất quán về hình thức nhưng sai về bản chất. Đây cũng là nguyên tắc nền trong các hệ thống dữ liệu định hướng báo cáo và warehouse \cite{ref_kimball,ref_mysql}.
@@ -168,13 +168,13 @@ Bảng \ref{tab:kpi_block_rules} tóm tắt điều kiện chấp nhận hoặc 
 	\renewcommand{\arraystretch}{1.3}
 	\caption{KPI block selection rules}
 	\label{tab:kpi_block_rules}
-	\begin{DocHybridTable}{|>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.2cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
 		\textbf{Block Type} & \textbf{Accepted When} & \textbf{Reject When} \\ \hline
 		Day & row khớp chính xác một ngày cần hiển thị & row trùng nhưng có \texttt{dt\_lastupdate} cũ hơn block mới hơn \\ \hline
 		Week & block tuần nằm trọn trong uncovered range và không chồng lên các ngày đã có Day coverage hợp lệ & block chỉ overlap một phần hoặc cần bị chia nhỏ để dùng \\ \hline
 		Month & block tháng được dùng như full stored block hợp lệ cho kỳ tháng tương ứng & block tháng chỉ fit một phần custom range hoặc cần prorating \\ \hline
 		Year & block năm chỉ dùng như full stored block khi thật sự là kỳ hợp lệ tương ứng & block năm làm override coverage chi tiết hơn hoặc cần phân rã thành smaller units \\ \hline
-	\end{DocHybridTable}
+	\end{tabularx}
 \end{table}
 
 \subsection{Coverage result và daily detail}

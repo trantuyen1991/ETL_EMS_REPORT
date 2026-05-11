@@ -49,7 +49,7 @@ Bảng \ref{tab:data_source_inventory} tóm tắt inventory nguồn dữ liệu 
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Configured data source inventory}
 	\label{tab:data_source_inventory}
-	\begin{DocHybridTable}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}p{2.1cm}|>{\raggedright\arraybackslash}p{2.0cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}p{2.1cm}|>{\raggedright\arraybackslash}p{2.0cm}|>{\raggedright\arraybackslash}X|}
 		\textbf{Logical Dataset} & \textbf{Object Type} & \textbf{Date Column} & \textbf{Primary Use} \\ \hline
 		\texttt{all\_energy} & view & \texttt{dt} & nguồn tổng quát cho energy-related exploration hoặc future aggregation slices. \\ \hline
 		\texttt{diode\_energy} & view & \texttt{dt} & chi tiết điện năng theo area DIODE. \\ \hline
@@ -58,7 +58,7 @@ Bảng \ref{tab:data_source_inventory} tóm tắt inventory nguồn dữ liệu 
 		\texttt{utility\_usage} & view & \texttt{dt} & utility daily detail, utility summary, và utility comparison blocks. \\ \hline
 		\texttt{energy\_kpi} & table & none at config level & source-of-truth cho KPI rows, official totals, production values, và energy-linked KPI reporting. \\ \hline
 		\texttt{processvalue} & raw table & \texttt{Time\_Stamp} & raw utility sensor rows cho sensor monitoring, anomaly-ready aggregation, và trend context. \\ \hline
-	\end{DocHybridTable}
+	\end{tabularx}
 \end{table}
 
 \subsection{Energy KPI as authoritative source}
@@ -114,11 +114,11 @@ Bảng \ref{tab:repository_mapping} tóm tắt mapping giữa data sources và r
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Repository ownership mapping}
 	\label{tab:repository_mapping}
-	\begin{DocHybridTable}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{3.0cm}|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}X|}
 		\textbf{Source} & \textbf{Repository Owner} & \textbf{Repository Responsibility} \\ \hline
 		\texttt{diode\_energy}, \texttt{ico\_energy}, \texttt{sakari\_energy}, \texttt{utility\_usage}, \texttt{energy\_kpi} & \texttt{EnergyDataRepository} & fetch daily rows, inspect columns, expose meter columns, and provide structured tabular data for higher-level services. \\ \hline
 		\texttt{processvalue} & \texttt{ProcessValueRepository} & fetch raw timestamped sensor rows for selected columns and time windows only. \\ \hline
-	\end{DocHybridTable}
+	\end{tabularx}
 \end{table}
 
 \section{Service layer mapping}
@@ -209,14 +209,14 @@ Bảng \ref{tab:domain_owner_map} tổng hợp ownership ở cấp domain và ex
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Domain owner map from source to output}
 	\label{tab:domain_owner_map}
-	\begin{DocHybridTable}{|>{\raggedright\arraybackslash}p{2.1cm}|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{2.1cm}|>{\raggedright\arraybackslash}p{2.6cm}|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}X|}
 		\textbf{Domain} & \textbf{Primary Source} & \textbf{Repository / Service Path} & \textbf{Output Contribution} \\ \hline
 		Electricity & area energy views + \texttt{energy\_kpi} & \shortstack[l]{\texttt{EnergyDataRepository} \\ $\rightarrow$ \texttt{EnergyService}} & electricity summary cards, top meter tables, daily detail tables, comparison blocks \\ \hline
 		KPI & \texttt{energy\_kpi} & \shortstack[l]{\texttt{EnergyDataRepository} \\ $\rightarrow$ \texttt{KPIService}} & KPI summary, coverage notes, daily KPI detail, comparison surfaces \\ \hline
 		Utility usage & \texttt{utility\_usage} & \shortstack[l]{\texttt{EnergyDataRepository} \\ $\rightarrow$ \texttt{UtilityService}} & utility summary, dense utility tables, utility comparison blocks \\ \hline
 		Sensor monitoring & \texttt{processvalue} + sensor metadata & \shortstack[l]{\texttt{ProcessValueRepository} \\ $\rightarrow$ \texttt{ProcessValueService} \\ $\rightarrow$ \texttt{UtilityService}} & sensor overview cards, daily sensor rows, anomaly-ready payloads, periodic detail tables \\ \hline
 		Rendering context & \texttt{report\_style.json} + domain objects & \shortstack[l]{\texttt{ReportStyleService} \\ + \texttt{ReportBuilderService}} & unified render-ready context for HTML/PDF templates \\ \hline
-	\end{DocHybridTable}
+	\end{tabularx}
 \end{table}
 
 \section{Implementation guardrails for future changes}

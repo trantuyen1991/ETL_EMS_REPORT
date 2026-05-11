@@ -90,7 +90,8 @@ When the change touches layout or template chrome, also visually verify represen
 For this template's current screen-first PDF workflow, verify that:
 - left/right content margins stay visually symmetric across consecutive pages
 - header/footer placement does not alternate like a print-spread layout
-- table borders remain subtle but visible enough for on-screen reading
+- table borders remain readable on screen without relying on fragile custom wrappers
+- flowchart connectors use straight or orthogonal routing instead of diagonal arrows
 
 ---
 

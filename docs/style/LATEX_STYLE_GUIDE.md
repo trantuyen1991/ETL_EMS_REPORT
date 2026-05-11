@@ -129,19 +129,18 @@ Preferred packages:
 . tabularx
 . longtable
 
-For this template's current screen-first PDF convention, use a hybrid table style:
+For this template's current screen-first PDF convention, prefer the simplest stable table approach:
 
-. subtle outer border
-. subtle inner row separators
-. subtle inner column separators when they improve scanability
-. emphasized header row
+. use direct `tabularx` / `tabular` definitions in the chapter source
+. use built-in column specs, `|`, and `\hline` when borders are needed
+. avoid custom table wrapper environments unless there is a clear repeated need and they are proven stable
 . avoid heavy full-black spreadsheet grids
 
 Use:
 
 . concise headers
 . engineering-friendly naming
-. light grid lines rather than borderless tables when the PDF is primarily reviewed on screen
+. light, readable table borders suitable for on-screen PDF review
 
 
 
@@ -158,6 +157,12 @@ Prefer:
 
 . PNG for screenshots
 . PDF/SVG for vector diagrams
+
+For flowcharts and architecture diagrams:
+
+. use straight or orthogonal connectors only
+. prefer vertical, horizontal, or L-shaped routing
+. avoid diagonal arrows unless there is a very strong reason
 
 
 
