@@ -83,24 +83,55 @@ The application loads runtime values from:
 - `config/.env`
 - `config/app.yaml`
 
-Create or update `config/.env` with the deployment-specific values.
+### 3.1 Operator-first copy/paste block
 
-Minimum fields to confirm:
+To avoid opening `config/.env` and editing line by line, use the block below.
 
-```dotenv
-MYSQL_HOST=<db-host>
-MYSQL_PORT=<db-port>
-MYSQL_DATABASE=<db-name>
-MYSQL_USER=<db-user>
-MYSQL_PASSWORD=<db-password>
+What the installer must change before pasting:
+- `MYSQL_HOST`
+- `MYSQL_PORT`
+- `MYSQL_DATABASE`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `OUTPUT_DIR` if the host should store reports somewhere other than `/srv/energy-report-output`
+- `PRINT_STAGING_DIR` if staging must differ from `OUTPUT_DIR`
+- optionally `WORKSHOP_NAME` and `ENERGY_UNIT`
 
+Paste-ready block:
+
+```bash
+sudo tee /srv/energy-report/config/.env >/dev/null <<'EOF'
+# --- Change these values to match the target system ---
+MYSQL_HOST=__FILL_DB_HOST__
+MYSQL_PORT=3306
+MYSQL_DATABASE=__FILL_DB_NAME__
+MYSQL_USER=__FILL_DB_USER__
+MYSQL_PASSWORD=__FILL_DB_PASSWORD__
+
+# --- Change these paths only if your host uses a different storage layout ---
 OUTPUT_DIR=/srv/energy-report-output
 PRINT_STAGING_DIR=/srv/energy-report-output
+
+# --- Usually keep these values as-is ---
 REPORT_FILENAME=energy_automatic_report
+LOG_LEVEL=INFO
+WORKSHOP_NAME=ENERGY REPORT
+ENERGY_UNIT=kWh
+
+# --- Keep blank in normal scheduled production mode ---
 REPORT_ANCHOR_DATE=
+EOF
+
+sudo chown energy-report:energy-report /srv/energy-report/config/.env
+sudo chmod 640 /srv/energy-report/config/.env
+sudo mkdir -p /srv/energy-report/logs /srv/energy-report-output
+sudo chown -R energy-report:energy-report /srv/energy-report/logs /srv/energy-report-output
 ```
 
-Critical operational notes:
+If the operator wants to keep everything on the recommended baseline, the only lines that usually need changing are the MySQL values.
+
+### 3.2 Critical operational notes
+
 - `OUTPUT_DIR` and `PRINT_STAGING_DIR` should point to a **non-hidden writable path**
 - `REPORT_FILENAME` should stay aligned with the accepted runtime naming: `energy_automatic_report`
 - `REPORT_ANCHOR_DATE` must normally be **blank** in scheduled production mode
@@ -108,13 +139,6 @@ Critical operational notes:
 
 Why `REPORT_ANCHOR_DATE` must be blank for scheduled mode:
 - if it stays pinned to a fixed date, the daily timer will keep regenerating that old anchor day instead of the current date
-
-Also create writable output/log directories if they do not already exist:
-
-```bash
-mkdir -p /srv/energy-report-output
-mkdir -p logs
-```
 
 ---
 

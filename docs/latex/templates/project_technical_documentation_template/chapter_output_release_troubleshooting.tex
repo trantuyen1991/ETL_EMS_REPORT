@@ -178,6 +178,8 @@ Khi clone project sang một host Ubuntu / systemd mới, baseline an toàn nên
 \item chạy một manual smoke bằng \texttt{./venv/bin/python -m src.main} trước khi bật scheduler.
 \end{enumerate}
 
+Để deployment gần với kiểu operator docs chỉ cần copy-paste, runbook hiện đã có một block terminal duy nhất để ghi \texttt{config/.env}. Người cài chỉ cần thay các giá trị host-specific như MySQL credentials, output path, staging path, và khi cần thì đổi \texttt{WORKSHOP\_NAME} / \texttt{ENERGY\_UNIT}, sau đó paste một lần vào terminal.
+
 Các guardrail triển khai cần nhớ:
 
 \begin{enumerate}[label=-]

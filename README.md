@@ -504,6 +504,9 @@ REPORT_FILENAME=
 
 ```
 
+Operator-first install note:
+- use `docs/workflows/deployment_runbook.md` for a single paste-ready terminal block that writes `config/.env` without opening the file and editing line by line
+
 ---
 
 ## Output
