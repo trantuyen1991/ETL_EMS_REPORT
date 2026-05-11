@@ -60,6 +60,7 @@ Recommended baseline for the sample `systemd` files in this repo:
 Reviewed release reference for this deployment flow:
 - release tag: `v4.3.0-dev`
 - repo URL: `https://github.com/trantuyen1991/ETL_EMS_REPORT.git`
+- GitHub release page: `https://github.com/trantuyen1991/ETL_EMS_REPORT/releases/tag/v4.3.0-dev`
 - release tag page: `https://github.com/trantuyen1991/ETL_EMS_REPORT/tree/v4.3.0-dev`
 - release archive: `https://github.com/trantuyen1991/ETL_EMS_REPORT/archive/refs/tags/v4.3.0-dev.zip`
 
