@@ -1,0 +1,156 @@
+\chapter{GLOSSARY VÀ NAMING CONVENTIONS}
+
+\noindent\textbf{Mục tiêu phụ lục}
+
+\begin{enumerate}[label=-]
+\item Cung cấp một vùng tra cứu nhanh cho các thuật ngữ và tên gọi đang được dùng lặp lại trong codebase, documentation, và output artifacts.
+\item Giảm nhầm lẫn giữa tên business-facing, tên database object, tên service-layer object, và tên artifact output.
+\item Chuẩn hóa naming conventions để người phát triển mới, reviewer, hoặc người vận hành có thể đọc tài liệu và đối chiếu với runtime nhanh hơn.
+\item Tạo một appendix thực dụng cho handover, release review, và documentation maintenance.
+\end{enumerate}
+
+\section{Vai trò của glossary và naming appendix}
+
+Trong các dự án reporting hoặc ETL, nhiều lỗi không đến từ công thức tính mà đến từ việc hiểu sai một tên gọi. Một trường hợp thường gặp là cùng một domain concept nhưng xuất hiện dưới nhiều lớp khác nhau: table name trong database, logical dataset name trong config, domain object trong service layer, key trong \texttt{report\_context}, và filename ở lớp output. Nếu không có glossary và naming conventions rõ ràng, tài liệu dễ trở nên khó tra cứu và team mới dễ đọc sai ý nghĩa của implementation.
+
+Phụ lục này không thay thế các chapter về data sources, business rules, hoặc output workflow. Vai trò của nó là tạo một lớp chuẩn hóa từ vựng, giúp người đọc quay lại đúng khái niệm khi gặp tên gọi xuất hiện ở nhiều nơi trong tài liệu hoặc codebase.
+
+\section{Core glossary for system and data terms}
+
+Bảng \ref{tab:core_glossary_terms} tóm tắt các thuật ngữ quan trọng nhất đang được dùng trong dự án.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Core glossary for system and data terms}
+	\label{tab:core_glossary_terms}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Term} & \textbf{Primary Layer} & \textbf{Meaning in this project} \\
+		\midrule
+		\texttt{energy\_kpi} & database / business source & Table nguồn chuẩn cho KPI reporting, official totals, production-linked values, và các KPI rows đã được business chấp nhận. \\
+		\texttt{processvalue} & database / raw sensor source & Raw timestamped sensor table dùng cho sensor monitoring và utility-adjacent aggregation trước khi dữ liệu trở thành business-friendly structures. \\
+		\texttt{report\_context} & render-context layer & Unified dictionary/object được build từ domain services và style service, dùng chung cho HTML view, PDF source HTML, final PDF, và Excel export. \\
+		Source-of-truth & business rules & Khái niệm chỉ nguồn dữ liệu được coi là authoritative cho một metric hoặc report block. Với KPI và official energy totals, source-of-truth hiện tại là \texttt{energy\_kpi}. \\
+		Coverage-first logic & KPI rules & Cách chọn KPI rows theo thứ tự ưu tiên Day $>$ Week $>$ Month $>$ Year, không prorate, không giả lập số liệu thiếu từ raw views. \\
+		Residual load & electricity domain & Phần điện năng còn lại sau khi so tổng đã chấp nhận với các meter hoặc area breakdown có trong report, chỉ xuất hiện khi rule xác thực cho phép. \\
+		Anchor date & runtime scheduling & Ngày đầu vào dùng để resolve daily, weekly, và monthly periods mà ETL/report runtime cần export. \\
+		Canonical output & artifact management & Artifact path hoặc filename được xem là đích chuẩn để review, release, hoặc lưu trữ sau khi staging hoặc render hoàn tất. \\
+		Staging directory & PDF export pipeline & Thư mục non-hidden, Chromium-safe dùng tạm trong quá trình print PDF trước khi copy-back về canonical output path. \\
+		Daily Excel workbook & export extension & Workbook \texttt{.xlsx} daily-only của v1 export scope, không áp dụng cho weekly hoặc monthly ở trạng thái hiện tại. \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\section{Glossary for artifact families and output folders}
+
+Một phần nhầm lẫn thường gặp là đọc đúng report nhưng nhầm vai trò của artifact file. Bảng \ref{tab:artifact_glossary_terms} chuẩn hóa ý nghĩa của các artifact families đang tồn tại trong project output tree.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Glossary for output artifact families}
+	\label{tab:artifact_glossary_terms}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Artifact / Folder} & \textbf{Canonical Form} & \textbf{Meaning in this project} \\
+		\midrule
+		\texttt{view\_html} & \texttt{output/reports/YYYY\_MM/view\_html/} & Browser-readable HTML artifact dùng để đọc report, rà layout logic, và debug content structure ngoài print path. \\
+		\texttt{pdf\_source\_html} & \texttt{output/reports/YYYY\_MM/pdf\_source\_html/} & HTML nguồn dùng cho PDF export, phản ánh print-safe structure gần nhất trước khi gọi Chromium/CDP print. \\
+		\texttt{pdf} & \texttt{output/reports/YYYY\_MM/pdf/} & PDF artifact cuối cùng dùng cho release review, chia sẻ nội bộ, và lưu trữ theo kỳ báo cáo. \\
+		\texttt{excel} & \texttt{output/reports/YYYY\_MM/excel/} & Folder chứa workbook Excel daily-only ở scope export hiện tại. \\
+		\texttt{docs/output/} & documentation output & Nơi chứa generated technical-documentation PDF của subsystem LaTeX; các file PDF ở đây là build artifacts, không phải source tài liệu. \\
+		\texttt{\_legacy\_backup\_2026\_05\_11/} & recoverable backup folder & Backup nội bộ dùng để di chuyển legacy output artifacts ra khỏi canonical root mà không xóa hẳn. \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\section{Naming conventions for report artifacts}
+
+\subsection{Period prefixes}
+
+Naming của report artifacts hiện được khóa bằng prefix số để việc sort ổn định giữa các môi trường file system và giữa các nhóm artifact. Prefix chuẩn đang được chấp nhận là:
+
+\begin{enumerate}[label=-]
+\item \texttt{01\_monthly}
+\item \texttt{02\_weekly}
+\item \texttt{03\_daily}
+\end{enumerate}
+
+Ý nghĩa của chúng không chỉ là period type. Chúng còn mã hóa thứ tự hiển thị mong muốn khi người dùng mở thư mục output và rà artifact bằng mắt.
+
+\subsection{Artifact base name}
+
+Base name hiện tại của runtime report artifacts là \texttt{energy\_automatic\_report}. Vì vậy, các filenames chuẩn cần giữ cùng một pattern như sau:
+
+\begin{enumerate}[label=-]
+\item \texttt{01\_monthly\_energy\_automatic\_report\_YYYYMMDD.pdf}
+\item \texttt{02\_weekly\_energy\_automatic\_report\_YYYYMMDD.pdf}
+\item \texttt{03\_daily\_energy\_automatic\_report\_YYYYMMDD.pdf}
+\item \texttt{03\_daily\_energy\_automatic\_report\_YYYYMMDD.xlsx}
+\end{enumerate}
+
+Nếu base name hoặc prefix đổi ở runtime, appendix này cũng phải được cập nhật để tránh docs drift.
+
+\subsection{Month-grouped output directories}
+
+Output canonical của hệ thống hiện đi theo pattern \texttt{output/reports/YYYY\_MM/}. Điều này có nghĩa là:
+
+\begin{enumerate}[label=-]
+\item month folder là đơn vị gom output chính;
+\item dated-run folder kiểu \texttt{YYYY\_MM\_DD} không còn là canonical structure cho các run mới;
+\item artifact family được tách theo subfolder thay vì trộn tất cả file vào root của \texttt{output/reports/}. 
+\end{enumerate}
+
+Quy ước này giúp review output, release smoke, và cleanup legacy dễ kiểm soát hơn đáng kể.
+
+\section{Naming conventions for internal keys, modules, and services}
+
+Bảng \ref{tab:internal_naming_conventions} chuẩn hóa một số tên gọi nội bộ đang xuất hiện lặp lại trong docs và implementation.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Internal naming conventions used across docs and implementation}
+	\label{tab:internal_naming_conventions}
+	\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{3.1cm} >{\raggedright\arraybackslash}X}
+		\toprule
+		\textbf{Name} & \textbf{Expected Style} & \textbf{Guidance} \\
+		\midrule
+		\texttt{report\_context} & snake\_case shared render key & Dùng nhất quán khi nói về unified render object; không đổi sang camelCase hoặc tên chung chung như ``payload'' trong docs kỹ thuật. \\
+		\texttt{EnergyDataRepository}, \texttt{KPIService}, \texttt{UtilityService} & PascalCase Python class names & Khi mô tả layer ownership trong technical PDF, nên giữ đúng class names để người đọc đối chiếu với code nhanh hơn. \\
+		\texttt{\_build\_report\_context()} và các helper tương tự & snake\_case function names & Khi trích dẫn orchestration helpers trong docs, nên dùng đúng function names thay vì viết lại thành prose mơ hồ. \\
+		\texttt{report\_style.json} & lowercase file name with underscores & File style source-of-truth cần được gọi đúng tên, tránh nhầm với các khái niệm theme JSON hoặc front-end token bundle khác. \\
+		\texttt{PRINT\_STAGING\_DIR}, \texttt{REPORT\_FILENAME} & UPPER\_SNAKE\_CASE env/config keys & Khi nói về environment-driven configuration, dùng đúng config key để tránh drift giữa docs và runtime. \\
+		\texttt{view\_html}, \texttt{pdf\_source\_html}, \texttt{excel} & lowercase folder-family names & Dùng thống nhất trong runbook, release checklist, và artifact walkthroughs; không đổi sang các biến thể như ``pdf-source'' hoặc ``html-view''. \\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\section{Recommended naming guardrails}
+
+Khi thêm output mới, refactor service, hoặc mở rộng tài liệu, nên giữ các guardrail sau:
+
+\begin{enumerate}[label=-]
+\item nếu một tên đang mang nghĩa business-specific rõ ràng, không rút gọn nó quá mức khiến mất ngữ cảnh;
+\item nếu một artifact family đã có tên canonical, không tạo alias khác trong docs trừ khi có lý do migration rõ ràng;
+\item nếu runtime đổi naming conventions, phải update cùng lúc runbook, release checklist, project status, và technical PDF appendix này;
+\item nếu một thuật ngữ là source-of-truth concept, phải nói rõ nó thuộc layer nào, tránh để người đọc nhầm giữa database table và rendered report block;
+\item khi cần tạo backup hoặc cleanup folders, nên dùng tên thể hiện rõ mục đích lưu trữ, ví dụ kiểu \texttt{\_legacy\_backup\_YYYY\_MM\_DD} thay vì tên tạm khó hiểu.
+\end{enumerate}
+
+\section{Quick reference examples}
+
+Các ví dụ dưới đây minh họa cách đọc đúng một số tên đang được dùng trong hệ thống hiện tại:
+
+\begin{enumerate}[label=-]
+\item \texttt{energy\_kpi}: database table authoritative cho KPI và official totals, không phải tên một chart hay section title.
+\item \texttt{report\_context}: object trung gian cho rendering/export, không phải source table và cũng không phải final artifact.
+\item \texttt{pdf\_source\_html}: HTML đầu vào cho print path, không phải final PDF.
+\item \texttt{03\_daily\_energy\_automatic\_report\_20250629.xlsx}: workbook Excel của daily run ngày 2025-06-29, mang prefix \texttt{03\_daily} để sort sau monthly và weekly.
+\item \texttt{output/reports/2025\_06/pdf/}: canonical folder cho PDF artifacts tháng 2025-06, không phải staging directory.
+\end{enumerate}
+
+\section{Tổng kết phụ lục}
+
+Phụ lục này bổ sung một lớp chuẩn hóa ngôn ngữ cho bộ technical manual. Khi kết hợp glossary với các chapter về data sources, business rules, và output workflow, người đọc có thể tra cứu thuật ngữ nhanh hơn và đối chiếu tài liệu với runtime chính xác hơn. Đây là một phần nhỏ nhưng rất có giá trị cho maintainability và handover readiness của toàn bộ documentation set.
