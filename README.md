@@ -432,7 +432,8 @@ docs/
 deploy/
 └── systemd/
     ├── energy-report-etl.service
-    └── energy-report-etl.timer
+    ├── energy-report-etl.timer
+    └── install_systemd_units.sh
 
 ```
 

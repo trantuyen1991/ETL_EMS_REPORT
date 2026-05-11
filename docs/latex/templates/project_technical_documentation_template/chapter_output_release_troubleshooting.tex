@@ -193,13 +193,15 @@ Với runtime hiện tại, cách vận hành đơn giản và dễ bàn giao nh
 
 \subsection{Service baseline}
 
-Repo hiện đã có sample unit file thật để copy nhanh khi triển khai:
+Repo hiện đã có ba artifact hỗ trợ triển khai nhanh:
 
 \begin{enumerate}[label=-]
-\item file trong repo: \texttt{deploy/systemd/energy-report-etl.service};
-\item thư mục cài đặt đích: \texttt{/etc/systemd/system/};
-\item file này bám theo baseline triển khai khuyến nghị của dự án.
+\item \texttt{deploy/systemd/energy-report-etl.service};
+\item \texttt{deploy/systemd/energy-report-etl.timer};
+\item \texttt{deploy/systemd/install\_systemd\_units.sh}.
 \end{enumerate}
+
+Với host bám đúng baseline khuyến nghị, helper script này có thể backup unit cũ nếu có, copy sample files sang \texttt{/etc/systemd/system/}, reload \texttt{systemd}, rồi enable timer trong một lần chạy.
 
 Service chuẩn hiện dùng các thành phần chính sau:
 
@@ -224,13 +226,7 @@ Sau khi tạo service, nên test thủ công bằng:
 
 \subsection{Timer baseline cho 23:00 mỗi ngày}
 
-Repo hiện đã có sample timer file thật để copy nhanh khi triển khai:
-
-\begin{enumerate}[label=-]
-\item file trong repo: \texttt{deploy/systemd/energy-report-etl.timer};
-\item thư mục cài đặt đích: \texttt{/etc/systemd/system/};
-\item file này dùng trực tiếp được nếu host bám theo mốc triển khai khuyến nghị của dự án.
-\end{enumerate}
+Repo sample timer vẫn dùng trực tiếp được nếu host bám theo mốc triển khai khuyến nghị của dự án.
 
 Timer chuẩn nên dùng:
 

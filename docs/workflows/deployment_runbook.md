@@ -155,24 +155,35 @@ REPORT_ANCHOR_DATE=
 
 ---
 
-## 5. Create a `systemd` service for one ETL batch run
+## 5. Install the ready-made `systemd` files
 
-Ready-made sample file in the repo:
+The repo now includes:
 - `deploy/systemd/energy-report-etl.service`
+- `deploy/systemd/energy-report-etl.timer`
+- `deploy/systemd/install_systemd_units.sh`
 
-Install it with:
+Fastest path on a host that matches the recommended baseline:
 
 ```bash
-sudo cp deploy/systemd/energy-report-etl.service /etc/systemd/system/
+cd /srv/energy-report
+./deploy/systemd/install_systemd_units.sh
 ```
 
-Sample assumptions:
+What the helper does:
+- self-escalates with `sudo` when needed
+- backs up existing installed unit files if they already exist
+- installs the repo sample service and timer into `/etc/systemd/system/`
+- runs `systemctl daemon-reload`
+- runs `systemctl enable --now energy-report-etl.timer`
+- shows timer status and next/last schedule summary
+
+Sample assumptions baked into the repo unit files:
 - `User=energy-report`
 - `Group=energy-report`
 - `WorkingDirectory=/srv/energy-report`
 - `ExecStart=/srv/energy-report/venv/bin/python -m src.main`
 
-If your deployment differs from that baseline, edit the copied file before reloading `systemd`.
+If your deployment differs from that baseline, edit the files under `deploy/systemd/` before running the helper.
 
 The application itself already reads `config/.env`, so a separate `EnvironmentFile=` is not required unless you intentionally add more host-level variables.
 
@@ -192,32 +203,21 @@ journalctl -u energy-report-etl.service -n 100 --no-pager
 
 ---
 
-## 6. Create a `systemd` timer for `23:00` every day
+## 6. Confirm the timer baseline
 
-Ready-made sample file in the repo:
-- `deploy/systemd/energy-report-etl.timer`
-
-Install it with:
-
-```bash
-sudo cp deploy/systemd/energy-report-etl.timer /etc/systemd/system/
-```
+The repo sample timer still uses the same runtime rule:
+- `OnCalendar=*-*-* 23:00:00`
+- `Persistent=true`
+- `Unit=energy-report-etl.service`
 
 Meaning:
 - `23:00:00` is interpreted in the **host local timezone**
 - `Persistent=true` means if the host was off at the scheduled time, the timer will catch up on the next boot
 
-Enable the timer:
+If you install via the helper, the timer is already enabled and started for you. Manual verification remains:
 
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now energy-report-etl.timer
 sudo systemctl status energy-report-etl.timer --no-pager
-```
-
-Verify next/last run:
-
-```bash
 systemctl list-timers energy-report-etl.timer --all
 ```
 
