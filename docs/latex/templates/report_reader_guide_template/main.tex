@@ -35,17 +35,17 @@
 \definecolor{BrandDark}{HTML}{003B6B}
 \definecolor{BrandGray}{HTML}{5B6770}
 
-\newcommand{\GuideTitle}{REPORT READER GUIDE}
+\newcommand{\GuideTitle}{HƯỚNG DẪN ĐỌC BÁO CÁO NĂNG LƯỢNG}
 \newcommand{\GuideProject}{Energy Consumption Reporting System}
-\newcommand{\GuideVersion}{v0.1-draft}
-\newcommand{\GuideStatus}{Outline baseline}
-\newcommand{\GuideAudience}{Report readers / managers / business users}
-\newcommand{\GuideDate}{May 2026}
+\newcommand{\GuideVersion}{v0.2-draft}
+\newcommand{\GuideStatus}{Bản nháp nội dung}
+\newcommand{\GuideAudience}{Dành cho người đọc báo cáo, cấp quản lý, và người dùng nghiệp vụ}
+\newcommand{\GuideDate}{Tháng 5/2026}
 
 \setlength{\headheight}{28pt}
 \newcommand{\ApplyGuidePageStyle}{%
   \fancyhf{}%
-  \fancyhead[L]{\fontsize{8}{10}\selectfont\textbf{\GuideProject}\\\fontsize{7}{9}\selectfont\GuideTitle}%
+  \fancyhead[L]{\fontsize{8}{10}\selectfont\textbf{\GuideProject}\\\fontsize{7}{9}\selectfont Hướng dẫn đọc báo cáo}%
   \fancyhead[R]{\fontsize{8}{10}\selectfont\textbf{\GuideVersion}\\\fontsize{7}{9}\selectfont\GuideStatus}%
   \fancyfoot[L]{\fontsize{8}{10}\selectfont REAL Group}%
   \fancyfoot[C]{\fontsize{9}{11}\selectfont\thepage}%
@@ -92,21 +92,22 @@
 
 \begin{titlepage}
   \thispagestyle{empty}
-  \vspace*{2.5cm}
+  \vspace*{2.1cm}
   \begin{center}
-    {\fontsize{24}{30}\selectfont\bfseries\textcolor{BrandDark}{\GuideProject}}\\[1.0cm]
+    {\fontsize{22}{28}\selectfont\bfseries\textcolor{BrandDark}{\GuideProject}}\\[0.8cm]
     {\fontsize{20}{24}\selectfont\bfseries\textcolor{BrandBlue}{\GuideTitle}}\\[0.8cm]
-    {\large \GuideVersion}\\[0.2cm]
-    {\normalsize \GuideStatus}\\[1.0cm]
-    {\normalsize Audience: \GuideAudience}\\[0.2cm]
+    {\normalsize \GuideAudience}\\[0.5cm]
+    {\normalsize \GuideVersion\ -\ \GuideStatus}\\[0.2cm]
     {\normalsize \GuideDate}
   \end{center}
 
-  \vfill
+  \vspace{2.2cm}
 
-  \begin{ReaderNote}{Draft scope}
-  This first baseline is a short reader-facing guide, separate from the technical handover manual. It is intended to help report consumers understand what each report section means, where important values come from, and how key comparison / interpretation rules affect the reading of the final report output.
+  \begin{ReaderNote}{Mục đích của tài liệu}
+  Tài liệu này được viết để giúp người đọc báo cáo hiểu nhanh ý nghĩa của từng phần trong báo cáo năng lượng, biết các số liệu quan trọng đang phản ánh điều gì, và tránh những cách hiểu sai thường gặp khi đọc các chỉ số tổng hợp, so sánh, và KPI.
   \end{ReaderNote}
+
+  \vfill
 \end{titlepage}
 
 \tableofcontents

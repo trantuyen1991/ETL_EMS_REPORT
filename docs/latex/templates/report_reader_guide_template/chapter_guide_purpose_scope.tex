@@ -1,31 +1,42 @@
 \chapter{MỤC ĐÍCH VÀ PHẠM VI HƯỚNG DẪN}
 
-\section{Guide này dùng để làm gì}
+\section{Mục đích của tài liệu}
 
-Tài liệu này được viết cho người \textbf{đọc báo cáo}, không phải cho người triển khai hệ thống. Mục tiêu là giúp người đọc hiểu nhanh báo cáo đang nói gì, phần nào mang ý nghĩa gì, và những con số quan trọng được hiểu theo quy tắc nào.
+Tài liệu này được viết cho người \textbf{đọc báo cáo năng lượng}. Mục tiêu là giúp người đọc hiểu rõ báo cáo đang thể hiện điều gì, phần nào nên được đọc trước, và những quy tắc nào ảnh hưởng trực tiếp đến cách hiểu số liệu.
 
-\section{Guide này tập trung vào điều gì}
+\section{Những câu hỏi tài liệu này giúp trả lời}
 
-Guide này tập trung vào ba câu hỏi chính:
+Tài liệu này tập trung trả lời ba câu hỏi chính:
 
 \begin{enumerate}[label=-]
-\item mỗi section trong report có ý nghĩa gì;
-\item số liệu quan trọng trong report được tổng hợp từ đâu;
-\item các rule nào ảnh hưởng trực tiếp đến cách diễn giải số liệu.
+\item từng phần trong báo cáo có ý nghĩa gì;
+\item các số liệu quan trọng được tổng hợp từ đâu;
+\item những quy tắc nào làm thay đổi cách diễn giải số liệu.
 \end{enumerate}
 
-\begin{ReaderNote}{Không đi sâu vào technical handover}
-Guide này không đi sâu vào deployment, \texttt{systemd}, source code, service ownership, hay workflow bàn giao kỹ thuật. Những phần đó tiếp tục thuộc technical manual hiện hành.
+\section{Đối tượng sử dụng}
+
+Tài liệu này hướng tới các nhóm người đọc sau:
+
+\begin{enumerate}[label=-]
+\item người nhận báo cáo định kỳ;
+\item quản lý xưởng hoặc người theo dõi hiệu suất năng lượng;
+\item người dùng nghiệp vụ cần đọc nhanh phần tổng hợp, phần so sánh, và KPI;
+\item các bên liên quan nội bộ cần hiểu báo cáo mà không phải đi sâu vào tài liệu kỹ thuật.
+\end{enumerate}
+
+\begin{ReaderNote}{Những gì tài liệu này không đi sâu vào}
+Tài liệu này không đi sâu vào cài đặt hệ thống, lệnh vận hành, source code, cấu trúc kỹ thuật của hệ thống, hay quy trình bàn giao kỹ thuật. Những nội dung đó thuộc tài liệu kỹ thuật hiện hành.
 \end{ReaderNote}
 
 \section{Phạm vi kỳ báo cáo}
 
-Reader guide này được định hướng để bao phủ:
+Guide này được định hướng để áp dụng cho cả ba nhóm kỳ báo cáo đang có:
 
 \begin{enumerate}[label=-]
-\item daily report;
-\item weekly report;
-\item monthly report.
+\item báo cáo ngày;
+\item báo cáo tuần;
+\item báo cáo tháng.
 \end{enumerate}
 
-Tuy vậy, cách đọc chi tiết sẽ khác nhau theo từng loại kỳ, đặc biệt ở phần comparison, dense tables, KPI coverage, và các chart/summary surfaces.
+Ba loại kỳ này khác nhau ở phần thông tin đầu báo cáo, số ngày tổng hợp, bề mặt so sánh, và cách thể hiện KPI. Vì vậy, người đọc nên luôn xác nhận đúng loại kỳ trước khi diễn giải phần còn lại.

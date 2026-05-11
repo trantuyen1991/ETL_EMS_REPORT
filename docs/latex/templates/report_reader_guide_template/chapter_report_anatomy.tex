@@ -1,38 +1,82 @@
-\chapter{CẤU TRÚC BÁO CÁO VÀ CÁCH ĐỌC TỪNG PHẦN}
+\chapter{CẤU TRÚC BÁO CÁO VÀ CÁCH ĐỌC PHẦN MỞ ĐẦU}
 
-\section{Report anatomy overview}
+\section{Một báo cáo đầy đủ thường gồm những phần nào}
 
-Một report hoàn chỉnh hiện thường gồm các nhóm nội dung sau:
+Một báo cáo năng lượng hoàn chỉnh hiện thường gồm các nhóm nội dung sau:
 
 \begin{enumerate}[label=-]
-\item header và thông tin kỳ báo cáo;
-\item Electricity Consumption;
-\item Utility Usage;
-\item Sensor Monitoring (nằm dưới Utility ở ngữ cảnh hiện tại);
-\item Energy KPI;
-\item footer / notes khi có.
+\item phần đầu báo cáo và thông tin kỳ báo cáo;
+\item phần \texttt{Electricity Consumption};
+\item phần \texttt{Utility Usage};
+\item phần \texttt{Sensor Monitoring}, hiện được đặt dưới ngữ cảnh Utility;
+\item phần \texttt{Energy KPI};
+\item ghi chú hoặc footer khi có.
 \end{enumerate}
 
-\section{Nguyên tắc đọc report theo thứ tự}
+Nếu đọc báo cáo để nắm tình hình nhanh, người đọc không nên đi thẳng vào bảng chi tiết ngay từ đầu. Cách đọc hiệu quả hơn là đi từ phần tổng quan xuống phần chi tiết.
 
-Thứ tự đọc được khuyến nghị là:
+\section{Thứ tự đọc được khuyến nghị}
+
+Thứ tự đọc nên là:
 
 \begin{enumerate}[label=-]
-\item xác nhận đúng kỳ báo cáo ở header;
-\item đọc summary / total cards trước;
-\item đọc các chart comparison để nắm xu hướng;
-\item sau đó mới đi xuống bảng detail hoặc sensor-level detail;
-\item với KPI, luôn kiểm tra coverage hoặc note đi kèm trước khi kết luận.
+\item xác nhận đúng kỳ báo cáo ở phần đầu báo cáo;
+\item đọc các số tổng hoặc thẻ tổng hợp trước;
+\item nhìn các block so sánh để nắm xu hướng tăng, giảm, hoặc biến động;
+\item sau đó mới đi xuống các bảng chi tiết hoặc phần chi tiết theo sensor;
+\item với KPI, luôn kiểm tra trạng thái coverage hoặc ghi chú đi kèm trước khi kết luận.
 \end{enumerate}
 
-\section{Ý nghĩa của các kiểu hiển thị phổ biến}
+\section{Cách đọc phần đầu báo cáo}
 
-Trong reader guide hoàn chỉnh, phần này sẽ giải thích rõ các nhóm object sau:
+Ở trạng thái hiện tại, phần đầu báo cáo luôn có tiêu đề \texttt{ENERGY REPORT} và thời điểm tạo báo cáo \texttt{Created}. Với báo cáo tuần hoặc tháng, phần đầu báo cáo còn có thêm một dải thông tin kỳ báo cáo để người đọc nắm nhanh quy mô tổng hợp của kỳ đó.
+
+\subsection{Ý nghĩa của Created}
+
+Trường \texttt{Created} cho biết \textbf{thời điểm hệ thống tạo ra file báo cáo}. Trường này không cho biết toàn bộ dữ liệu trong báo cáo được đo tại cùng thời điểm đó. Vì vậy, \texttt{Created} nên được hiểu là thời điểm sinh file, còn kỳ dữ liệu thực tế phải được đọc thêm ở loại kỳ báo cáo, ngày bắt đầu, ngày kết thúc, hoặc label kỳ khi có.
+
+\subsection{Khác biệt giữa báo cáo ngày và báo cáo tuần/tháng}
+
+\textbf{Báo cáo ngày} hiện dùng phần đầu đơn giản hơn. Người đọc sẽ thấy tiêu đề, dòng mô tả ngắn, và thời điểm tạo báo cáo, sau đó đi vào các section chính.
+
+\textbf{Báo cáo tuần và báo cáo tháng} hiện có thêm dải thông tin kỳ báo cáo. Dải này giúp trả lời nhanh các câu hỏi: kỳ đang đọc bắt đầu khi nào, kết thúc khi nào, tổng năng lượng là bao nhiêu, có bao nhiêu đồng hồ đang active, kỳ này dài bao nhiêu ngày, và trung bình mỗi ngày ra sao.
+
+\section{Cách hiểu dải thông tin kỳ báo cáo của weekly/monthly}
+
+Trong báo cáo tuần hoặc tháng, các trường ở phần đầu có thể được hiểu như sau:
 
 \begin{enumerate}[label=-]
-\item total cards và workshop / area cards;
-\item current vs previous comparisons;
-\item Top 10 / ranking style blocks;
-\item daily / periodic dense tables;
-\item variance charts, waterfall-style charts, và KPI comparison surfaces.
+\item \textbf{Start date}: ngày bắt đầu của kỳ tổng hợp đang được báo cáo;
+\item \textbf{End date}: ngày kết thúc của kỳ tổng hợp đang được báo cáo;
+\item \textbf{Total energy}: tổng năng lượng của kỳ đó theo bề mặt tổng hợp hiện hành của báo cáo;
+\item \textbf{Meter active / total}: số đồng hồ có dữ liệu active trên tổng số đồng hồ đang được theo dõi trong phần so sánh điện;
+\item \textbf{Total days}: tổng số ngày nằm trong kỳ báo cáo;
+\item \textbf{Average / day}: mức trung bình theo ngày của tổng năng lượng trong kỳ.
+\end{enumerate}
+
+\begin{ReaderNote}{Cách dùng dải thông tin kỳ báo cáo}
+Dải này nên được dùng như lớp định hướng đầu tiên trước khi đọc sâu hơn. Nếu tổng năng lượng hoặc average/day nhìn khác kỳ vọng, người đọc mới nên đi tiếp xuống Electricity, Utility, hoặc KPI để tìm phần giải thích chi tiết hơn.
+\end{ReaderNote}
+
+\section{Cách đọc nhanh trước khi đi vào chi tiết}
+
+Sau khi xem phần đầu báo cáo, người đọc nên tiếp tục theo hướng sau:
+
+\begin{enumerate}[label=-]
+\item nhìn các thẻ tổng hợp để nắm quy mô chung;
+\item nhìn các block so sánh để xem biến động so với kỳ đối chiếu;
+\item chỉ đi vào bảng dày hoặc sensor detail khi cần giải thích nguyên nhân;
+\item với KPI, không kết luận chỉ từ một con số đơn lẻ mà cần đọc cùng note và trạng thái coverage.
+\end{enumerate}
+
+\section{Những kiểu hiển thị sẽ được giải thích tiếp ở các checkpoint sau}
+
+Ở các checkpoint kế tiếp, reader guide này sẽ mở rộng thêm cho từng nhóm hiển thị như:
+
+\begin{enumerate}[label=-]
+\item các thẻ tổng hợp và thẻ theo khu vực;
+\item current so với previous;
+\item Top 10 hoặc ranking blocks;
+\item các bảng chi tiết theo ngày hoặc theo kỳ;
+\item các chart biến động, waterfall-style surfaces, và bề mặt KPI comparison.
 \end{enumerate}
