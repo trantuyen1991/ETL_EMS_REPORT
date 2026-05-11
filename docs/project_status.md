@@ -364,7 +364,7 @@ Execution rule remains:
 
 ---
 
-## 5. Pending Features
+## 5. Current Export Extensions
 
 ### 5.1 Daily Excel Export
 - one daily-only `.xlsx` workbook is now generated per daily run
@@ -372,25 +372,27 @@ Execution rule remains:
 - workbook formatting is intentionally minimal for v1, prioritizing data completeness, sheet separation, and stable generation
 - the workbook is built from backend report context through `ExcelExportService`
 
-### 5.2 Chart Expansion
+## 6. Pending Features
+
+### 6.1 Chart Expansion
 - More charts will be added across sections
 - Requires:
   - responsive handling
   - period-based show/hide logic
 
-### 5.3 Sensor Monitoring Expansion
+### 6.2 Sensor Monitoring Expansion
 - periodic trend UI now exists inside `Utility` only, using daily aggregate period lines grouped by unit
 - heatmap / anomaly-trend exploration remain next-stage candidates
 - threshold-based alert rules are still heuristic and not business-calibrated yet
 - anomaly follow-up from the latest correctness audit is intentionally documented for a later business review pass
 
-### 5.4 PDF Stability Improvements
+### 6.3 PDF Stability Improvements
 - Chart rendering is currently stable with the timer-based kickoff fix, but still needs regression checks when layout changes
 - The main print path now uses CDP-controlled PDF export instead of depending only on raw `--print-to-pdf` defaults
 - A major periodic-vs-daily PDF scale mismatch was resolved by fixing overflow in the periodic Utility Sensor Monitoring detail table rather than continuing to tune Electricity total-card CSS
 - Table pagination still needs improvement on very wide / dense sections
 
-### 5.5 Enterprise palette follow-up
+### 6.4 Enterprise palette follow-up
 - the foundation semantic palette is already present in `config/report_style.json`
 - theme/preset resolution is already active in `src/services/style_service.py`
 - remaining work is now a cleanup/migration pass:

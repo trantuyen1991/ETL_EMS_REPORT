@@ -309,10 +309,11 @@ Current production flow:
 1. `python3 -m src.main` calls `run_production()`
 2. the report batch resolves which periods are required for the effective anchor day
 3. the app renders both view HTML and PDF source HTML
-4. the PDF source HTML is written into both `output/reports/` and the print staging directory
-5. Chromium headless prints the staged HTML into a staged PDF
-6. the final PDF is copied back into `output/reports/`
-7. the current run is also copied into a dated batch folder such as `output/reports/2026_05_01/`
+4. the canonical view HTML is written into `output/reports/YYYY_MM/view_html/`
+5. the canonical PDF source HTML is written into `output/reports/YYYY_MM/pdf_source_html/`, while Chromium staging still uses the print-safe staging directory
+6. Chromium headless prints the staged HTML into a staged PDF
+7. the final PDF is written into `output/reports/YYYY_MM/pdf/`
+8. the daily run also writes one `.xlsx` workbook into `output/reports/YYYY_MM/excel/`
 
 Template mapping:
 

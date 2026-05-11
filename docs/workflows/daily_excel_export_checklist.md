@@ -55,21 +55,18 @@
 
 ## Audit notes from checkpoint 1
 
-### Integration points
+### Final implementation result
 
-- Current artifact generation is still in `src/main.py::_render_report_artifacts(...)`
-- Current artifact archiving is still in `src/main.py::_archive_report_batch(...)`
-- Current batch output only includes:
-  - `view_html`
-  - `pdf_source_html`
-  - `pdf`
-- Therefore Excel should be added as a new backend artifact in the same batch flow, gated by daily period only
+- Excel export was integrated into the backend batch flow in `src/main.py`
+- the daily workbook now writes through `ExcelExportService`
+- daily artifacts now include `.xlsx` in addition to HTML/PDF outputs
+- weekly and monthly Excel exports remain intentionally excluded from v1
 
-### Current dependency status
+### Dependency status after implementation
 
-- `requirements.txt` does not yet declare `openpyxl`
-- Project venv currently fails with `No module named 'openpyxl'`
-- Dependency enablement belongs to checkpoint 2
+- `requirements.txt` now declares `openpyxl==3.1.5`
+- the project venv can generate the workbook successfully
+- the original missing-dependency note is now historical only and no longer applies
 
 ## V1 workbook contract
 
