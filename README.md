@@ -429,6 +429,11 @@ docs/
     ├── deployment_runbook.md
     └── release_runbook.md
 
+deploy/
+└── systemd/
+    ├── energy-report-etl.service
+    └── energy-report-etl.timer
+
 ```
 
 ---

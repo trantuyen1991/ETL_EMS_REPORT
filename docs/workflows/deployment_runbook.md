@@ -53,22 +53,27 @@ sudo timedatectl set-timezone Asia/Ho_Chi_Minh
 
 ## 2. Clone the project and create a fresh venv
 
-Choose a stable project path on the new host. Example:
+Recommended baseline for the sample `systemd` files in this repo:
+- Linux user/group: `energy-report`
+- project root: `/srv/energy-report`
+
+Example using that baseline:
 
 ```bash
+sudo useradd --system --create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report || true
 sudo mkdir -p /srv
-sudo chown "$USER":"$USER" /srv
-cd /srv
-git clone <your-repo-url> energy-report
+sudo chown energy-report:energy-report /srv
+sudo -u energy-report git clone <your-repo-url> /srv/energy-report
 cd /srv/energy-report
-python3 -m venv venv
-./venv/bin/pip install --upgrade pip
-./venv/bin/pip install -r requirements.txt
+sudo -u energy-report python3 -m venv venv
+sudo -u energy-report ./venv/bin/pip install --upgrade pip
+sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 ```
 
 Important:
 - do **not** copy an old `venv/` from another machine
 - always recreate the virtual environment on the new host
+- if you do not use the `energy-report` service account or `/srv/energy-report` path, update the sample `systemd` files before installing them
 
 ---
 
@@ -152,34 +157,24 @@ REPORT_ANCHOR_DATE=
 
 ## 5. Create a `systemd` service for one ETL batch run
 
-Create:
-- `/etc/systemd/system/energy-report-etl.service`
+Ready-made sample file in the repo:
+- `deploy/systemd/energy-report-etl.service`
 
-Example unit:
+Install it with:
 
-```ini
-[Unit]
-Description=Energy Report ETL batch run
-Wants=network-online.target
-After=network-online.target
-
-[Service]
-Type=oneshot
-User=<linux-user>
-Group=<linux-user>
-WorkingDirectory=/srv/energy-report
-ExecStart=/srv/energy-report/venv/bin/python -m src.main
-Environment=PYTHONUNBUFFERED=1
-
-[Install]
-WantedBy=multi-user.target
+```bash
+sudo cp deploy/systemd/energy-report-etl.service /etc/systemd/system/
 ```
 
-Notes:
-- replace `<linux-user>` with the actual deployment user
-- `WorkingDirectory` must match the cloned project path
-- `ExecStart` must point to the venv Python inside that exact project path
-- the application itself already reads `config/.env`, so a separate `EnvironmentFile=` is not required unless you intentionally add more host-level variables
+Sample assumptions:
+- `User=energy-report`
+- `Group=energy-report`
+- `WorkingDirectory=/srv/energy-report`
+- `ExecStart=/srv/energy-report/venv/bin/python -m src.main`
+
+If your deployment differs from that baseline, edit the copied file before reloading `systemd`.
+
+The application itself already reads `config/.env`, so a separate `EnvironmentFile=` is not required unless you intentionally add more host-level variables.
 
 Manual service test:
 
@@ -199,22 +194,13 @@ journalctl -u energy-report-etl.service -n 100 --no-pager
 
 ## 6. Create a `systemd` timer for `23:00` every day
 
-Create:
-- `/etc/systemd/system/energy-report-etl.timer`
+Ready-made sample file in the repo:
+- `deploy/systemd/energy-report-etl.timer`
 
-Example timer:
+Install it with:
 
-```ini
-[Unit]
-Description=Run Energy Report ETL every day at 23:00
-
-[Timer]
-OnCalendar=*-*-* 23:00:00
-Persistent=true
-Unit=energy-report-etl.service
-
-[Install]
-WantedBy=timers.target
+```bash
+sudo cp deploy/systemd/energy-report-etl.timer /etc/systemd/system/
 ```
 
 Meaning:

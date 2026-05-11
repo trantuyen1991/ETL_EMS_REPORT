@@ -4,6 +4,7 @@ Use this runbook for quick manual release smoke checks.
 
 Companion deployment guide:
 - `docs/workflows/deployment_runbook.md`
+- ready-made sample units: `deploy/systemd/energy-report-etl.service` and `deploy/systemd/energy-report-etl.timer`
 
 Notes:
 - Run from `/home/nbt/workspace/02_MySQL`

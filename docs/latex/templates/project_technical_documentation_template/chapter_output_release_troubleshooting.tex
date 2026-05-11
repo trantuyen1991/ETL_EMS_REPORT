@@ -170,8 +170,8 @@ Các anchor này đủ để xác minh cả period scheduling, canonical naming,
 Khi clone project sang một host Ubuntu / systemd mới, baseline an toàn nên gồm các bước sau:
 
 \begin{enumerate}[label=-]
-\item clone repository vào một project path ổn định, ví dụ \texttt{/srv/energy-report};
-\item tạo lại \texttt{venv} mới ngay trên host đó và cài \texttt{requirements.txt};
+\item dùng baseline triển khai khuyến nghị: service account \texttt{energy-report} và project root \texttt{/srv/energy-report};
+\item clone repository vào project path đó và tạo lại \texttt{venv} mới ngay trên host;
 \item xác nhận Chrome hoặc Chromium hiện diện để PDF export có thể chạy;
 \item cấu hình \texttt{config/.env} với đúng MySQL credentials, output path, và naming settings;
 \item giữ \texttt{REPORT\_ANCHOR\_DATE} ở trạng thái trống trong steady-state scheduled mode;
@@ -193,14 +193,23 @@ Với runtime hiện tại, cách vận hành đơn giản và dễ bàn giao nh
 
 \subsection{Service baseline}
 
-Service chuẩn nên có các thành phần chính sau:
+Repo hiện đã có sample unit file thật để copy nhanh khi triển khai:
 
 \begin{enumerate}[label=-]
-\item unit file: \texttt{/etc/systemd/system/energy-report-etl.service};
+\item file trong repo: \texttt{deploy/systemd/energy-report-etl.service};
+\item thư mục cài đặt đích: \texttt{/etc/systemd/system/};
+\item file này bám theo baseline triển khai khuyến nghị của dự án.
+\end{enumerate}
+
+Service chuẩn hiện dùng các thành phần chính sau:
+
+\begin{enumerate}[label=-]
+\item unit file repo mẫu: \texttt{deploy/systemd/energy-report-etl.service};
+\item install target: \texttt{/etc/systemd/system/energy-report-etl.service};
 \item \texttt{Type=oneshot};
-\item \texttt{User=<linux-user>} và \texttt{Group=<linux-user>};
-\item \texttt{WorkingDirectory=<project-root>};
-\item \texttt{ExecStart=<project-root>/venv/bin/python -m src.main};
+\item \texttt{User=energy-report} và \texttt{Group=energy-report};
+\item \texttt{WorkingDirectory=/srv/energy-report};
+\item \texttt{ExecStart=/srv/energy-report/venv/bin/python -m src.main};
 \item \texttt{After=network-online.target} để tránh chạy trước khi network sẵn sàng.
 \end{enumerate}
 
@@ -215,10 +224,19 @@ Sau khi tạo service, nên test thủ công bằng:
 
 \subsection{Timer baseline cho 23:00 mỗi ngày}
 
+Repo hiện đã có sample timer file thật để copy nhanh khi triển khai:
+
+\begin{enumerate}[label=-]
+\item file trong repo: \texttt{deploy/systemd/energy-report-etl.timer};
+\item thư mục cài đặt đích: \texttt{/etc/systemd/system/};
+\item file này dùng trực tiếp được nếu host bám theo mốc triển khai khuyến nghị của dự án.
+\end{enumerate}
+
 Timer chuẩn nên dùng:
 
 \begin{enumerate}[label=-]
-\item unit file: \texttt{/etc/systemd/system/energy-report-etl.timer};
+\item unit file repo mẫu: \texttt{deploy/systemd/energy-report-etl.timer};
+\item install target: \texttt{/etc/systemd/system/energy-report-etl.timer};
 \item \texttt{OnCalendar=*-*-* 23:00:00};
 \item \texttt{Persistent=true};
 \item \texttt{Unit=energy-report-etl.service}.

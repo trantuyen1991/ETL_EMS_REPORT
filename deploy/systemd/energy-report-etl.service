@@ -1,0 +1,22 @@
+# Sample systemd unit for the recommended deployment baseline.
+# Assumed baseline:
+# - Linux user/group: energy-report
+# - Project root: /srv/energy-report
+# - Virtual environment: /srv/energy-report/venv
+# If your deployment differs, adjust User, Group, WorkingDirectory, and ExecStart.
+
+[Unit]
+Description=Energy Report ETL batch run
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=energy-report
+Group=energy-report
+WorkingDirectory=/srv/energy-report
+ExecStart=/srv/energy-report/venv/bin/python -m src.main
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

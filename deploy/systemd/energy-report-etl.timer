@@ -1,0 +1,13 @@
+# Sample systemd timer for the recommended deployment baseline.
+# Scheduled time is interpreted in the host local timezone.
+
+[Unit]
+Description=Run Energy Report ETL every day at 23:00
+
+[Timer]
+OnCalendar=*-*-* 23:00:00
+Persistent=true
+Unit=energy-report-etl.service
+
+[Install]
+WantedBy=timers.target
