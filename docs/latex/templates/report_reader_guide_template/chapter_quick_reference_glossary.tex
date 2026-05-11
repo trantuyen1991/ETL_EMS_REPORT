@@ -1,0 +1,113 @@
+\chapter{TRA CỨU NHANH: THUẬT NGỮ VÀ CÁCH ĐỌC NHANH}
+
+\section{Nếu chỉ có 60 giây để nhớ}
+
+\begin{ReaderNote}{Reader cheat sheet}
+\begin{enumerate}[label=-]
+\item official total không phải lúc nào cũng bằng phép cộng tay từ mọi detail đang nhìn thấy;
+\item \texttt{-} không phải là số 0;
+\item luôn đọc cùng nhau: \texttt{current}, \texttt{previous}, \texttt{delta}, rồi mới đến \texttt{delta \%};
+\item \texttt{delta \%} chỉ có ý nghĩa khi previous khác 0;
+\item \texttt{Top N} là danh sách nổi bật, không phải toàn bộ hệ thống;
+\item \texttt{Residual Load} có thể là một virtual meter hợp lệ, không mặc định là lỗi;
+\item \texttt{Utility consumption}, \texttt{Utility Energy}, và \texttt{Sensor Monitoring} là ba lớp khác nhau;
+\item sensor alert là tín hiệu điều tra, chưa phải kết luận cuối cùng;
+\item KPI phải đọc cùng \texttt{Energy}, \texttt{Production}, và \texttt{Coverage};
+\item \texttt{Block} trong KPI thường có nghĩa là được cover bởi block lớn hơn, không phải bug render.
+\end{enumerate}
+\end{ReaderNote}
+
+\section{Ý nghĩa nhanh của các nhãn chung}
+
+\subsection{Các nhãn thường gặp ở phần Header}
+
+\begin{enumerate}[label=-]
+\item \texttt{Created}: thời điểm report được tạo ra;
+\item \texttt{Start date} / \texttt{End date}: ranh giới thời gian của kỳ báo cáo;
+\item \texttt{Total energy}: tổng điện năng chính thức của kỳ đang đọc;
+\item \texttt{Meter active / total}: số meter có dữ liệu hoạt động so với tổng số meter được cấu hình cho phần đó;
+\item \texttt{Total days}: tổng số ngày trong kỳ;
+\item \texttt{Average / day}: giá trị trung bình theo ngày của kỳ đó.
+\end{enumerate}
+
+\subsection{Các nhãn so sánh cơ bản}
+
+\begin{enumerate}[label=-]
+\item \texttt{Current}: kỳ hiện tại đang được đọc;
+\item \texttt{Previous}: kỳ đối chiếu tương ứng;
+\item \texttt{Delta}: chênh lệch tuyệt đối giữa current và previous;
+\item \texttt{Delta \%}: tỷ lệ chênh lệch phần trăm, chỉ nên hiểu khi previous khác 0;
+\item \texttt{-}: không có giá trị hiển thị phù hợp, hoặc không đủ điều kiện tính tiếp;
+\item \texttt{0}: hệ thống thực sự có giá trị bằng 0.
+\end{enumerate}
+
+\section{Thuật ngữ ngắn gọn theo từng phần}
+
+\subsection{Electricity}
+
+\begin{enumerate}[label=-]
+\item \texttt{TOTAL}: tổng điện năng chính thức của plant hoặc area trong kỳ đang đọc;
+\item \texttt{Top N Meter Consumption}: danh sách các meter tiêu biểu nhất theo kỳ hiện tại, không phải full list;
+\item \texttt{Active meter}: số meter có dữ liệu hoạt động trong kỳ;
+\item \texttt{Residual Load}: phần tải còn lại sau khi đối chiếu official total với các nhánh meter đang được đưa vào logic detail;
+\item \texttt{Daily Energy Detail}: bảng ngày-đến-ngày để truy lại biến động và giá trị từng meter/area.
+\end{enumerate}
+
+\subsection{Utility và Sensor Monitoring}
+
+\begin{enumerate}[label=-]
+\item \texttt{Utility Usage}: lớp tiêu thụ utility theo nghĩa nghiệp vụ;
+\item \texttt{Utility Energy}: lớp năng lượng quy đổi từ utility, thường được hiển thị theo nghĩa \texttt{Converted to kWh}, và không đồng nghĩa tuyệt đối với raw usage;
+\item \texttt{Sensor Monitoring}: lớp đọc tín hiệu sensor để xem trạng thái dữ liệu, xu hướng, và anomaly;
+\item \texttt{Min / Avg / Max}: khoảng dao động của tín hiệu trong ngày hoặc trong kỳ;
+\item \texttt{Alert} / anomaly: tín hiệu cần kiểm tra thêm, chưa phải kết luận vận hành cuối cùng.
+\end{enumerate}
+
+\subsection{KPI}
+
+\begin{enumerate}[label=-]
+\item \texttt{Energy KPI}: cường độ năng lượng, thường hiểu là tỷ lệ năng lượng trên sản lượng;
+\item \texttt{Production day}: số ngày trong kỳ mà production liên quan lớn hơn 0;
+\item \texttt{Coverage}: mức độ kỳ hiện tại được cover bởi KPI blocks hợp lệ;
+\item \texttt{OK}: ngày hoặc block có dữ liệu hợp lệ để đọc trực tiếp;
+\item \texttt{Block}: ngày đang được cover bởi một KPI block rộng hơn nhưng không bị bẻ thành số ngày giả;
+\item \texttt{Missing}: không có KPI row phù hợp để hiển thị cho ngày đó hoặc phần đó của kỳ.
+\end{enumerate}
+
+\section{5 câu hỏi rất hay gặp và cách trả lời nhanh}
+
+\subsection{Tại sao total không bằng cộng tay từ detail?}
+
+Vì report có những lớp số khác nhau. Một số total là \textbf{official total} từ source-of-truth, còn detail là bề mặt giải thích hoặc drill-down. Hai lớp này liên quan chặt nhưng không phải lúc nào cũng được phép cộng tay để ra đúng số chính thức.
+
+\subsection{Tại sao có dấu \texttt{-} ở nhiều chỗ?}
+
+Vì report chọn nói thật rằng hiện không có giá trị hiển thị phù hợp, thay vì tự lấp thành 0 hoặc bịa ra phần trăm. Đây thường là hành vi đúng, không phải lỗi trình bày.
+
+\subsection{Tại sao KPI có \texttt{Block}?}
+
+Vì KPI đi theo logic coverage-first. Một ngày có thể nằm trong một block lớn hơn đã được chấp nhận, nhưng report không được phép bẻ block đó thành giá trị ngày nhân tạo chỉ để làm bảng trông đầy đủ.
+
+\subsection{Có nên kết luận ngay khi thấy sensor alert không?}
+
+Không nên. Alert nên được xem là tín hiệu điều tra. Sau đó cần xem thêm trend, anomaly scan, utility detail, và ngữ cảnh vận hành trước khi kết luận.
+
+\subsection{Khi nào nên quay lại bảng thay vì chỉ nhìn chart?}
+
+Khi cần xác nhận giá trị cụ thể, ngày cụ thể, \texttt{Status}, \texttt{Source}, hoặc \texttt{Coverage}. Chart rất tốt để phát hiện điểm nóng, nhưng bảng mới là nơi chốt lại giá trị chi tiết.
+
+\section{Thứ tự đọc nhanh an toàn cho người bận}
+
+Nếu cần đọc report rất nhanh nhưng vẫn muốn giảm rủi ro hiểu sai, thứ tự an toàn là:
+
+\begin{enumerate}[label=-]
+\item đọc Header để nắm đúng kỳ báo cáo;
+\item nhìn total và compare ở section cần quan tâm;
+\item mở chart để xem hướng biến động;
+\item quay lại bảng detail nếu cần chốt nguyên nhân hoặc ngày cụ thể;
+\item riêng KPI, luôn kiểm tra thêm \texttt{Production day}, \texttt{Status}, và coverage.
+\end{enumerate}
+
+\begin{ReaderNote}{Cách dùng chapter này}
+Chapter này không thay thế các chapter chi tiết phía trước. Nó là vùng tra cứu nhanh để người đọc quay lại khi quên một thuật ngữ, một ký hiệu, hoặc một quy tắc diễn giải ngắn.
+\end{ReaderNote}
