@@ -40,11 +40,11 @@ Bảng \ref{tab:document_metadata} là baseline metadata cho bộ technical manu
 		Project name & Energy Consumption Reporting System \\
 		Document type & Project technical manual / engineering reference document \\
 		Document scope & Architecture, data sources, repository/service mapping, business rules, KPI rules, output structure, release workflow, troubleshooting, glossary, and naming conventions \\
-		Current document version & \texttt{v0.6-draft} \\
-		Document status & Draft review baseline \\
+		Current document version & \texttt{v0.7-draft} \\
+		Document status & Internal review copy \\
 		Primary owner / author & Tuyen Tran \\
-		Reviewer & TBD \\
-		Approval status & Pending review and sign-off \\
+		Reviewer & Reviewer assignment pending \\
+		Approval status & Pre-handover sign-off pending \\
 		Canonical LaTeX source root & \texttt{docs/latex/templates/project\_technical\_documentation\_template/} \\
 		Canonical PDF output & \texttt{docs/output/project\_technical\_documentation\_latest.pdf} \\
 		Expected dated PDF output & \texttt{docs/output/project\_technical\_documentation\_YYYYMMDD.pdf} \\
@@ -87,7 +87,7 @@ Tài liệu kỹ thuật chất lượng tốt cần có vai trò rõ ràng gi�
 	\end{tabularx}
 \end{table}
 
-Ở trạng thái hiện tại, owner đã rõ, nhưng reviewer và approver vẫn nên được chốt sau khi tài liệu đi đến một mức ổn định hơn.
+Ở trạng thái hiện tại, owner đã rõ. Reviewer và approver vẫn chưa được gán tên chính thức, nhưng trạng thái pending hiện đã được diễn đạt rõ ràng để tài liệu có thể dùng như một bản internal review copy mà không gây hiểu nhầm là đã sign-off xong.
 
 \section{Approval and sign-off flow}
 
@@ -122,6 +122,7 @@ Bảng \ref{tab:revision_history} là baseline revision history của bộ techn
 		\texttt{v0.4-draft} & 2026-05-11 & Draft review baseline & Thêm chapter Document Metadata và Revision History, chuẩn hóa versioning convention, role mapping, approval flow, và change log policy cho technical manual. \\
 		\texttt{v0.5-draft} & 2026-05-11 & Draft review baseline & Dọn front matter và back matter legacy placeholders, chèn corporate cover background, và chuẩn hóa header/footer cùng divider lines cho toàn bộ technical PDF. \\
 		\texttt{v0.6-draft} & 2026-05-11 & Draft review baseline & Thêm phụ lục Glossary và Naming Conventions để chuẩn hóa thuật ngữ hệ thống, artifact families, output naming, internal keys, và naming guardrails cho technical manual. \\
+		\texttt{v0.7-draft} & 2026-05-11 & Internal review copy & Thực hiện pass final docs polish và handover-readiness review: dọn các placeholder template còn sót, thay wording reviewer/approval theo hướng reviewable, và bổ sung current handover-readiness snapshot cho technical manual. \\
 		\bottomrule
 	\end{tabularx}
 \end{table}
@@ -147,7 +148,7 @@ Trước khi xem technical PDF là đủ trưởng thành cho một vòng review
 \item document metadata đã phản ánh đúng project name, source root, output location, và document status;
 \item version hiện tại đã rõ là draft, review, hay approved baseline;
 \item revision history đã phản ánh các checkpoint lớn đã hoàn thành;
-\item reviewer và approval path đã được xác định hoặc ít nhất được để ở trạng thái TBD có chủ đích;
+\item reviewer và approval path đã được xác định hoặc ít nhất được để ở trạng thái pending assignment có chủ đích;
 \item tài liệu đã build pass, cross-reference sạch, và PDF output đã được cập nhật theo version mới nhất.
 \end{enumerate}
 

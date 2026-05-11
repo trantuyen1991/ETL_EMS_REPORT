@@ -182,59 +182,59 @@ Trước khi phát hành một bản technical PDF mới, nên rà soát tối t
 \item việc có hay không cần cập nhật checklist, runbook, hoặc project status song song với tài liệu PDF.
 \end{enumerate}
 
+\section{Current handover-readiness snapshot}
+
+Ở trạng thái hiện tại, bộ technical manual đã có một cấu trúc đủ rõ để dùng cho internal handover review. Chapter order hiện hành gồm:
+
+\begin{enumerate}[label=-]
+\item document metadata và revision history;
+\item project overview và phạm vi tài liệu;
+\item data sources và repository / service mapping;
+\item business rules và KPI reporting rules;
+\item output structure, release workflow, và troubleshooting;
+\item glossary và naming conventions dưới dạng appendix.
+\end{enumerate}
+
+Các thành phần trên đã tạo được một luồng đọc hợp lý từ governance, sang architecture, data ownership, business rules, vận hành, và cuối cùng là lớp tra cứu thuật ngữ. Điều này phù hợp với mục tiêu dùng bộ PDF như một tài liệu kỹ thuật có thể review, handover, và đối chiếu với runtime thật.
+
+Ở góc nhìn readiness, các điểm đã đủ tốt cho internal review gồm:
+
+\begin{enumerate}[label=-]
+\item chapter order đã ổn định và không còn mang tính lecture-template;
+\item glossary appendix đã tồn tại thật, không còn ở trạng thái placeholder;
+\item revision history đã phản ánh các checkpoint chính của subsystem LaTeX;
+\item output structure, naming conventions, và PDF rebuild rules đã được mô tả rõ;
+\item generated technical PDFs đã được rebuild và verify sau các lần cập nhật chính.
+\end{enumerate}
+
+Các điểm còn mở trước khi xem tài liệu là approved handover baseline gồm:
+
+\begin{enumerate}[label=-]
+\item gán reviewer chính thức cho bản technical manual;
+\item chốt approver hoặc sign-off owner;
+\item sau vòng review nội bộ, cân nhắc freeze một version ổn định hơn như \texttt{v1.0} nếu không còn thay đổi lớn về cấu trúc.
+\end{enumerate}
+
+\section{Documentation maintenance checklist}
+
+Checklist tối thiểu để duy trì bộ tài liệu ở trạng thái usable và không drift khỏi implementation là:
+
+\begin{enumerate}[label=-]
+\item xác nhận phạm vi update của tài liệu;
+\item xác nhận các screenshot, sơ đồ, bảng biểu, và examples phản ánh đúng implementation hiện tại;
+\item rà lại business rules, KPI formulas, output naming, và source-of-truth notes nếu thay đổi có chạm vào domain logic;
+\item build lại PDF và kiểm tra \texttt{docs/output/} khi documentation source, figures, references, hoặc workflow rules thay đổi;
+\item chỉ chia sẻ hoặc dùng cho review khi nội dung và formatting đã được rà lại đầy đủ.
+\end{enumerate}
+
+\noindent\textbf{Operational notes}
+
+\begin{enumerate}[label=-]
+\item Technical documentation phải được cập nhật khi docs source thay đổi có ý nghĩa, không để trôi xa implementation.
+\item Generated PDFs là output artifacts, không phải primary source.
+\item Nếu build lỗi, cần giữ log và báo lỗi rõ thay vì bỏ qua bước rebuild hoặc review PDF.
+\end{enumerate}
+
 \section{Tổng kết chương}
 
-Chapter mẫu này chuyển template từ phong cách học thuật tổng quát sang phong cách technical manual cho dự án báo cáo năng lượng. Ở trạng thái hiện tại, bộ tài liệu đã có chapter metadata / revision history, chapter tổng quan, chapter data sources / mapping, chapter business rules / KPI rules, và chapter output / release operations. Các bước mở rộng tiếp theo có thể tiếp tục bổ sung glossary hoặc approval-oriented appendices khi cần.
-
-% ================== CHECKLIST CẬP NHẬT TÀI LIỆU ==================
-\newpage
-\section*{}
-\begin{center}
-	\bfseries\fontsize{12}{14}\selectfont
-	Checklist cập nhật tài liệu
-\end{center}
-\addcontentsline{toc}{section}{Checklist cập nhật tài liệu}
-
-\noindent\textbf{Mục 1.} Xác nhận phạm vi update của tài liệu.
-
-\noindent\textbf{Mục 2.} Xác nhận các screenshot, sơ đồ, và bảng biểu phản ánh đúng implementation hiện tại.
-
-\noindent\textbf{Mục 3.} Xác nhận business rules và KPI formulas đã được rà soát lại với source-of-truth rules.
-
-\noindent\textbf{Mục 4.} Build lại PDF và kiểm tra \texttt{docs/output/}.
-
-\noindent\textbf{Mục 5.} Chỉ phát hành bản PDF sau khi hoàn thành rà soát nội dung và formatting.
-
-\noindent\textbf{Lưu ý:}
-
-\begin{enumerate}[label=-]
-\item Tài liệu kỹ thuật phải được cập nhật khi docs source thay đổi có ý nghĩa, không để trôi xa implementation.
-\item Generated PDFs là output artifacts, không phải primary source.
-\item Nếu build lỗi, cần giữ log và báo lỗi rõ thay vì bỏ qua bước phát hành PDF.
-\end{enumerate}
-
-% ================== GHI CHÚ PHIÊN BẢN ==================
-\newpage
-\section*{}
-\begin{center}
-	\bfseries\fontsize{15}{14}\selectfont
-	GHI CHÚ PHIÊN BẢN
-\end{center}
-
-\noindent\textbf{Version x.y.z}
-
-\begin{enumerate}[label=-]
-\item Tóm tắt ngắn gọn các thay đổi quan trọng của tài liệu.
-\item Liệt kê các phần đã được cập nhật như tính năng mới, business rules mới, hoặc thay đổi naming/output.
-\item Nếu cần, dẫn chiếu commit hoặc checkpoint phát hành tương ứng.
-\end{enumerate}
-
-% ================== PHỤ LỤC ==================
-\newpage
-\section*{}
-\begin{center}
-	\bfseries\fontsize{15}{14}\selectfont
-	PHỤ LỤC
-\end{center}
-
-Phần phụ lục có thể dùng để đặt glossary, mapping bảng dữ liệu, naming conventions, danh sách output artifacts, hoặc sơ đồ mở rộng không phù hợp để đặt trong nội dung chính.
+Chapter tổng quan này hiện không còn là một chapter mẫu thuần túy. Nó đã trở thành phần mở đầu thực sự của bộ technical manual, mô tả mục tiêu tài liệu, phạm vi, kiến trúc hệ thống, workflow cập nhật docs, và trạng thái handover-readiness hiện tại. Kết hợp với các chapter còn lại và appendix glossary, bộ tài liệu hiện đã ở mức phù hợp cho internal review và gần sẵn sàng cho một baseline handover có kiểm soát.
