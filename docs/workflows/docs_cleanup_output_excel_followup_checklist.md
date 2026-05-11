@@ -25,7 +25,7 @@ Clean up documentation drift after the recent:
   - moved Daily Excel wording out of the misleading pending context
   - kept true future work under pending features
 
-- [ ] **Checkpoint 5, verification + closeout**
-  - grep for stale output/day-folder wording
-  - commit the docs cleanup checkpoint
-  - re-mine MemPalace
+- [x] **Checkpoint 5, verification + closeout**
+  - grep-verified the targeted stale output/day-folder wording is gone
+  - committed the docs cleanup checkpoint
+  - re-mined MemPalace
