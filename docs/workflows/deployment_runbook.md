@@ -261,7 +261,7 @@ If the operator wants to keep everything on the recommended baseline, the only l
 - `PRINT_STAGING_DIR` is the Chromium-safe staging path and should normally be a separate subfolder such as `/srv/energy-report-output/_staging`
 - after a successful run, runtime removes current-batch staging files and prunes an empty `_staging` folder
 - both `OUTPUT_DIR` and `PRINT_STAGING_DIR` should point to a **non-hidden writable path**
-- if either path lives under `/home/<user>/...`, `deploy/bootstrap_ubuntu_host.sh` now auto-installs `acl` and grants the `energy-report` service user the required traverse/write ACLs
+- if either path lives under `/home/<user>/...`, `deploy/bootstrap_ubuntu_host.sh` now auto-installs `acl`, grants the `energy-report` service user traverse/write ACLs, and grants the home owner ACLs to open generated report files from the desktop
 - if an operator changes those paths manually later in `config/.env`, rerun the bootstrap or apply equivalent `setfacl` commands so the service account can still write there
 - do not set `PRINT_STAGING_DIR` to a personal desktop/home path such as `/home/trantuyen/Desktop/Report`; the `energy-report` service account usually cannot write there
 - `REPORT_FILENAME` should stay aligned with the accepted runtime naming: `energy_automatic_report`
@@ -311,10 +311,10 @@ If B1 already finished successfully with anchor `2025-05-31`, the next recommend
 
 ```bash
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-18|' /srv/energy-report/config/.env
-grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+sudo grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
-OUTPUT_ROOT="$(grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
 OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" \
   -path "$OUTPUT_ROOT/_staging" -prune -o \
@@ -329,7 +329,7 @@ Expected B2 behavior:
 
 ```bash
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
-grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+sudo grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
 ```
 
 Expected B3 result:
@@ -448,7 +448,7 @@ Useful commands:
 journalctl -u energy-report-etl.service -n 200 --no-pager
 timedatectl
 systemctl list-timers energy-report-etl.timer --all
-OUTPUT_ROOT="$(grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
 OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" \
   -path "$OUTPUT_ROOT/_staging" -prune -o \

@@ -225,7 +225,7 @@ Các điểm bắt buộc phải nhớ khi dùng block này:
 \item \texttt{PRINT\_STAGING\_DIR} là staging-only path, nên thường là subfolder riêng như \texttt{/srv/energy-report-output/\_staging};
 \item sau khi export thành công, runtime tự xóa staging files của batch hiện tại, prune thư mục \texttt{\_staging} nếu rỗng, và dọn legacy loose report files ở root của \texttt{OUTPUT\_DIR};
 \item \texttt{OUTPUT\_DIR} và \texttt{PRINT\_STAGING\_DIR} phải là non-hidden writable paths;
-\item với desktop-like host, nên ưu tiên \texttt{/home/<user>/Reports} thay vì Desktop trực tiếp; nếu dùng path dưới \texttt{/home/<user>/...}, bootstrap script hiện có thể auto-cài ACL để service account \texttt{energy-report} ghi được;
+\item với desktop-like host, nên ưu tiên \texttt{/home/<user>/Reports} thay vì Desktop trực tiếp; nếu dùng path dưới \texttt{/home/<user>/...}, bootstrap script hiện có thể auto-cài ACL để service account \texttt{energy-report} ghi được và home owner mở được file report đã sinh;
 \item nếu operator đổi các path này thủ công trong \texttt{config/.env} sau bootstrap, cần chạy lại bootstrap hoặc tự áp equivalent \texttt{setfacl} commands;
 \item nếu host không dùng baseline \texttt{/srv/energy-report}, block và \texttt{systemd} units phải được chỉnh đồng bộ.
 \end{enumerate}
@@ -261,7 +261,7 @@ ln -sf ../sensor/power.svg circle-check.svg
 \begin{ShellBlock}
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
-OUTPUT_ROOT="$(grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
 OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" \
   -path "$OUTPUT_ROOT/_staging" -prune -o \
@@ -314,7 +314,7 @@ sudo systemctl status energy-report-etl.service --no-pager
 sudo systemctl status energy-report-etl.timer --no-pager
 systemctl list-timers energy-report-etl.timer --all
 journalctl -u energy-report-etl.service -n 100 --no-pager
-OUTPUT_ROOT="$(grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
 OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" \
   -path "$OUTPUT_ROOT/_staging" -prune -o \

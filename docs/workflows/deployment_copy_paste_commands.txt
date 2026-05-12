@@ -41,7 +41,7 @@ Prefer a local file for the interactive mode:
 
 curl -fsSL -o bootstrap_ubuntu_host.sh "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh"
 chmod +x bootstrap_ubuntu_host.sh
-sudo ./bootstrap_ubuntu_host.sh --interactive
+sudo ./bootstrap_ubuntu_host.sh --interactive --reset-project
 
 
 B1 - Fresh bootstrap + month-end smoke (Daily + Monthly)
@@ -52,8 +52,10 @@ curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deplo
 Check what was deployed:
 
 sudo -u energy-report -H bash -lc 'cd /srv/energy-report && git rev-parse --short HEAD'
-grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
-find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune -o -type f -print | sort | tail -n 30
+sudo grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
+find "$OUTPUT_ROOT" -path "$OUTPUT_ROOT/_staging" -prune -o -type f -print | sort | tail -n 30
 
 Expected idea for B1:
 - Daily artifacts for 2025-05-31 under /srv/energy-report-output/2025_05/
@@ -66,11 +68,13 @@ B2 - Change anchor to Sunday and run again (Daily + Weekly)
 -----------------------------------------------------------
 
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-18|' /srv/energy-report/config/.env
-grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+sudo grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
 
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
-find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune -o -type f -print | sort | tail -n 30
+OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
+find "$OUTPUT_ROOT" -path "$OUTPUT_ROOT/_staging" -prune -o -type f -print | sort | tail -n 30
 
 Expected idea for B2:
 - Daily artifacts for 2025-05-18 under /srv/energy-report-output/2025_05/
@@ -81,7 +85,7 @@ B3 - Reset to scheduled mode
 ----------------------------
 
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
-grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+sudo grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
 
 Expected result:
 - REPORT_ANCHOR_DATE=
@@ -99,7 +103,9 @@ sudo systemctl status energy-report-etl.service --no-pager
 sudo systemctl status energy-report-etl.timer --no-pager
 systemctl list-timers energy-report-etl.timer --all
 journalctl -u energy-report-etl.service -n 100 --no-pager
-find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune -o -type f -print | sort | tail -n 30
+OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
+find "$OUTPUT_ROOT" -path "$OUTPUT_ROOT/_staging" -prune -o -type f -print | sort | tail -n 30
 
 
 B4.1 - Change the timer schedule later
@@ -195,7 +201,9 @@ Set a smoke anchor and run the old version once:
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-31|' /srv/energy-report/config/.env
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
-find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune -o -type f -print | sort | tail -n 30
+OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
+find "$OUTPUT_ROOT" -path "$OUTPUT_ROOT/_staging" -prune -o -type f -print | sort | tail -n 30
 
 When done, return to the current deploy branch:
 
@@ -224,4 +232,4 @@ sudo -u energy-report ./venv/bin/python -m src.main
 Back to scheduled mode:
 
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
-grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+sudo grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
