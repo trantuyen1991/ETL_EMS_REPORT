@@ -330,13 +330,37 @@ grant_service_acl_for_home_path() {
 
   traverse_path="$(dirname "${target_dir}")"
   while [[ "${traverse_path}" == /home/* ]]; do
-    setfacl -m "u:${SERVICE_USER}:--x" "${traverse_path}"
+    ensure_service_acl_at_least_execute "${traverse_path}"
     [[ "${traverse_path}" == "${owner_home}" ]] && break
     traverse_path="$(dirname "${traverse_path}")"
   done
 
   setfacl -R -m "u:${SERVICE_USER}:rwx" "${target_dir}"
   setfacl -R -d -m "u:${SERVICE_USER}:rwx" "${target_dir}"
+}
+
+ensure_service_acl_at_least_execute() {
+  local target_dir="$1"
+  local current_acl=""
+  local updated_acl=""
+
+  current_acl="$(
+    getfacl -cp "${target_dir}" \
+      | awk -F: -v user="${SERVICE_USER}" '$1 == "user" && $2 == user { print $3; exit }'
+  )"
+  current_acl="${current_acl:0:3}"
+
+  if [[ -z "${current_acl}" ]]; then
+    setfacl -m "u:${SERVICE_USER}:--x" "${target_dir}"
+    return 0
+  fi
+
+  if [[ "${current_acl}" == ??x ]]; then
+    return 0
+  fi
+
+  updated_acl="${current_acl:0:2}x"
+  setfacl -m "u:${SERVICE_USER}:${updated_acl}" "${target_dir}"
 }
 
 prepare_runtime_dir() {
@@ -347,6 +371,16 @@ prepare_runtime_dir() {
     mkdir -p "${target_dir}"
     chown -R "${SERVICE_USER}:${SERVICE_USER}" "${target_dir}"
   fi
+}
+
+verify_runtime_dir_writable() {
+  local target_dir="$1"
+  local probe_dir="${target_dir%/}/.energy-report-write-check-$$"
+
+  as_service_user mkdir -p "${probe_dir}" \
+    || die "${SERVICE_USER} cannot create a directory under ${target_dir}. Check owner/ACL permissions."
+  as_service_user rmdir "${probe_dir}" \
+    || die "${SERVICE_USER} cannot remove a test directory under ${target_dir}. Check owner/ACL permissions."
 }
 
 while [[ $# -gt 0 ]]; do
@@ -433,6 +467,8 @@ mkdir -p "${PROJECT_ROOT}/logs"
 chown -R "${SERVICE_USER}:${SERVICE_USER}" "${PROJECT_ROOT}/logs"
 prepare_runtime_dir "${OUTPUT_DIR}"
 prepare_runtime_dir "${PRINT_STAGING_DIR}"
+verify_runtime_dir_writable "${OUTPUT_DIR}"
+verify_runtime_dir_writable "${PRINT_STAGING_DIR}"
 
 cat > "${PROJECT_ROOT}/config/.env" <<EOF
 MYSQL_HOST=${MYSQL_HOST}
