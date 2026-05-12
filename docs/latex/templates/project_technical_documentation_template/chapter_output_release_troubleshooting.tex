@@ -22,7 +22,7 @@ Chapter này được tổng hợp từ workflow thực tế của dự án và 
 
 \section{Canonical output structure}
 
-Hệ thống hiện ghi artifacts theo tháng, thay vì dùng dated run folders như trước. Root chuẩn là \texttt{output/reports/YYYY\_MM/}. Mỗi tháng được tách thành các nhóm output sau:
+Hệ thống hiện ghi artifacts theo tháng, thay vì dùng dated run folders như trước. Root chuẩn cho operator là \texttt{OUTPUT\_DIR/YYYY\_MM/}. Nếu \texttt{OUTPUT\_DIR} để trống, runtime chỉ fallback về \texttt{project\_root/output/reports/YYYY\_MM/} cho local/dev mode. Mỗi tháng được tách thành các nhóm output sau:
 
 \begin{enumerate}[label=-]
 \item \texttt{view\_html/}: HTML view phục vụ đọc và kiểm tra trên browser;
@@ -41,10 +41,10 @@ Bảng \ref{tab:artifact_structure} tóm tắt output conventions đang được
 	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.6cm}|>{\RaggedRight\arraybackslash}p{3.2cm}|>{\RaggedRight\arraybackslash}X|}
 		\hline
 		\textbf{Artifact Family} & \textbf{Location} & \textbf{Purpose} \\ \hline
-		View HTML & \TablePath{output/reports/YYYY_MM/view_html/} & Browser-readable version dùng để đọc report, kiểm tra cấu trúc, và debug render output. \\ \hline
-		PDF source HTML & \TablePath{output/reports/YYYY_MM/pdf_source_html/} & HTML nguồn cho PDF export, phản ánh print-safe shell và compact print styling trước khi in. \\ \hline
-		Final PDF & \TablePath{output/reports/YYYY_MM/pdf/} & PDF A4 cuối cùng, dùng cho phát hành và lưu trữ. \\ \hline
-		Daily Excel workbook & \TablePath{output/reports/YYYY_MM/excel/} & Workbook daily-only của v1 Excel export, phục vụ tabular extraction. \\ \hline
+		View HTML & \TablePath{OUTPUT_DIR/YYYY_MM/view_html/} & Browser-readable version dùng để đọc report, kiểm tra cấu trúc, và debug render output. \\ \hline
+		PDF source HTML & \TablePath{OUTPUT_DIR/YYYY_MM/pdf_source_html/} & HTML nguồn cho PDF export, phản ánh print-safe shell và compact print styling trước khi in. \\ \hline
+		Final PDF & \TablePath{OUTPUT_DIR/YYYY_MM/pdf/} & PDF A4 cuối cùng, dùng cho phát hành và lưu trữ. \\ \hline
+		Daily Excel workbook & \TablePath{OUTPUT_DIR/YYYY_MM/excel/} & Workbook daily-only của v1 Excel export, phục vụ tabular extraction. \\ \hline
 	\end{tabularx}
 \end{table}
 
@@ -103,10 +103,11 @@ PDF export của dự án tách rõ giữa canonical artifact path và staging p
 \subsection{Canonical path và staging path}
 
 \begin{enumerate}[label=-]
-\item canonical project output root là \texttt{output/reports/};
-\item mỗi report được ghi vào month-grouped directories bên dưới canonical root;
+\item canonical operator-facing output root là \texttt{OUTPUT\_DIR/};
+\item mỗi report được ghi vào month-grouped directories bên dưới \texttt{OUTPUT\_DIR/YYYY\_MM/};
+\item nếu \texttt{OUTPUT\_DIR} để trống, runtime fallback sang \texttt{project\_root/output/reports/YYYY\_MM/} như dev-local baseline;
 \item PDF print flow đồng thời tạo staging HTML và staging PDF ở một \textit{Chromium-safe non-hidden directory};
-\item sau khi print thành công, staged PDF được copy ngược lại vào canonical PDF directory của tháng tương ứng.
+\item sau khi print thành công, staged PDF được copy ngược lại vào canonical PDF directory của tháng tương ứng rồi được cleanup theo policy hiện hành.
 \end{enumerate}
 
 \subsection{Staging resolution order}
@@ -115,12 +116,23 @@ Thứ tự resolve staging directory hiện hành là:
 
 \begin{enumerate}[label=-]
 \item dùng \texttt{PRINT\_STAGING\_DIR} nếu được cấu hình rõ ràng;
-\item nếu không có, dùng \texttt{OUTPUT\_DIR} khi path này không hidden;
-\item nếu vẫn chưa có, dùng canonical project output dir nếu bản thân path đó không hidden;
-\item fallback cuối cùng là \texttt{\textasciitilde/Reports}.
+\item nếu không có, dùng \texttt{OUTPUT\_DIR/\_staging} khi canonical output root không hidden;
+\item nếu canonical output root không dùng được cho Chromium staging, fallback sang \texttt{project\_root/output/reports/\_staging} nếu path này không hidden;
+\item fallback cuối cùng là \texttt{\textasciitilde/Reports/\_staging}.
 \end{enumerate}
 
 Cách phân tầng này giúp tách bài toán artifact ownership với bài toán trình duyệt headless có thể truy cập được thư mục staging hay không.
+
+\subsection{Post-export cleanup expectation}
+
+Sau một lần export thành công, runtime hiện hành cố ý để \texttt{OUTPUT\_DIR} sạch theo hướng operator-facing:
+
+\begin{enumerate}[label=-]
+\item xóa staging HTML và staging PDF của batch vừa chạy;
+\item prune thư mục \texttt{\_staging} nếu nó rỗng;
+\item xóa legacy loose report artifacts nằm trực tiếp ở root của \texttt{OUTPUT\_DIR};
+\item giữ nguyên các month folders canonical như \texttt{2025\_05/}, \texttt{2025\_06/}, và toàn bộ subfolders \texttt{view\_html/}, \texttt{pdf\_source\_html/}, \texttt{pdf/}, \texttt{excel/} bên trong.
+\end{enumerate}
 
 \subsection{Stable PDF export baseline}
 

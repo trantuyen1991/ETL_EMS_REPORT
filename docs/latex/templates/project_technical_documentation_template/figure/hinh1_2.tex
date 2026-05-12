@@ -47,7 +47,7 @@
 	\flowstep{12.05}{BrandBlue}{LightBlue}{5. Build domain objects}{Create electricity, KPI, and utility blocks\\with business rules applied before rendering.}
 	\flowstep{9.15}{FlowOrange}{LightOrange}{6. Assemble unified report\_context}{Merge meta, sections, flags, labels, notes,\\and presentation tokens from \texttt{report\_style.json}.}
 	\flowstep{6.25}{FlowGreen}{LightGreen}{7. Render and export artifacts}{Render \texttt{view\_html} and \texttt{pdf\_source\_html},\\print PDF, and write daily Excel when applicable.}
-	\flowstep{3.35}{FlowGray}{LightGray}{8. Store canonical outputs}{Write \texttt{output/reports/YYYY\_MM/} artifacts\\with \texttt{01\_monthly / 02\_weekly / 03\_daily} prefixes.}
+	\flowstep{3.35}{FlowGray}{LightGray}{8. Store canonical outputs}{Write \texttt{OUTPUT\_DIR/YYYY\_MM/} artifacts\\with \texttt{01\_monthly / 02\_weekly / 03\_daily} prefixes.\\If blank, fallback to \texttt{output/reports/YYYY\_MM/}.}
 
 	\foreach \upper/\lower in {21.85/20.75,18.95/17.85,16.05/14.95,13.15/12.05,10.25/9.15,7.35/6.25,4.45/3.35} {
 		\draw[-{Latex[length=4mm,width=3mm]}, line width=1.1pt, draw=LineColor] (13.35,\upper) -- (13.35,\lower);

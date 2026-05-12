@@ -58,25 +58,25 @@ Trước khi paste các block bên dưới, người cài chỉ cần thay các 
 \item \texttt{MYSQL\_USER};
 \item \texttt{MYSQL\_PASSWORD};
 \item \texttt{OUTPUT\_DIR} nếu host không dùng \texttt{/srv/energy-report-output};
-\item \texttt{PRINT\_STAGING\_DIR} nếu staging cần khác output root;
+\item \texttt{PRINT\_STAGING\_DIR} nếu staging cần khác \texttt{OUTPUT\_DIR/\_staging};
 \item khi cần, \texttt{WORKSHOP\_NAME} và \texttt{ENERGY\_UNIT}.
 \end{enumerate}
 
 Nếu host bám đúng baseline chuẩn, đa số trường hợp chỉ cần thay các giá trị MySQL và đường dẫn lưu output.
 
-\subsection{Reviewed release reference cho bootstrap này}
+\subsection{Current deploy reference và rollback snapshot}
 
-Flow triển khai hiện tại được đồng bộ với reviewed release tag sau:
+Flow operator hiện tại ưu tiên deploy branch \texttt{deploy/stable} vì branch này đang mang các deploy-flow và output-path fixes mới hơn reviewed tag cũ.
 
 \begin{enumerate}[label=-]
-\item release tag: \texttt{v4.3.0-dev};
+\item current bootstrap branch: \texttt{deploy/stable};
+\item raw bootstrap URL: \nolinkurl{https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh};
 \item repo URL: \nolinkurl{https://github.com/trantuyen1991/ETL_EMS_REPORT.git};
-\item GitHub release page: \nolinkurl{https://github.com/trantuyen1991/ETL_EMS_REPORT/releases/tag/v4.3.0-dev};
-\item release tag page: \nolinkurl{https://github.com/trantuyen1991/ETL_EMS_REPORT/tree/v4.3.0-dev};
-\item release archive: \nolinkurl{https://github.com/trantuyen1991/ETL_EMS_REPORT/archive/refs/tags/v4.3.0-dev.zip}.
+\item older reviewed rollback tag: \texttt{v4.3.0-dev};
+\item older tag page: \nolinkurl{https://github.com/trantuyen1991/ETL_EMS_REPORT/tree/v4.3.0-dev}.
 \end{enumerate}
 
-Nếu muốn deploy đúng snapshot đã review, operator nên clone trực tiếp tag này thay vì bám một moving branch.
+Nếu cần deploy đúng snapshot cũ đã review để rollback hoặc đối chiếu, operator có thể clone trực tiếp \texttt{v4.3.0-dev}. Còn flow bootstrap host mới và one-command install mặc định phải bám \texttt{deploy/stable}.
 
 \subsection{One-command bootstrap option}
 
@@ -89,7 +89,7 @@ Nếu operator muốn tránh copy nhiều dòng lệnh từ PDF, repo có sẵn 
 
 Khuyến nghị vận hành là copy one-command từ file \texttt{deployment\_copy\_paste\_commands.txt} hoặc từ raw GitHub text, không copy các block lệnh dài trực tiếp từ PDF vì trình đọc PDF có thể wrap dòng, làm mất dấu \texttt{\textbackslash}, tách \texttt{.deb}, hoặc bỏ sót các dòng sau.
 
-Script bootstrap có thể tự cài package nền, cài Google Chrome \texttt{.deb}, tạo service account, clone repo, dựng \texttt{venv}, ghi \texttt{config/.env}, ép PDF browser path sang \texttt{/usr/bin/google-chrome}, kiểm tra icon Sensor Monitoring, chạy manual smoke, và nếu có flag \texttt{--install-systemd} thì cài luôn timer.
+Script bootstrap hiện có thể tự cài package nền, cài Google Chrome \texttt{.deb}, tạo service account, clone repo từ \texttt{deploy/stable}, dựng \texttt{venv}, ghi \texttt{config/.env}, ép PDF browser path sang \texttt{/usr/bin/google-chrome}, auto-cài \texttt{acl} và cấp quyền cho service account nếu \texttt{OUTPUT\_DIR} hoặc \texttt{PRINT\_STAGING\_DIR} nằm dưới \texttt{/home/<user>/...}, kiểm tra icon Sensor Monitoring, chạy manual smoke, và nếu có flag \texttt{--install-systemd} thì cài luôn timer. Trong operator flow chuẩn, B1 smoke mode cố ý chưa cài timer cho đến sau bước restore \texttt{REPORT\_ANCHOR\_DATE=}.
 
 \subsection{Step 1. Chuẩn bị host mới}
 
@@ -149,7 +149,7 @@ sudo useradd --system \
 
 sudo mkdir -p /srv
 sudo chown energy-report:energy-report /srv
-sudo -u energy-report git clone --branch v4.3.0-dev --depth 1 \
+sudo -u energy-report git clone --branch deploy/stable --depth 1 \
   https://github.com/trantuyen1991/ETL_EMS_REPORT.git \
   /srv/energy-report
 
@@ -159,7 +159,7 @@ sudo -u energy-report ./venv/bin/pip install --upgrade pip
 sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 \end{ShellBlock}
 
-Đây là baseline end-to-end cho host mới. \texttt{--no-create-home} là cố ý: nếu dùng \texttt{--create-home}, Linux sẽ tạo sẵn \texttt{/srv/energy-report} với các dotfiles mặc định và lệnh \texttt{git clone ... /srv/energy-report} sẽ fail vì thư mục đích đã tồn tại và không rỗng.
+Đây là baseline end-to-end cho host mới. \texttt{--no-create-home} là cố ý: nếu dùng \texttt{--create-home}, Linux sẽ tạo sẵn \texttt{/srv/energy-report} với các dotfiles mặc định và lệnh \texttt{git clone ... /srv/energy-report} sẽ fail vì thư mục đích đã tồn tại và không rỗng. Nếu cần rollback đúng reviewed snapshot cũ, chỉ thay target clone branch bằng \texttt{v4.3.0-dev} một cách có chủ đích.
 
 Nếu cần reset riêng Step 2 để chạy lại từ đầu trên một host test, dùng block sau. Block này xóa project checkout và user service account, nhưng không xóa output report.
 
@@ -170,7 +170,7 @@ id energy-report >/dev/null 2>&1 && userdel energy-report || true
 useradd --system --no-create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report
 mkdir -p /srv
 chown energy-report:energy-report /srv
-sudo -u energy-report git clone --branch v4.3.0-dev --depth 1 https://github.com/trantuyen1991/ETL_EMS_REPORT.git /srv/energy-report
+sudo -u energy-report git clone --branch deploy/stable --depth 1 https://github.com/trantuyen1991/ETL_EMS_REPORT.git /srv/energy-report
 cd /srv/energy-report
 sudo -u energy-report python3 -m venv venv
 sudo -u energy-report ./venv/bin/pip install --upgrade pip
@@ -195,7 +195,7 @@ MYSQL_PASSWORD=__FILL_DB_PASSWORD__
 
 # --- Change these paths only if your host uses a different storage layout ---
 OUTPUT_DIR=/srv/energy-report-output
-PRINT_STAGING_DIR=/srv/energy-report-output
+PRINT_STAGING_DIR=/srv/energy-report-output/_staging
 
 # --- Usually keep these values as-is ---
 REPORT_FILENAME=energy_automatic_report
@@ -209,10 +209,11 @@ EOF
 
 sudo chown energy-report:energy-report /srv/energy-report/config/.env
 sudo chmod 640 /srv/energy-report/config/.env
-sudo mkdir -p /srv/energy-report/logs /srv/energy-report-output
+sudo mkdir -p /srv/energy-report/logs /srv/energy-report-output /srv/energy-report-output/_staging
 sudo chown -R energy-report:energy-report \
   /srv/energy-report/logs \
-  /srv/energy-report-output
+  /srv/energy-report-output \
+  /srv/energy-report-output/_staging
 \end{ShellBlock}
 
 Các điểm bắt buộc phải nhớ khi dùng block này:
@@ -220,14 +221,18 @@ Các điểm bắt buộc phải nhớ khi dùng block này:
 \begin{enumerate}[label=-]
 \item \texttt{REPORT\_ANCHOR\_DATE} phải để trống trong steady-state scheduled mode;
 \item nếu giữ nhầm một anchor date cố định sau smoke test, timer sẽ lặp lại ngày đó thay vì current date thực;
+\item \texttt{OUTPUT\_DIR} là canonical final artifact root, với month folders được tạo trực tiếp dưới \texttt{OUTPUT\_DIR/YYYY\_MM/};
+\item \texttt{PRINT\_STAGING\_DIR} là staging-only path, nên thường là subfolder riêng như \texttt{/srv/energy-report-output/\_staging};
+\item sau khi export thành công, runtime tự xóa staging files của batch hiện tại, prune thư mục \texttt{\_staging} nếu rỗng, và dọn legacy loose report files ở root của \texttt{OUTPUT\_DIR};
 \item \texttt{OUTPUT\_DIR} và \texttt{PRINT\_STAGING\_DIR} phải là non-hidden writable paths;
-\item không đặt \texttt{PRINT\_STAGING\_DIR} vào Desktop hoặc home folder của user cá nhân như \texttt{/home/trantuyen/Desktop/Report}, vì service account \texttt{energy-report} thường không có quyền ghi vào đó;
+\item với desktop-like host, nên ưu tiên \texttt{/home/<user>/Reports} thay vì Desktop trực tiếp; nếu dùng path dưới \texttt{/home/<user>/...}, bootstrap script hiện có thể auto-cài ACL để service account \texttt{energy-report} ghi được;
+\item nếu operator đổi các path này thủ công trong \texttt{config/.env} sau bootstrap, cần chạy lại bootstrap hoặc tự áp equivalent \texttt{setfacl} commands;
 \item nếu host không dùng baseline \texttt{/srv/energy-report}, block và \texttt{systemd} units phải được chỉnh đồng bộ.
 \end{enumerate}
 
-\subsection{Step 4. Kiểm tra asset runtime cho release tag}
+\subsection{Step 4. Optional asset workaround chỉ khi rollback về reviewed tag cũ}
 
-Với release tag \texttt{v4.3.0-dev}, nếu template báo thiếu \texttt{assets/icon/outline/*.svg} khi render Sensor Monitoring, tạo các link tương thích dưới đây trước khi chạy smoke. Đây là workaround an toàn cho host deploy và nên được thay bằng source release fix ở release tiếp theo.
+Flow \texttt{deploy/stable} hiện tại không nên cần bước này. Chỉ khi operator chủ động rollback về reviewed tag \texttt{v4.3.0-dev}, nếu template báo thiếu \texttt{assets/icon/outline/*.svg} khi render Sensor Monitoring, tạo các link tương thích dưới đây trước khi chạy smoke. Đây là workaround dành cho rollback host, không phải baseline của flow triển khai hiện tại.
 
 \begin{ShellBlock}
 cd /srv/energy-report
@@ -256,7 +261,11 @@ ln -sf ../sensor/power.svg circle-check.svg
 \begin{ShellBlock}
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
-find /srv/energy-report-output -type f | sort | tail -n 30
+OUTPUT_ROOT="$(grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
+find "$OUTPUT_ROOT" \
+  -path "$OUTPUT_ROOT/_staging" -prune -o \
+  -type f -print | sort | tail -n 30
 \end{ShellBlock}
 
 Expected baseline behavior:
@@ -266,7 +275,7 @@ Expected baseline behavior:
 \item \textit{weekly} chỉ xuất hiện khi anchor day là Chủ nhật;
 \item \textit{monthly} chỉ xuất hiện khi anchor day là ngày cuối tháng;
 \item daily run cũng tạo một workbook Excel theo đúng scope hiện hành;
-\item nếu PDF export thành công, output có cả \texttt{.\_view.html}, \texttt{.\_pdf\_source.html}, và \texttt{.pdf}.
+\item nếu export thành công, month folder dưới \texttt{OUTPUT\_DIR/YYYY\_MM/} có đủ \texttt{view\_html/}, \texttt{pdf\_source\_html/}, \texttt{pdf/}, và daily \texttt{excel/} khi applicable.
 \end{enumerate}
 
 Nếu cần deterministic smoke anchors cho Sunday hoặc month-end, operator nên dùng \texttt{docs/workflows/release\_runbook.md} để bám đúng các anchor đã được chấp nhận, thay vì tự đoán ngày kiểm tra.
@@ -305,7 +314,11 @@ sudo systemctl status energy-report-etl.service --no-pager
 sudo systemctl status energy-report-etl.timer --no-pager
 systemctl list-timers energy-report-etl.timer --all
 journalctl -u energy-report-etl.service -n 100 --no-pager
-find /srv/energy-report-output -type f | sort | tail -n 30
+OUTPUT_ROOT="$(grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
+find "$OUTPUT_ROOT" \
+  -path "$OUTPUT_ROOT/_staging" -prune -o \
+  -type f -print | sort | tail -n 30
 \end{ShellBlock}
 
 Nếu timer đã enabled nhưng output không như kỳ vọng, operator nên quay sang chapter \textit{Troubleshooting Playbook} để kiểm tra theo đúng thứ tự triage đã chuẩn hóa.

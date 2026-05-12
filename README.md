@@ -285,7 +285,7 @@ For stable PDF chart output, use this sequence:
 1. render the selected PDF template for the report family
 2. write rendered file to the configured staging output directory
 3. print with Chromium headless into the staging directory
-4. copy final PDF back into `output/reports/`
+4. copy final PDF back into the canonical `OUTPUT_DIR/<YYYY_MM>/pdf/` folder
 
 Chart rendering rule for PDF templates:
 
@@ -309,11 +309,11 @@ Current production flow:
 1. `python3 -m src.main` calls `run_production()`
 2. the report batch resolves which periods are required for the effective anchor day
 3. the app renders both view HTML and PDF source HTML
-4. the canonical view HTML is written into `output/reports/YYYY_MM/view_html/`
-5. the canonical PDF source HTML is written into `output/reports/YYYY_MM/pdf_source_html/`, while Chromium staging still uses the print-safe staging directory
+4. the canonical view HTML is written into `OUTPUT_DIR/YYYY_MM/view_html/`
+5. the canonical PDF source HTML is written into `OUTPUT_DIR/YYYY_MM/pdf_source_html/`, while Chromium staging still uses the print-safe staging directory
 6. Chromium headless prints the staged HTML into a staged PDF
-7. the final PDF is written into `output/reports/YYYY_MM/pdf/`
-8. the daily run also writes one `.xlsx` workbook into `output/reports/YYYY_MM/excel/`
+7. the final PDF is written into `OUTPUT_DIR/YYYY_MM/pdf/`
+8. the daily run also writes one `.xlsx` workbook into `OUTPUT_DIR/YYYY_MM/excel/`
 
 Template mapping:
 
@@ -352,6 +352,7 @@ Stable PDF chart rules:
 Local development note:
 
 - prefer a non-hidden project path such as `/home/nbt/workspace/02_MySQL`
+- if `OUTPUT_DIR` is blank, runtime falls back to the project-local `output/reports/YYYY_MM/` tree for local/dev use
 - if the project is moved to a new path, recreate `venv` in the new location instead of copying the old environment as-is
 
 Important operational rule:
@@ -513,9 +514,13 @@ Operator-first install note:
 
 Generated files:
 
+- canonical operator-facing root: `OUTPUT_DIR/`
+- local/dev fallback when `OUTPUT_DIR` is blank: `output/reports/`
+- staging-only print path: `PRINT_STAGING_DIR` or `OUTPUT_DIR/_staging`
+
 ```
 
-output/reports/
+OUTPUT_DIR/
 └── <YYYY_MM>/
     ├── pdf/
     │   ├── 01_monthly_<filename>_<anchor-date>.pdf

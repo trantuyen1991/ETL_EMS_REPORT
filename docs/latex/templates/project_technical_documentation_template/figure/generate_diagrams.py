@@ -174,7 +174,8 @@ def make_architecture():
     ], COLORS["green"], COLORS["light_green"], font(28, bold=True), font(22))
 
     rounded_box(draw, canonical, "Canonical Outputs", [
-        "output/reports/YYYY_MM/ -> view_html, pdf_source_html, pdf, excel -> 01_monthly / 02_weekly / 03_daily naming",
+        "OUTPUT_DIR/YYYY_MM/ -> view_html, pdf_source_html, pdf, excel -> 01_monthly / 02_weekly / 03_daily naming",
+        "If OUTPUT_DIR is blank, runtime falls back to project-local output/reports/YYYY_MM/.",
     ], COLORS["gray"], COLORS["light_gray"], font(28, bold=True), font(22))
 
     # vertical connectors
@@ -237,7 +238,7 @@ def make_flow():
         ("5. Build domain objects", "EnergyService, KPIService, and UtilityService produce electricity, KPI, and utility blocks ready for rendering."),
         ("6. Assemble unified report_context", "ReportBuilderService and ReportStyleService merge meta, sections, flags, labels, notes, and presentation tokens."),
         ("7. Render and export artifacts", "Render view_html, render pdf_source_html, print PDF, and write the daily Excel workbook when the period is daily."),
-        ("8. Store canonical outputs", "Write files into output/reports/YYYY_MM/ and keep filename ordering with 01_monthly / 02_weekly / 03_daily prefixes."),
+        ("8. Store canonical outputs", "Write files into OUTPUT_DIR/YYYY_MM/ and keep filename ordering with 01_monthly / 02_weekly / 03_daily prefixes. If OUTPUT_DIR is blank, fallback to project-local output/reports/YYYY_MM/."),
     ]
 
     rects = []

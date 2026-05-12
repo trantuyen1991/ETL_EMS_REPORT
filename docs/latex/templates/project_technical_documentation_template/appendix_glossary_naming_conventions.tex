@@ -52,12 +52,12 @@ Một phần nhầm lẫn thường gặp là đọc đúng report nhưng nhầm
 	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.2cm}|>{\RaggedRight\arraybackslash}p{3.4cm}|>{\RaggedRight\arraybackslash}X|}
 		\hline
 		\textbf{Artifact / Folder} & \textbf{Canonical Form} & \textbf{Meaning in this project} \\ \hline
-		\texttt{view\_html} & \TablePath{output/reports/YYYY_MM/view_html/} & Browser-readable HTML artifact dùng để đọc report, rà layout logic, và debug content structure ngoài print path. \\ \hline
-		\texttt{pdf\_source\_html} & \TablePath{output/reports/YYYY_MM/pdf_source_html/} & HTML nguồn dùng cho PDF export, phản ánh print-safe structure gần nhất trước khi gọi Chromium/CDP print. \\ \hline
-		\texttt{pdf} & \TablePath{output/reports/YYYY_MM/pdf/} & PDF artifact cuối cùng dùng cho release review, chia sẻ nội bộ, và lưu trữ theo kỳ báo cáo. \\ \hline
-		\texttt{excel} & \TablePath{output/reports/YYYY_MM/excel/} & Folder chứa workbook Excel daily-only ở scope export hiện tại. \\ \hline
+		\texttt{view\_html} & \TablePath{OUTPUT_DIR/YYYY_MM/view_html/} & Browser-readable HTML artifact dùng để đọc report, rà layout logic, và debug content structure ngoài print path. \\ \hline
+		\texttt{pdf\_source\_html} & \TablePath{OUTPUT_DIR/YYYY_MM/pdf_source_html/} & HTML nguồn dùng cho PDF export, phản ánh print-safe structure gần nhất trước khi gọi Chromium/CDP print. \\ \hline
+		\texttt{pdf} & \TablePath{OUTPUT_DIR/YYYY_MM/pdf/} & PDF artifact cuối cùng dùng cho release review, chia sẻ nội bộ, và lưu trữ theo kỳ báo cáo. \\ \hline
+		\texttt{excel} & \TablePath{OUTPUT_DIR/YYYY_MM/excel/} & Folder chứa workbook Excel daily-only ở scope export hiện tại. \\ \hline
+		\TablePath{OUTPUT_DIR/_staging/} & temporary print staging & Nơi giữ staging HTML/PDF cho Chromium print path; runtime sẽ tự dọn current-batch staging files và prune thư mục này nếu rỗng. \\ \hline
 		\TablePath{docs/output/} & documentation output & Nơi chứa generated technical-documentation PDF của subsystem LaTeX; các file PDF ở đây là build artifacts, không phải source tài liệu. \\ \hline
-		\TablePath{_legacy_backup_2026_05_11/} & recoverable backup folder & Backup nội bộ dùng để di chuyển legacy output artifacts ra khỏi canonical root mà không xóa hẳn. \\ \hline
 	\end{tabularx}
 \end{table}
 
@@ -90,12 +90,13 @@ Nếu base name hoặc prefix đổi ở runtime, appendix này cũng phải đ�
 
 \subsection{Month-grouped output directories}
 
-Output canonical của hệ thống hiện đi theo pattern \texttt{output/reports/YYYY\_MM/}. Điều này có nghĩa là:
+Output canonical của hệ thống hiện đi theo pattern \texttt{OUTPUT\_DIR/YYYY\_MM/}. Nếu \texttt{OUTPUT\_DIR} để trống, runtime mới fallback về \texttt{project\_root/output/reports/YYYY\_MM/}. Điều này có nghĩa là:
 
 \begin{enumerate}[label=-]
 \item month folder là đơn vị gom output chính;
 \item dated-run folder kiểu \texttt{YYYY\_MM\_DD} không còn là canonical structure cho các run mới;
-\item artifact family được tách theo subfolder thay vì trộn tất cả file vào root của \texttt{output/reports/}. 
+\item artifact family được tách theo subfolder thay vì trộn tất cả file vào root của \texttt{OUTPUT\_DIR/};
+\item \texttt{\_staging/} chỉ là temporary print folder, không phải reader-facing final output tree.
 \end{enumerate}
 
 Quy ước này giúp review output, release smoke, và cleanup legacy dễ kiểm soát hơn đáng kể.
@@ -142,7 +143,7 @@ Các ví dụ dưới đây minh họa cách đọc đúng một số tên đang
 \item \texttt{report\_context}: object trung gian cho rendering/export, không phải source table và cũng không phải final artifact.
 \item \texttt{pdf\_source\_html}: HTML đầu vào cho print path, không phải final PDF.
 \item \texttt{03\_daily\_energy\_automatic\_report\_20250629.xlsx}: workbook Excel của daily run ngày 2025-06-29, mang prefix \texttt{03\_daily} để sort sau monthly và weekly.
-\item \texttt{output/reports/2025\_06/pdf/}: canonical folder cho PDF artifacts tháng 2025-06, không phải staging directory.
+\item \texttt{/srv/energy-report-output/2025\_06/pdf/}: ví dụ canonical folder cho PDF artifacts tháng 2025-06, không phải staging directory.
 \end{enumerate}
 
 \section{Tổng kết phụ lục}

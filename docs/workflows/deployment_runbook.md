@@ -272,7 +272,11 @@ sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-18|' /srv/energ
 grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
-find /srv/energy-report-output -type f | sort | tail -n 30
+OUTPUT_ROOT="$(grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
+find "$OUTPUT_ROOT" \
+  -path "$OUTPUT_ROOT/_staging" -prune -o \
+  -type f -print | sort | tail -n 30
 ```
 
 Expected B2 behavior:
@@ -402,7 +406,11 @@ Useful commands:
 journalctl -u energy-report-etl.service -n 200 --no-pager
 timedatectl
 systemctl list-timers energy-report-etl.timer --all
-find /srv/energy-report-output -type f | sort | tail -n 30
+OUTPUT_ROOT="$(grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
+OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
+find "$OUTPUT_ROOT" \
+  -path "$OUTPUT_ROOT/_staging" -prune -o \
+  -type f -print | sort | tail -n 30
 ```
 
 ---
