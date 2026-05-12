@@ -28,12 +28,26 @@ Important notes
   smoke testing
 - Only install or enable the timer after B3 has restored:
   REPORT_ANCHOR_DATE=
+- The bootstrap flow is meant to support 2 modes:
+  - non-interactive flags for curl|bash / automation
+  - interactive prompts for a local script run on a desktop/operator host
+- In interactive mode, passed flags should win and only missing values should be asked
+- Interactive runs should end with a summary/confirmation before the real work starts
+
+Interactive wizard entrypoint
+-----------------------------
+
+Prefer a local file for the interactive mode:
+
+curl -fsSL -o bootstrap_ubuntu_host.sh "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh"
+chmod +x bootstrap_ubuntu_host.sh
+sudo ./bootstrap_ubuntu_host.sh --interactive
 
 
 B1 - Fresh bootstrap + month-end smoke (Daily + Monthly)
 --------------------------------------------------------
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --mysql-password admin --anchor-date 2025-05-31 --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref deploy/stable --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --mysql-password admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project
 
 Check what was deployed:
 

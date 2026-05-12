@@ -52,6 +52,48 @@ Important:
 - do not enable the timer while `REPORT_ANCHOR_DATE` is still pinned for smoke testing
 - install or enable the timer only after B3 has restored `REPORT_ANCHOR_DATE=`
 
+### 1.2 Hybrid bootstrap modes
+
+The bootstrap flow should support two operator-facing modes:
+
+1. **Non-interactive mode**
+   - best for `curl | sudo bash -s -- ...`
+   - best for repeatable copy/paste, headless hosts, and automation
+   - every required value should be passed by flag, or the script should fail clearly
+
+2. **Interactive mode**
+   - best for a desktop operator sitting at the target machine
+   - the script should prompt only for missing values, show sensible defaults, and let the operator press Enter to keep them
+   - flags should still win, so already-passed values should not be prompted again
+
+Recommended operator rule:
+- keep `curl | bash` for the one-line non-interactive bootstrap
+- use a local script file for interactive runs when possible
+- if the interactive path reads from TTY directly, it may still work when piped, but the local-file path is the safer operator experience
+
+Suggested interactive entrypoint:
+
+```bash
+curl -fsSL -o bootstrap_ubuntu_host.sh "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh"
+chmod +x bootstrap_ubuntu_host.sh
+sudo ./bootstrap_ubuntu_host.sh --interactive
+```
+
+Interactive prompts should normally cover only operator-facing values such as:
+- `MYSQL_HOST`
+- `MYSQL_PORT`
+- `MYSQL_DATABASE`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `PROJECT_ROOT`
+- `OUTPUT_DIR`
+- `PRINT_STAGING_DIR`
+- `REPORT_ANCHOR_DATE`
+- whether to run smoke now
+- whether to install `systemd` now
+
+The interactive flow should finish with a summary/confirmation screen before any destructive or long-running action starts.
+
 ---
 
 ## 2. Prepare the new host

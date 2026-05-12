@@ -506,7 +506,9 @@ REPORT_FILENAME=
 ```
 
 Operator-first install note:
-- use `docs/workflows/deployment_runbook.md` for a single paste-ready terminal block that writes `config/.env` without opening the file and editing line by line
+- use `docs/workflows/deployment_runbook.md` for the deployment flow and bootstrap modes
+- non-interactive bootstrap remains best for one-line `curl | bash` usage
+- interactive bootstrap should be run from a local script file, with defaults shown and missing values prompted one by one
 
 ---
 
