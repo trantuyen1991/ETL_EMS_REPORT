@@ -21,7 +21,7 @@ Important notes
 - Default staging dir during runtime: /srv/energy-report-output/_staging
 - After a successful run, staging files are auto-cleaned and the empty `_staging` folder is removed
 - The one-command bootstrap below intentionally uses the deploy branch:
-  backup-before-pdf-docs-20260426
+  deploy/stable
 - That branch currently contains deploy-flow fixes newer than the older reviewed
   tag v4.3.0-dev
 - B1 intentionally does NOT install systemd yet, because the anchor is pinned for
@@ -33,7 +33,7 @@ Important notes
 B1 - Fresh bootstrap + month-end smoke (Daily + Monthly)
 --------------------------------------------------------
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/backup-before-pdf-docs-20260426/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --mysql-password admin --anchor-date 2025-05-31 --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --mysql-password admin --anchor-date 2025-05-31 --reset-project
 
 Check what was deployed:
 
@@ -108,8 +108,8 @@ B5 - Update to the latest deploy branch
 
 cd /srv/energy-report
 sudo -u energy-report git fetch origin
-sudo -u energy-report git checkout backup-before-pdf-docs-20260426
-sudo -u energy-report git pull --ff-only origin backup-before-pdf-docs-20260426
+sudo -u energy-report git checkout deploy/stable
+sudo -u energy-report git pull --ff-only origin deploy/stable
 sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 sudo -u energy-report ./venv/bin/python -m src.main
 
@@ -143,7 +143,7 @@ Then run B1 again.
 Re-run only the bootstrap from scratch on a test host
 -----------------------------------------------------
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/backup-before-pdf-docs-20260426/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --mysql-password admin --anchor-date 2025-05-31 --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --mysql-password admin --anchor-date 2025-05-31 --reset-project
 
 Use this when you want to recreate the project root quickly without manually doing Step B2 or B4.
 
@@ -186,8 +186,8 @@ find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune
 When done, return to the current deploy branch:
 
 cd /srv/energy-report
-sudo -u energy-report git checkout backup-before-pdf-docs-20260426
-sudo -u energy-report git pull --ff-only origin backup-before-pdf-docs-20260426
+sudo -u energy-report git checkout deploy/stable
+sudo -u energy-report git pull --ff-only origin deploy/stable
 sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
 

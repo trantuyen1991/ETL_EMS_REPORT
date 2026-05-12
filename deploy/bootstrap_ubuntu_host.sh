@@ -6,7 +6,7 @@ PROJECT_ROOT="/srv/energy-report"
 OUTPUT_DIR="/srv/energy-report-output"
 PRINT_STAGING_DIR=""
 REPO_URL="https://github.com/trantuyen1991/ETL_EMS_REPORT.git"
-DEPLOY_REF="backup-before-pdf-docs-20260426"
+DEPLOY_REF="deploy/stable"
 MYSQL_HOST=""
 MYSQL_PORT="3306"
 MYSQL_DATABASE=""
@@ -31,7 +31,7 @@ Options:
   --mysql-database DB
   --mysql-user USER
   --mysql-password PASSWORD      If omitted, the script prompts securely.
-  --deploy-ref REF               Default: backup-before-pdf-docs-20260426
+  --deploy-ref REF               Default: deploy/stable
   --repo-url URL                 Default: https://github.com/trantuyen1991/ETL_EMS_REPORT.git
   --project-root PATH            Default: /srv/energy-report
   --output-dir PATH              Default: /srv/energy-report-output (final monthly report root)
@@ -52,7 +52,7 @@ Example:
     --install-systemd
 
 One-command remote usage:
-  curl -fsSL https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/backup-before-pdf-docs-20260426/deploy/bootstrap_ubuntu_host.sh | sudo bash -s -- \
+  curl -fsSL https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh | sudo bash -s -- \
     --mysql-host 192.168.100.82 \
     --mysql-database ems_db \
     --mysql-user admin

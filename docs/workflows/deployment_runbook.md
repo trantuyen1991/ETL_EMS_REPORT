@@ -39,12 +39,12 @@ For a fresh Ubuntu host, prefer the bootstrap script when you want to avoid manu
 
 Copy the one-command bootstrap from the plain text file, not from the PDF. PDF readers can wrap long URLs or drop continuation lines.
 
-Current one-command bootstrap intentionally uses the deploy branch `backup-before-pdf-docs-20260426`, not the older reviewed tag `v4.3.0-dev`, because that branch currently carries newer deploy-flow fixes.
+Current one-command bootstrap intentionally uses the deploy branch `deploy/stable`, not the older reviewed tag `v4.3.0-dev`, because that branch currently carries newer deploy-flow fixes.
 
 Recommended B1 command:
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/backup-before-pdf-docs-20260426/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --reset-project
 ```
 
 Important:
