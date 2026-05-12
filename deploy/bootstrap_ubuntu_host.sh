@@ -445,7 +445,7 @@ fi
 if [[ -e "${PROJECT_ROOT}/.git" ]]; then
   log "Existing checkout found at ${PROJECT_ROOT}; updating ${DEPLOY_REF}"
   git -C "${PROJECT_ROOT}" fetch --depth 1 origin "${DEPLOY_REF}"
-  git -C "${PROJECT_ROOT}" checkout --force FETCH_HEAD
+  git -C "${PROJECT_ROOT}" checkout --force -B "${DEPLOY_REF}" FETCH_HEAD
 elif [[ -e "${PROJECT_ROOT}" && -n "$(find "${PROJECT_ROOT}" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
   die "${PROJECT_ROOT} exists and is not empty. Re-run with --reset-project on a test host if you want to remove it."
 else
