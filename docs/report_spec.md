@@ -360,7 +360,7 @@ For the `periodic` template family, the electricity chart block should also supp
 - PDF-safe static legend treatment when heatmap scale guidance is shown
 
 ### 7.3 Total Logic
-Plant and area official totals must come from pre-calculated values stored in `energy_kpi`, not from summing all raw energy view columns.
+Plant and area official totals in the Electricity section must come from pre-calculated values stored in `total_energy`, not from summing all raw energy view columns.
 
 ### 7.4 Top 10 Rules
 Top 10 ranking must exclude main feeder meters.

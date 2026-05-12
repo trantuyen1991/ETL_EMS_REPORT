@@ -455,7 +455,7 @@ All business logic must live in backend services.
 
 ### 11.2 Single Source of Truth
 
-* energy → energy_kpi
+* energy → total_energy
 * KPI → energy_kpi
 * sensor → processvalue
 

@@ -32,11 +32,12 @@ Module \texttt{src/config/data\_sources.py} hiện cấu hình các logical data
 \item \texttt{diode\_energy}
 \item \texttt{ico\_energy}
 \item \texttt{sakari\_energy}
+\item \texttt{total\_energy}
 \item \texttt{utility\_usage}
 \item \texttt{energy\_kpi}
 \end{enumerate}
 
-Trong số này, \texttt{diode\_energy}, \texttt{ico\_energy}, và \texttt{sakari\_energy} là các view phục vụ electricity detail và comparison theo area. \texttt{utility\_usage} là view phục vụ Utility reporting. \texttt{energy\_kpi} là table đặc biệt vì nó mang vai trò source-of-truth cho KPI reporting và official totals.
+Trong số này, \texttt{diode\_energy}, \texttt{ico\_energy}, và \texttt{sakari\_energy} là các view phục vụ electricity detail và comparison theo area. \texttt{total\_energy} là view source-of-truth cho Electricity official totals. \texttt{utility\_usage} là view phục vụ Utility reporting. \texttt{energy\_kpi} là table đặc biệt vì nó mang vai trò source-of-truth cho KPI reporting và production-linked reporting.
 
 \subsection{Source-of-truth tables and views}
 
@@ -54,18 +55,19 @@ Bảng \ref{tab:data_source_inventory} tóm tắt inventory nguồn dữ liệu 
 		\texttt{diode\_energy} & view & \texttt{dt} & chi tiết điện năng theo area DIODE. \\ \hline
 		\texttt{ico\_energy} & view & \texttt{dt} & chi tiết điện năng theo area ICO. \\ \hline
 		\texttt{sakari\_energy} & view & \texttt{dt} & chi tiết điện năng theo area SAKARI. \\ \hline
+		\texttt{total\_energy} & view & \texttt{dt} & official plant totals và official area totals cho Electricity section. \\ \hline
 		\texttt{utility\_usage} & view & \texttt{dt} & utility daily detail, utility summary, và utility comparison blocks. \\ \hline
-		\texttt{energy\_kpi} & table & none at config level & source-of-truth cho KPI rows, official totals, production values, và energy-linked KPI reporting. \\ \hline
+		\texttt{energy\_kpi} & table & none at config level & source-of-truth cho KPI rows, production values, và energy-linked KPI reporting. \\ \hline
 		\texttt{processvalue} & raw table & \texttt{Time\_Stamp} & raw utility sensor rows cho sensor monitoring, anomaly-ready aggregation, và trend context. \\ \hline
 	\end{tabularx}
 \end{table}
 
 \subsection{Energy KPI as authoritative source}
 
-\texttt{energy\_kpi} là nguồn quan trọng nhất về mặt nghiệp vụ. Table này không chỉ chứa KPI values mà còn chứa official plant totals, official area totals, production context, và các stored blocks cần cho KPI coverage logic. Chính vì vậy:
+\texttt{energy\_kpi} vẫn là nguồn quan trọng về mặt nghiệp vụ cho KPI và production-linked reporting. Table này chứa KPI values, production context, và các stored blocks cần cho KPI coverage logic. Trong khi đó, \texttt{total\_energy} là view chuyên trách cho Electricity official totals. Chính vì vậy:
 
 \begin{enumerate}[label=-]
-\item Electricity official totals phải dựa trên \texttt{energy\_kpi};
+\item Electricity official totals phải dựa trên \texttt{total\_energy};
 \item KPI reporting phải dựa trên \texttt{energy\_kpi};
 \item production-linked reporting cũng phải tham chiếu \texttt{energy\_kpi};
 \item không được tự reconstruct hoặc recompute KPI từ raw energy views nếu rule không cho phép.
@@ -116,7 +118,7 @@ Bảng \ref{tab:repository_mapping} tóm tắt mapping giữa data sources và r
 	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.0cm}|>{\RaggedRight\arraybackslash}p{3.3cm}|>{\RaggedRight\arraybackslash}X|}
 		\hline
 		\textbf{Source} & \textbf{Repository Owner} & \textbf{Repository Responsibility} \\ \hline
-		\texttt{diode\_energy}, \texttt{ico\_energy}, \texttt{sakari\_energy}, \texttt{utility\_usage}, \texttt{energy\_kpi} & \texttt{EnergyDataRepository} & fetch daily rows, inspect columns, expose meter columns, and provide structured tabular data for higher-level services. \\ \hline
+		\texttt{diode\_energy}, \texttt{ico\_energy}, \texttt{sakari\_energy}, \texttt{total\_energy}, \texttt{utility\_usage}, \texttt{energy\_kpi} & \texttt{EnergyDataRepository} & fetch daily rows, inspect columns, expose meter columns, and provide structured tabular data for higher-level services. \\ \hline
 		\texttt{processvalue} & \texttt{ProcessValueRepository} & fetch raw timestamped sensor rows for selected columns and time windows only. \\ \hline
 	\end{tabularx}
 \end{table}
@@ -125,7 +127,7 @@ Bảng \ref{tab:repository_mapping} tóm tắt mapping giữa data sources và r
 
 \subsection{EnergyService}
 
-\texttt{EnergyService} chịu trách nhiệm dựng domain object cho Electricity. Nó nhận area rows, area columns, KPI-linked summary inputs, và trả ra các nhóm dữ liệu như:
+\texttt{EnergyService} chịu trách nhiệm dựng domain object cho Electricity. Nó nhận area rows, area columns, và official-total inputs từ \texttt{total\_energy}, rồi trả ra các nhóm dữ liệu như:
 
 \begin{enumerate}[label=-]
 \item summary;
@@ -135,7 +137,7 @@ Bảng \ref{tab:repository_mapping} tóm tắt mapping giữa data sources và r
 \item anomalies và topology-aware diagnostics khi cần.
 \end{enumerate}
 
-Một chi tiết quan trọng là \texttt{EnergyService} không xem raw view totals là official totals. Nó sử dụng KPI-linked values làm reference cho plant total và area total theo các rule đã chốt.
+Một chi tiết quan trọng là \texttt{EnergyService} không xem raw area views là official totals. Nó sử dụng \texttt{total\_energy} làm reference cho plant total và area total theo các rule đã chốt.
 
 \subsection{KPIService}
 
@@ -188,7 +190,7 @@ Từ góc nhìn orchestration, \texttt{src/main.py} thực hiện mapping các l
 \item \texttt{\_build\_kpi\_object()} dùng repository \texttt{energy\_kpi} và \texttt{KPIService};
 \item \texttt{\_build\_sensor\_monitoring\_context()} dùng \texttt{ProcessValueRepository}, \texttt{ProcessValueService}, và \texttt{UtilityService};
 \item \texttt{\_build\_utility\_object()} dùng repository \texttt{utility\_usage} và utility sensor monitoring context;
-\item \texttt{\_build\_energy\_object()} dùng area energy repositories cộng KPI-linked summary inputs;
+\item \texttt{\_build\_energy\_object()} dùng area energy repositories cộng official-total inputs từ \texttt{total\_energy};
 \item \texttt{\_build\_report\_context()} dùng \texttt{ReportBuilderService} và \texttt{ReportStyleService};
 \item \texttt{\_render\_report\_artifacts()} dùng \texttt{TemplateRenderingService}, \texttt{PDFService}, và \texttt{ExcelExportService} để sinh output artifacts.
 \end{enumerate}

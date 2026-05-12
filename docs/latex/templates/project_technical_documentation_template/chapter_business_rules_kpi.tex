@@ -55,7 +55,7 @@ Bảng \ref{tab:rule_ownership_matrix} tóm tắt nguồn dữ liệu chính th�
 	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.1cm}|>{\RaggedRight\arraybackslash}p{3.2cm}|>{\RaggedRight\arraybackslash}X|}
 		\hline
 		\textbf{Domain} & \textbf{Primary Source / Owner} & \textbf{Critical Rule} \\ \hline
-		Electricity official totals & \texttt{energy\_kpi} & Plant totals và area official totals phải dùng giá trị đã được phê duyệt, không tự cộng lại từ raw energy views. \\ \hline
+		Electricity official totals & \texttt{total\_energy} & Plant totals và area official totals phải dùng giá trị đã được phê duyệt, không tự cộng lại từ raw energy views. \\ \hline
 		KPI values and production-linked reporting & \texttt{energy\_kpi} & KPI reporting chỉ dùng các block đã tính sẵn và đã được lưu, tuân thủ coverage-first logic. \\ \hline
 		Utility daily usage & utility usage source & Utility summary và daily detail phải so sánh current/previous và giữ dense rows cho khoảng ngày cần hiển thị. \\ \hline
 		Sensor monitoring & \texttt{processvalue} + sensor metadata mapping & Raw sensor rows phải được aggregate thành payload có chất lượng dữ liệu rõ ràng, hỗ trợ anomaly-ready analysis. \\ \hline
@@ -72,7 +72,7 @@ Source-of-truth discipline này rất quan trọng vì nếu sai nguồn dữ li
 Các rule điện năng cốt lõi gồm:
 
 \begin{enumerate}[label=-]
-\item official plant total và official area total phải lấy từ \texttt{energy\_kpi};
+\item official plant total và official area total phải lấy từ \texttt{total\_energy};
 \item không được suy ra official totals bằng cách cộng toàn bộ meter values từ energy views, vì các energy views có thể chứa main feeders và downstream overlap;
 \item main feeder definitions và area topology phải được quản lý qua metadata cấu hình của dự án;
 \item residual load được xem như một virtual meter khi có đủ điều kiện tính hợp lệ.

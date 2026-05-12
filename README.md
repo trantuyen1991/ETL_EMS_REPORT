@@ -92,7 +92,7 @@ REPORT_ANCHOR_DATE (.env)
 
 ### 2. Energy Section
 
-- Uses `energy_kpi` as source of truth
+- Uses `total_energy` as source of truth for Electricity official totals
 - No recalculation from raw meters
 - Supports:
 - plant total

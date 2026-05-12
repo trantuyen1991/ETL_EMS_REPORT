@@ -71,6 +71,7 @@ docs/latex/**/*.run.xml
 docs/latex/**/*.synctex.gz
 docs/latex/**/*.toc
 docs/latex/**/*.xdv
+docs/latex/**/main.listing
 docs/latex/templates/**/main.pdf
 docs/output/*
 !docs/output/.gitkeep

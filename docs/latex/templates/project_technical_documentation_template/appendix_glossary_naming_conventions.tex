@@ -27,10 +27,11 @@ Bảng \ref{tab:core_glossary_terms} tóm tắt các thuật ngữ quan trọng 
 	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{3.0cm}|>{\RaggedRight\arraybackslash}p{3.4cm}|>{\RaggedRight\arraybackslash}X|}
 		\hline
 		\textbf{Term} & \textbf{Primary Layer} & \textbf{Meaning in this project} \\ \hline
-		\texttt{energy\_kpi} & database / business source & Table nguồn chuẩn cho KPI reporting, official totals, production-linked values, và các KPI rows đã được business chấp nhận. \\ \hline
+		\texttt{total\_energy} & database / business source & View nguồn chuẩn cho official plant totals và official area totals của Electricity section. \\ \hline
+		\texttt{energy\_kpi} & database / business source & Table nguồn chuẩn cho KPI reporting, production-linked values, và các KPI rows đã được business chấp nhận. \\ \hline
 		\texttt{processvalue} & database / raw sensor source & Raw timestamped sensor table dùng cho sensor monitoring và utility-adjacent aggregation trước khi dữ liệu trở thành business-friendly structures. \\ \hline
 		\texttt{report\_context} & render-context layer & Unified dictionary/object được build từ domain services và style service, dùng chung cho HTML view, PDF source HTML, final PDF, và Excel export. \\ \hline
-		Source-of-truth & business rules & Khái niệm chỉ nguồn dữ liệu được coi là authoritative cho một metric hoặc report block. Với KPI và official energy totals, source-of-truth hiện tại là \texttt{energy\_kpi}. \\ \hline
+		Source-of-truth & business rules & Khái niệm chỉ nguồn dữ liệu được coi là authoritative cho một metric hoặc report block. Với Electricity official totals, source-of-truth hiện tại là \texttt{total\_energy}; với KPI, source-of-truth là \texttt{energy\_kpi}. \\ \hline
 		Coverage-first logic & KPI rules & Cách chọn KPI rows theo thứ tự ưu tiên Day $>$ Week $>$ Month $>$ Year, không prorate, không giả lập số liệu thiếu từ raw views. \\ \hline
 		Residual load & electricity domain & Phần điện năng còn lại sau khi so tổng đã chấp nhận với các meter hoặc area breakdown có trong report, chỉ xuất hiện khi rule xác thực cho phép. \\ \hline
 		Anchor date & runtime scheduling & Ngày đầu vào dùng để resolve daily, weekly, và monthly periods mà ETL/report runtime cần export. \\ \hline
@@ -139,7 +140,8 @@ Khi thêm output mới, refactor service, hoặc mở rộng tài liệu, nên g
 Các ví dụ dưới đây minh họa cách đọc đúng một số tên đang được dùng trong hệ thống hiện tại:
 
 \begin{enumerate}[label=-]
-\item \texttt{energy\_kpi}: database table authoritative cho KPI và official totals, không phải tên một chart hay section title.
+\item \texttt{energy\_kpi}: database table authoritative cho KPI và production-linked values, không phải tên một chart hay section title.
+\item \texttt{total\_energy}: database view authoritative cho Electricity official totals, không phải bảng meter detail.
 \item \texttt{report\_context}: object trung gian cho rendering/export, không phải source table và cũng không phải final artifact.
 \item \texttt{pdf\_source\_html}: HTML đầu vào cho print path, không phải final PDF.
 \item \texttt{03\_daily\_energy\_automatic\_report\_20250629.xlsx}: workbook Excel của daily run ngày 2025-06-29, mang prefix \texttt{03\_daily} để sort sau monthly và weekly.

@@ -142,7 +142,7 @@ def make_architecture():
     ], COLORS["blue"], COLORS["light_blue"], font(28, bold=True), font(22))
 
     rounded_box(draw, right_top, "Source Data Ownership", [
-        "energy_kpi holds official energy totals, KPI values, and production-linked reporting rows.",
+        "total_energy holds Electricity official totals, while energy_kpi holds KPI values and production-linked reporting rows.",
         "utility_usage plus area-energy sources feed utility and electricity detail sections.",
         "processvalue provides raw utility sensor rows for monitoring, aggregation, and anomaly checks.",
     ], COLORS["green"], COLORS["light_green"], font(28, bold=True), font(22))
@@ -233,7 +233,7 @@ def make_flow():
     steps = [
         ("1. Bootstrap runtime", "Initialize config, MySQL client, repositories, and runtime logging in main.py."),
         ("2. Resolve periods for this run", "PeriodService determines anchor date, report types, and canonical export stems for the batch."),
-        ("3. Fetch source rows", "Repositories pull energy_kpi, utility_usage, area-energy, and selected sensor rows for current and comparison windows."),
+        ("3. Fetch source rows", "Repositories pull total_energy, energy_kpi, utility_usage, area-energy, and selected sensor rows for current and comparison windows."),
         ("4. Aggregate utility sensor statistics", "ProcessValueService and UtilityService compute min/avg/max, anomaly-ready metrics, and monitoring structures."),
         ("5. Build domain objects", "EnergyService, KPIService, and UtilityService produce electricity, KPI, and utility blocks ready for rendering."),
         ("6. Assemble unified report_context", "ReportBuilderService and ReportStyleService merge meta, sections, flags, labels, notes, and presentation tokens."),
