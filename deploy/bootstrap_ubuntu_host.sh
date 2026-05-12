@@ -76,6 +76,42 @@ as_service_user() {
   fi
 }
 
+grant_service_acl_for_home_path() {
+  local target_dir="$1"
+  local owner_user="${target_dir#/home/}"
+  owner_user="${owner_user%%/*}"
+  local owner_home="/home/${owner_user}"
+  local traverse_path
+
+  [[ -n "${owner_user}" && "${owner_user}" != "${target_dir}" ]] || die "Cannot infer home owner from path: ${target_dir}"
+  id "${owner_user}" >/dev/null 2>&1 || die "Home output owner does not exist: ${owner_user}"
+  [[ -d "${owner_home}" ]] || die "Home directory does not exist: ${owner_home}"
+  command -v setfacl >/dev/null 2>&1 || die "setfacl is required when output paths live under /home. Install package: acl"
+
+  mkdir -p "${target_dir}"
+  chown -R "${owner_user}:${owner_user}" "${target_dir}"
+
+  traverse_path="$(dirname "${target_dir}")"
+  while [[ "${traverse_path}" == /home/* ]]; do
+    setfacl -m "u:${SERVICE_USER}:--x" "${traverse_path}"
+    [[ "${traverse_path}" == "${owner_home}" ]] && break
+    traverse_path="$(dirname "${traverse_path}")"
+  done
+
+  setfacl -R -m "u:${SERVICE_USER}:rwx" "${target_dir}"
+  setfacl -R -d -m "u:${SERVICE_USER}:rwx" "${target_dir}"
+}
+
+prepare_runtime_dir() {
+  local target_dir="$1"
+  if [[ "${target_dir}" == /home/* ]]; then
+    grant_service_acl_for_home_path "${target_dir}"
+  else
+    mkdir -p "${target_dir}"
+    chown -R "${SERVICE_USER}:${SERVICE_USER}" "${target_dir}"
+  fi
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --mysql-host) MYSQL_HOST="${2:-}"; shift 2 ;;
@@ -117,7 +153,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 log "Installing baseline packages"
 apt update
-apt install -y git python3 python3-venv python3-pip ca-certificates curl netcat-openbsd poppler-utils
+apt install -y git python3 python3-venv python3-pip ca-certificates curl netcat-openbsd poppler-utils acl
 
 log "Checking MySQL network access"
 nc -vz "${MYSQL_HOST}" "${MYSQL_PORT}"
@@ -163,8 +199,10 @@ as_service_user ./venv/bin/pip install --upgrade pip
 as_service_user ./venv/bin/pip install -r requirements.txt
 
 log "Writing config/.env"
-mkdir -p "${PROJECT_ROOT}/logs" "${OUTPUT_DIR}" "${PRINT_STAGING_DIR}"
-chown -R "${SERVICE_USER}:${SERVICE_USER}" "${PROJECT_ROOT}/logs" "${OUTPUT_DIR}" "${PRINT_STAGING_DIR}"
+mkdir -p "${PROJECT_ROOT}/logs"
+chown -R "${SERVICE_USER}:${SERVICE_USER}" "${PROJECT_ROOT}/logs"
+prepare_runtime_dir "${OUTPUT_DIR}"
+prepare_runtime_dir "${PRINT_STAGING_DIR}"
 
 cat > "${PROJECT_ROOT}/config/.env" <<EOF
 MYSQL_HOST=${MYSQL_HOST}
@@ -224,4 +262,6 @@ Deploy ref   : ${DEPLOY_REF}
 
 If this was a smoke test with --anchor-date, restore scheduled mode with:
   sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' ${PROJECT_ROOT}/config/.env
+
+If OUTPUT_DIR or PRINT_STAGING_DIR live under /home/<user>, bootstrap has already applied ACL so ${SERVICE_USER} can write there.
 EOF

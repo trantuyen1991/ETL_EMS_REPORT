@@ -219,6 +219,8 @@ If the operator wants to keep everything on the recommended baseline, the only l
 - `PRINT_STAGING_DIR` is the Chromium-safe staging path and should normally be a separate subfolder such as `/srv/energy-report-output/_staging`
 - after a successful run, runtime removes current-batch staging files and prunes an empty `_staging` folder
 - both `OUTPUT_DIR` and `PRINT_STAGING_DIR` should point to a **non-hidden writable path**
+- if either path lives under `/home/<user>/...`, `deploy/bootstrap_ubuntu_host.sh` now auto-installs `acl` and grants the `energy-report` service user the required traverse/write ACLs
+- if an operator changes those paths manually later in `config/.env`, rerun the bootstrap or apply equivalent `setfacl` commands so the service account can still write there
 - do not set `PRINT_STAGING_DIR` to a personal desktop/home path such as `/home/trantuyen/Desktop/Report`; the `energy-report` service account usually cannot write there
 - `REPORT_FILENAME` should stay aligned with the accepted runtime naming: `energy_automatic_report`
 - `REPORT_ANCHOR_DATE` must normally be **blank** in scheduled production mode
