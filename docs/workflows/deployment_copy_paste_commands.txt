@@ -18,7 +18,8 @@ Important notes
 ---------------
 
 - Default final output dir: /srv/energy-report-output
-- Default staging dir: /srv/energy-report-output/_staging
+- Default staging dir during runtime: /srv/energy-report-output/_staging
+- After a successful run, staging files are auto-cleaned and the empty `_staging` folder is removed
 - The one-command bootstrap below intentionally uses the deploy branch:
   backup-before-pdf-docs-20260426
 - That branch currently contains deploy-flow fixes newer than the older reviewed
@@ -43,7 +44,7 @@ find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune
 Expected idea for B1:
 - Daily artifacts for 2025-05-31 under /srv/energy-report-output/2025_05/
 - Monthly artifacts for 2025-05-31 under /srv/energy-report-output/2025_05/
-- Temporary print files stay under /srv/energy-report-output/_staging/
+- Temporary print files are auto-cleaned after successful copy-back
 - No timer installed yet
 
 

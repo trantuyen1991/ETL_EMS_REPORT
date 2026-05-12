@@ -382,6 +382,7 @@ Responsibility split:
 * if `OUTPUT_DIR` is blank, runtime falls back to project-local `output/reports/2025_05/` for dev mode
 * each month folder is split into `view_html`, `pdf_source_html`, `pdf`, and `excel`
 * `staging_output_dir` is the Chromium-safe print location, normally `PRINT_STAGING_DIR` or `OUTPUT_DIR/_staging`
+* after successful copy-back, runtime removes current-batch staging files and prunes an empty staging folder when possible
 
 The current stable PDF flow depends on this separation.
 

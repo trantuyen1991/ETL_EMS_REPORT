@@ -420,6 +420,69 @@ def _collect_report_batch_artifacts(
     return collected_paths
 
 
+def _looks_like_legacy_root_artifact(path: Path) -> bool:
+    """Return True when one direct OUTPUT_DIR file looks like a legacy report artifact."""
+    if not path.is_file():
+        return False
+
+    if path.suffix.lower() not in {".pdf", ".html", ".xlsx"}:
+        return False
+
+    file_name = path.name.lower()
+    return bool(
+        re.search(r"(^|_)(daily|weekly|monthly)_automatic_report_", file_name)
+        or "energy_automatic_report" in file_name
+        or file_name.endswith("_pdf_source.html")
+    )
+
+
+def _cleanup_output_artifacts(
+    *,
+    rendered_reports: list[dict[str, Any]],
+    canonical_output_root: Path,
+    staging_output_dir: Path,
+    logger,
+) -> None:
+    """Remove staging files and stray root-level report artifacts after successful copy-back."""
+    removed_staging_files = 0
+    removed_root_files = 0
+    removed_empty_staging_dir = False
+
+    for item in rendered_reports:
+        artifacts = item.get("artifacts", {})
+        for artifact_key in ("staging_html", "staging_pdf"):
+            artifact_path = artifacts.get(artifact_key)
+            if not isinstance(artifact_path, Path) or not artifact_path.exists():
+                continue
+            artifact_path.unlink(missing_ok=True)
+            removed_staging_files += 1
+
+    if canonical_output_root.exists():
+        for child in canonical_output_root.iterdir():
+            if not _looks_like_legacy_root_artifact(child):
+                continue
+            child.unlink(missing_ok=True)
+            removed_root_files += 1
+
+    if staging_output_dir.exists() and staging_output_dir != canonical_output_root:
+        try:
+            next(staging_output_dir.iterdir())
+        except StopIteration:
+            staging_output_dir.rmdir()
+            removed_empty_staging_dir = True
+        except (FileNotFoundError, OSError):
+            pass
+
+    logger.info(
+        "Cleaned output artifacts | canonical_output_root=%s staging_output_dir=%s removed_staging_files=%s removed_root_files=%s removed_empty_staging_dir=%s",
+        canonical_output_root,
+        staging_output_dir,
+        removed_staging_files,
+        removed_root_files,
+        removed_empty_staging_dir,
+    )
+
+
 def _render_report_artifacts(
     *,
     renderer: TemplateRenderingService,
@@ -549,6 +612,13 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
 
     batch_paths = _collect_report_batch_artifacts(
         rendered_reports=rendered_reports,
+    )
+
+    _cleanup_output_artifacts(
+        rendered_reports=rendered_reports,
+        canonical_output_root=canonical_output_root,
+        staging_output_dir=staging_output_dir,
+        logger=logger,
     )
 
     logger.info(

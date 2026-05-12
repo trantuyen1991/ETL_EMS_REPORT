@@ -166,6 +166,7 @@ Responsibility split:
 - `OUTPUT_DIR` is the canonical month-grouped artifact root for final reader-facing files
 - each `<YYYY_MM>` folder is split into `view_html`, `pdf_source_html`, `pdf`, and `excel`
 - `staging_output_dir` is the print-safe location used only for Chromium staging and print
+- after successful PDF copy-back, runtime removes current-batch staging files and prunes an empty staging folder when possible
 
 ---
 

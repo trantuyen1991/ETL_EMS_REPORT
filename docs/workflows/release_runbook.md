@@ -13,6 +13,7 @@ Notes:
 - Production entry point is `./venv/bin/python -m src.main`
 - Canonical artifacts now write directly into `OUTPUT_DIR/YYYY_MM/` grouped by artifact type
 - When `PRINT_STAGING_DIR` is blank, runtime stages temporary print files under `OUTPUT_DIR/_staging/`
+- After a successful run, runtime removes current-batch staging files and prunes an empty `_staging/` folder
 - Period sort prefixes are:
   - `01_monthly`
   - `02_weekly`

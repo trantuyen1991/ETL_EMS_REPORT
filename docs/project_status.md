@@ -412,6 +412,7 @@ Execution rule remains:
   - otherwise another safe non-hidden fallback
 - Final canonical artifacts now write directly into monthly grouped output under `OUTPUT_DIR/YYYY_MM/`
 - If `OUTPUT_DIR` is blank, runtime falls back to project-local `output/reports/YYYY_MM/` in dev mode
+- After successful copy-back, runtime removes current-batch staging files and prunes an empty staging folder when possible
 - Each month folder is split into `pdf/`, `pdf_source_html/`, `view_html/`, and `excel/`
 
 ---

@@ -217,6 +217,7 @@ If the operator wants to keep everything on the recommended baseline, the only l
 
 - `OUTPUT_DIR` is now the **canonical final artifact root** for operators, with monthly folders created directly under `OUTPUT_DIR/YYYY_MM/`
 - `PRINT_STAGING_DIR` is the Chromium-safe staging path and should normally be a separate subfolder such as `/srv/energy-report-output/_staging`
+- after a successful run, runtime removes current-batch staging files and prunes an empty `_staging` folder
 - both `OUTPUT_DIR` and `PRINT_STAGING_DIR` should point to a **non-hidden writable path**
 - do not set `PRINT_STAGING_DIR` to a personal desktop/home path such as `/home/trantuyen/Desktop/Report`; the `energy-report` service account usually cannot write there
 - `REPORT_FILENAME` should stay aligned with the accepted runtime naming: `energy_automatic_report`
