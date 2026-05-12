@@ -39,12 +39,12 @@ For a fresh Ubuntu host, prefer the bootstrap script when you want to avoid manu
 
 Copy the one-command bootstrap from the plain text file, not from the PDF. PDF readers can wrap long URLs or drop continuation lines.
 
-Current one-command bootstrap intentionally uses the deploy branch `deploy/stable`, not the older reviewed tag `v4.3.0-dev`, because the branch currently carries newer deploy-flow fixes.
+Current one-command bootstrap intentionally uses the deploy branch `backup-before-pdf-docs-20260426`, not the older reviewed tag `v4.3.0-dev`, because that branch currently carries newer deploy-flow fixes.
 
 Recommended B1 command:
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/backup-before-pdf-docs-20260426/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --reset-project
 ```
 
 Important:
@@ -176,8 +176,8 @@ What the installer must change before pasting:
 - `MYSQL_DATABASE`
 - `MYSQL_USER`
 - `MYSQL_PASSWORD`
-- `OUTPUT_DIR` if the host should store reports somewhere other than `/srv/energy-report-output`
-- `PRINT_STAGING_DIR` if staging must differ from `OUTPUT_DIR`
+- `OUTPUT_DIR` if the host should store final monthly report artifacts somewhere other than `/srv/energy-report-output`
+- `PRINT_STAGING_DIR` if Chromium staging should use somewhere other than `/srv/energy-report-output/_staging`
 - optionally `WORKSHOP_NAME` and `ENERGY_UNIT`
 
 Paste-ready block:
@@ -193,7 +193,7 @@ MYSQL_PASSWORD=__FILL_DB_PASSWORD__
 
 # --- Change these paths only if your host uses a different storage layout ---
 OUTPUT_DIR=/srv/energy-report-output
-PRINT_STAGING_DIR=/srv/energy-report-output
+PRINT_STAGING_DIR=/srv/energy-report-output/_staging
 
 # --- Usually keep these values as-is ---
 REPORT_FILENAME=energy_automatic_report
@@ -207,15 +207,17 @@ EOF
 
 sudo chown energy-report:energy-report /srv/energy-report/config/.env
 sudo chmod 640 /srv/energy-report/config/.env
-sudo mkdir -p /srv/energy-report/logs /srv/energy-report-output
-sudo chown -R energy-report:energy-report /srv/energy-report/logs /srv/energy-report-output
+sudo mkdir -p /srv/energy-report/logs /srv/energy-report-output /srv/energy-report-output/_staging
+sudo chown -R energy-report:energy-report /srv/energy-report/logs /srv/energy-report-output /srv/energy-report-output/_staging
 ```
 
 If the operator wants to keep everything on the recommended baseline, the only lines that usually need changing are the MySQL values.
 
 ### 4.2 Critical operational notes
 
-- `OUTPUT_DIR` and `PRINT_STAGING_DIR` should point to a **non-hidden writable path**
+- `OUTPUT_DIR` is now the **canonical final artifact root** for operators, with monthly folders created directly under `OUTPUT_DIR/YYYY_MM/`
+- `PRINT_STAGING_DIR` is the Chromium-safe staging path and should normally be a separate subfolder such as `/srv/energy-report-output/_staging`
+- both `OUTPUT_DIR` and `PRINT_STAGING_DIR` should point to a **non-hidden writable path**
 - do not set `PRINT_STAGING_DIR` to a personal desktop/home path such as `/home/trantuyen/Desktop/Report`; the `energy-report` service account usually cannot write there
 - `REPORT_FILENAME` should stay aligned with the accepted runtime naming: `energy_automatic_report`
 - `REPORT_ANCHOR_DATE` must normally be **blank** in scheduled production mode
@@ -386,7 +388,7 @@ If the timer runs but outputs look wrong, check these first:
 
 1. `REPORT_ANCHOR_DATE` was accidentally left pinned
 2. host timezone is not the intended timezone
-3. `OUTPUT_DIR` or `PRINT_STAGING_DIR` points to an invalid or hidden path
+3. `OUTPUT_DIR` or `PRINT_STAGING_DIR` points to an invalid or hidden path, or the reader is accidentally looking inside `_staging` instead of the month folders under `OUTPUT_DIR`
 4. Google Chrome is missing, or Chromium Snap cannot print from the service account
 5. database connectivity fails under the service user
 6. the service user lacks write permission to output/log folders

@@ -31,13 +31,13 @@ build report_context per report
     ↓
 render view HTML + PDF source HTML
     ↓
-write canonical artifacts into output/reports/
+write canonical artifacts into OUTPUT_DIR/<YYYY_MM>/...
     ↓
 write staged PDF source HTML into Chromium-safe staging directory
     ↓
 Chromium headless prints staged HTML into staged PDF
     ↓
-copy final PDF back into output/reports/
+copy final PDF back into OUTPUT_DIR/<YYYY_MM>/pdf/
 ```
 
 ---
@@ -136,12 +136,14 @@ That means `report_pdf_base.css` and `report_pdf.css` remain internal implementa
 
 For each report, `_render_report_artifacts()` writes several files.
 
-### Canonical project output
+### Canonical runtime output
 
-- `output/reports/<YYYY_MM>/view_html/<export_stem>.html`
-- `output/reports/<YYYY_MM>/pdf_source_html/<export_stem>.html`
-- `output/reports/<YYYY_MM>/pdf/<export_stem>.pdf`
-- `output/reports/<YYYY_MM>/excel/<export_stem>.xlsx` for daily only
+- `OUTPUT_DIR/<YYYY_MM>/view_html/<export_stem>.html`
+- `OUTPUT_DIR/<YYYY_MM>/pdf_source_html/<export_stem>.html`
+- `OUTPUT_DIR/<YYYY_MM>/pdf/<export_stem>.pdf`
+- `OUTPUT_DIR/<YYYY_MM>/excel/<export_stem>.xlsx` for daily only
+
+If `OUTPUT_DIR` is blank, runtime falls back to project-local `output/reports/<YYYY_MM>/...` for dev mode.
 
 ### Chromium staging output
 
@@ -155,13 +157,13 @@ The PDF print flow also writes staging artifacts into a Chromium-safe non-hidden
 `_resolve_pdf_staging_dir()` resolves the staging directory in this order:
 
 1. `PRINT_STAGING_DIR` if explicitly configured
-2. `OUTPUT_DIR` if it is a non-hidden path
-3. `project_output_dir` if it is non-hidden
-4. fallback to `~/Reports`
+2. `OUTPUT_DIR/_staging` when `OUTPUT_DIR` is a non-hidden path
+3. `project_root/output/reports/_staging` as the non-hidden dev fallback
+4. fallback to `~/Reports/_staging`
 
 Responsibility split:
 
-- `project_output_dir` is the canonical month-grouped artifact root under `output/reports/`
+- `OUTPUT_DIR` is the canonical month-grouped artifact root for final reader-facing files
 - each `<YYYY_MM>` folder is split into `view_html`, `pdf_source_html`, `pdf`, and `excel`
 - `staging_output_dir` is the print-safe location used only for Chromium staging and print
 

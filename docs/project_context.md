@@ -296,19 +296,19 @@ For this project, the practical print workflow is:
 ```text
 render selected report PDF template
     ↓
-write rendered file to project output/reports/
+write canonical artifacts into OUTPUT_DIR/<YYYY_MM>/...
     ↓
 write staged copy to a Chromium-safe staging directory
     ↓
 print with Chromium headless to the staged PDF path
     ↓
-copy final PDF back to project output/reports/
+copy final PDF back into OUTPUT_DIR/<YYYY_MM>/pdf/
 ```
 
 Reason:
 
 * Chromium headless print is more reliable when staging HTML/PDF in a non-hidden directory
-* staging resolution prefers `PRINT_STAGING_DIR`, then `OUTPUT_DIR` when non-hidden, then another safe fallback
+* staging resolution prefers `PRINT_STAGING_DIR`, then `OUTPUT_DIR/_staging` when non-hidden, then another safe fallback
 
 ---
 
@@ -360,8 +360,8 @@ Important rule learned from implementation:
 ### 7.5 Output vs Staging Paths
 
 ```text
-project_output_dir
-    output/reports/
+canonical_output_root
+    <OUTPUT_DIR or dev fallback>/
         <YYYY_MM>/
             view_html/
                 <export_stem>.html
@@ -371,18 +371,17 @@ project_output_dir
                 <export_stem>.pdf
             excel/
                 <export_stem>.xlsx
-
-staging_output_dir
-    <non-hidden print-safe directory>
-        <export_stem>_pdf_source.html
-        <export_stem>.pdf
+        _staging/
+            <export_stem>_pdf_source.html
+            <export_stem>.pdf
 ```
 
 Responsibility split:
 
-* `project_output_dir` stores canonical report artifacts grouped by report month, for example `output/reports/2025_05/`
+* `canonical_output_root` stores final report artifacts grouped by report month, for example `OUTPUT_DIR/2025_05/`
+* if `OUTPUT_DIR` is blank, runtime falls back to project-local `output/reports/2025_05/` for dev mode
 * each month folder is split into `view_html`, `pdf_source_html`, `pdf`, and `excel`
-* `staging_output_dir` is the Chromium-safe print location
+* `staging_output_dir` is the Chromium-safe print location, normally `PRINT_STAGING_DIR` or `OUTPUT_DIR/_staging`
 
 The current stable PDF flow depends on this separation.
 
@@ -395,10 +394,10 @@ Current flow:
 1. resolve effective anchor day
 2. determine all report periods required for that day
 3. build report_context per report
-4. render view HTML into `output/reports/YYYY_MM/view_html/`
-5. render PDF source HTML into `output/reports/YYYY_MM/pdf_source_html/`
-6. generate PDF with Chromium headless into `output/reports/YYYY_MM/pdf/`
-7. export one daily-only Excel workbook into `output/reports/YYYY_MM/excel/`
+4. render view HTML into `OUTPUT_DIR/YYYY_MM/view_html/`
+5. render PDF source HTML into `OUTPUT_DIR/YYYY_MM/pdf_source_html/`
+6. generate PDF with Chromium headless into `OUTPUT_DIR/YYYY_MM/pdf/`
+7. export one daily-only Excel workbook into `OUTPUT_DIR/YYYY_MM/excel/`
 
 ---
 

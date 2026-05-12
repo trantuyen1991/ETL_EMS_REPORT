@@ -17,7 +17,8 @@ B5. Use the helper commands below for update / clean reinstall / rollback
 Important notes
 ---------------
 
-- Default output dir: /srv/energy-report-output
+- Default final output dir: /srv/energy-report-output
+- Default staging dir: /srv/energy-report-output/_staging
 - The one-command bootstrap below intentionally uses the deploy branch:
   backup-before-pdf-docs-20260426
 - That branch currently contains deploy-flow fixes newer than the older reviewed
@@ -37,11 +38,12 @@ Check what was deployed:
 
 sudo -u energy-report -H bash -lc 'cd /srv/energy-report && git rev-parse --short HEAD'
 grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
-find /srv/energy-report-output -type f | sort | tail -n 30
+find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune -o -type f -print | sort | tail -n 30
 
 Expected idea for B1:
-- Daily artifacts for 2025-05-31
-- Monthly artifacts for 2025-05-31
+- Daily artifacts for 2025-05-31 under /srv/energy-report-output/2025_05/
+- Monthly artifacts for 2025-05-31 under /srv/energy-report-output/2025_05/
+- Temporary print files stay under /srv/energy-report-output/_staging/
 - No timer installed yet
 
 
@@ -53,11 +55,11 @@ grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
 
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
-find /srv/energy-report-output -type f | sort | tail -n 30
+find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune -o -type f -print | sort | tail -n 30
 
 Expected idea for B2:
-- Daily artifacts for 2025-05-18
-- Weekly artifacts for 2025-05-18
+- Daily artifacts for 2025-05-18 under /srv/energy-report-output/2025_05/
+- Weekly artifacts for 2025-05-18 under /srv/energy-report-output/2025_05/
 
 
 B3 - Reset to scheduled mode
@@ -82,7 +84,7 @@ sudo systemctl status energy-report-etl.service --no-pager
 sudo systemctl status energy-report-etl.timer --no-pager
 systemctl list-timers energy-report-etl.timer --all
 journalctl -u energy-report-etl.service -n 100 --no-pager
-find /srv/energy-report-output -type f | sort | tail -n 30
+find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune -o -type f -print | sort | tail -n 30
 
 
 B4.1 - Change the timer schedule later
@@ -178,7 +180,7 @@ Set a smoke anchor and run the old version once:
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-31|' /srv/energy-report/config/.env
 cd /srv/energy-report
 sudo -u energy-report ./venv/bin/python -m src.main
-find /srv/energy-report-output -type f | sort | tail -n 30
+find /srv/energy-report-output -path '/srv/energy-report-output/_staging' -prune -o -type f -print | sort | tail -n 30
 
 When done, return to the current deploy branch:
 

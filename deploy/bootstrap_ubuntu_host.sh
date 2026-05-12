@@ -4,7 +4,7 @@ set -euo pipefail
 SERVICE_USER="energy-report"
 PROJECT_ROOT="/srv/energy-report"
 OUTPUT_DIR="/srv/energy-report-output"
-PRINT_STAGING_DIR="/srv/energy-report-output"
+PRINT_STAGING_DIR=""
 REPO_URL="https://github.com/trantuyen1991/ETL_EMS_REPORT.git"
 DEPLOY_REF="backup-before-pdf-docs-20260426"
 MYSQL_HOST=""
@@ -34,8 +34,8 @@ Options:
   --deploy-ref REF               Default: backup-before-pdf-docs-20260426
   --repo-url URL                 Default: https://github.com/trantuyen1991/ETL_EMS_REPORT.git
   --project-root PATH            Default: /srv/energy-report
-  --output-dir PATH              Default: /srv/energy-report-output
-  --print-staging-dir PATH       Default: same as output dir
+  --output-dir PATH              Default: /srv/energy-report-output (final monthly report root)
+  --print-staging-dir PATH       Default: <output-dir>/_staging
   --anchor-date YYYY-MM-DD       Optional smoke/backfill anchor. Blank for scheduled mode.
   --workshop-name NAME           Default: ENERGY REPORT
   --energy-unit UNIT             Default: kWh
@@ -110,7 +110,7 @@ if [[ -z "${MYSQL_PASSWORD}" ]]; then
 fi
 
 if [[ -z "${PRINT_STAGING_DIR}" ]]; then
-  PRINT_STAGING_DIR="${OUTPUT_DIR}"
+  PRINT_STAGING_DIR="${OUTPUT_DIR%/}/_staging"
 fi
 
 export DEBIAN_FRONTEND=noninteractive
@@ -201,7 +201,11 @@ as_service_user /usr/bin/google-chrome --headless --disable-gpu --no-sandbox --d
 if [[ "${SKIP_SMOKE}" -eq 0 ]]; then
   log "Running manual report smoke"
   as_service_user ./venv/bin/python -m src.main
-  find "${OUTPUT_DIR}" -type f | sort | tail -n 30
+  if [[ "${PRINT_STAGING_DIR%/}" == "${OUTPUT_DIR%/}" ]]; then
+    find "${OUTPUT_DIR}" -type f | sort | tail -n 30
+  else
+    find "${OUTPUT_DIR}" -path "${PRINT_STAGING_DIR}" -prune -o -type f -print | sort | tail -n 30
+  fi
 fi
 
 if [[ "${INSTALL_SYSTEMD}" -eq 1 ]]; then
@@ -215,6 +219,7 @@ Bootstrap completed.
 
 Project root : ${PROJECT_ROOT}
 Output dir   : ${OUTPUT_DIR}
+Staging dir  : ${PRINT_STAGING_DIR}
 Deploy ref   : ${DEPLOY_REF}
 
 If this was a smoke test with --anchor-date, restore scheduled mode with:

@@ -354,34 +354,53 @@ def _path_contains_hidden_segment(path: Path) -> bool:
     return any(part.startswith(".") for part in path.parts if part not in ("", ".", ".."))
 
 
+def _normalize_runtime_path(raw_path: str, project_root: Path) -> Path:
+    """Normalize one configured path, resolving relative paths from the project root."""
+    normalized = Path(raw_path).expanduser()
+    if normalized.is_absolute():
+        return normalized
+    return project_root / normalized
+
+
+def _resolve_canonical_output_root(
+    env_cfg: dict[str, Any],
+    project_root: Path,
+) -> Path:
+    """Resolve the final month-grouped report output root."""
+    configured_output = str(env_cfg.get("OUTPUT_DIR") or "").strip()
+    if configured_output:
+        return _normalize_runtime_path(configured_output, project_root)
+
+    return project_root / "output" / "reports"
+
+
 def _resolve_pdf_staging_dir(
     env_cfg: dict[str, Any],
-    project_output_dir: Path,
+    canonical_output_root: Path,
+    project_root: Path,
 ) -> Path:
     """Resolve a Chromium-safe staging directory for HTML-to-PDF printing."""
     configured_staging = str(env_cfg.get("PRINT_STAGING_DIR") or "").strip()
     if configured_staging:
-        return Path(configured_staging)
+        return _normalize_runtime_path(configured_staging, project_root)
 
-    configured_output = str(env_cfg.get("OUTPUT_DIR") or "").strip()
-    if configured_output:
-        output_dir = Path(configured_output)
-        if not _path_contains_hidden_segment(output_dir):
-            return output_dir
+    if not _path_contains_hidden_segment(canonical_output_root):
+        return canonical_output_root / "_staging"
 
-    if not _path_contains_hidden_segment(project_output_dir):
-        return project_output_dir
+    project_fallback = project_root / "output" / "reports" / "_staging"
+    if not _path_contains_hidden_segment(project_fallback):
+        return project_fallback
 
-    return Path.home() / "Reports"
+    return Path.home() / "Reports" / "_staging"
 
 
 def _resolve_monthly_report_dir(
-    project_output_root: Path,
+    canonical_output_root: Path,
     period,
 ) -> Path:
     """Resolve the canonical month directory for one report anchor."""
     anchor_value = _resolve_report_anchor_value(period)
-    return project_output_root / anchor_value.strftime("%Y_%m")
+    return canonical_output_root / anchor_value.strftime("%Y_%m")
 
 
 def _collect_report_batch_artifacts(
@@ -409,14 +428,14 @@ def _render_report_artifacts(
     env_cfg: dict[str, Any],
     period,
     report_context: dict[str, Any],
-    project_output_root: Path,
+    canonical_output_root: Path,
     staging_output_dir: Path,
 ) -> dict[str, Path]:
     """Render one report into monthly grouped view HTML, PDF source HTML, PDF, and daily Excel when applicable."""
     template_bundle = _select_template_bundle(period.period_type)
     export_stem = _build_report_export_stem(env_cfg, period)
 
-    month_dir = _resolve_monthly_report_dir(project_output_root, period)
+    month_dir = _resolve_monthly_report_dir(canonical_output_root, period)
     view_dir = month_dir / "view_html"
     pdf_source_dir = month_dir / "pdf_source_html"
     pdf_dir = month_dir / "pdf"
@@ -472,12 +491,16 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
     pdf_service = PDFService(config)
     excel_service = ExcelExportService()
 
-    project_output_root = Path("output/reports")
-    project_output_root.mkdir(parents=True, exist_ok=True)
+    canonical_output_root = _resolve_canonical_output_root(
+        env_cfg=env_cfg,
+        project_root=runtime["project_root"],
+    )
+    canonical_output_root.mkdir(parents=True, exist_ok=True)
 
     staging_output_dir = _resolve_pdf_staging_dir(
         env_cfg=env_cfg,
-        project_output_dir=project_output_root,
+        canonical_output_root=canonical_output_root,
+        project_root=runtime["project_root"],
     )
     staging_output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -508,7 +531,7 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
             env_cfg=env_cfg,
             period=period,
             report_context=report_context,
-            project_output_root=project_output_root,
+            canonical_output_root=canonical_output_root,
             staging_output_dir=staging_output_dir,
         )
 
@@ -529,8 +552,9 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
     )
 
     logger.info(
-        "Collected current report batch artifacts | output_root=%s file_count=%s",
-        project_output_root,
+        "Collected current report batch artifacts | canonical_output_root=%s staging_output_dir=%s file_count=%s",
+        canonical_output_root,
+        staging_output_dir,
         len(batch_paths),
     )
 

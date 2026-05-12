@@ -408,9 +408,10 @@ Execution rule remains:
 - Chromium headless print is more reliable when staging HTML/PDF in a non-hidden directory
 - Current workflow resolves a staging directory from:
   - `PRINT_STAGING_DIR`
-  - otherwise `OUTPUT_DIR` when non-hidden
+  - otherwise `OUTPUT_DIR/_staging` when `OUTPUT_DIR` is non-hidden
   - otherwise another safe non-hidden fallback
-- Final canonical artifacts now write directly into monthly grouped project output under `output/reports/YYYY_MM/`
+- Final canonical artifacts now write directly into monthly grouped output under `OUTPUT_DIR/YYYY_MM/`
+- If `OUTPUT_DIR` is blank, runtime falls back to project-local `output/reports/YYYY_MM/` in dev mode
 - Each month folder is split into `pdf/`, `pdf_source_html/`, `view_html/`, and `excel/`
 
 ---
