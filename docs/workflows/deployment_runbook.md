@@ -1,6 +1,6 @@
 # Deployment Runbook
 
-Use this runbook when bringing the project onto a new Ubuntu / systemd host after cloning the repository.
+Use this runbook when bringing the project onto a new Ubuntu / systemd host, whether you bootstrap from the one-command flow or work step by step after cloning.
 
 Scope:
 - clone the project onto a new machine
@@ -18,7 +18,19 @@ Assumptions:
 
 ---
 
-## 1. One-command bootstrap option
+## 1. Recommended operator flow
+
+For the current deployment style, use this order:
+
+1. **B1**: fresh bootstrap + month-end smoke for `2025-05-31`
+2. **B2**: change anchor to Sunday `2025-05-18` and run again
+3. **B3**: reset `REPORT_ANCHOR_DATE=` back to blank scheduled mode
+4. **B4**: only after B3, install or adjust the `systemd` timer
+5. **B5**: use the maintenance commands later for update / reinstall / rollback
+
+This order matters because B1 and B2 intentionally use pinned smoke anchors. The timer should only be enabled after B3 has restored blank scheduled mode.
+
+### 1.1 One-command bootstrap option
 
 For a fresh Ubuntu host, prefer the bootstrap script when you want to avoid manual copy/paste drift:
 
@@ -27,13 +39,18 @@ For a fresh Ubuntu host, prefer the bootstrap script when you want to avoid manu
 
 Copy the one-command bootstrap from the plain text file, not from the PDF. PDF readers can wrap long URLs or drop continuation lines.
 
-Example:
+Current one-command bootstrap intentionally uses the deploy branch `deploy/stable`, not the older reviewed tag `v4.3.0-dev`, because the branch currently carries newer deploy-flow fixes.
+
+Recommended B1 command:
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/backup-before-pdf-docs-20260426/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --reset-project
 ```
 
-Add `--install-systemd` only after you are ready for the script to enable the timer.
+Important:
+- B1 intentionally does **not** use `--install-systemd`
+- do not enable the timer while `REPORT_ANCHOR_DATE` is still pinned for smoke testing
+- install or enable the timer only after B3 has restored `REPORT_ANCHOR_DATE=`
 
 ---
 
@@ -95,14 +112,14 @@ Recommended baseline for the sample `systemd` files in this repo:
 - Linux user/group: `energy-report`
 - project root: `/srv/energy-report`
 
-Reviewed release reference for this deployment flow:
+Reviewed release reference for older rollback or exact snapshot deploy:
 - release tag: `v4.3.0-dev`
 - repo URL: `https://github.com/trantuyen1991/ETL_EMS_REPORT.git`
 - GitHub release page: `https://github.com/trantuyen1991/ETL_EMS_REPORT/releases/tag/v4.3.0-dev`
 - release tag page: `https://github.com/trantuyen1991/ETL_EMS_REPORT/tree/v4.3.0-dev`
 - release archive: `https://github.com/trantuyen1991/ETL_EMS_REPORT/archive/refs/tags/v4.3.0-dev.zip`
 
-If the host should deploy the exact reviewed snapshot, clone the tag directly:
+If the host should deploy the exact older reviewed snapshot instead of the newer deploy branch, clone the tag directly:
 
 ```bash
 sudo useradd --system --no-create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report || true
@@ -149,7 +166,7 @@ The application loads runtime values from:
 - `config/.env`
 - `config/app.yaml`
 
-### 3.1 Operator-first copy/paste block
+### 4.1 Operator-first copy/paste block
 
 To avoid opening `config/.env` and editing line by line, use the block below.
 
@@ -196,7 +213,7 @@ sudo chown -R energy-report:energy-report /srv/energy-report/logs /srv/energy-re
 
 If the operator wants to keep everything on the recommended baseline, the only lines that usually need changing are the MySQL values.
 
-### 3.2 Critical operational notes
+### 4.2 Critical operational notes
 
 - `OUTPUT_DIR` and `PRINT_STAGING_DIR` should point to a **non-hidden writable path**
 - do not set `PRINT_STAGING_DIR` to a personal desktop/home path such as `/home/trantuyen/Desktop/Report`; the `energy-report` service account usually cannot write there
@@ -239,64 +256,48 @@ This is a deployment workaround for the reviewed tag and should be replaced by a
 
 ---
 
-## 6. Run a manual smoke check before enabling schedule
+## 6. Run B2 and B3 before enabling schedule
 
-From the project root:
+If B1 already finished successfully with anchor `2025-05-31`, the next recommended operator flow is:
+
+### B2. Change anchor to Sunday and run again
 
 ```bash
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-18|' /srv/energy-report/config/.env
+grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
 cd /srv/energy-report
-./venv/bin/python -m src.main
-```
-
-Expected baseline behavior:
-- one `daily` batch is always generated
-- `weekly` is added automatically only when the anchor day is Sunday
-- `monthly` is added automatically only when the anchor day is month-end
-- the daily run also produces one Excel workbook
-
-Check outputs under:
-
-```bash
+sudo -u energy-report ./venv/bin/python -m src.main
 find /srv/energy-report-output -type f | sort | tail -n 30
 ```
 
-Expected successful PDF export includes `_view.html`, `_pdf_source.html`, and `.pdf` artifacts.
+Expected B2 behavior:
+- `daily` artifacts are generated for `2025-05-18`
+- `weekly` artifacts are generated for `2025-05-18`
 
-If you need deterministic smoke anchors, use the companion runbook:
-- `docs/workflows/release_runbook.md`
-
-That runbook already documents the approved smoke anchors for:
-- daily-only
-- Sunday
-- month-end
-
-After a temporary smoke anchor, restore:
-
-```dotenv
-REPORT_ANCHOR_DATE=
-```
-
-Command form:
+### B3. Restore blank scheduled mode
 
 ```bash
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
+grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
 ```
 
----
+Expected B3 result:
+- `REPORT_ANCHOR_DATE=` is blank again
+- only after this point should the timer be installed or enabled
 
 ## 7. Install the ready-made `systemd` files
+
+After B3 has restored blank scheduled mode, install the repo helper:
+
+```bash
+cd /srv/energy-report
+sudo ./deploy/systemd/install_systemd_units.sh
+```
 
 The repo now includes:
 - `deploy/systemd/energy-report-etl.service`
 - `deploy/systemd/energy-report-etl.timer`
 - `deploy/systemd/install_systemd_units.sh`
-
-Fastest path on a host that matches the recommended baseline:
-
-```bash
-cd /srv/energy-report
-./deploy/systemd/install_systemd_units.sh
-```
 
 What the helper does:
 - self-escalates with `sudo` when needed
@@ -322,13 +323,16 @@ Manual service test:
 sudo systemctl daemon-reload
 sudo systemctl start energy-report-etl.service
 sudo systemctl status energy-report-etl.service --no-pager
-```
-
-View logs:
-
-```bash
 journalctl -u energy-report-etl.service -n 100 --no-pager
 ```
+
+If you need additional deterministic smoke anchors later, use the companion runbook:
+- `docs/workflows/release_runbook.md`
+
+That runbook already documents the approved smoke anchors for:
+- daily-only
+- Sunday
+- month-end
 
 ---
 

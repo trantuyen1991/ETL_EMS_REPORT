@@ -1,122 +1,166 @@
 Energy Report deployment copy-paste commands
 ============================================
 
-Use this plain text file for terminal copy/paste. Do not copy commands from the PDF
-when a command contains long URLs, heredocs, or line continuations.
+Use this plain text file for terminal copy/paste.
+Do not copy long commands from the PDF when a command contains long URLs,
+heredocs, or line continuations.
 
-Default deploy ref
-------------------
+Current recommended operator flow
+---------------------------------
 
-DEPLOY_REF=backup-before-pdf-docs-20260426
+B1. Fresh bootstrap + month-end smoke for 2025-05-31
+B2. Change anchor to Sunday 2025-05-18 and run again
+B3. Reset anchor back to blank scheduled mode
+B4. Only after B3, install or adjust systemd timer
+B5. Use the helper commands below for update / clean reinstall / rollback
 
+Important notes
+---------------
 
-Step 1 - Prepare host and Chrome
---------------------------------
-
-sudo apt update
-sudo apt install -y git python3 python3-venv python3-pip ca-certificates curl netcat-openbsd poppler-utils
-python3 --version
-timedatectl
-
-rm -f /tmp/google-chrome.deb
-curl -L --fail -o /tmp/google-chrome.deb "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-ls -lh /tmp/google-chrome.deb
-file /tmp/google-chrome.deb
-sudo apt install -y /tmp/google-chrome.deb
-which google-chrome
-google-chrome --version
-google-chrome --headless --disable-gpu --no-sandbox --dump-dom about:blank >/tmp/chrome-smoke.html
-
-# Optional timezone, only if timedatectl is not already correct:
-# sudo timedatectl set-timezone Asia/Ho_Chi_Minh
-
-# Optional MySQL network check after you know the DB host and port:
-# nc -vz 192.168.100.82 3306
+- Default output dir: /srv/energy-report-output
+- The one-command bootstrap below intentionally uses the deploy branch:
+  backup-before-pdf-docs-20260426
+- That branch currently contains deploy-flow fixes newer than the older reviewed
+  tag v4.3.0-dev
+- B1 intentionally does NOT install systemd yet, because the anchor is pinned for
+  smoke testing
+- Only install or enable the timer after B3 has restored:
+  REPORT_ANCHOR_DATE=
 
 
-Step 2 - Create service account, clone repo, create venv
+B1 - Fresh bootstrap + month-end smoke (Daily + Monthly)
 --------------------------------------------------------
 
-sudo useradd --system --no-create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report || true
-sudo mkdir -p /srv
-sudo chown energy-report:energy-report /srv
-sudo -u energy-report git clone --branch "backup-before-pdf-docs-20260426" --depth 1 https://github.com/trantuyen1991/ETL_EMS_REPORT.git /srv/energy-report
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/backup-before-pdf-docs-20260426/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --mysql-password admin --anchor-date 2025-05-31 --reset-project
+
+Check what was deployed:
+
+sudo -u energy-report -H bash -lc 'cd /srv/energy-report && git rev-parse --short HEAD'
+grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+find /srv/energy-report-output -type f | sort | tail -n 30
+
+Expected idea for B1:
+- Daily artifacts for 2025-05-31
+- Monthly artifacts for 2025-05-31
+- No timer installed yet
+
+
+B2 - Change anchor to Sunday and run again (Daily + Weekly)
+-----------------------------------------------------------
+
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-18|' /srv/energy-report/config/.env
+grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+
 cd /srv/energy-report
-sudo -u energy-report python3 -m venv venv
-sudo -u energy-report ./venv/bin/pip install --upgrade pip
+sudo -u energy-report ./venv/bin/python -m src.main
+find /srv/energy-report-output -type f | sort | tail -n 30
+
+Expected idea for B2:
+- Daily artifacts for 2025-05-18
+- Weekly artifacts for 2025-05-18
+
+
+B3 - Reset to scheduled mode
+----------------------------
+
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
+grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+
+Expected result:
+- REPORT_ANCHOR_DATE=
+
+
+B4 - Install systemd service and timer only after B3
+----------------------------------------------------
+
+cd /srv/energy-report
+sudo ./deploy/systemd/install_systemd_units.sh
+
+Check service and timer:
+
+sudo systemctl status energy-report-etl.service --no-pager
+sudo systemctl status energy-report-etl.timer --no-pager
+systemctl list-timers energy-report-etl.timer --all
+journalctl -u energy-report-etl.service -n 100 --no-pager
+find /srv/energy-report-output -type f | sort | tail -n 30
+
+
+B4.1 - Change the timer schedule later
+--------------------------------------
+
+sudo nano /etc/systemd/system/energy-report-etl.timer
+
+Find this line:
+OnCalendar=*-*-* 23:00:00
+
+After editing, reload and restart the timer:
+
+sudo systemctl daemon-reload
+sudo systemctl restart energy-report-etl.timer
+systemctl list-timers energy-report-etl.timer --all
+
+
+B5 - Update to the latest deploy branch
+---------------------------------------
+
+cd /srv/energy-report
+sudo -u energy-report git fetch origin
+sudo -u energy-report git checkout backup-before-pdf-docs-20260426
+sudo -u energy-report git pull --ff-only origin backup-before-pdf-docs-20260426
+sudo -u energy-report ./venv/bin/pip install -r requirements.txt
+sudo -u energy-report ./venv/bin/python -m src.main
+
+If systemd unit files changed in the repo, re-install them:
+
+cd /srv/energy-report
+sudo ./deploy/systemd/install_systemd_units.sh
+
+Check the current deployed commit:
+
+cd /srv/energy-report
+sudo -u energy-report git log -1 --oneline
+
+
+Clean reinstall from zero
+-------------------------
+
+Stop timer first if it already exists:
+
+sudo systemctl disable --now energy-report-etl.timer || true
+sudo rm -f /etc/systemd/system/energy-report-etl.service /etc/systemd/system/energy-report-etl.timer || true
+sudo systemctl daemon-reload
+
+Remove project and outputs:
+
+sudo rm -rf /srv/energy-report /srv/energy-report-output
+
+Then run B1 again.
+
+
+Re-run only the bootstrap from scratch on a test host
+-----------------------------------------------------
+
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/backup-before-pdf-docs-20260426/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --mysql-password admin --anchor-date 2025-05-31 --reset-project
+
+Use this when you want to recreate the project root quickly without manually doing Step B2 or B4.
+
+
+Roll back and run an older version/tag
+--------------------------------------
+
+Example: run the older reviewed tag v4.3.0-dev
+
+cd /srv/energy-report
+sudo systemctl disable --now energy-report-etl.timer || true
+sudo -u energy-report git fetch --tags origin
+sudo -u energy-report git checkout --force v4.3.0-dev
 sudo -u energy-report ./venv/bin/pip install -r requirements.txt
 
+If the old tag complains about missing Sensor Monitoring outline icons, apply the fallback links:
 
-Step 2 reset - Only for a test host when you want to redo Step 2
----------------------------------------------------------------
-
-sudo bash -lc 'set -e
-rm -rf /srv/energy-report
-id energy-report >/dev/null 2>&1 && userdel energy-report || true
-useradd --system --no-create-home --home-dir /srv/energy-report --shell /usr/sbin/nologin energy-report
-mkdir -p /srv
-chown energy-report:energy-report /srv
-sudo -u energy-report git clone --branch backup-before-pdf-docs-20260426 --depth 1 https://github.com/trantuyen1991/ETL_EMS_REPORT.git /srv/energy-report
-cd /srv/energy-report
-sudo -u energy-report python3 -m venv venv
-sudo -u energy-report ./venv/bin/pip install --upgrade pip
-sudo -u energy-report ./venv/bin/pip install -r requirements.txt
-'
-
-
-Step 3 - Create config/.env
----------------------------
-
-cd /srv/energy-report
-sudo tee /srv/energy-report/config/.env >/dev/null <<'EOF'
-MYSQL_HOST=192.168.100.82
-MYSQL_PORT=3306
-MYSQL_DATABASE=ems_db
-MYSQL_USER=admin
-MYSQL_PASSWORD=admin
-
-OUTPUT_DIR=/srv/energy-report-output
-PRINT_STAGING_DIR=/srv/energy-report-output
-
-REPORT_FILENAME=energy_automatic_report
-LOG_LEVEL=INFO
-WORKSHOP_NAME=ENERGY REPORT
-ENERGY_UNIT=kWh
-
-REPORT_ANCHOR_DATE=2025-05-31
-EOF
-
-sudo chown energy-report:energy-report /srv/energy-report/config/.env
-sudo chmod 640 /srv/energy-report/config/.env
-sudo mkdir -p /srv/energy-report/logs /srv/energy-report-output
-sudo chown -R energy-report:energy-report /srv/energy-report/logs /srv/energy-report-output
-
-
-Step 4 - Confirm required Sensor Monitoring icons exist
--------------------------------------------------------
-
-cd /srv/energy-report
-test -f src/templates/assets/icon/outline/activity.svg
-test -f src/templates/assets/icon/outline/snowflake.svg
-test -f src/templates/assets/icon/outline/wind.svg
-test -f src/templates/assets/icon/outline/flame.svg
-test -f src/templates/assets/icon/outline/droplet.svg
-test -f src/templates/assets/icon/outline/bell.svg
-test -f src/templates/assets/icon/outline/gauge.svg
-test -f src/templates/assets/icon/outline/thermometer.svg
-test -f src/templates/assets/icon/outline/alert-circle.svg
-test -f src/templates/assets/icon/outline/circle-check.svg
-
-
-Step 4 fallback - Only if deploying the old v4.3.0-dev tag without the icon fix
--------------------------------------------------------------------------------
-
-cd /srv/energy-report
 sudo -u energy-report bash -lc '
 set -e
-cd /srv/energy-report
-mkdir -p src/templates/assets/icon/outline
-cd src/templates/assets/icon/outline
+cd /srv/energy-report/src/templates/assets/icon/outline
 ln -sf ../sensor/capacity.svg snowflake.svg
 ln -sf ../sensor/flow.svg wind.svg
 ln -sf ../steam.svg flame.svg
@@ -129,35 +173,38 @@ ln -sf ../sensor/power.svg alert-circle.svg
 ln -sf ../sensor/power.svg circle-check.svg
 '
 
+Set a smoke anchor and run the old version once:
 
-Step 5 - Manual smoke run
--------------------------
-
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-31|' /srv/energy-report/config/.env
 cd /srv/energy-report
-sudo -u energy-report google-chrome --headless --disable-gpu --no-sandbox --dump-dom about:blank >/tmp/chrome-smoke-energy-report.html
 sudo -u energy-report ./venv/bin/python -m src.main
 find /srv/energy-report-output -type f | sort | tail -n 30
 
+When done, return to the current deploy branch:
 
-Step 6 - Restore scheduled mode after smoke test
-------------------------------------------------
+cd /srv/energy-report
+sudo -u energy-report git checkout backup-before-pdf-docs-20260426
+sudo -u energy-report git pull --ff-only origin backup-before-pdf-docs-20260426
+sudo -u energy-report ./venv/bin/pip install -r requirements.txt
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
+
+
+Manual smoke-only reruns without bootstrap
+------------------------------------------
+
+Month-end rerun:
+
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-31|' /srv/energy-report/config/.env
+cd /srv/energy-report
+sudo -u energy-report ./venv/bin/python -m src.main
+
+Sunday rerun:
+
+sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=2025-05-18|' /srv/energy-report/config/.env
+cd /srv/energy-report
+sudo -u energy-report ./venv/bin/python -m src.main
+
+Back to scheduled mode:
 
 sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' /srv/energy-report/config/.env
 grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
-
-
-Step 7 - Install systemd service and timer
-------------------------------------------
-
-cd /srv/energy-report
-./deploy/systemd/install_systemd_units.sh
-
-
-Step 8 - Verify systemd and outputs
------------------------------------
-
-sudo systemctl status energy-report-etl.service --no-pager
-sudo systemctl status energy-report-etl.timer --no-pager
-systemctl list-timers energy-report-etl.timer --all
-journalctl -u energy-report-etl.service -n 100 --no-pager
-find /srv/energy-report-output -type f | sort | tail -n 30
