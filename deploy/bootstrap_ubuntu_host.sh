@@ -19,13 +19,28 @@ ENERGY_UNIT="kWh"
 INSTALL_SYSTEMD=0
 RESET_PROJECT=0
 SKIP_SMOKE=0
+INTERACTIVE=0
+
+ARG_MYSQL_HOST=0
+ARG_MYSQL_PORT=0
+ARG_MYSQL_DATABASE=0
+ARG_MYSQL_USER=0
+ARG_MYSQL_PASSWORD=0
+ARG_PROJECT_ROOT=0
+ARG_OUTPUT_DIR=0
+ARG_PRINT_STAGING_DIR=0
+ARG_ANCHOR_DATE=0
+ARG_INSTALL_SYSTEMD=0
+ARG_SKIP_SMOKE=0
 
 usage() {
   cat <<'EOF'
 Usage:
   sudo bash deploy/bootstrap_ubuntu_host.sh --mysql-host HOST --mysql-database DB --mysql-user USER [options]
+  sudo bash deploy/bootstrap_ubuntu_host.sh --interactive [options]
 
 Options:
+  --interactive                  Prompt for missing operator-facing values via TTY.
   --mysql-host HOST
   --mysql-port PORT              Default: 3306
   --mysql-database DB
@@ -44,18 +59,25 @@ Options:
   --skip-smoke                   Configure only; do not run src.main.
   -h, --help
 
-Example:
+Examples:
   sudo bash deploy/bootstrap_ubuntu_host.sh \
     --mysql-host 192.168.100.82 \
     --mysql-database ems_db \
     --mysql-user admin \
     --install-systemd
 
-One-command remote usage:
+  sudo bash deploy/bootstrap_ubuntu_host.sh --interactive
+
+One-command remote usage (non-interactive):
   curl -fsSL https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh | sudo bash -s -- \
     --mysql-host 192.168.100.82 \
     --mysql-database ems_db \
     --mysql-user admin
+
+Interactive recommendation:
+  curl -fsSL -o bootstrap_ubuntu_host.sh https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh
+  chmod +x bootstrap_ubuntu_host.sh
+  sudo ./bootstrap_ubuntu_host.sh --interactive
 EOF
 }
 
@@ -68,11 +90,226 @@ die() {
   exit 1
 }
 
+has_tty() {
+  [[ -r /dev/tty && -w /dev/tty ]]
+}
+
+tty_echo() {
+  if has_tty; then
+    printf '%s\n' "$*" > /dev/tty
+  else
+    printf '%s\n' "$*"
+  fi
+}
+
 as_service_user() {
   if command -v sudo >/dev/null 2>&1; then
     sudo -u "${SERVICE_USER}" "$@"
   else
     runuser -u "${SERVICE_USER}" -- "$@"
+  fi
+}
+
+prompt_text() {
+  local __var_name="$1"
+  local label="$2"
+  local default_value="${3:-}"
+  local required="${4:-0}"
+  local value=""
+
+  has_tty || die "Interactive prompts require a TTY. Download the script locally or pass all required flags non-interactively."
+
+  while true; do
+    if [[ -n "${default_value}" ]]; then
+      read -r -p "${label} [${default_value}]: " value < /dev/tty || die "Failed to read ${label} from TTY."
+    else
+      read -r -p "${label}: " value < /dev/tty || die "Failed to read ${label} from TTY."
+    fi
+
+    if [[ -z "${value}" ]]; then
+      value="${default_value}"
+    fi
+
+    if [[ "${required}" -eq 1 && -z "${value}" ]]; then
+      tty_echo "Value is required."
+      continue
+    fi
+
+    printf -v "${__var_name}" '%s' "${value}"
+    return 0
+  done
+}
+
+prompt_secret() {
+  local __var_name="$1"
+  local label="$2"
+  local default_value="${3:-}"
+  local required="${4:-0}"
+  local value=""
+  local prompt_label="${label}: "
+
+  has_tty || die "A TTY is required to prompt securely for ${label}. Pass --mysql-password explicitly for non-interactive runs."
+
+  if [[ -n "${default_value}" ]]; then
+    prompt_label="${label} [press Enter to keep current]: "
+  fi
+
+  while true; do
+    read -r -s -p "${prompt_label}" value < /dev/tty || die "Failed to read ${label} from TTY."
+    printf '\n' > /dev/tty
+
+    if [[ -z "${value}" ]]; then
+      value="${default_value}"
+    fi
+
+    if [[ "${required}" -eq 1 && -z "${value}" ]]; then
+      tty_echo "Value is required."
+      continue
+    fi
+
+    printf -v "${__var_name}" '%s' "${value}"
+    return 0
+  done
+}
+
+prompt_yes_no() {
+  local __var_name="$1"
+  local label="$2"
+  local default_value="$3"
+  local hint="y/N"
+  local value=""
+
+  has_tty || die "Interactive yes/no prompts require a TTY."
+
+  if [[ "${default_value}" -eq 1 ]]; then
+    hint="Y/n"
+  fi
+
+  while true; do
+    read -r -p "${label} [${hint}]: " value < /dev/tty || die "Failed to read ${label} from TTY."
+    value="${value,,}"
+
+    case "${value}" in
+      "")
+        printf -v "${__var_name}" '%s' "${default_value}"
+        return 0
+        ;;
+      y|yes)
+        printf -v "${__var_name}" '%s' 1
+        return 0
+        ;;
+      n|no)
+        printf -v "${__var_name}" '%s' 0
+        return 0
+        ;;
+      *)
+        tty_echo "Please answer yes or no."
+        ;;
+    esac
+  done
+}
+
+suggest_interactive_output_dir() {
+  if [[ -n "${SUDO_USER:-}" && "${SUDO_USER}" != "root" && -d "/home/${SUDO_USER}" ]]; then
+    printf '/home/%s/Reports' "${SUDO_USER}"
+  else
+    printf '%s' "${OUTPUT_DIR}"
+  fi
+}
+
+validate_configuration() {
+  [[ "${EUID}" -eq 0 ]] || die "Run this script as root, for example with sudo."
+  [[ -n "${MYSQL_HOST}" ]] || die "--mysql-host is required."
+  [[ -n "${MYSQL_DATABASE}" ]] || die "--mysql-database is required."
+  [[ -n "${MYSQL_USER}" ]] || die "--mysql-user is required."
+
+  if [[ -z "${PRINT_STAGING_DIR}" ]]; then
+    PRINT_STAGING_DIR="${OUTPUT_DIR%/}/_staging"
+  fi
+
+  if [[ -z "${MYSQL_PASSWORD}" ]]; then
+    prompt_secret MYSQL_PASSWORD "MySQL password for ${MYSQL_USER}" "" 1
+  fi
+
+  if [[ "${INSTALL_SYSTEMD}" -eq 1 && -n "${REPORT_ANCHOR_DATE}" ]]; then
+    die "--install-systemd cannot be combined with a pinned REPORT_ANCHOR_DATE. Restore scheduled mode first, then enable the timer."
+  fi
+}
+
+confirm_interactive_summary() {
+  local proceed=1
+
+  [[ "${INTERACTIVE}" -eq 1 ]] || return 0
+
+  tty_echo ""
+  tty_echo "Bootstrap summary"
+  tty_echo "  MySQL host         : ${MYSQL_HOST}"
+  tty_echo "  MySQL port         : ${MYSQL_PORT}"
+  tty_echo "  MySQL database     : ${MYSQL_DATABASE}"
+  tty_echo "  MySQL user         : ${MYSQL_USER}"
+  tty_echo "  MySQL password     : <hidden>"
+  tty_echo "  Project root       : ${PROJECT_ROOT}"
+  tty_echo "  Output dir         : ${OUTPUT_DIR}"
+  tty_echo "  Staging dir        : ${PRINT_STAGING_DIR}"
+  tty_echo "  Deploy ref         : ${DEPLOY_REF}"
+  tty_echo "  Anchor date        : ${REPORT_ANCHOR_DATE:-<blank>}"
+  tty_echo "  Run smoke          : $([[ "${SKIP_SMOKE}" -eq 0 ]] && printf 'yes' || printf 'no')"
+  tty_echo "  Install systemd    : $([[ "${INSTALL_SYSTEMD}" -eq 1 ]] && printf 'yes' || printf 'no')"
+  tty_echo "  Reset project      : $([[ "${RESET_PROJECT}" -eq 1 ]] && printf 'yes' || printf 'no')"
+  if [[ "${OUTPUT_DIR}" == /home/* || "${PRINT_STAGING_DIR}" == /home/* ]]; then
+    tty_echo "  Home-path ACL fix  : will be applied automatically"
+  fi
+
+  prompt_yes_no proceed "Proceed with these settings?" 1
+  [[ "${proceed}" -eq 1 ]] || die "Bootstrap cancelled by operator."
+}
+
+configure_interactively() {
+  local suggested_output_dir="${OUTPUT_DIR}"
+  local run_smoke=1
+  local install_systemd_now="${INSTALL_SYSTEMD}"
+
+  [[ "${INTERACTIVE}" -eq 1 ]] || return 0
+  has_tty || die "--interactive requires an attached TTY. Download the script locally or run it from a normal terminal."
+
+  tty_echo ""
+  tty_echo "Interactive bootstrap mode"
+  tty_echo "Press Enter to keep the value shown in brackets."
+
+  [[ "${ARG_MYSQL_HOST}" -eq 1 ]] || prompt_text MYSQL_HOST "MySQL host" "${MYSQL_HOST}" 1
+  [[ "${ARG_MYSQL_PORT}" -eq 1 ]] || prompt_text MYSQL_PORT "MySQL port" "${MYSQL_PORT}" 1
+  [[ "${ARG_MYSQL_DATABASE}" -eq 1 ]] || prompt_text MYSQL_DATABASE "MySQL database" "${MYSQL_DATABASE}" 1
+  [[ "${ARG_MYSQL_USER}" -eq 1 ]] || prompt_text MYSQL_USER "MySQL user" "${MYSQL_USER}" 1
+
+  if [[ "${ARG_MYSQL_PASSWORD}" -eq 0 && -z "${MYSQL_PASSWORD}" ]]; then
+    prompt_secret MYSQL_PASSWORD "MySQL password for ${MYSQL_USER}" "" 1
+  fi
+
+  [[ "${ARG_PROJECT_ROOT}" -eq 1 ]] || prompt_text PROJECT_ROOT "Project root" "${PROJECT_ROOT}" 1
+
+  if [[ "${ARG_OUTPUT_DIR}" -eq 0 ]]; then
+    suggested_output_dir="$(suggest_interactive_output_dir)"
+    prompt_text OUTPUT_DIR "Final output dir" "${suggested_output_dir}" 1
+  fi
+
+  if [[ "${ARG_PRINT_STAGING_DIR}" -eq 0 ]]; then
+    prompt_text PRINT_STAGING_DIR "Print staging dir" "${OUTPUT_DIR%/}/_staging" 1
+  fi
+
+  [[ "${ARG_ANCHOR_DATE}" -eq 1 ]] || prompt_text REPORT_ANCHOR_DATE "Smoke anchor date (blank for scheduled mode)" "${REPORT_ANCHOR_DATE}" 0
+
+  if [[ "${ARG_SKIP_SMOKE}" -eq 0 ]]; then
+    prompt_yes_no run_smoke "Run smoke now after bootstrap?" 1
+    if [[ "${run_smoke}" -eq 1 ]]; then
+      SKIP_SMOKE=0
+    else
+      SKIP_SMOKE=1
+    fi
+  fi
+
+  if [[ "${ARG_INSTALL_SYSTEMD}" -eq 0 ]]; then
+    prompt_yes_no install_systemd_now "Install and enable systemd timer now?" 0
+    INSTALL_SYSTEMD="${install_systemd_now}"
   fi
 }
 
@@ -114,40 +351,33 @@ prepare_runtime_dir() {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --mysql-host) MYSQL_HOST="${2:-}"; shift 2 ;;
-    --mysql-port) MYSQL_PORT="${2:-}"; shift 2 ;;
-    --mysql-database) MYSQL_DATABASE="${2:-}"; shift 2 ;;
-    --mysql-user) MYSQL_USER="${2:-}"; shift 2 ;;
-    --mysql-password) MYSQL_PASSWORD="${2:-}"; shift 2 ;;
+    --interactive) INTERACTIVE=1; shift ;;
+    --mysql-host) MYSQL_HOST="${2:-}"; ARG_MYSQL_HOST=1; shift 2 ;;
+    --mysql-port) MYSQL_PORT="${2:-}"; ARG_MYSQL_PORT=1; shift 2 ;;
+    --mysql-database) MYSQL_DATABASE="${2:-}"; ARG_MYSQL_DATABASE=1; shift 2 ;;
+    --mysql-user) MYSQL_USER="${2:-}"; ARG_MYSQL_USER=1; shift 2 ;;
+    --mysql-password) MYSQL_PASSWORD="${2:-}"; ARG_MYSQL_PASSWORD=1; shift 2 ;;
     --deploy-ref) DEPLOY_REF="${2:-}"; shift 2 ;;
     --repo-url) REPO_URL="${2:-}"; shift 2 ;;
-    --project-root) PROJECT_ROOT="${2:-}"; shift 2 ;;
-    --output-dir) OUTPUT_DIR="${2:-}"; shift 2 ;;
-    --print-staging-dir) PRINT_STAGING_DIR="${2:-}"; shift 2 ;;
-    --anchor-date) REPORT_ANCHOR_DATE="${2:-}"; shift 2 ;;
+    --project-root) PROJECT_ROOT="${2:-}"; ARG_PROJECT_ROOT=1; shift 2 ;;
+    --output-dir) OUTPUT_DIR="${2:-}"; ARG_OUTPUT_DIR=1; shift 2 ;;
+    --print-staging-dir) PRINT_STAGING_DIR="${2:-}"; ARG_PRINT_STAGING_DIR=1; shift 2 ;;
+    --anchor-date) REPORT_ANCHOR_DATE="${2:-}"; ARG_ANCHOR_DATE=1; shift 2 ;;
     --workshop-name) WORKSHOP_NAME="${2:-}"; shift 2 ;;
     --energy-unit) ENERGY_UNIT="${2:-}"; shift 2 ;;
-    --install-systemd) INSTALL_SYSTEMD=1; shift ;;
+    --install-systemd) INSTALL_SYSTEMD=1; ARG_INSTALL_SYSTEMD=1; shift ;;
     --reset-project) RESET_PROJECT=1; shift ;;
-    --skip-smoke) SKIP_SMOKE=1; shift ;;
+    --skip-smoke) SKIP_SMOKE=1; ARG_SKIP_SMOKE=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown argument: $1" ;;
   esac
 done
 
 [[ "${EUID}" -eq 0 ]] || die "Run this script as root, for example with sudo."
-[[ -n "${MYSQL_HOST}" ]] || die "--mysql-host is required."
-[[ -n "${MYSQL_DATABASE}" ]] || die "--mysql-database is required."
-[[ -n "${MYSQL_USER}" ]] || die "--mysql-user is required."
 
-if [[ -z "${MYSQL_PASSWORD}" ]]; then
-  read -rsp "MySQL password for ${MYSQL_USER}: " MYSQL_PASSWORD
-  printf '\n'
-fi
-
-if [[ -z "${PRINT_STAGING_DIR}" ]]; then
-  PRINT_STAGING_DIR="${OUTPUT_DIR%/}/_staging"
-fi
+configure_interactively
+validate_configuration
+confirm_interactive_summary
 
 export DEBIAN_FRONTEND=noninteractive
 
