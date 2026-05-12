@@ -191,7 +191,6 @@ def _build_utility_object(
 def _build_energy_object(
     repos: dict[str, EnergyDataRepository],
     period,
-    kpi_object: dict[str, Any],
 ) -> dict[str, Any]:
     """Build the full energy object for current and previous period."""
     energy_service = EnergyService()
@@ -226,6 +225,15 @@ def _build_energy_object(
         ),
     }
 
+    current_total_energy_rows = repos["total_energy"].get_daily_detail_rows(
+        start_date=period.start_date,
+        end_date=period.end_date,
+    )
+    previous_total_energy_rows = repos["total_energy"].get_daily_detail_rows(
+        start_date=period.previous_start_date,
+        end_date=period.previous_end_date,
+    )
+
     current_area_columns = {
         "diode": repos["diode_energy"].get_meter_columns(),
         "ico": repos["ico_energy"].get_meter_columns(),
@@ -237,10 +245,8 @@ def _build_energy_object(
         previous_area_rows=previous_area_rows,
         current_area_columns=current_area_columns,
         previous_area_columns=current_area_columns,
-        current_kpi_summary=kpi_object["current"]["summary"],
-        previous_kpi_summary=kpi_object["previous"]["summary"],
-        current_kpi_rows=kpi_object["current"]["selected_rows"],
-        previous_kpi_rows=kpi_object["previous"]["selected_rows"],
+        current_total_energy_rows=current_total_energy_rows,
+        previous_total_energy_rows=previous_total_energy_rows,
         report_start=period.start_date,
         report_end=period.end_date,
         previous_start=period.previous_start_date,
@@ -576,7 +582,7 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
             period=period,
             client=client,
         )
-        energy_object = _build_energy_object(repos, period, kpi_object)
+        energy_object = _build_energy_object(repos, period)
 
         report_context = _build_report_context(
             project_root=runtime["project_root"],

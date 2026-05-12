@@ -63,6 +63,13 @@ def get_data_sources(database: str) -> Dict[str, DataSourceConfig]:
             date_column="dt",
             excluded_columns=("dt",),
         ),
+        "total_energy": DataSourceConfig(
+            database=database,
+            object_name="total_energy",
+            object_type="view",
+            date_column="dt",
+            excluded_columns=("dt",),
+        ),
         "energy_kpi": DataSourceConfig(
             database=database,
             object_name="energy_kpi",

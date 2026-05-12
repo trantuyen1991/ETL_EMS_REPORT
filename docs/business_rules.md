@@ -37,11 +37,12 @@ For all comparable metrics:
 ## 3. Electricity Rules
 
 ### 3.1 Scope
-- Electricity totals for plant and area must be taken from pre-calculated values stored in `energy_kpi`.
+- Electricity totals for plant and area must be taken from pre-calculated values stored in `total_energy`.
 - Do not derive plant total or area total by summing all meter values from energy views, because energy views may include main feeder meters and downstream overlap.
-- `energy_kpi` is the source of truth for:
-  - plant total energy
-  - area official total energy
+- `total_energy` is the source of truth for:
+  - plant total energy in the Electricity section
+  - area official total energy in the Electricity section
+- `energy_kpi` remains the source of truth for:
   - KPI-related official energy values
 - Main feeder definitions and area topology must be controlled by `config/energy_metadata.py`.
 - Residual Load is defined as:

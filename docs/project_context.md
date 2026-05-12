@@ -39,20 +39,24 @@ Output Files
 
 ### 3.1 Energy Data
 
-Source:
+Sources:
 
+* `total_energy`
 * `energy_kpi`
 
 Purpose:
 
-* official plant totals
-* area totals
-* KPI-related values
-* production context
+* `total_energy`
+  * official plant totals for the Electricity section
+  * official area totals for the Electricity section
+* `energy_kpi`
+  * KPI-related values
+  * production context
 
 Rule:
 
-* this is the source of truth for KPI and official totals
+* `total_energy` is the source of truth for Electricity official totals
+* `energy_kpi` is the source of truth for KPI and production-oriented values
 
 ---
 
@@ -134,7 +138,8 @@ Responsibilities:
 
 Key rules:
 
-* must use `energy_kpi` as source of truth
+* must use `total_energy` as the source of truth for Electricity official totals
+* must keep `energy_kpi` untouched for KPI logic
 * must not recompute totals from raw views
 
 ---
