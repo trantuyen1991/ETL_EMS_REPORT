@@ -58,9 +58,10 @@ OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" -path "$OUTPUT_ROOT/_staging" -prune -o -type f -print | sort | tail -n 30
 
 Expected idea for B1:
-- Daily artifacts for 2025-05-31 under /srv/energy-report-output/2025_05/
-- Monthly artifacts for 2025-05-31 under /srv/energy-report-output/2025_05/
+- Daily artifacts for 2025-05-31 under "$OUTPUT_ROOT"/2025_05/
+- Monthly artifacts for 2025-05-31 under "$OUTPUT_ROOT"/2025_05/
 - Temporary print files are auto-cleaned after successful copy-back
+- If OUTPUT_DIR lives under /home/<user>/..., bootstrap also prepares ACL so energy-report can write there and the home owner can open/manage generated files
 - No timer installed yet
 
 
@@ -77,8 +78,8 @@ OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" -path "$OUTPUT_ROOT/_staging" -prune -o -type f -print | sort | tail -n 30
 
 Expected idea for B2:
-- Daily artifacts for 2025-05-18 under /srv/energy-report-output/2025_05/
-- Weekly artifacts for 2025-05-18 under /srv/energy-report-output/2025_05/
+- Daily artifacts for 2025-05-18 under "$OUTPUT_ROOT"/2025_05/
+- Weekly artifacts for 2025-05-18 under "$OUTPUT_ROOT"/2025_05/
 
 
 B3 - Reset to scheduled mode

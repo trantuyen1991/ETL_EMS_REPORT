@@ -89,7 +89,7 @@ Nếu operator muốn tránh copy nhiều dòng lệnh từ PDF, repo có sẵn 
 
 Khuyến nghị vận hành là copy one-command từ file \texttt{deployment\_copy\_paste\_commands.txt} hoặc từ raw GitHub text, không copy các block lệnh dài trực tiếp từ PDF vì trình đọc PDF có thể wrap dòng, làm mất dấu \texttt{\textbackslash}, tách \texttt{.deb}, hoặc bỏ sót các dòng sau.
 
-Script bootstrap hiện có thể tự cài package nền, cài Google Chrome \texttt{.deb}, tạo service account, clone repo từ \texttt{deploy/stable}, dựng \texttt{venv}, ghi \texttt{config/.env}, ép PDF browser path sang \texttt{/usr/bin/google-chrome}, auto-cài \texttt{acl} và cấp quyền cho service account nếu \texttt{OUTPUT\_DIR} hoặc \texttt{PRINT\_STAGING\_DIR} nằm dưới \texttt{/home/<user>/...}, kiểm tra icon Sensor Monitoring, chạy manual smoke, và nếu có flag \texttt{--install-systemd} thì cài luôn timer. Trong operator flow chuẩn, B1 smoke mode cố ý chưa cài timer cho đến sau bước restore \texttt{REPORT\_ANCHOR\_DATE=}.
+Script bootstrap hiện có thể tự cài package nền, cài Google Chrome \texttt{.deb}, tạo service account, clone repo từ \texttt{deploy/stable}, dựng \texttt{venv}, ghi \texttt{config/.env}, ép PDF browser path sang \texttt{/usr/bin/google-chrome}, auto-cài \texttt{acl} và cấp quyền nếu \texttt{OUTPUT\_DIR} hoặc \texttt{PRINT\_STAGING\_DIR} nằm dưới \texttt{/home/<user>/...} để service account ghi được đồng thời home owner vẫn mở, sửa, và dọn file report đã sinh được, kiểm tra icon Sensor Monitoring, chạy manual smoke, và nếu có flag \texttt{--install-systemd} thì cài luôn timer. Trong operator flow chuẩn, B1 smoke mode cố ý chưa cài timer cho đến sau bước restore \texttt{REPORT\_ANCHOR\_DATE=}.
 
 \subsection{Step 1. Chuẩn bị host mới}
 
@@ -225,8 +225,8 @@ Các điểm bắt buộc phải nhớ khi dùng block này:
 \item \texttt{PRINT\_STAGING\_DIR} là staging-only path, nên thường là subfolder riêng như \texttt{/srv/energy-report-output/\_staging};
 \item sau khi export thành công, runtime tự xóa staging files của batch hiện tại, prune thư mục \texttt{\_staging} nếu rỗng, và dọn legacy loose report files ở root của \texttt{OUTPUT\_DIR};
 \item \texttt{OUTPUT\_DIR} và \texttt{PRINT\_STAGING\_DIR} phải là non-hidden writable paths;
-\item với desktop-like host, nên ưu tiên \texttt{/home/<user>/Reports} thay vì Desktop trực tiếp; nếu dùng path dưới \texttt{/home/<user>/...}, bootstrap script hiện có thể auto-cài ACL để service account \texttt{energy-report} ghi được và home owner mở được file report đã sinh;
-\item nếu operator đổi các path này thủ công trong \texttt{config/.env} sau bootstrap, cần chạy lại bootstrap hoặc tự áp equivalent \texttt{setfacl} commands;
+\item với desktop-like host, nên ưu tiên \texttt{/home/<user>/Reports} thay vì Desktop trực tiếp; nếu dùng path dưới \texttt{/home/<user>/...}, bootstrap script hiện có thể auto-cài ACL để service account \texttt{energy-report} ghi được và home owner mở, sửa, hoặc xóa file report đã sinh;
+\item nếu operator đổi các path này thủ công trong \texttt{config/.env} sau bootstrap, cần chạy lại bootstrap hoặc tự áp equivalent \texttt{setfacl} commands để vừa giữ quyền ghi cho service account vừa giữ khả năng quản lý file cho home owner;
 \item nếu host không dùng baseline \texttt{/srv/energy-report}, block và \texttt{systemd} units phải được chỉnh đồng bộ.
 \end{enumerate}
 

@@ -509,6 +509,7 @@ Operator-first install note:
 - use `docs/workflows/deployment_runbook.md` for the deployment flow and bootstrap modes
 - non-interactive bootstrap remains best for one-line `curl | bash` usage
 - interactive bootstrap should be run from a local script file, with defaults shown and missing values prompted one by one
+- if `OUTPUT_DIR` or `PRINT_STAGING_DIR` live under `/home/<user>/...`, bootstrap now prepares ACL so `energy-report` can write there and the home owner can still open/manage generated files
 
 ---
 
@@ -519,6 +520,7 @@ Generated files:
 - canonical operator-facing root: `OUTPUT_DIR/`
 - local/dev fallback when `OUTPUT_DIR` is blank: `output/reports/`
 - staging-only print path: `PRINT_STAGING_DIR` or `OUTPUT_DIR/_staging`
+- for desktop-like hosts, prefer `/home/<user>/Reports` and `/home/<user>/Reports/_staging` over a Desktop folder when using home-based output paths
 
 ```
 
