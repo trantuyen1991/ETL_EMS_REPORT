@@ -82,21 +82,25 @@ Kiến trúc dạng tầng này giúp tài liệu kỹ thuật có thể map tr�
 
 Hai hình dưới đây thể hiện kiến trúc hiện tại của hệ thống báo cáo năng lượng và luồng sinh artifacts từ lúc bootstrap runtime đến khi ghi output theo tháng.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{figure/hinh1_1}
+	\includegraphics[width=\textwidth]{figure/hinh1_1.pdf}
 	\caption{System architecture of the automated energy reporting pipeline}
 	\label{fig:system_architecture}
 \end{figure}
 
-\begin{figure}[htbp]
+Hình \ref{fig:system_architecture} mô tả các lớp chính của hệ thống, bao gồm runtime/configuration inputs, data ownership, repository layer, service layer, report context builder, rendering path, Excel export path, và canonical output structure.
+
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{figure/hinh1_2}
+	\includegraphics[width=\textwidth]{figure/hinh1_2.pdf}
 	\caption{Report generation and export data flow for the current project runtime}
 	\label{fig:report_generation_flow}
 \end{figure}
 
-Hình \ref{fig:system_architecture} mô tả các lớp chính của hệ thống, bao gồm runtime/configuration inputs, data ownership, repository layer, service layer, report context builder, rendering path, Excel export path, và canonical output structure. Hình \ref{fig:report_generation_flow} mô tả chu trình thực thi từ bước load config, resolve scheduled periods, fetch source rows, aggregate sensor statistics, build domain objects, assemble \texttt{report\_context}, render artifacts, đến lưu output theo cấu trúc tháng.
+Hình \ref{fig:report_generation_flow} mô tả chu trình thực thi từ bước load config, resolve scheduled periods, fetch source rows, aggregate sensor statistics, build domain objects, assemble \texttt{report\_context}, render artifacts, đến lưu output theo cấu trúc tháng.
+
+\clearpage
 
 \section{Ma trận thành phần chính}
 

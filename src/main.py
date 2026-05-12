@@ -60,7 +60,7 @@ def _bootstrap() -> dict[str, Any]:
 
     client = MySQLClient(mysql_config)
 
-    sources = get_data_sources()
+    sources = get_data_sources(database=mysql_config.database)
     repos = {
         name: EnergyDataRepository(client, cfg)
         for name, cfg in sources.items()

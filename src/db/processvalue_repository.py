@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any, Dict, List
 
 import logging
+import re
 
 from src.db.mysql_client import MySQLClient
 
@@ -31,16 +32,23 @@ class ProcessValueRepository:
         )
     """
 
-    TABLE_NAME = "ems_db.processvalue"
+    IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+    TABLE_NAME = "processvalue"
     TIMESTAMP_COLUMN = "Time_Stamp"
 
-    def __init__(self, mysql_client: MySQLClient) -> None:
+    def __init__(self, mysql_client: MySQLClient, database: str | None = None) -> None:
         """Initialize repository.
 
         Args:
             mysql_client: Shared MySQL client instance.
+            database: Optional database/schema override. Defaults to the
+                database configured on the shared MySQL client.
         """
         self.mysql_client = mysql_client
+        self.database = database or mysql_client.database
+        self._validate_identifier(self.database)
+        self._validate_identifier(self.TABLE_NAME)
+        self._validate_identifier(self.TIMESTAMP_COLUMN)
 
     def fetch_sensor_rows(
         self,
@@ -84,10 +92,10 @@ class ProcessValueRepository:
 
         sql = f"""
             SELECT {select_sql}
-            FROM {self.TABLE_NAME}
-            WHERE {self.TIMESTAMP_COLUMN} >= %s
-              AND {self.TIMESTAMP_COLUMN} < %s
-            ORDER BY {self.TIMESTAMP_COLUMN} ASC
+            FROM {self._source_table()}
+            WHERE {self._quote(self.TIMESTAMP_COLUMN)} >= %s
+              AND {self._quote(self.TIMESTAMP_COLUMN)} < %s
+            ORDER BY {self._quote(self.TIMESTAMP_COLUMN)} ASC
         """
 
         params = (start_dt, end_dt_exclusive)
@@ -117,6 +125,20 @@ class ProcessValueRepository:
             )
             raise
 
+    def _validate_identifier(self, identifier: str) -> str:
+        """Validate a SQL identifier before it is quoted into a query."""
+        if not identifier or not self.IDENTIFIER_PATTERN.match(identifier):
+            raise ValueError(f"Invalid SQL identifier: {identifier}")
+        return identifier
+
+    def _quote(self, identifier: str) -> str:
+        """Return a backtick-quoted SQL identifier."""
+        return f"`{self._validate_identifier(identifier)}`"
+
+    def _source_table(self) -> str:
+        """Return the fully qualified processvalue table source."""
+        return f"{self._quote(self.database)}.{self._quote(self.TABLE_NAME)}"
+
     def _validate_sensor_columns(self, sensor_columns: List[str]) -> List[str]:
         """Validate and normalize requested sensor columns.
 
@@ -140,6 +162,7 @@ class ProcessValueRepository:
             if normalized in seen:
                 continue
 
+            self._validate_identifier(normalized)
             seen.add(normalized)
             cleaned.append(normalized)
 
@@ -154,8 +177,8 @@ class ProcessValueRepository:
         Returns:
             str: SQL-safe select clause using backtick-quoted columns.
         """
-        quoted_columns = [f"`{self.TIMESTAMP_COLUMN}`"]
-        quoted_columns.extend(f"`{column}`" for column in sensor_columns)
+        quoted_columns = [self._quote(self.TIMESTAMP_COLUMN)]
+        quoted_columns.extend(self._quote(column) for column in sensor_columns)
         return ", ".join(quoted_columns)
 
     def _map_db_row(

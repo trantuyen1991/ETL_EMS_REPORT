@@ -310,6 +310,28 @@ find /srv/energy-report-output -type f | sort | tail -n 30
 
 Nếu timer đã enabled nhưng output không như kỳ vọng, operator nên quay sang chapter \textit{Troubleshooting Playbook} để kiểm tra theo đúng thứ tự triage đã chuẩn hóa.
 
+\section{Logging retention baseline}
+
+Runtime application log được cấu hình trong \TablePath{config/logging.yaml}. Baseline hiện tại dùng \texttt{logging.handlers.RotatingFileHandler} để tránh file log tăng không giới hạn trên host chạy lâu ngày.
+
+\begin{table}[htbp]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\caption{Runtime application log retention baseline}
+	\label{tab:deployment_log_retention_baseline}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{4.0cm}|>{\RaggedRight\arraybackslash}X|}
+		\hline
+		\textbf{Item} & \textbf{Baseline} \\ \hline
+		Config source & \TablePath{config/logging.yaml} \\ \hline
+		Runtime log file & \TablePath{logs/app.log} dưới project root của deployment, ví dụ \TablePath{/srv/energy-report/logs/app.log} \\ \hline
+		Handler & \texttt{logging.handlers.RotatingFileHandler} \\ \hline
+		Max active log size & \texttt{10485760} bytes, xấp xỉ 10 MB \\ \hline
+		Backup retention & \texttt{backupCount: 10}, tương ứng \texttt{app.log.1} đến \texttt{app.log.10} \\ \hline
+	\end{tabularx}
+\end{table}
+
+Log của \texttt{systemd} vẫn nằm trong journal riêng và kiểm tra bằng \texttt{journalctl -u energy-report-etl.service}. Hai nguồn log này bổ sung cho nhau: \texttt{logs/app.log} dùng để đọc log ứng dụng theo file, còn \texttt{journalctl} dùng để kiểm tra service lifecycle, exit code, và lỗi từ timer.
+
 \section{Operational validation checklist}
 
 Trước khi coi host mới là usable cho production-like schedule, nên xác nhận tối thiểu:
@@ -318,6 +340,7 @@ Trước khi coi host mới là usable cho production-like schedule, nên xác n
 \item MySQL credentials đúng và truy cập được dưới service account;
 \item browser runtime có sẵn;
 \item output path writable;
+\item \texttt{logs/} writable và \texttt{config/logging.yaml} đang dùng rotation baseline 10 MB / 10 backups;
 \item manual run thành công;
 \item service start thủ công thành công;
 \item timer đã enabled và hiển thị next run đúng 23:00 theo timezone mong muốn;

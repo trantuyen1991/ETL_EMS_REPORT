@@ -358,11 +358,21 @@ Before calling the deployment usable, verify:
 - MySQL credentials in `config/.env` are correct
 - `REPORT_ANCHOR_DATE` is blank in steady-state scheduled mode
 - output path is writable and non-hidden
+- runtime app logging is size-rotated in `config/logging.yaml`
 - Chrome / Chromium is present and PDF export works
 - one manual run succeeds from `./venv/bin/python -m src.main`
 - `energy-report-etl.service` succeeds when started manually
 - `energy-report-etl.timer` is enabled and shows the expected next run
 - generated files land in the expected month-grouped folders under the configured output root
+
+Runtime application log baseline:
+- config source: `config/logging.yaml`
+- log file: `logs/app.log` under the deployed project root, for example `/srv/energy-report/logs/app.log`
+- handler: `logging.handlers.RotatingFileHandler`
+- max active log size: `10485760` bytes, about 10 MB
+- backup retention: `backupCount: 10`, producing `app.log.1` through `app.log.10`
+
+`systemd` journal logs are separate from the application log file. Use `journalctl -u energy-report-etl.service` for service lifecycle, timer-triggered runs, exit codes, and stdout/stderr from the unit.
 
 ---
 

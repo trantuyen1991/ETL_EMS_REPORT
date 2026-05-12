@@ -26,7 +26,7 @@ Các thông tin này không thay thế commit history, nhưng chúng giúp ngư�
 
 Bảng \ref{tab:document_metadata} là baseline metadata cho bộ technical manual hiện tại. Các trường đã chắc chắn thì được điền trực tiếp; các trường chưa được chốt chính thức thì được giữ ở trạng thái reviewable để cập nhật sau.
 
-\begin{table}[htbp]
+\begin{table}[H]
 	\centering
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Document metadata baseline}
@@ -37,8 +37,8 @@ Bảng \ref{tab:document_metadata} là baseline metadata cho bộ technical manu
 		Project name & Energy Consumption Reporting System \\ \hline
 		Document type & Project technical manual / engineering reference document \\ \hline
 		Document scope & Architecture, data sources, repository/service mapping, business rules, KPI rules, output structure, release workflow, deployment and operations, scheduling, troubleshooting, glossary, and naming conventions \\ \hline
-		Current document version & \texttt{v0.26-draft} \\ \hline
-		Document status & Internal review copy \\ \hline
+		Current document version & \texttt{v1.0} \\ \hline
+		Document status & Internal release baseline \\ \hline
 		Primary owner / author & Tuyen Tran \\ \hline
 		Reviewer & Reviewer assignment pending \\ \hline
 		Approval status & Pre-handover sign-off pending \\ \hline
@@ -51,16 +51,16 @@ Bảng \ref{tab:document_metadata} là baseline metadata cho bộ technical manu
 
 \section{Versioning convention}
 
-Phiên bản tài liệu nên được quản lý độc lập nhưng có liên hệ rõ với trạng thái implementation của project. Trong giai đoạn hiện tại, một convention đơn giản nhưng an toàn là:
+Phiên bản tài liệu nên được quản lý độc lập nhưng có liên hệ rõ với trạng thái implementation của project. Từ mốc release baseline hiện tại, một convention đơn giản nhưng an toàn là:
 
 \begin{enumerate}[label=-]
-\item dùng \texttt{v0.x-draft} cho giai đoạn technical manual đang được thiết lập cấu trúc;
-\item tăng minor draft version khi có thêm chapter hoặc chỉnh nội dung đáng kể ở mức tài liệu;
-\item khi tài liệu đã ổn định cho một mốc review lớn, có thể chuyển sang semantic hơn như \texttt{v1.0};
+\item dùng \texttt{v1.0} cho bản technical manual release baseline đầu tiên;
+\item tăng patch hoặc minor version khi có thêm chapter, rule, hoặc thay đổi đáng kể ở mức tài liệu;
+\item chỉ dùng nhãn draft/review trong revision history khi tài liệu quay lại một vòng chỉnh sửa chưa sẵn sàng phát hành;
 \item nếu cần, gắn thêm commit SHA hoặc release candidate note trong revision history thay vì nhồi quá nhiều ý nghĩa vào tên file PDF.
 \end{enumerate}
 
-Mục tiêu của convention này là giúp người đọc biết tài liệu đang ở mức draft, review, hay gần release-ready, mà không làm lẫn version của tài liệu với version runtime của application.
+Mục tiêu của convention này là giúp người đọc biết tài liệu đang ở mức draft, review, hay release baseline, mà không làm lẫn version của tài liệu với version runtime của application.
 
 \section{Author, reviewer, và approval responsibilities}
 
@@ -81,7 +81,7 @@ Tài liệu kỹ thuật chất lượng tốt cần có vai trò rõ ràng gi�
 	\end{tabularx}
 \end{table}
 
-Ở trạng thái hiện tại, owner đã rõ. Reviewer và approver vẫn chưa được gán tên chính thức, nhưng trạng thái pending hiện đã được diễn đạt rõ ràng để tài liệu có thể dùng như một bản internal review copy mà không gây hiểu nhầm là đã sign-off xong.
+Ở trạng thái hiện tại, owner đã rõ. Reviewer và approver vẫn chưa được gán tên chính thức, nhưng trạng thái pending hiện đã được diễn đạt rõ ràng để tài liệu có thể dùng như một bản internal release baseline mà không gây hiểu nhầm là đã sign-off xong.
 
 \section{Approval and sign-off flow}
 
@@ -106,37 +106,12 @@ Bảng \ref{tab:revision_history} là baseline revision history của bộ techn
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Technical manual revision history baseline}
 	\label{tab:revision_history}
-	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.0cm}|>{\RaggedRight\arraybackslash}p{2.0cm}|>{\RaggedRight\arraybackslash}p{2.2cm}|>{\RaggedRight\arraybackslash}X|}
+	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.2cm}|>{\RaggedRight\arraybackslash}p{2.0cm}|>{\RaggedRight\arraybackslash}p{2.6cm}|>{\RaggedRight\arraybackslash}X|}
 		\hline
 		\textbf{Version} & \textbf{Date} & \textbf{Status} & \textbf{Change Summary} \\ \hline
-		\texttt{v0.1-draft} & 2026-05-11 & Draft baseline & Đổi naming của LaTeX subsystem sang project technical documentation, chuẩn hóa style/workflow, sửa .gitignore cho LaTeX source/output, và xác lập technical PDF baseline. \\ \hline
-		\texttt{v0.2-draft} & 2026-05-11 & Draft baseline & Refactor chapter mẫu sang project overview, thay placeholder diagrams bằng sơ đồ kiến trúc và data flow thật của project. \\ \hline
-		\texttt{v0.3-draft} & 2026-05-11 & Draft baseline & Thêm chapter Business Rules / KPI Rules, chapter Output Structure + Release / Troubleshooting, và chapter Data Sources + Repository / Service Mapping. \\ \hline
-		\texttt{v0.4-draft} & 2026-05-11 & Draft review baseline & Thêm chapter Document Metadata và Revision History, chuẩn hóa versioning convention, role mapping, approval flow, và change log policy cho technical manual. \\ \hline
-		\texttt{v0.5-draft} & 2026-05-11 & Draft review baseline & Dọn front matter và back matter legacy placeholders, chèn corporate cover background, và chuẩn hóa header/footer cùng divider lines cho toàn bộ technical PDF. \\ \hline
-		\texttt{v0.6-draft} & 2026-05-11 & Draft review baseline & Thêm phụ lục Glossary và Naming Conventions để chuẩn hóa thuật ngữ hệ thống, artifact families, output naming, internal keys, và naming guardrails cho technical manual. \\ \hline
-		\texttt{v0.7-draft} & 2026-05-11 & Internal review copy & Thực hiện pass final docs polish và handover-readiness review: dọn các placeholder template còn sót, thay wording reviewer/approval theo hướng reviewable, và bổ sung current handover-readiness snapshot cho technical manual. \\ \hline
-		\texttt{v0.8-draft} & 2026-05-11 & Internal review copy & Chỉnh layout theo feedback review: tách và wrap các path dài ở trang kiểm soát tài liệu, chuyển note/callout sang banner style có title bar, siết lại khoảng cách header-to-content, và cập nhật style/workflow rules để các lần chỉnh sau giữ cùng convention. \\ \hline
-		\texttt{v0.9-draft} & 2026-05-11 & Internal review copy & Chuyển technical PDF sang screen-first layout: dùng margins trái/phải đối xứng và bỏ twoside spread behavior để header/footer không còn so le. \\ \hline
-		\texttt{v0.10-draft} & 2026-05-11 & Internal review copy & Giảm rủi ro table formatting bằng cách quay về direct tabularx/tabular thay cho custom hybrid wrappers, đồng thời chỉnh lại flowchart connectors sang đường thẳng hoặc chữ L để PDF review sạch và dễ nhìn hơn trên màn hình. \\ \hline
-		\texttt{v0.11-draft} & 2026-05-11 & Internal review copy & Bổ sung deployment guidance cho máy mới sau khi clone project, đồng thời thêm hướng dẫn systemd service + timer chạy ETL theo lịch cố định 23:00 để technical manual và runbook dùng được cho handover vận hành. \\ \hline
-		\texttt{v0.12-draft} & 2026-05-11 & Internal review copy & Thêm hai sample unit files thật trong repo tại \texttt{deploy/systemd/} để việc copy sang \texttt{/etc/systemd/system/} nhanh hơn, đồng thời đồng bộ lại deployment runbook và technical manual theo baseline triển khai này. \\ \hline
-		\texttt{v0.13-draft} & 2026-05-11 & Internal review copy & Bổ sung helper script \texttt{deploy/systemd/install\_systemd\_units.sh} để backup unit cũ nếu có, copy sample service/timer, reload \texttt{systemd}, enable timer, và giảm thao tác tay khi triển khai host mới. \\ \hline
-		\texttt{v0.14-draft} & 2026-05-11 & Internal review copy & Điều chỉnh deployment docs theo hướng operator-first: thêm một block terminal duy nhất để ghi \texttt{config/.env} bằng copy-paste, chỉ yêu cầu thay các giá trị host-specific như MySQL credentials và output paths thay vì mở file sửa tay từng dòng. \\ \hline
-		\texttt{v0.15-draft} & 2026-05-11 & Internal review copy & Tách technical manual thành các chapter vận hành rõ ràng hơn: giữ output/release ở một chapter riêng, thêm chapter \textit{Deployment and Operations}, và tách troubleshooting ra thành chapter độc lập để handover/operator lookup nhanh hơn. \\ \hline
-		\texttt{v0.16-draft} & 2026-05-11 & Internal review copy & Mở rộng chapter \textit{Deployment and Operations} theo hướng operator-first end-to-end: thêm full bootstrap flow cho host mới, gồm prepare host, clone + venv, paste-ready \texttt{config/.env}, manual smoke, cài \texttt{systemd} bằng helper, và block xác nhận sau cài đặt. \\ \hline
-		\texttt{v0.17-draft} & 2026-05-11 & Internal review copy & Polish lại table và page chrome theo feedback review: bổ sung top border rõ ràng cho các bảng có viền, chuyển các table path cells sang dạng wrap an toàn, và siết lại template spacing giữa header-content cùng content-footer để PDF screen review gọn và ổn định hơn. \\ \hline
-		\texttt{v0.18-draft} & 2026-05-11 & Internal review copy & Chuẩn hóa thêm vertical rhythm ở mức template: tinh chỉnh section/subsection spacing, chapter-after spacing, float spacing, và caption spacing để nhịp giữa paragraph, section title, và table title đều tay hơn trong screen-review PDF. \\ \hline
-		\texttt{v0.19-draft} & 2026-05-11 & Internal review copy & Thực hiện một pass chuyên biệt cho list rhythm: chuẩn hóa global \texttt{enumitem} spacing cho enumerate/itemize và cập nhật workflow/style rules để paragraph-to-list cùng list-to-paragraph transitions ổn định hơn trên toàn manual. \\ \hline
-		\texttt{v0.20-draft} & 2026-05-11 & Internal review copy & Thực hiện pass chuyên biệt cho float placement rhythm: nới float placement từ ép cứng \texttt{h} sang \texttt{htbp} cho tables/figures thường, đồng thời thêm shared float-placement rules và tinh chỉnh float spacing để nhịp quanh paragraph, table, và figure ổn định hơn. \\ \hline
-		\texttt{v0.21-draft} & 2026-05-11 & Internal review copy & Chuẩn hóa chapter opening rhythm bằng shared helper cho block mở chương \textit{Mục tiêu chương}, giảm nhẹ khoảng sau chapter title, và cập nhật workflow/style rules để nhịp chapter title $\rightarrow$ lead block $\rightarrow$ first section được kiểm soát nhất quán ở mức template. \\ \hline
-		\texttt{v0.22-draft} & 2026-05-11 & Internal review copy & Roll back pass sửa targeted review issue trước đó theo feedback review, sau đó bổ sung shell-style command blocks cho chapter \textit{Deployment and Operations} để các lệnh terminal có khung hiển thị rõ ràng, dễ scan, và gần hơn với operator-facing shell snippets. \\ \hline
-			\texttt{v0.23-draft} & 2026-05-11 & Internal review copy & Đồng bộ deployment docs theo reviewed release tag \texttt{v4.3.0-dev}: thay placeholder repo URL bằng link repo thật, thêm release tag page + release archive cho operator bootstrap, và cập nhật chapter \textit{Deployment and Operations} để PDF handover bám cùng release-reference flow. \\ \hline
-			\texttt{v0.24-draft} & 2026-05-11 & Internal review copy & Sau khi release page sống trên GitHub, cập nhật thêm direct \textit{GitHub release page} link vào deployment runbook và technical PDF để operator có thể mở đúng trang release review thay vì chỉ tag tree hoặc archive link. \\ \hline
-			\texttt{v0.25-draft} & 2026-05-12 & Internal review copy & Cập nhật deployment bootstrap theo smoke test host mới: dùng \texttt{--no-create-home} để tránh clone vào thư mục home rỗng, ưu tiên Google Chrome \texttt{.deb} thay cho Chromium Snap khi export PDF, cảnh báo không dùng Desktop cá nhân làm staging path, thêm workaround icon outline cho tag \texttt{v4.3.0-dev}, và bổ sung restore \texttt{REPORT\_ANCHOR\_DATE} sau smoke. \\ \hline
-			\texttt{v0.26-draft} & 2026-05-12 & Internal review copy & Bổ sung one-command Ubuntu bootstrap script \texttt{deploy/bootstrap\_ubuntu\_host.sh} và file copy-paste text \texttt{docs/workflows/deployment\_copy\_paste\_commands.txt} để tránh lỗi copy command từ PDF khi triển khai host mới. \\ \hline
-		\end{tabularx}
-	\end{table}
+		\texttt{v1.0} & 2026-05-12 & Internal release baseline & Chốt một release baseline duy nhất cho technical manual hiện tại, gom các draft trước đó thành mốc phát hành \texttt{v1.0} để PDF handover/review dễ đọc và không còn bảng lịch sử draft quá dài. \\ \hline
+	\end{tabularx}
+\end{table}
 
 Mục đích của bảng này không phải thay thế Git, mà là giúp người đọc PDF hiểu mốc trưởng thành của tài liệu mà không cần truy cập repository ngay lập tức.
 
@@ -157,8 +132,8 @@ Trước khi xem technical PDF là đủ trưởng thành cho một vòng review
 
 \begin{enumerate}[label=-]
 \item document metadata đã phản ánh đúng project name, source root, output location, và document status;
-\item version hiện tại đã rõ là draft, review, hay approved baseline;
-\item revision history đã phản ánh các checkpoint lớn đã hoàn thành;
+\item version hiện tại đã rõ là draft, review, hay release baseline;
+\item revision history đã phản ánh mốc release baseline hiện tại;
 \item reviewer và approval path đã được xác định hoặc ít nhất được để ở trạng thái pending assignment có chủ đích;
 \item tài liệu đã build pass, cross-reference sạch, và PDF output đã được cập nhật theo version mới nhất.
 \end{enumerate}

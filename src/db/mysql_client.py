@@ -110,6 +110,11 @@ class MySQLClient:
         self._create_pool()
         self._connect()
 
+    @property
+    def database(self) -> str:
+        """Return the configured MySQL database/schema name."""
+        return self._config.database
+
     def _create_pool(self) -> None:
         """
         Create MySQL connection pool.
