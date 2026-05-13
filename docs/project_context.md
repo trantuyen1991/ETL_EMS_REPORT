@@ -57,6 +57,7 @@ Rule:
 
 * `total_energy` is the source of truth for Electricity official totals
 * `energy_kpi` is the source of truth for KPI and production-oriented values
+* `total_energy` may be sparse on non-production days or source-gap days, so report logic must not assume every dense calendar date has a matching source row
 
 ---
 
@@ -141,6 +142,8 @@ Key rules:
 * must use `total_energy` as the source of truth for Electricity official totals
 * must keep `energy_kpi` untouched for KPI logic
 * must not recompute totals from raw views
+* must preserve dense calendar rendering even when `total_energy` is missing a day
+* arithmetic-only internal layers may normalize missing official-energy values to `0` to avoid runtime failure, while display layers may still show `-` for source-missing values
 
 ---
 
@@ -463,6 +466,7 @@ All business logic must live in backend services.
 
 * missing values must not be hidden
 * no fake completeness
+* distinguish real zero from source-missing values where the user-facing surface needs that clarity
 
 ### 11.4 Extensibility
 

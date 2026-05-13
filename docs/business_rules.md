@@ -89,12 +89,19 @@ For all comparable metrics:
   - active meter count
   - average per active meter
 - Must render all dates in the period (dense)
+- `total_energy` source rows may be sparse on some non-production days or operational stop days.
+- If a calendar date has no `total_energy` row, report-building code must not crash.
+- For arithmetic-only internal layers such as summary snapshots or numeric rollups, missing official-energy values may be normalized to `0` to keep the report runnable.
+- For user-facing display layers, keep the distinction clear:
+  - real zero remains `0`
+  - source-missing values may still display as `-`
 
 ### 3.6 Daily Detail
 - Each area must render:
   - full list of configured meter columns
   - even when no data exists for some or all days
 - Missing values must be displayed as "-".
+- Dense calendar rendering is mandatory even when a source day is absent from the database.
 - Daily detail rows must support heatmap-related metadata for table rendering.
 - Heatmap preparation must be based on row-level or column-level comparison logic prepared in backend context.
 - Daily detail may include:

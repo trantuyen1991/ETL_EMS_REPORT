@@ -39,6 +39,8 @@ Module \texttt{src/config/data\_sources.py} hiện cấu hình các logical data
 
 Trong số này, \texttt{diode\_energy}, \texttt{ico\_energy}, và \texttt{sakari\_energy} là các view phục vụ electricity detail và comparison theo area. \texttt{total\_energy} là view source-of-truth cho Electricity official totals. \texttt{utility\_usage} là view phục vụ Utility reporting. \texttt{energy\_kpi} là table đặc biệt vì nó mang vai trò source-of-truth cho KPI reporting và production-linked reporting.
 
+Một lưu ý vận hành quan trọng là \texttt{total\_energy} không phải lúc nào cũng bảo đảm có row cho mọi ngày lịch. Trong thực tế có thể xuất hiện ngày không sản xuất, ngày dừng vận hành, hoặc ngày pipeline nguồn không ghi row vào view này. Vì vậy downstream code không được giả định rằng mọi ngày dense calendar đều có sẵn source row ở \texttt{total\_energy}.
+
 \subsection{Source-of-truth tables and views}
 
 Bảng \ref{tab:data_source_inventory} tóm tắt inventory nguồn dữ liệu hiện hành theo góc nhìn kỹ thuật.
@@ -138,6 +140,8 @@ Bảng \ref{tab:repository_mapping} tóm tắt mapping giữa data sources và r
 \end{enumerate}
 
 Một chi tiết quan trọng là \texttt{EnergyService} không xem raw area views là official totals. Nó sử dụng \texttt{total\_energy} làm reference cho plant total và area total theo các rule đã chốt.
+
+Bên cạnh đó, lớp Electricity phải xử lý được trường hợp \texttt{total\_energy} bị sparse theo ngày. Dense calendar ở report layer vẫn phải được giữ nguyên, nhưng các bước arithmetic-only như snapshot tổng hợp, summary rollup, hoặc các phép cộng nội bộ phải chống lỗi khi source day bị thiếu. Quy ước an toàn là: missing source row không được làm crash report; ở các lớp tính toán nội bộ có thể normalize missing official-energy value về \texttt{0}, còn ở lớp hiển thị vẫn nên giữ khả năng phân biệt giữa zero thực và giá trị thiếu bằng ký hiệu như \texttt{-} khi phù hợp.
 
 \subsection{KPIService}
 

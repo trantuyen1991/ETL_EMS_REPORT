@@ -243,6 +243,7 @@ class ReportBuilderService:
                 'chart_id': 'utility-period-heatmap-chart',
                 'chart_classes': 'electricity-heatmap-chart utility-heatmap-chart',
                 'legend_unit': str(((charts.get('period_heatmap') or {}).get('legend_unit')) or 'Scaled'),
+                'show_scale_legend': bool((charts.get('period_heatmap') or {}).get('show_scale_legend', True)),
                 'area_legend': list((charts.get('period_heatmap') or {}).get('area_legend') or []),
                 'data_layout_slot': heatmap_slot,
                 'pdf_keep_together': True,
@@ -324,6 +325,7 @@ class ReportBuilderService:
                 'chart_id': 'utility-energy-heatmap-chart',
                 'chart_classes': 'electricity-heatmap-chart utility-heatmap-chart',
                 'legend_unit': str(((charts.get('heatmap') or {}).get('legend_unit')) or 'kWh'),
+                'show_scale_legend': bool((charts.get('heatmap') or {}).get('show_scale_legend', True)),
                 'area_legend': list((charts.get('heatmap') or {}).get('area_legend') or []),
                 'pdf_keep_together': True,
             },
@@ -1630,6 +1632,24 @@ class ReportBuilderService:
                 "active_total_display": area_stats.get(area_key, {}).get("active_total_display", "-"),
             })
 
+        comparison_row_map = {
+            row.get("area_key"): row
+            for row in comparison_rows
+        }
+
+        diode_card = self._build_v3_electricity_area_card_payload(
+            area_key="diode",
+            area_name="DIODE",
+            total_rows=total_rows,
+            comparison_row_map=comparison_row_map,
+        )
+        ico_sakari_composite = self._build_v3_electricity_composite_card_payload(
+            current_summary=current_summary,
+            previous_summary=energy_object.get("previous", {}).get("summary", {}),
+            comparison_summary=comparison_summary,
+            area_stats=area_stats,
+        )
+
         current_total_all_areas = 0.0
         previous_total_all_areas = 0.0
 
@@ -1692,6 +1712,10 @@ class ReportBuilderService:
             "subtitle": "Total, comparison, top meters, and daily detail.",
             "totals": {
                 "rows": total_rows,
+                "cards": {
+                    "diode": diode_card,
+                    "ico_sakari": ico_sakari_composite,
+                },
             },
             "comparison": {
                 "rows": comparison_rows,
@@ -1718,6 +1742,141 @@ class ReportBuilderService:
             "daily_detail_tables": daily_detail_tables,
             "daily_vertical_detail_tables": daily_vertical_detail_tables,
         }
+
+    def _build_v3_electricity_area_card_payload(
+        self,
+        area_key: str,
+        area_name: str,
+        total_rows: list[dict[str, Any]],
+        comparison_row_map: dict[str, dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Build a display-ready electricity area card payload for templates."""
+        total_row = next(
+            (row for row in total_rows if row.get("area_key") == area_key),
+            {},
+        )
+        comparison_row = comparison_row_map.get(area_key, {})
+        badge_label, badge_class = self._build_v3_electricity_badge(
+            comparison_row.get("delta_pct_class") or ""
+        )
+        return {
+            "area_key": area_key,
+            "title": area_name,
+            "current_display": total_row.get("current_display", "-"),
+            "previous_display": total_row.get("previous_display", "-"),
+            "delta_display": comparison_row.get("delta_display", "-"),
+            "delta_pct_display": comparison_row.get("delta_pct_display", "-"),
+            "delta_class": comparison_row.get("delta_class", ""),
+            "delta_pct_class": comparison_row.get("delta_pct_class", ""),
+            "meter_active_total_display": total_row.get("meter_active_total_display", "-"),
+            "badge_label": badge_label,
+            "badge_class": badge_class,
+        }
+
+    def _build_v3_electricity_composite_card_payload(
+        self,
+        current_summary: dict[str, Any],
+        previous_summary: dict[str, Any],
+        comparison_summary: dict[str, Any],
+        area_stats: dict[str, dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Build the composite ICO + SAKARI card payload for template rendering."""
+        combined_current = 0.0
+        combined_previous = 0.0
+        has_current = False
+        has_previous = False
+        active_meter_count = 0
+        total_meter_count = 0
+
+        columns: list[dict[str, Any]] = []
+        for area_key, area_name in (("ico", "ICO"), ("sakari", "SAKARI")):
+            current_value = current_summary.get(area_key, {}).get("total_energy")
+            previous_value = previous_summary.get(area_key, {}).get("total_energy")
+            comparison_item = comparison_summary.get(area_key, {})
+            area_stat = area_stats.get(area_key, {})
+
+            if current_value is not None:
+                combined_current += float(current_value)
+                has_current = True
+            if previous_value is not None:
+                combined_previous += float(previous_value)
+                has_previous = True
+
+            active_meter_count += int(area_stat.get("active_meter_count", 0) or 0)
+            total_meter_count += int(area_stat.get("total_meter_count", 0) or 0)
+
+            column_delta_class = self._consumption_trend_class(comparison_item.get("delta"))
+            column_delta_pct_class = self._consumption_trend_class(comparison_item.get("delta_pct"))
+            badge_label, badge_class = self._build_v3_electricity_badge(column_delta_pct_class)
+
+            columns.append({
+                "area_key": area_key,
+                "title": area_name,
+                "current_display": self._fmt(current_value),
+                "previous_display": self._fmt(previous_value),
+                "delta_display": self._fmt(comparison_item.get("delta")),
+                "delta_pct_display": self._fmt_pct(comparison_item.get("delta_pct")),
+                "delta_class": column_delta_class,
+                "delta_pct_class": column_delta_pct_class,
+                "meter_active_total_display": area_stat.get("active_total_display", "-"),
+                "badge_label": badge_label,
+                "badge_class": badge_class,
+            })
+
+        combined_current_value = combined_current if has_current else None
+        combined_previous_value = combined_previous if has_previous else None
+        if combined_current_value is None and combined_previous_value is None:
+            combined_delta = None
+            combined_delta_pct = None
+        else:
+            current_number = combined_current_value or 0.0
+            previous_number = combined_previous_value or 0.0
+            combined_delta = current_number - previous_number
+            combined_delta_pct = (
+                combined_delta / previous_number
+                if previous_number != 0 else None
+            )
+
+        combined_delta_class = self._consumption_trend_class(combined_delta)
+        combined_delta_pct_class = self._consumption_trend_class(combined_delta_pct)
+        badge_label, badge_class = self._build_v3_electricity_badge(combined_delta_pct_class)
+        columns.append({
+            "area_key": "ico_sakari_total",
+            "title": "TOTAL",
+            "current_display": self._fmt(combined_current_value),
+            "previous_display": self._fmt(combined_previous_value),
+            "delta_display": self._fmt(combined_delta),
+            "delta_pct_display": self._fmt_pct(combined_delta_pct),
+            "delta_class": combined_delta_class,
+            "delta_pct_class": combined_delta_pct_class,
+            "meter_active_total_display": f"{active_meter_count}/{total_meter_count}" if total_meter_count > 0 else "-",
+            "badge_label": badge_label,
+            "badge_class": badge_class,
+        })
+
+        return {
+            "area_key": "ico_sakari",
+            "title": "TOTAL",
+            "badge_label": badge_label,
+            "badge_class": badge_class,
+            "columns": columns,
+            "meter_active_total_display": f"{active_meter_count}/{total_meter_count}" if total_meter_count > 0 else "-",
+            "delta_display": self._fmt(combined_delta),
+            "delta_pct_display": self._fmt_pct(combined_delta_pct),
+            "delta_class": combined_delta_class,
+            "delta_pct_class": combined_delta_pct_class,
+        }
+
+    def _build_v3_electricity_badge(
+        self,
+        delta_class: str,
+    ) -> tuple[str, str]:
+        """Map trend classes to Electricity card badge labels."""
+        if delta_class == "trend-down":
+            return "WATCH", "kpi-badge-watch"
+        if delta_class == "trend-up":
+            return "GOOD", "kpi-badge-good"
+        return "STABLE", "kpi-badge-stable"
 
     def _build_v3_electricity_charts(
         self,
@@ -1812,6 +1971,7 @@ class ReportBuilderService:
         axis_line_color = str(self._get_style_color_value("#b9c8d6", "chart", "axisLine"))
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
         is_daily_report = period_type == "daily"
+        is_monthly_period = period_type == "monthly"
         if period_type == "monthly":
             current_period_label = "This Month"
             previous_period_label = "Last Month"
@@ -2047,7 +2207,7 @@ class ReportBuilderService:
                         "axisLabel": {
                             "color": muted_text_color,
                             "interval": 0,
-                            "rotate": 18,
+                            "rotate": 0 if is_monthly_period else 18,
                             "fontSize": 9,
                             "margin": 12,
                             "hideOverlap": False,
@@ -2173,7 +2333,7 @@ class ReportBuilderService:
             "periodAreaDelta",
         )
 
-        if period_type == "weekly":
+        if period_type in {"weekly", "monthly"}:
             label_config["positivePosition"] = "left"
             label_config["negativePosition"] = "right"
             label_config["nearZeroPositivePosition"] = "left"
@@ -2366,7 +2526,6 @@ class ReportBuilderService:
             self._format_periodic_axis_date_label(row.get("date"), period_type)
             for row in area_summary_rows
         ]
-        x_labels.append("Avg")
 
         row_defs = [
             ("plant", "TOTAL"),
@@ -2386,11 +2545,12 @@ class ReportBuilderService:
                 values.append(raw_value)
 
             numeric_values = [value for value in values if value is not None]
-            avg_value = (
-                round(sum(numeric_values) / len(numeric_values), 2)
-                if numeric_values else None
-            )
-            values.append(avg_value)
+            if period_type != "monthly":
+                avg_value = (
+                    round(sum(numeric_values) / len(numeric_values), 2)
+                    if numeric_values else None
+                )
+                values.append(avg_value)
             row_value_map.append(values)
 
         if not any(any(value is not None for value in row_values) for row_values in row_value_map):
@@ -2406,6 +2566,7 @@ class ReportBuilderService:
         label_font_size = 9 if len(x_labels) <= 8 else 8
 
         area_visual_map = self._get_v3_area_visual_map()
+        series_palette = self._get_electric_chart_series_palette()
         total_area_cfg = self._get_style_color_node("area", "total")
         total_bar_color = str(total_area_cfg.get("barColor") or self._get_style_color_value("#005496", "brand", "primary"))
         primary_text_color = str(self._get_style_color_value("#223548", "text", "primary"))
@@ -2414,7 +2575,13 @@ class ReportBuilderService:
         chart_text_color = str(self._get_style_color_value("#0f172a", "chart", "text"))
         row_palettes = {
             "plant": {"bar_color": total_bar_color},
-            "diode": area_visual_map.get("diode", {}),
+            "diode": {
+                **area_visual_map.get("diode", {}),
+                "bar_color": (
+                    str(series_palette.get("previous") or area_visual_map.get("diode", {}).get("bar_color") or total_bar_color)
+                    if is_monthly_period else area_visual_map.get("diode", {}).get("bar_color", total_bar_color)
+                ),
+            },
             "ico": area_visual_map.get("ico", {}),
             "sakari": area_visual_map.get("sakari", {}),
         }
@@ -2446,6 +2613,9 @@ class ReportBuilderService:
                     display_value = (
                         f"{raw_value:.2f}" if is_avg_col else f"{raw_value:.1f}"
                     )
+                row_pct = 0.0
+                if row_max > 0:
+                    row_pct = (float(raw_value) / float(row_max)) * 100.0
                 intensity = 0.45
                 if row_span > 0:
                     intensity = 0.28 + (0.68 * ((float(raw_value) - row_min) / row_span))
@@ -2453,7 +2623,8 @@ class ReportBuilderService:
                 heatmap_data.append({
                     "value": [col_index, row_index, round(raw_value, 4)],
                     "label": {
-                        "formatter": display_value,
+                        "show": bool(is_monthly_period),
+                        "formatter": (f"{row_pct:.0f}%" if is_monthly_period else display_value),
                     },
                     "itemStyle": {
                         "color": self._blend_hex_with_white(base_color, intensity),
@@ -2517,7 +2688,7 @@ class ReportBuilderService:
                         "type": "heatmap",
                         "data": heatmap_data,
                         "label": {
-                            "show": period_type != "monthly",
+                            "show": True,
                             "fontSize": 8,
                             "fontWeight": 700,
                             "color": chart_text_color,
@@ -3587,13 +3758,29 @@ class ReportBuilderService:
                 "values": values,
             })
 
-        return self._build_v3_periodic_group_heatmap_chart(
+        chart = self._build_v3_periodic_group_heatmap_chart(
             title="Utility daily total heatmap",
             subtitle="Daily total by utility group (row-scaled mixed units)",
             series_name="Utility total",
             period_type=period_type,
             row_defs=row_defs,
         )
+
+        if period_type == "monthly" and chart.get("option"):
+            x_labels = list((((chart.get("option") or {}).get("xAxis") or {}).get("data") or []))
+            if x_labels and str(x_labels[-1]) == "Avg":
+                avg_index = len(x_labels) - 1
+                chart["option"]["xAxis"]["data"] = x_labels[:-1]
+                series_list = ((chart.get("option") or {}).get("series") or [])
+                if series_list:
+                    heatmap_series = series_list[0]
+                    heatmap_series["data"] = [
+                        item for item in (heatmap_series.get("data") or [])
+                        if int((item.get("value") or [0])[0]) != avg_index
+                    ]
+            chart["show_scale_legend"] = False
+
+        return chart
 
     def _build_v3_utility_mix_option(
         self,
@@ -3752,6 +3939,8 @@ class ReportBuilderService:
 
         period_type = str(period_type or "daily").strip().lower() or "daily"
         is_weekly_period = period_type == "weekly"
+        is_monthly_period = period_type == "monthly"
+        use_centered_zero_axis = is_weekly_period or is_monthly_period
         deviation_config_path = (
             ("utility", "deviation", "monthly")
             if period_type == "monthly"
@@ -3784,7 +3973,7 @@ class ReportBuilderService:
             },
             *deviation_config_path,
         )
-        if is_weekly_period:
+        if use_centered_zero_axis:
             label_config["positivePosition"] = "left"
             label_config["negativePosition"] = "right"
             label_config["nearZeroPositivePosition"] = "left"
@@ -3796,7 +3985,7 @@ class ReportBuilderService:
 
         min_value = min(values, default=0.0)
         max_value = max(values, default=0.0)
-        if is_weekly_period:
+        if use_centered_zero_axis:
             max_abs = max([abs(float(value or 0.0)) for value in values], default=0.0)
             axis_padding_left = abs(float(label_config.get("axisPaddingLeft", 2) or 0.0))
             axis_padding_right = abs(float(label_config.get("axisPaddingRight", 2) or 0.0))
@@ -4507,6 +4696,7 @@ class ReportBuilderService:
             {
                 "name": "Air Energy",
                 "color": category_palette["compressed_air"]["color"],
+                "tint": category_palette["compressed_air"]["tint"],
                 "values": air_values,
                 "label_position": "top",
                 "line_width": 2.3,
@@ -4516,6 +4706,7 @@ class ReportBuilderService:
             {
                 "name": "Chilled Water Energy",
                 "color": category_palette["chilled_water"]["color"],
+                "tint": category_palette["chilled_water"]["tint"],
                 "values": chilled_values,
                 "label_position": "bottom",
                 "line_width": 2.3,
@@ -4525,6 +4716,7 @@ class ReportBuilderService:
             {
                 "name": "Boiler Energy",
                 "color": category_palette["steam"]["color"],
+                "tint": category_palette["steam"]["tint"],
                 "values": steam_values,
                 "label_position": "bottom",
                 "line_width": 2.3,
@@ -4534,6 +4726,7 @@ class ReportBuilderService:
             {
                 "name": "Total Utility Energy",
                 "color": category_palette["total_energy"]["color"],
+                "tint": category_palette["total_energy"]["tint"],
                 "values": total_values,
                 "label_position": "top",
                 "line_width": 3.0,
@@ -4600,6 +4793,7 @@ class ReportBuilderService:
                     "z": item["z"],
                     "lineStyle": {"width": item["line_width"], "color": item["color"]},
                     "itemStyle": {"color": item["color"]},
+                    "areaStyle": {"color": item.get("tint") or self._hex_to_rgba(item["color"], 0.12), "opacity": 0.24},
                     "label": {
                         "show": not is_monthly_period,
                         "position": item["label_position"],
@@ -4668,13 +4862,49 @@ class ReportBuilderService:
             },
         ]
 
-        return self._build_v3_periodic_group_heatmap_chart(
+        chart = self._build_v3_periodic_group_heatmap_chart(
             title="Utility energy heatmap",
             subtitle="Daily total by energy group (kWh)",
             series_name="Utility energy total",
             period_type=period_type,
             row_defs=row_defs,
         )
+
+        if chart.get("option"):
+            x_labels = list((((chart.get("option") or {}).get("xAxis") or {}).get("data") or []))
+            if x_labels and str(x_labels[-1]) == "Avg":
+                avg_index = len(x_labels) - 1
+                chart["option"]["xAxis"]["data"] = x_labels[:-1]
+                series_list = ((chart.get("option") or {}).get("series") or [])
+                if series_list:
+                    heatmap_series = series_list[0]
+                    heatmap_series["data"] = [
+                        item for item in (heatmap_series.get("data") or [])
+                        if int((item.get("value") or [0])[0]) != avg_index
+                    ]
+
+            row_maxima = [
+                max([float(value) for value in (row.get("values") or []) if isinstance(value, (int, float))], default=0.0)
+                for row in row_defs
+            ]
+            series_list = ((chart.get("option") or {}).get("series") or [])
+            if series_list:
+                heatmap_series = series_list[0]
+                heatmap_series.setdefault("label", {})["show"] = True
+                for item in heatmap_series.get("data") or []:
+                    point = item.get("value") or []
+                    if len(point) < 3:
+                        continue
+                    row_index = int(point[1])
+                    raw_value = float(point[2] or 0.0)
+                    row_max = row_maxima[row_index] if row_index < len(row_maxima) else 0.0
+                    pct = (raw_value / row_max * 100.0) if row_max > 0 else 0.0
+                    item["label"] = {
+                        "show": True,
+                        "formatter": f"{pct:.0f}%",
+                    }
+
+        return chart
 
     def _build_v3_utility_energy_distribution_option(
         self,
@@ -6700,17 +6930,24 @@ class ReportBuilderService:
         if not current_daily_rows:
             return {}
 
+        is_monthly_period = normalized_period_type == "monthly"
         x_labels = [
             self._format_periodic_axis_date_label(row.get("dt"), normalized_period_type)
             for row in current_daily_rows
         ]
-        x_labels.append("Avg")
+        include_avg_column = not is_monthly_period
+        if include_avg_column:
+            x_labels.append("Avg")
 
         series_palette = self._get_kpi_chart_series_palette()
         area_visual_map = self._get_v3_area_visual_map()
+        previous_purple = str(
+            self._get_style_color_value("#703cd9", "chart", "series", "previous")
+            or self._get_style_color_value("#703cd9", "brand", "accent")
+        )
         row_defs = [
             ("Total", "kpi", series_palette["current"]),
-            ("DIODE", "diode_kpi", area_visual_map["diode"]["bar_color"]),
+            ("DIODE", "diode_kpi", previous_purple if is_monthly_period else area_visual_map["diode"]["bar_color"]),
             ("ICO", "ico_kpi", area_visual_map["ico"]["bar_color"]),
             ("SAKARI", "sakari_kpi", area_visual_map["sakari"]["bar_color"]),
         ]
@@ -6728,8 +6965,9 @@ class ReportBuilderService:
                     values.append(None)
 
             numeric_values = [value for value in values if value is not None]
-            avg_value = round(sum(numeric_values) / len(numeric_values), 2) if numeric_values else None
-            values.append(avg_value)
+            if include_avg_column:
+                avg_value = round(sum(numeric_values) / len(numeric_values), 2) if numeric_values else None
+                values.append(avg_value)
             row_value_map.append(values)
 
         if not any_numeric_value:
@@ -6756,10 +6994,11 @@ class ReportBuilderService:
                 if raw_value is None:
                     continue
 
-                is_avg_col = col_index == len(row_values) - 1
+                is_avg_col = include_avg_column and col_index == len(row_values) - 1
+                row_pct = (float(raw_value) / row_max * 100.0) if row_max > 0 else 0.0
                 display_value = (
-                    self._fmt_chart_compact(raw_value)
-                    if normalized_period_type == "monthly"
+                    f"{row_pct:.0f}%"
+                    if is_monthly_period
                     else (f"{raw_value:.2f}" if is_avg_col else f"{raw_value:.1f}")
                 )
                 intensity = 0.45
@@ -6768,7 +7007,7 @@ class ReportBuilderService:
 
                 heatmap_data.append({
                     "value": [col_index, row_index, round(float(raw_value), 4)],
-                    "label": {"formatter": display_value},
+                    "label": {"show": True, "formatter": display_value},
                     "itemStyle": {
                         "color": self._blend_hex_with_white(base_color, intensity),
                         "borderColor": "rgba(255,255,255,0.78)",
@@ -6786,7 +7025,7 @@ class ReportBuilderService:
             "tooltip": {"position": "top"},
             "grid": self._resolve_chart_grid(
                 {
-                    "left": 58,
+                    "left": 18 if is_monthly_period else 58,
                     "right": 18,
                     "top": 10,
                     "bottom": bottom_gap,
@@ -6826,7 +7065,7 @@ class ReportBuilderService:
                     "type": "heatmap",
                     "data": heatmap_data,
                     "label": {
-                        "show": normalized_period_type != "monthly",
+                        "show": True,
                         "fontSize": 8,
                         "fontWeight": 700,
                         "color": chart_text_color,
@@ -8150,12 +8389,12 @@ class ReportBuilderService:
         previous_total = 0.0
 
         for area_key in ["diode", "ico", "sakari"]:
-            current_total += float(
-                energy_object["current"]["summary"].get(area_key, {}).get("total_energy", 0.0)
-            )
-            previous_total += float(
-                energy_object["previous"]["summary"].get(area_key, {}).get("total_energy", 0.0)
-            )
+            current_total += self._safe_float(
+                energy_object["current"]["summary"].get(area_key, {}).get("total_energy")
+            ) or 0.0
+            previous_total += self._safe_float(
+                energy_object["previous"]["summary"].get(area_key, {}).get("total_energy")
+            ) or 0.0
 
         delta = current_total - previous_total
         delta_pct = (delta / previous_total) if previous_total != 0 else None

@@ -1101,7 +1101,7 @@
 
         .electricity-total-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1.1fr);
             gap: var(--report-components-report-section-common-card-grid-gap, 16px);
             margin-bottom: var(--report-spacing-md);
         }
@@ -1194,6 +1194,175 @@
             --section-card-icon-bg: var(--report-components-report-section-electric-card-theme-sakari-icon-background, linear-gradient(180deg, #d7a857 0%, #d09a45 100%));
             --section-card-icon-color: var(--report-components-report-section-electric-card-theme-sakari-icon-color, #ffffff);
             --section-card-compare-border: var(--report-components-report-section-electric-card-theme-sakari-compare-border-color, rgba(228, 211, 179, 0.95));
+        }
+
+        .electricity-total-card.area-ico-sakari {
+            --section-card-accent: #7a9559;
+            --section-card-border: rgba(180, 204, 151, 0.92);
+            --section-card-surface: linear-gradient(135deg, rgba(111, 154, 109, 0.12) 0%, rgba(255, 248, 237, 0.92) 52%, rgba(255, 255, 255, 0.99) 100%);
+            --section-card-title: #4f7750;
+            --section-card-icon-bg: linear-gradient(180deg, #82a97f 0%, #6f9a6d 100%);
+            --section-card-icon-color: #ffffff;
+            --section-card-compare-border: rgba(208, 219, 190, 0.95);
+        }
+
+        .electricity-total-card-composite {
+            grid-column: span 2;
+            padding: 10px 11px 9px;
+        }
+
+        .electricity-total-card-composite-periodic {
+            padding: 8px 7px 7px;
+        }
+
+        .electricity-total-composite-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+            margin-top: 0;
+        }
+
+        .electricity-total-grid-daily {
+            grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1.2fr);
+            gap: 8px;
+        }
+
+        .electricity-total-grid-periodic {
+            grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1.2fr);
+            gap: 8px;
+        }
+
+        .electricity-total-grid-periodic .electricity-total-composite-grid {
+            gap: 3px;
+        }
+
+        .electricity-total-grid-periodic > .electricity-total-card.is-total .electricity-total-card-compare,
+        .electricity-total-grid-periodic > .electricity-total-card.area-diode .electricity-total-card-compare {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .electricity-total-composite-panel {
+            min-width: 0;
+            border: 1px solid rgba(203, 213, 225, 0.92);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.94);
+            padding: 8px 8px 6px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+        }
+
+        .electricity-total-grid-periodic .electricity-total-composite-panel {
+            padding: 7px 6px 5px;
+        }
+
+        .electricity-total-composite-panel.area-ico {
+            border-color: rgba(202, 223, 200, 0.95);
+            background: linear-gradient(180deg, rgba(249, 252, 249, 0.98) 0%, rgba(255, 255, 255, 0.96) 100%);
+        }
+
+        .electricity-total-composite-panel.area-sakari {
+            border-color: rgba(228, 211, 179, 0.95);
+            background: linear-gradient(180deg, rgba(255, 250, 243, 0.98) 0%, rgba(255, 255, 255, 0.96) 100%);
+        }
+
+        .electricity-total-composite-panel.area-ico_sakari_total {
+            border-color: rgba(180, 204, 151, 0.95);
+            background: linear-gradient(180deg, rgba(244, 249, 240, 0.98) 0%, rgba(255, 255, 255, 0.96) 100%);
+        }
+
+        .electricity-total-composite-heading {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin-bottom: 6px;
+        }
+
+        .electricity-total-composite-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 4px;
+        }
+
+        .electricity-total-composite-title {
+            margin: 0;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: var(--section-card-title);
+        }
+
+        .electricity-total-composite-badge {
+            flex: 0 0 auto;
+            transform: scale(0.92);
+            transform-origin: top right;
+        }
+
+        .electricity-total-composite-primary {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            min-width: 0;
+            width: 100%;
+            text-align: center;
+        }
+
+        .electricity-total-composite-primary-value {
+            font-size: 15px;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--section-card-primary);
+        }
+
+        .electricity-total-composite-primary-unit {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--section-card-primary-unit);
+        }
+
+        .electricity-total-composite-compare {
+            margin-top: 0;
+            padding: 5px 6px;
+        }
+
+        .electricity-total-composite-compare .electricity-total-card-compare-item {
+            min-height: 34px;
+            padding: 2px 4px;
+        }
+
+        .electricity-total-composite-compare .electricity-total-card-compare-value {
+            font-size: 12px;
+        }
+
+        .electricity-total-composite-footer {
+            margin-top: 6px;
+            gap: 3px;
+        }
+
+        .electricity-total-composite-footer .energy-card-meta-row {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .electricity-total-composite-footer .electricity-total-card-meta {
+            justify-content: flex-end;
+            white-space: nowrap;
+            margin-left: auto;
+            gap: 4px;
+        }
+
+        .electricity-total-composite-footer .electricity-total-card-delta-block,
+        .electricity-total-composite-footer .energy-card-trend-row {
+            white-space: normal;
+        }
+
+        .electricity-total-composite-footer .electricity-total-card-meter-value {
+            font-size: 12px;
         }
 
         .electricity-total-card-top {
@@ -1530,8 +1699,16 @@
             height: var(--report-components-report-section-electric-chart-area-share-height-view-default, 340px);
         }
 
+        .electricity-chart-grid-daily .electricity-chart-card-share .electricity-chart {
+            height: 306px;
+        }
+
         .electricity-chart-card-area .electricity-chart {
             height: var(--report-components-report-section-electric-chart-area-comparison-height-view-default, 340px);
+        }
+
+        .electricity-chart-grid-daily .electricity-chart-card-area .electricity-chart {
+            height: 306px;
         }
 
         .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart {
@@ -6248,6 +6425,10 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .electricity-total-card-composite {
+                grid-column: 1 / -1;
+            }
+
             .electricity-inline-ratio {
                 display: none;
             }
@@ -6259,6 +6440,10 @@
             }
 
             .electricity-chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .electricity-total-composite-grid {
                 grid-template-columns: 1fr;
             }
 

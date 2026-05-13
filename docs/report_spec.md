@@ -368,6 +368,8 @@ For the `periodic` template family, the electricity chart block should also supp
 ### 7.3 Total Logic
 Plant and area official totals in the Electricity section must come from pre-calculated values stored in `total_energy`, not from summing all raw energy view columns.
 
+`total_energy` may be sparse on some non-production days, stop days, or source-pipeline gap days. Report logic must not assume that every dense calendar date has a matching `total_energy` row.
+
 If the UI shows a combined quick-read card such as `ICO + SAKARI`, that combined number must still be derived from the same official area totals rather than reconstructed from raw detail meter columns.
 
 ### 7.4 Top 10 Rules
@@ -384,6 +386,8 @@ The daily summary should include:
 - total meter count
 - inactive meter count
 
+For arithmetic-only internal layers such as summary snapshots, internal rollups, or chart-prep helpers, missing `total_energy` values may be normalized to `0` so the report can still render safely.
+
 ### 7.6 Daily Detail Tables
 Daily detail tables should:
 - render dense daily rows for the whole period
@@ -393,6 +397,10 @@ Daily detail tables should:
 - scale value-bar fill consistently with the same descending ranking order
 - support responsive horizontal scrolling in HTML view
 - remain printable in PDF mode without breaking layout
+- keep the dense calendar even when a source day is missing from `total_energy`
+- preserve display distinction where appropriate:
+  - real zero stays `0`
+  - source-missing values may display as `-`
 
 ### 7.7 Periodic Electricity Chart Rules
 For the `periodic` template family:

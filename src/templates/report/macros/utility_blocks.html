@@ -9,6 +9,7 @@
             <p class="electricity-chart-card-subtitle">{{ block.subtitle }}</p>
             {% if block.kind == 'heatmap' %}
             <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
+            {% if block.show_scale_legend is not defined or block.show_scale_legend %}
             <div class="electricity-heatmap-legend" aria-hidden="true">
                 <span class="legend-label">Low</span>
                 <span class="legend-bar"></span>
@@ -16,6 +17,7 @@
                 <span class="legend-bar legend-bar-strong"></span>
                 <span class="legend-label">High</span>
             </div>
+            {% endif %}
             {% if block.area_legend %}
             <div class="electricity-heatmap-area-legend" aria-hidden="true">
                 {% for item in block.area_legend %}
@@ -74,6 +76,7 @@
             {% endif %}
             {% elif block.kind == 'heatmap' %}
             <div id="{{ block.chart_id }}" class="{{ block.chart_classes }}"></div>
+            {% if block.show_scale_legend is not defined or block.show_scale_legend %}
             <div class="electricity-heatmap-legend" aria-hidden="true">
                 <span class="legend-label">Low</span>
                 <span class="legend-bar"></span>
@@ -81,6 +84,7 @@
                 <span class="legend-bar legend-bar-strong"></span>
                 <span class="legend-label">High</span>
             </div>
+            {% endif %}
             {% if block.area_legend %}
             <div class="electricity-heatmap-area-legend" aria-hidden="true">
                 {% for item in block.area_legend %}

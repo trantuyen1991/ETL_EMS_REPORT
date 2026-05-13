@@ -5,7 +5,45 @@
     }
 
     .electricity-total-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 1.1fr) minmax(0, 1.1fr) !important;
+    }
+
+    .electricity-total-card-composite {
+        grid-column: span 2 !important;
+        padding: 8px 9px 8px !important;
+    }
+
+    .electricity-total-card-composite-periodic {
+        padding: 6px 6px 6px !important;
+    }
+
+    .electricity-total-composite-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 4px !important;
+    }
+
+    .electricity-total-grid-daily {
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1.2fr) !important;
+        gap: 8px !important;
+    }
+
+    .electricity-total-grid-periodic {
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1.2fr) !important;
+        gap: 5px !important;
+    }
+
+    .electricity-total-grid-periodic .electricity-total-composite-grid {
+        gap: 2px !important;
+    }
+
+    .electricity-total-grid-periodic > .electricity-total-card.is-total .electricity-total-card-compare,
+    .electricity-total-grid-periodic > .electricity-total-card.area-diode .electricity-total-card-compare {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
+
+    .electricity-total-grid-periodic .electricity-total-composite-panel {
+        padding: 5px 4px 4px !important;
     }
 
     .kpi-total-grid {
@@ -143,8 +181,16 @@
         height: var(--report-components-report-section-electric-chart-area-share-height-pdf-default, 252px) !important;
     }
 
+    .pdf-daily-chart-grid .electricity-chart-card-share .electricity-chart {
+        height: 227px !important;
+    }
+
     .electricity-chart-card-area .electricity-chart {
         height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-default, 252px) !important;
+    }
+
+    .pdf-daily-chart-grid .electricity-chart-card-area .electricity-chart {
+        height: 227px !important;
     }
 
     .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart {
@@ -2250,6 +2296,18 @@
     .report-period-weekly .utility-sensor-section-label-note,
     .report-period-monthly .utility-sensor-section-label-note {
         font-size: 6.7px !important;
+    }
+
+    .report-period-weekly .utility-sensor-block,
+    .report-period-monthly .utility-sensor-block {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    .report-period-weekly .utility-sensor-group-preview-block,
+    .report-period-monthly .utility-sensor-group-preview-block {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
     }
 
     .report-period-weekly .utility-sensor-overview-grid,

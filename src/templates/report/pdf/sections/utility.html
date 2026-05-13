@@ -584,7 +584,7 @@
                     </div>
                 </div>
 
-                {% if pdf_show_daily_detail %}
+                {% if pdf_show_daily_detail and flags.is_daily_report %}
                 <div class="utility-detail-block utility-detail-block-compact pdf-keep-together">
                     <h3 class="electricity-subsection-title">Daily Utility Detail</h3>
 
@@ -1042,7 +1042,8 @@
                 {% endif %}
 
                 {% if not flags.is_daily_report %}
-                {% if sensor_monitoring.period_detail_tables %}
+                {% set pdf_show_period_detail_tables = false %}
+                {% if sensor_monitoring.period_detail_tables and pdf_show_period_detail_tables %}
                 {% macro render_period_detail_card(table) -%}
                     <div class="utility-sensor-period-detail-card" style="--sensor-accent: {{ table.accent_color }}; --sensor-tint: {{ table.accent_tint }};">
                         <div class="utility-sensor-period-detail-head">
@@ -1137,7 +1138,7 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-                {% else %}
+                {% elif false %}
                 <div class="utility-sensor-table-wrap report-table-wrap">
                     <table class="utility-sensor-table report-table-ui">
                         <thead>
@@ -1247,6 +1248,37 @@
                 </div>
                 {% endif %}
                 {% endif %}
+            </div>
+            {% endif %}
+
+            {% if pdf_show_daily_detail and not flags.is_daily_report %}
+            <div class="utility-detail-block utility-detail-block-compact pdf-keep-together">
+                <h3 class="electricity-subsection-title">Daily Utility Detail</h3>
+
+                <div class="utility-detail-table-wrap report-table-wrap">
+                    <table class="utility-detail-table report-table-ui">
+                        <thead>
+                            <tr>
+                                <th class="col-date sticky-date-col">Date</th>
+                                {% for column in sections.utility.consumption.detail.daily_columns %}
+                                <th class="utility-detail-col-head {{ column.family_class }}"{% if column.header_style %} style="{{ column.header_style }}"{% endif %}>{{ column.display_name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sections.utility.consumption.detail.daily_rows %}
+                            <tr class="{{ row.row_class }}">
+                                <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                {% for cell in row.daily_values %}
+                                <td class="col-value utility-detail-value-cell {{ cell.family_class }} {{ cell.heat_class }} {{ cell.state_class }}"{% if cell.cell_style %} style="{{ cell.cell_style }}"{% endif %}>
+                                    {{ cell.display }}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% endif %}
 

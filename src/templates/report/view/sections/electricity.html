@@ -85,7 +85,7 @@
                 </div>
             </div>
 
-            <div class="electricity-total-grid">
+            <div class="electricity-total-grid{% if flags.is_daily_report %} electricity-total-grid-daily{% else %} electricity-total-grid-periodic{% endif %}">
                 {% set total_delta_class = summary.electricity_snapshot.delta_pct_class or summary.electricity_snapshot.delta_class %}
                 {% if total_delta_class == 'trend-down' %}
                     {% set total_badge_label = 'WATCH' %}
@@ -156,44 +156,21 @@
                     </div>
                 </div>
 
-                {% for row in sections.electricity.totals.rows %}
-                {% set comparison_rows = sections.electricity.comparison.rows %}
-                {% set ns = namespace(match=None) %}
-                {% for comp in comparison_rows %}
-                    {% if comp.area_key == row.area_key %}
-                        {% set ns.match = comp %}
-                    {% endif %}
-                {% endfor %}
-                {% set area_delta_class = ns.match.delta_pct_class if ns.match else '' %}
-                {% if area_delta_class == 'trend-down' %}
-                    {% set area_badge_label = 'WATCH' %}
-                    {% set area_badge_class = 'kpi-badge-watch' %}
-                {% elif area_delta_class == 'trend-up' %}
-                    {% set area_badge_label = 'GOOD' %}
-                    {% set area_badge_class = 'kpi-badge-good' %}
-                {% else %}
-                    {% set area_badge_label = 'STABLE' %}
-                    {% set area_badge_class = 'kpi-badge-stable' %}
-                {% endif %}
-                <div class="electricity-total-card area-{{ row.area_key }}">
+                {% set diode_card = sections.electricity.totals.cards.diode if sections.electricity.totals.cards is defined else none %}
+                {% if diode_card %}
+                <div class="electricity-total-card area-diode">
                     <div class="electricity-total-card-top">
                         <span class="electricity-total-card-icon">
-                            {% if row.area_key == "diode" %}
                             {% include "assets/icon/kpi-diode.svg" %}
-                            {% elif row.area_key == "ico" %}
-                            {% include "assets/icon/kpi-ico.svg" %}
-                            {% elif row.area_key == "sakari" %}
-                            {% include "assets/icon/kpi-sakari.svg" %}
-                            {% endif %}
                         </span>
                         <div class="electricity-total-card-lead">
                             <div class="electricity-total-card-title-row">
-                                <h3 class="electricity-total-card-title">{{ row.area_key | upper }}</h3>
-                                <span class="kpi-daily-card-badge {{ area_badge_class }}">{{ area_badge_label }}</span>
+                                <h3 class="electricity-total-card-title">{{ diode_card.title }}</h3>
+                                <span class="kpi-daily-card-badge {{ diode_card.badge_class }}">{{ diode_card.badge_label }}</span>
                             </div>
                             <div class="electricity-total-card-primary">
                                 <span class="electricity-total-card-primary-value">
-                                    {{ row.current_display }}
+                                    {{ diode_card.current_display }}
                                 </span>
                                 <span class="electricity-total-card-primary-unit">{{ meta.energy_unit }}</span>
                             </div>
@@ -204,13 +181,13 @@
                         <div class="electricity-total-card-compare-item">
                             <span class="electricity-total-card-compare-label">{{ labels.current_period | upper }}</span>
                             <span class="electricity-total-card-compare-value current">
-                                {{ row.current_display }}
+                                {{ diode_card.current_display }}
                             </span>
                         </div>
                         <div class="electricity-total-card-compare-item">
                             <span class="electricity-total-card-compare-label">{{ labels.previous_period | upper | replace("PREVIOUS", "LAST") }}</span>
                             <span class="electricity-total-card-compare-value previous">
-                                {{ row.previous_display }}
+                                {{ diode_card.previous_display }}
                             </span>
                         </div>
                     </div>
@@ -219,31 +196,82 @@
                         <div class="energy-card-meta-row">
                             <div class="electricity-total-card-delta-block">
                                 <span class="electricity-total-card-footer-label">Delta</span>
-                                <span class="electricity-total-card-footer-value {{ ns.match.delta_class if ns.match else '' }}">
-                                    {{ ns.match.delta_display if ns.match else "-" }}
+                                <span class="electricity-total-card-footer-value {{ diode_card.delta_class }}">
+                                    {{ diode_card.delta_display }}
                                 </span>
                             </div>
                             <div class="electricity-total-card-meta">
                                 <span class="electricity-total-card-meter-label">Meter:</span>
                                 <span class="electricity-total-card-meter-value">
-                                    {{ row.meter_active_total_display }}
+                                    {{ diode_card.meter_active_total_display }}
                                 </span>
                             </div>
                         </div>
                         <div class="energy-card-trend-row">
-                            <span class="electricity-total-card-footer-value delta-pct {{ ns.match.delta_pct_class if ns.match else '' }}">
-                                {% if ns.match %}
-                                    {{ report.delta_arrow(ns.match.delta_pct_class) }}
-                                    {{ ns.match.delta_pct_display }}
-                                {% else %}
-                                    -
-                                {% endif %}
+                            <span class="electricity-total-card-footer-value delta-pct {{ diode_card.delta_pct_class }}">
+                                {{ report.delta_arrow(diode_card.delta_pct_class) }}
+                                {{ diode_card.delta_pct_display }}
                             </span>
                             <span class="electricity-total-card-note">vs {{ labels.previous_period | lower | replace("previous", "last") }}</span>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
+                {% endif %}
+
+                {% set composite_card = sections.electricity.totals.cards.ico_sakari if sections.electricity.totals.cards is defined else none %}
+                {% if composite_card %}
+                <div class="electricity-total-card electricity-total-card-composite area-ico-sakari{% if not flags.is_daily_report %} electricity-total-card-composite-periodic{% endif %}">
+                    <div class="electricity-total-composite-grid">
+                        {% for column in composite_card.columns %}
+                        <div class="electricity-total-composite-panel area-{{ column.area_key }}">
+                            <div class="electricity-total-composite-heading">
+                                <div class="electricity-total-composite-title-row">
+                                    <h4 class="electricity-total-composite-title">{{ column.title }}</h4>
+                                    <span class="kpi-daily-card-badge electricity-total-composite-badge {{ column.badge_class }}">{{ column.badge_label }}</span>
+                                </div>
+                                <div class="electricity-total-composite-primary">
+                                    <span class="electricity-total-composite-primary-value">{{ column.current_display }}</span>
+                                    <span class="electricity-total-composite-primary-unit">{{ meta.energy_unit }}</span>
+                                </div>
+                            </div>
+
+                            <div class="electricity-total-card-compare electricity-total-composite-compare">
+                                <div class="electricity-total-card-compare-item">
+                                    <span class="electricity-total-card-compare-label">{{ labels.current_period | upper }}</span>
+                                    <span class="electricity-total-card-compare-value current">{{ column.current_display }}</span>
+                                </div>
+                                <div class="electricity-total-card-compare-item">
+                                    <span class="electricity-total-card-compare-label">{{ labels.previous_period | upper | replace("PREVIOUS", "LAST") }}</span>
+                                    <span class="electricity-total-card-compare-value previous">{{ column.previous_display }}</span>
+                                </div>
+                            </div>
+
+                            <div class="electricity-total-card-footer energy-card-footer electricity-total-composite-footer">
+                                <div class="energy-card-meta-row">
+                                    <div class="electricity-total-card-delta-block">
+                                        <span class="electricity-total-card-footer-label">Delta</span>
+                                        <span class="electricity-total-card-footer-value {{ column.delta_class }}">
+                                            {{ column.delta_display }}
+                                        </span>
+                                    </div>
+                                    <div class="electricity-total-card-meta">
+                                        <span class="electricity-total-card-meter-label">Meter:</span>
+                                        <span class="electricity-total-card-meter-value">{{ column.meter_active_total_display }}</span>
+                                    </div>
+                                </div>
+                                <div class="energy-card-trend-row">
+                                    <span class="electricity-total-card-footer-value delta-pct {{ column.delta_pct_class }}">
+                                        {{ report.delta_arrow(column.delta_pct_class) }}
+                                        {{ column.delta_pct_display }}
+                                    </span>
+                                    <span class="electricity-total-card-note">vs {{ labels.previous_period | lower | replace("previous", "last") }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
             {% if not flags.is_daily_report %}
