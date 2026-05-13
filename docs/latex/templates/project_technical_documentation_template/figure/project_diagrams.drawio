@@ -1,0 +1,195 @@
+<mxfile host="65bd71144e">
+    <diagram id="system-architecture" name="System Architecture">
+        <mxGraphModel dx="656" dy="348" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1280" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="sa_title" value="ENERGY REPORTING SYSTEM ARCHITECTURE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#1F2937;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="36" width="1240" height="42" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_subtitle" value="Current project runtime, data ownership, report context, and artifact flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#6B7280;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="78" width="1080" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_note" value="Daily run orchestration in main.py. Weekly runs are added on Sunday; monthly runs are added at month-end." style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=12;fontColor=#6B7280;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="230" y="120" width="940" height="38" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_runtime_body" value="main.py loads config, logging,&lt;br&gt;and MySQL access.&lt;br&gt;PeriodService resolves run periods&lt;br&gt;and canonical output naming." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="220" width="430" height="145" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_runtime_header" value="Runtime and Configuration Inputs" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#005496;strokeColor=#005496;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="220" width="430" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_source_body" value="total_energy owns Electricity official totals;&lt;br&gt;energy_kpi owns KPI values and&lt;br&gt;production rows.&lt;br&gt;Utility and sensor sources feed&lt;br&gt;detail, monitoring, and checks." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#ECF7EE;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
+                    <mxGeometry x="850" y="220" width="430" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_source_header" value="Source Data Ownership" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#2E7D32;strokeColor=#2E7D32;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
+                    <mxGeometry x="850" y="220" width="430" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_repo_body" value="Repositories read energy, KPI, utility, and sensor rows&lt;br&gt;for current and previous comparison windows." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="440" width="1160" height="95" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_repo_header" value="Repository Layer" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#4B5563;strokeColor=#4B5563;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="440" width="1160" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_service_body" value="Business services apply KPI coverage, official totals, comparisons,&lt;br&gt;Top 10 rules, utility statistics, and monitoring context.&lt;br&gt;ReportStyleService injects presentation tokens from report_style.json." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="600" width="1160" height="125" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_service_header" value="Service Layer" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#005496;strokeColor=#005496;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="600" width="1160" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_context_body" value="ReportBuilderService.build_report_context_v3&lt;br&gt;creates meta, periods, summaries, flags, labels, notes, and domain sections." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFF4E2;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="790" width="740" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_context_header" value="Unified report_context" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#B26A00;strokeColor=#B26A00;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="790" width="740" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_artifact_note" value="Artifacts are grouped by month&lt;br&gt;and then split by output type." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#6B7280;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="916" width="280" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_render_body" value="Renders view_html and&lt;br&gt;pdf_source_html.&lt;br&gt;PDFService prints staging HTML." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="980" width="430" height="125" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_render_header" value="Rendering Path" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#005496;strokeColor=#005496;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="980" width="430" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_excel_body" value="Builds the daily workbook only.&lt;br&gt;Sheets derive from stable tables&lt;br&gt;in report_context." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#ECF7EE;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
+                    <mxGeometry x="850" y="980" width="430" height="125" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_excel_header" value="Excel Export Path" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#2E7D32;strokeColor=#2E7D32;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
+                    <mxGeometry x="850" y="980" width="430" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_canonical_body" value="OUTPUT_DIR/YYYY_MM/ stores HTML, PDF, and Excel artifacts.&lt;br&gt;If blank, runtime falls back to output/reports/YYYY_MM/." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="1140" width="740" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_canonical_header" value="Canonical Outputs" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#4B5563;strokeColor=#4B5563;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="1140" width="740" height="34" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_e_runtime_repo" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_runtime_body" target="sa_repo_body" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_e_source_repo" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_source_body" target="sa_repo_body" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_e_repo_service" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_repo_body" target="sa_service_body" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_e_service_context" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_service_body" target="sa_context_body" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="sa_e_context_bus" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=none;endFill=0;" parent="1" source="sa_context_body" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="700" y="940" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="sa_e_bus_line" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#475569;strokeWidth=2;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="335" y="940" as="sourcePoint"/>
+                        <mxPoint x="1065" y="940" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="sa_e_bus_render" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" target="sa_render_body" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="335" y="940" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="sa_e_bus_excel" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" target="sa_excel_body" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1065" y="940" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="sa_e_render_merge" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_render_body" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="335" y="1120" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="sa_e_excel_merge" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_excel_body" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1065" y="1120" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="sa_e_merge_line" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#475569;strokeWidth=2;" parent="1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="335" y="1120" as="sourcePoint"/>
+                        <mxPoint x="1065" y="1120" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="sa_e_merge_canonical" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" target="sa_canonical_body" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="700" y="1120" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="report-generation-flow" name="Report Generation Flow">
+        <mxGraphModel dx="1546" dy="1536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1480" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="rg_title" value="REPORT GENERATION AND EXPORT DATA FLOW" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#1F2937;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="36" width="1040" height="42" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_subtitle" value="Source retrieval, object building, rendering, and month-grouped artifact storage" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#6B7280;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="78" width="880" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_note" value="Scheduling rule: daily always runs; weekly is added on Sunday; monthly is added at month-end when the anchor date is the last day of the month." style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFF8DB;strokeColor=#94A3B8;fontSize=13;fontColor=#6B7280;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="140" y="122" width="920" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_step1" value="&lt;b&gt;1. Bootstrap runtime&lt;/b&gt;&lt;br&gt;Initialize config, MySQL client, repositories, and runtime logging in main.py." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="230" width="620" height="82" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_step2" value="&lt;b&gt;2. Resolve periods for this run&lt;/b&gt;&lt;br&gt;Resolve anchor date, report types, and canonical export stems for the batch." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="360" width="620" height="82" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_step3" value="&lt;b&gt;3. Fetch source rows&lt;/b&gt;&lt;br&gt;Pull energy_kpi, utility usage, area energy, and selected sensor rows for comparison windows." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="490" width="620" height="82" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_step4" value="&lt;b&gt;4. Aggregate utility sensor statistics&lt;/b&gt;&lt;br&gt;Compute min/avg/max sensor metrics, monitoring structures, and anomaly-ready values." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#ECF7EE;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="620" width="620" height="82" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_step5" value="&lt;b&gt;5. Build domain objects&lt;/b&gt;&lt;br&gt;Create electricity, KPI, and utility blocks with business rules applied before rendering." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="750" width="620" height="82" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_step6" value="&lt;b&gt;6. Assemble unified report_context&lt;/b&gt;&lt;br&gt;Merge meta, sections, flags, labels, notes, and presentation tokens from report_style.json." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFF4E2;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="880" width="620" height="82" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_step7" value="&lt;b&gt;7. Render and export artifacts&lt;/b&gt;&lt;br&gt;Render view_html and pdf_source_html, print PDF, and write daily Excel when applicable." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#ECF7EE;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="1010" width="620" height="82" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_step8" value="&lt;b&gt;8. Store canonical outputs&lt;/b&gt;&lt;br&gt;Write OUTPUT_DIR/YYYY_MM/ artifacts with 01_monthly / 02_weekly / 03_daily prefixes.&lt;br&gt;If blank, fallback to output/reports/YYYY_MM/." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="1140" width="620" height="105" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_loop" value="&lt;b&gt;Period loop&lt;/b&gt;&lt;br&gt;&lt;br&gt;Steps 4-7 repeat for each daily, weekly, or monthly period in the run batch." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontSize=14;fontColor=#4B5563;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="90" y="640" width="220" height="330" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_doc_note" value="Documentation PDF rebuild is a separate workflow and should be triggered only when documentation source files change." style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=13;fontColor=#6B7280;align=center;verticalAlign=middle;" parent="1" vertex="1">
+                    <mxGeometry x="140" y="1320" width="920" height="54" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_e_rg_step1_rg_step2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step1" target="rg_step2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_e_rg_step2_rg_step3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step2" target="rg_step3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_e_rg_step3_rg_step4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step3" target="rg_step4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_e_rg_step4_rg_step5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step4" target="rg_step5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_e_rg_step5_rg_step6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step5" target="rg_step6" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_e_rg_step6_rg_step7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step6" target="rg_step7" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_e_rg_step7_rg_step8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step7" target="rg_step8" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="rg_loop_edge" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_loop" target="rg_step4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

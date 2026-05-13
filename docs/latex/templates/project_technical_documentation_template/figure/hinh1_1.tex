@@ -47,13 +47,13 @@
 	\node[anchor=center, align=center, text width=18.5cm, text=MutedText, font=\fontsize{10.5}{12.5}\selectfont] at (12,24.415) {Daily run orchestration in \texttt{main.py}. Weekly runs are added on Sunday; monthly runs are added at month-end.};
 
 	% Top ownership and configuration inputs
-	\layerbox{1.70}{23.00}{10.95}{LightBlue}{20.45}{BrandBlue}{Runtime and Configuration Inputs}
-	\centerbody{6.325}{21.42}{8.45cm}{%
+	\layerbox{1.70}{23.00}{10.95}{LightBlue}{20.00}{BrandBlue}{Runtime and Configuration Inputs}
+	\centerbody{6.325}{21.20}{8.45cm}{%
 		\texttt{main.py} loads config, logging,\\and MySQL access.\\
 		\texttt{PeriodService} resolves run periods\\and canonical output naming.}
 
-	\layerbox{13.05}{23.00}{22.30}{LightGreen}{20.45}{FlowGreen}{Source Data Ownership}
-	\centerbody{17.675}{21.42}{8.45cm}{%
+	\layerbox{13.05}{23.00}{22.30}{LightGreen}{20.00}{FlowGreen}{Source Data Ownership}
+	\centerbody{17.675}{21.20}{8.45cm}{%
 		\texttt{total\_energy} owns Electricity official totals;\\\texttt{energy\_kpi} owns KPI values and production rows.\\
 		Utility and sensor sources feed\\detail, monitoring, and checks.}
 
@@ -89,8 +89,8 @@
 		\texttt{OUTPUT\_DIR/YYYY\_MM/} stores HTML, PDF, and Excel artifacts.\\If blank, runtime falls back to \texttt{output/reports/YYYY\_MM/}.}
 
 	% Connectors
-	\draw[-{Latex[length=4mm,width=3mm]}, line width=1.05pt, draw=LineColor] (6.325,20.45) -- (6.325,19.45);
-	\draw[-{Latex[length=4mm,width=3mm]}, line width=1.05pt, draw=LineColor] (17.675,20.45) -- (17.675,19.45);
+	\draw[-{Latex[length=4mm,width=3mm]}, line width=1.05pt, draw=LineColor] (6.325,20.00) -- (6.325,19.45);
+	\draw[-{Latex[length=4mm,width=3mm]}, line width=1.05pt, draw=LineColor] (17.675,20.00) -- (17.675,19.45);
 	\draw[-{Latex[length=4mm,width=3mm]}, line width=1.05pt, draw=LineColor] (12,17.68) -- (12,16.45);
 	\draw[-{Latex[length=4mm,width=3mm]}, line width=1.05pt, draw=LineColor] (12,14.02) -- (12,12.85);
 	\draw[-{Latex[length=4mm,width=3mm]}, line width=1.05pt, draw=LineColor] (12,10.98) -- (12,10.05);

@@ -68,6 +68,61 @@ They should be rebuilt from source when documentation changes and should not be 
 
 ---
 
+# DRAW.IO FIGURE SOURCE RULE
+
+Technical diagrams used by the LaTeX technical manual MUST keep one canonical
+editable source file:
+
+```text
+docs/latex/templates/project_technical_documentation_template/figure/project_diagrams.drawio
+```
+
+This `.drawio` file is the source of truth for project diagrams. It may contain
+multiple pages/sheets. Do not maintain parallel hand-authored SVG/TikZ sources
+for the same diagram unless the project owner explicitly approves a temporary
+migration step.
+
+Current sheet-to-artifact mapping:
+
+| Draw.io sheet | Exported artifact used by LaTeX | LaTeX label |
+| --- | --- | --- |
+| `System Architecture` | `figure/hinh1_1.png` | `fig:system_architecture` |
+| `Report Generation Flow` | `figure/hinh1_2.png` | `fig:report_generation_flow` |
+
+Current export format for these draw.io diagrams is PNG because both the VS Code
+Draw.io extension and the local Draw.io desktop workflow support it reliably.
+Use scale `2` and a small border when exporting so text stays readable in the
+generated PDF.
+
+Draw.io CLI page indexes are 1-based:
+
+```bash
+xvfb-run -a drawio -x -f png -p 1 -s 2 -b 10 \
+  -o docs/latex/templates/project_technical_documentation_template/figure/hinh1_1.png \
+  docs/latex/templates/project_technical_documentation_template/figure/project_diagrams.drawio
+
+xvfb-run -a drawio -x -f png -p 2 -s 2 -b 10 \
+  -o docs/latex/templates/project_technical_documentation_template/figure/hinh1_2.png \
+  docs/latex/templates/project_technical_documentation_template/figure/project_diagrams.drawio
+```
+
+The Snap Draw.io package may print GPU or Mesa warnings under `xvfb-run`; the
+export is still considered successful when the final `source -> output` line is
+printed and the PNG file is updated.
+
+When draw.io CLI export is not available in the local environment:
+
+1. AI agents update only `project_diagrams.drawio`
+2. The project owner exports the touched sheet manually from the VS Code Draw.io extension
+3. The exported artifact replaces the matching file under `figure/`
+4. The LaTeX PDF is rebuilt and the figure page is visually checked
+
+When draw.io CLI export becomes available, agents may export directly from the
+canonical `.drawio` source, but must still keep `project_diagrams.drawio` as the
+only editable source.
+
+---
+
 # BUILD SUCCESS RULE
 
 A successful build MUST:
