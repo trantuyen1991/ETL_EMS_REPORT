@@ -1,192 +1,167 @@
 <mxfile host="65bd71144e">
-    <diagram id="system-architecture" name="System Architecture">
-        <mxGraphModel dx="656" dy="348" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1280" math="0" shadow="0">
+    <diagram id="system-architecture-vertical-icons" name="System Architecture - Vertical Icons">
+        <mxGraphModel dx="1078" dy="1069" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1060" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="sa_title" value="ENERGY REPORTING SYSTEM ARCHITECTURE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#1F2937;" parent="1" vertex="1">
-                    <mxGeometry x="80" y="36" width="1240" height="42" as="geometry"/>
+                <mxCell id="sav_runtime" value="Runtime Orchestration&lt;br&gt;&lt;b&gt;main.py + PeriodService&lt;/b&gt;&lt;br&gt;anchor date, report types, output naming" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EAF3FB;gradientColor=#FFFFFF;strokeColor=#94A3B8;fontSize=16;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=84;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="249" y="100" width="380" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_subtitle" value="Current project runtime, data ownership, report context, and artifact flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#6B7280;" parent="1" vertex="1">
-                    <mxGeometry x="160" y="78" width="1080" height="26" as="geometry"/>
+                <mxCell id="sav_data_left" value="MySQL official sources&lt;br&gt;&lt;b&gt;energy_kpi&lt;/b&gt;&lt;br&gt;KPI, production, approved totals" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#ECF7EE;gradientColor=#FFFFFF;strokeColor=#5EA46A;fontSize=16;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=88;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="76" y="270" width="340" height="90" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_note" value="Daily run orchestration in main.py. Weekly runs are added on Sunday; monthly runs are added at month-end." style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=12;fontColor=#6B7280;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="230" y="120" width="940" height="38" as="geometry"/>
+                <mxCell id="sav_data_right" value="Utility and sensor sources&lt;br&gt;&lt;b&gt;detail + monitoring&lt;/b&gt;&lt;br&gt;statistics, checks, anomaly context" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFF4E2;gradientColor=#FFFFFF;strokeColor=#C58B2B;fontSize=16;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=88;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="456" y="270" width="340" height="90" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_runtime_body" value="main.py loads config, logging,&lt;br&gt;and MySQL access.&lt;br&gt;PeriodService resolves run periods&lt;br&gt;and canonical output naming." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="220" width="430" height="145" as="geometry"/>
+                <mxCell id="sav_service" value="Business Service Layer&lt;br&gt;&lt;b&gt;coverage, totals, Top 10, monitoring&lt;/b&gt;&lt;br&gt;rules applied before presentation" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EAF3FB;gradientColor=#FFFFFF;strokeColor=#7FAAC8;fontSize=16;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=84;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="249" y="603" width="380" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_runtime_header" value="Runtime and Configuration Inputs" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#005496;strokeColor=#005496;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="220" width="430" height="34" as="geometry"/>
+                <mxCell id="sav_context" value="Unified report_context&lt;br&gt;&lt;b&gt;one backend contract&lt;/b&gt;&lt;br&gt;feeds HTML, PDF, and Excel outputs" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFF4E2;gradientColor=#FFFFFF;strokeColor=#C58B2B;fontSize=16;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=84;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="249" y="724" width="380" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_source_body" value="total_energy owns Electricity official totals;&lt;br&gt;energy_kpi owns KPI values and&lt;br&gt;production rows.&lt;br&gt;Utility and sensor sources feed&lt;br&gt;detail, monitoring, and checks." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#ECF7EE;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
-                    <mxGeometry x="850" y="220" width="430" height="150" as="geometry"/>
+                <mxCell id="sav_repo" value="Repository Layer&lt;br&gt;&lt;b&gt;current + previous windows&lt;/b&gt;&lt;br&gt;stable source retrieval for services" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F8FAFC;gradientColor=#FFFFFF;strokeColor=#94A3B8;fontSize=16;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=84;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="249" y="478" width="380" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_source_header" value="Source Data Ownership" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#2E7D32;strokeColor=#2E7D32;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
-                    <mxGeometry x="850" y="220" width="430" height="34" as="geometry"/>
+                <mxCell id="sav_title" value="ENERGY REPORTING SYSTEM ARCHITECTURE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=30;fontStyle=1;fontColor=#111827;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="22" width="740" height="38" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_repo_body" value="Repositories read energy, KPI, utility, and sensor rows&lt;br&gt;for current and previous comparison windows." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="440" width="1160" height="95" as="geometry"/>
+                <mxCell id="sav_subtitle" value="Top-down runtime, trusted data ownership, unified context, and month-grouped outputs" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=15;fontColor=#64748B;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="58" width="660" height="24" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_repo_header" value="Repository Layer" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#4B5563;strokeColor=#4B5563;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="440" width="1160" height="34" as="geometry"/>
+                <mxCell id="sav_boundary" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+                    <mxGeometry width="1" height="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_service_body" value="Business services apply KPI coverage, official totals, comparisons,&lt;br&gt;Top 10 rules, utility statistics, and monitoring context.&lt;br&gt;ReportStyleService injects presentation tokens from report_style.json." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="600" width="1160" height="125" as="geometry"/>
+                <mxCell id="sav_runtime_icon" value="" style="shape=image;html=1;image=img/lib/mscae/Logic_Apps.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="266" y="107" width="62" height="62" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_service_header" value="Service Layer" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#005496;strokeColor=#005496;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="600" width="1160" height="34" as="geometry"/>
+                <mxCell id="sav_db_icon" value="" style="shape=image;html=1;image=img/lib/mscae/Azure_Database_for_MySQL_servers.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="99" y="285" width="64" height="64" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_context_body" value="ReportBuilderService.build_report_context_v3&lt;br&gt;creates meta, periods, summaries, flags, labels, notes, and domain sections." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFF4E2;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
-                    <mxGeometry x="330" y="790" width="740" height="100" as="geometry"/>
+                <mxCell id="sav_sensor_icon" value="" style="shape=image;html=1;image=img/lib/azure2/management_governance/Metrics.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="476" y="285" width="64" height="64" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_context_header" value="Unified report_context" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#B26A00;strokeColor=#B26A00;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
-                    <mxGeometry x="330" y="790" width="740" height="34" as="geometry"/>
+                <mxCell id="sav_repo_icon" value="" style="shape=image;html=1;image=img/lib/azure2/databases/Data_Factory.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="273" y="485" width="62" height="62" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_artifact_note" value="Artifacts are grouped by month&lt;br&gt;and then split by output type." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#6B7280;" parent="1" vertex="1">
-                    <mxGeometry x="820" y="916" width="280" height="40" as="geometry"/>
+                <mxCell id="sav_service_icon" value="" style="shape=image;html=1;image=img/lib/mscae/Functions.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="273" y="610" width="62" height="62" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_render_body" value="Renders view_html and&lt;br&gt;pdf_source_html.&lt;br&gt;PDFService prints staging HTML." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="980" width="430" height="125" as="geometry"/>
+                <mxCell id="sav_context_icon" value="" style="shape=image;html=1;image=img/lib/azure2/analytics/Azure_Workbooks.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="273" y="731" width="62" height="62" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_render_header" value="Rendering Path" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#005496;strokeColor=#005496;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
-                    <mxGeometry x="120" y="980" width="430" height="34" as="geometry"/>
-                </mxCell>
-                <mxCell id="sa_excel_body" value="Builds the daily workbook only.&lt;br&gt;Sheets derive from stable tables&lt;br&gt;in report_context." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#ECF7EE;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
-                    <mxGeometry x="850" y="980" width="430" height="125" as="geometry"/>
-                </mxCell>
-                <mxCell id="sa_excel_header" value="Excel Export Path" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#2E7D32;strokeColor=#2E7D32;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
-                    <mxGeometry x="850" y="980" width="430" height="34" as="geometry"/>
-                </mxCell>
-                <mxCell id="sa_canonical_body" value="OUTPUT_DIR/YYYY_MM/ stores HTML, PDF, and Excel artifacts.&lt;br&gt;If blank, runtime falls back to output/reports/YYYY_MM/." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=14;fontColor=#1F2937;align=center;verticalAlign=middle;spacingTop=26;" parent="1" vertex="1">
-                    <mxGeometry x="330" y="1140" width="740" height="100" as="geometry"/>
-                </mxCell>
-                <mxCell id="sa_canonical_header" value="Canonical Outputs" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#4B5563;strokeColor=#4B5563;fontSize=15;fontStyle=1;fontColor=#FFFFFF;align=left;verticalAlign=middle;spacingLeft=14;" parent="1" vertex="1">
-                    <mxGeometry x="330" y="1140" width="740" height="34" as="geometry"/>
-                </mxCell>
-                <mxCell id="sa_e_runtime_repo" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_runtime_body" target="sa_repo_body" edge="1">
+                <mxCell id="sav_e_runtime_data_l" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_runtime" target="sav_data_left" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_e_source_repo" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_source_body" target="sa_repo_body" edge="1">
+                <mxCell id="sav_e_runtime_data_r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_runtime" target="sav_data_right" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_e_repo_service" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_repo_body" target="sa_service_body" edge="1">
+                <mxCell id="sav_e_data_repo_l" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_data_left" target="sav_repo" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_e_service_context" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_service_body" target="sa_context_body" edge="1">
+                <mxCell id="sav_e_data_repo_r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_data_right" target="sav_repo" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_e_context_bus" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=none;endFill=0;" parent="1" source="sa_context_body" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="700" y="940" as="targetPoint"/>
-                    </mxGeometry>
+                <mxCell id="sav_e_repo_service" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_repo" target="sav_service" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sa_e_bus_line" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#475569;strokeWidth=2;" parent="1" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="335" y="940" as="sourcePoint"/>
-                        <mxPoint x="1065" y="940" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="sa_e_bus_render" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" target="sa_render_body" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="335" y="940" as="sourcePoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="sa_e_bus_excel" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" target="sa_excel_body" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="1065" y="940" as="sourcePoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="sa_e_render_merge" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_render_body" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="335" y="1120" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="sa_e_excel_merge" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sa_excel_body" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="1065" y="1120" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="sa_e_merge_line" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#475569;strokeWidth=2;" parent="1" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="335" y="1120" as="sourcePoint"/>
-                        <mxPoint x="1065" y="1120" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="sa_e_merge_canonical" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" target="sa_canonical_body" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="700" y="1120" as="sourcePoint"/>
-                    </mxGeometry>
+                <mxCell id="sav_e_service_context" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#005496;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_service" target="sav_context" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
     </diagram>
-    <diagram id="report-generation-flow" name="Report Generation Flow">
-        <mxGraphModel dx="1546" dy="1536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1480" math="0" shadow="0">
+    <diagram id="report-flow-vertical-icons" name="Report Flow - Vertical Icons">
+        <mxGraphModel dx="1483" dy="1470" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1500" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="rg_title" value="REPORT GENERATION AND EXPORT DATA FLOW" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#1F2937;" parent="1" vertex="1">
-                    <mxGeometry x="80" y="36" width="1040" height="42" as="geometry"/>
+                <mxCell id="rfv_outputs" value="HTML view    |    PDF source + PDF    |    Daily Excel workbook" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=14;fontStyle=1;fontColor=#475569;align=center;verticalAlign=middle;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="210" y="1122" width="480" height="44" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_subtitle" value="Source retrieval, object building, rendering, and month-grouped artifact storage" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#6B7280;" parent="1" vertex="1">
-                    <mxGeometry x="160" y="78" width="880" height="26" as="geometry"/>
+                <mxCell id="rfv_s1" value="1. Bootstrap runtime&lt;br&gt;&lt;b&gt;config, MySQL client, repositories, runtime logging&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EAF3FB;gradientColor=#FFFFFF;strokeColor=#7FAAC8;fontSize=14;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=82;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="157" width="460" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_note" value="Scheduling rule: daily always runs; weekly is added on Sunday; monthly is added at month-end when the anchor date is the last day of the month." style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFF8DB;strokeColor=#94A3B8;fontSize=13;fontColor=#6B7280;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="140" y="122" width="920" height="58" as="geometry"/>
+                <mxCell id="rfv_s2" value="2. Resolve periods&lt;br&gt;&lt;b&gt;anchor date, report types, canonical export stems&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F8FAFC;gradientColor=#FFFFFF;strokeColor=#94A3B8;fontSize=14;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=82;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="280" width="460" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_step1" value="&lt;b&gt;1. Bootstrap runtime&lt;/b&gt;&lt;br&gt;Initialize config, MySQL client, repositories, and runtime logging in main.py." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="360" y="230" width="620" height="82" as="geometry"/>
+                <mxCell id="rfv_s3" value="3. Fetch source rows&lt;br&gt;&lt;b&gt;energy_kpi, utility usage, area energy, selected sensors&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#ECF7EE;gradientColor=#FFFFFF;strokeColor=#5EA46A;fontSize=14;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=82;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="404" width="460" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_step2" value="&lt;b&gt;2. Resolve periods for this run&lt;/b&gt;&lt;br&gt;Resolve anchor date, report types, and canonical export stems for the batch." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="360" y="360" width="620" height="82" as="geometry"/>
+                <mxCell id="rfv_s4" value="4. Aggregate sensor statistics&lt;br&gt;&lt;b&gt;min, average, max, monitoring structures&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#ECF7EE;gradientColor=#FFFFFF;strokeColor=#5EA46A;fontSize=14;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=82;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="522" width="460" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_step3" value="&lt;b&gt;3. Fetch source rows&lt;/b&gt;&lt;br&gt;Pull energy_kpi, utility usage, area energy, and selected sensor rows for comparison windows." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="360" y="490" width="620" height="82" as="geometry"/>
+                <mxCell id="rfv_s5" value="5. Build domain objects&lt;br&gt;&lt;b&gt;Electricity, KPI, Utility blocks with rules applied&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EAF3FB;gradientColor=#FFFFFF;strokeColor=#7FAAC8;fontSize=14;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=82;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="643" width="460" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_step4" value="&lt;b&gt;4. Aggregate utility sensor statistics&lt;/b&gt;&lt;br&gt;Compute min/avg/max sensor metrics, monitoring structures, and anomaly-ready values." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#ECF7EE;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="360" y="620" width="620" height="82" as="geometry"/>
+                <mxCell id="rfv_s6" value="6. Assemble report_context&lt;br&gt;&lt;b&gt;meta, sections, flags, labels, notes, presentation tokens&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFF4E2;gradientColor=#FFFFFF;strokeColor=#C58B2B;fontSize=14;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=82;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="764" width="460" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_step5" value="&lt;b&gt;5. Build domain objects&lt;/b&gt;&lt;br&gt;Create electricity, KPI, and utility blocks with business rules applied before rendering." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EAF3FB;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="360" y="750" width="620" height="82" as="geometry"/>
+                <mxCell id="rfv_s7" value="7. Render and export artifacts&lt;br&gt;&lt;b&gt;view_html, pdf_source_html, PDF, daily Excel&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFF4E2;gradientColor=#FFFFFF;strokeColor=#C58B2B;fontSize=14;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=82;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="883" width="460" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_step6" value="&lt;b&gt;6. Assemble unified report_context&lt;/b&gt;&lt;br&gt;Merge meta, sections, flags, labels, notes, and presentation tokens from report_style.json." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFF4E2;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="360" y="880" width="620" height="82" as="geometry"/>
+                <mxCell id="rfv_s8" value="8. Store canonical outputs&lt;br&gt;&lt;b&gt;OUTPUT_DIR/YYYY_MM/ with monthly, weekly, daily prefixes&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F8FAFC;gradientColor=#FFFFFF;strokeColor=#94A3B8;fontSize=14;fontColor=#0F172A;align=center;verticalAlign=middle;spacingLeft=82;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="1002" width="460" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_step7" value="&lt;b&gt;7. Render and export artifacts&lt;/b&gt;&lt;br&gt;Render view_html and pdf_source_html, print PDF, and write daily Excel when applicable." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#ECF7EE;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="360" y="1010" width="620" height="82" as="geometry"/>
+                <mxCell id="rfv_title" value="REPORT GENERATION FLOW" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=30;fontStyle=1;fontColor=#111827;" parent="1" vertex="1">
+                    <mxGeometry x="90" y="24" width="720" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_step8" value="&lt;b&gt;8. Store canonical outputs&lt;/b&gt;&lt;br&gt;Write OUTPUT_DIR/YYYY_MM/ artifacts with 01_monthly / 02_weekly / 03_daily prefixes.&lt;br&gt;If blank, fallback to output/reports/YYYY_MM/." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=15;fontColor=#1F2937;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="360" y="1140" width="620" height="105" as="geometry"/>
+                <mxCell id="rfv_policy" value="daily always runs  |  Sunday adds weekly  |  month-end adds monthly" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fillColor=#FFF8DB;gradientColor=#FFFFFF;strokeColor=#D8B04C;fontSize=14;fontStyle=1;fontColor=#475569;align=center;verticalAlign=middle;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="220" y="84" width="460" height="44" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_loop" value="&lt;b&gt;Period loop&lt;/b&gt;&lt;br&gt;&lt;br&gt;Steps 4-7 repeat for each daily, weekly, or monthly period in the run batch." style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontSize=14;fontColor=#4B5563;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="90" y="640" width="220" height="330" as="geometry"/>
+                <mxCell id="rfv_i1" value="" style="shape=image;html=1;image=img/lib/mscae/Logic_Apps.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="237" y="167" width="58" height="58" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_doc_note" value="Documentation PDF rebuild is a separate workflow and should be triggered only when documentation source files change." style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F3F4F6;strokeColor=#94A3B8;fontSize=13;fontColor=#6B7280;align=center;verticalAlign=middle;" parent="1" vertex="1">
-                    <mxGeometry x="140" y="1320" width="920" height="54" as="geometry"/>
+                <mxCell id="rfv_i2" value="" style="shape=image;html=1;image=img/lib/mscae/Monitoring.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="237" y="290" width="58" height="58" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_e_rg_step1_rg_step2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step1" target="rg_step2" edge="1">
+                <mxCell id="rfv_i3" value="" style="shape=image;html=1;image=img/lib/mscae/Azure_Database_for_MySQL_servers.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="237" y="414" width="58" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="rfv_i4" value="" style="shape=image;html=1;image=img/lib/azure2/management_governance/Metrics.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="237" y="532" width="58" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="rfv_loop" value="period loop&lt;br&gt;steps 4-7" style="shape=cloud;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=11;fontStyle=1;fontColor=#475569;align=center;verticalAlign=middle;shadow=1;" parent="1" vertex="1">
+                    <mxGeometry x="715" y="585" width="135" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="rfv_i5" value="" style="shape=image;html=1;image=img/lib/mscae/Functions.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="237" y="653" width="58" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="rfv_i6" value="" style="shape=image;html=1;image=img/lib/azure2/analytics/Azure_Workbooks.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="237" y="774" width="58" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="rfv_i7" value="" style="shape=image;html=1;image=img/lib/azure2/app_services/App_Services.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="237" y="893" width="58" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="rfv_i8" value="" style="shape=image;html=1;image=img/lib/mscae/Storage_Accounts.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
+                    <mxGeometry x="237" y="1012" width="58" height="58" as="geometry"/>
+                </mxCell>
+                <mxCell id="rfv_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#005496;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s1" target="rfv_s2" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_e_rg_step2_rg_step3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step2" target="rg_step3" edge="1">
+                <mxCell id="rfv_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s2" target="rfv_s3" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_e_rg_step3_rg_step4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step3" target="rg_step4" edge="1">
+                <mxCell id="rfv_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s3" target="rfv_s4" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_e_rg_step4_rg_step5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step4" target="rg_step5" edge="1">
+                <mxCell id="rfv_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s4" target="rfv_s5" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_e_rg_step5_rg_step6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step5" target="rg_step6" edge="1">
+                <mxCell id="rfv_e_loop" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;dashed=1;endArrow=block;endFill=1;" parent="1" source="rfv_loop" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="450" y="620" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="rfv_e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#005496;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s5" target="rfv_s6" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_e_rg_step6_rg_step7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step6" target="rg_step7" edge="1">
+                <mxCell id="rfv_e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s6" target="rfv_s7" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_e_rg_step7_rg_step8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_step7" target="rg_step8" edge="1">
+                <mxCell id="rfv_e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s7" target="rfv_s8" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rg_loop_edge" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rg_loop" target="rg_step4" edge="1">
+                <mxCell id="rfv_e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s8" target="rfv_outputs" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
             </root>
