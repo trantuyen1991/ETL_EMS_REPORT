@@ -35,6 +35,63 @@
     </div>
 </div>
 {% endmacro %}
+{% macro render_shutdown_analysis(block) %}
+{% if block and block.enabled %}
+<div class="electricity-shutdown-analysis-block">
+    <div class="electricity-shutdown-analysis-heading">
+        <h3 class="electricity-subsection-title">{{ block.title }}</h3>
+        {% if block.subtitle %}
+        <p class="electricity-shutdown-analysis-subtitle">{{ block.subtitle }}</p>
+        {% endif %}
+    </div>
+
+    <div class="electricity-shutdown-analysis-steps">
+        {% for step_key in ['step1', 'step2', 'step3'] %}
+        {% set step = block.steps.get(step_key) %}
+        {% if step and step.rows %}
+        <div class="electricity-shutdown-step-card electricity-shutdown-step-card-{{ step_key }}">
+            <div class="electricity-shutdown-step-title">{{ step.title }}</div>
+            <div class="report-table-wrap">
+                <table class="report-table-ui electricity-shutdown-step-table{% if step_key == 'step3' %} is-final-step{% endif %}">
+                    <tbody>
+                        {% if step_key == 'step3' %}
+                        {% set row = step.rows[0] %}
+                        <tr>
+                            <td class="shutdown-metric-label shutdown-metric-label-final">{{ row.label }}</td>
+                            <td class="shutdown-metric-value shutdown-metric-value-final{% if row.is_highlight %} is-highlight{% endif %}">
+                                <span class="shutdown-value-text">{{ row.value_display }}</span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        {% for pair in step.rows|batch(2, none) %}
+                        <tr>
+                            {% for row in pair %}
+                            {% if row %}
+                            <td class="shutdown-metric-label">{{ row.label }}</td>
+                            <td class="shutdown-metric-value{% if row.is_emphasis %} is-emphasis{% endif %}">
+                                <span class="shutdown-value-text">{{ row.value_display }}</span>
+                                {% if row.unit %}
+                                <span class="shutdown-value-unit">{{ row.unit }}</span>
+                                {% endif %}
+                            </td>
+                            {% else %}
+                            <td class="shutdown-metric-label is-empty"></td>
+                            <td class="shutdown-metric-value is-empty"></td>
+                            {% endif %}
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endmacro %}
 {% if flags.show_electricity_section %}
         <section class="report-section daily-highlight-header electricity-section-shell{% if not flags.is_daily_report %} periodic-electricity-section{% endif %}">
             <div class="section-header">
@@ -538,6 +595,10 @@
                 {% endfor %}
                 {% endif %}
             </div>
+
+            {% if not flags.is_daily_report %}
+            {{ render_shutdown_analysis(sections.electricity.shutdown_analysis) }}
+            {% endif %}
             <script>
                 (function () {
                     function initElectricityCharts() {

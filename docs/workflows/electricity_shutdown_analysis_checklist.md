@@ -109,33 +109,33 @@ Suggested fields:
 - [x] confirm placement in periodic Electricity section
 - [x] create task checklist
 - [x] update relevant docs
-- [ ] commit docs checkpoint
-- [ ] mine project memory
+- [x] commit docs checkpoint
+- [x] mine project memory
 
 ### Checkpoint 2: backend classification object
-- [ ] classify each periodic date by `Total Product`
-- [ ] join production-day classification with official electricity daily totals
-- [ ] compute off-day and operation-day totals and counts
-- [ ] expose explicit audit counts for unknown / excluded days
+- [x] classify each periodic date by `Total Product`
+- [x] join production-day classification with official electricity daily totals
+- [x] compute off-day and operation-day totals and counts
+- [x] expose explicit audit counts for unknown / excluded days
 
 ### Checkpoint 3: backend calculation object
-- [ ] compute Step 1 day-level averages
-- [ ] compute Step 2 hourly rates using approved fixed-hour assumptions
-- [ ] compute Step 3 `Shutdown Energy %`
-- [ ] validate divide-by-zero safety and sparse-day safety
+- [x] compute Step 1 day-level averages
+- [x] compute Step 2 hourly rates using approved fixed-hour assumptions
+- [x] compute Step 3 `Shutdown Energy %`
+- [x] validate divide-by-zero safety and sparse-day safety
 
 ### Checkpoint 4: template rendering
-- [ ] add shutdown-analysis subsection to periodic Electricity HTML template
-- [ ] add shutdown-analysis subsection to periodic Electricity PDF template
-- [ ] keep the block after the heatmap and at the end of Electricity section
-- [ ] tune table readability for A4 width
+- [x] add shutdown-analysis subsection to periodic Electricity HTML template
+- [x] add shutdown-analysis subsection to periodic Electricity PDF template
+- [x] keep the block after the heatmap and at the end of Electricity section
+- [x] tune table readability for A4 width
 
 ### Checkpoint 5: validation
-- [ ] verify weekly output
-- [ ] verify monthly output
-- [ ] verify missing `total_energy` day does not break the block
-- [ ] verify `Total Product = 0` days are classified as off days
-- [ ] verify non-zero production days are classified as operation days
-- [ ] preview and review HTML/PDF
-- [ ] commit stable checkpoint
+- [x] verify weekly output
+- [x] verify monthly output
+- [x] verify missing `total_energy` day does not break the block
+- [x] verify `Total Product = 0` days are classified as off days
+- [x] verify non-zero production days are classified as operation days
+- [x] preview and review HTML/PDF
+- [x] commit stable checkpoint
 - [ ] mine again

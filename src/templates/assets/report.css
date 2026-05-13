@@ -2536,6 +2536,102 @@
             filter: brightness(0.99);
         }
 
+        .electricity-shutdown-analysis-block {
+            margin: 18px 0 10px;
+            padding: 16px 18px 18px;
+            border: 1px solid #d7e2ef;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(237, 244, 251, 0.96) 100%);
+            box-shadow: var(--report-components-card-shadow, var(--report-shadow-card));
+        }
+
+        .electricity-shutdown-analysis-heading {
+            margin-bottom: 12px;
+        }
+
+        .electricity-shutdown-analysis-subtitle {
+            margin: -2px 0 0;
+            color: var(--report-color-text-muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .electricity-shutdown-analysis-steps {
+            display: grid;
+            gap: 12px;
+        }
+
+        .electricity-shutdown-step-card {
+            overflow: hidden;
+            border: 1px solid #d8e3ee;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.96);
+        }
+
+        .electricity-shutdown-step-title {
+            padding: 10px 14px;
+            background: linear-gradient(90deg, #e8f1fb 0%, #f6faff 100%);
+            color: var(--report-color-text-primary);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .electricity-shutdown-step-table {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .electricity-shutdown-step-table td {
+            vertical-align: middle;
+        }
+
+        .electricity-shutdown-step-table .shutdown-metric-label {
+            width: 35%;
+            color: var(--report-color-text-primary);
+            font-weight: 600;
+            background: rgba(246, 250, 255, 0.72);
+        }
+
+        .electricity-shutdown-step-table .shutdown-metric-value {
+            width: 15%;
+            text-align: right;
+            white-space: nowrap;
+            font-weight: 700;
+            color: #0f4f84;
+        }
+
+        .electricity-shutdown-step-table .shutdown-metric-value.is-emphasis {
+            background: rgba(221, 238, 255, 0.78);
+            color: #0b63a8;
+        }
+
+        .electricity-shutdown-step-table .shutdown-metric-label.is-empty,
+        .electricity-shutdown-step-table .shutdown-metric-value.is-empty {
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .electricity-shutdown-step-table .shutdown-metric-label-final {
+            width: 70%;
+            font-size: 13px;
+        }
+
+        .electricity-shutdown-step-table .shutdown-metric-value-final {
+            width: 30%;
+            font-size: 16px;
+        }
+
+        .electricity-shutdown-step-table .shutdown-metric-value-final.is-highlight {
+            background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
+            color: #005496;
+        }
+
+        .electricity-shutdown-step-table .shutdown-value-unit {
+            margin-left: 4px;
+            color: var(--report-color-text-muted);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
         /* ==========================================================================
         Utility
         ========================================================================== */

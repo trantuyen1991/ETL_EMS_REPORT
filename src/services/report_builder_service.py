@@ -66,6 +66,7 @@ class ReportBuilderService:
 
         v3_electricity_section = self._build_v3_electricity_section(
             energy_object=energy_object,
+            kpi_object=kpi_object,
             period_type=str(period.get("type") or "").strip().lower(),
         )
 
@@ -1547,6 +1548,7 @@ class ReportBuilderService:
     def _build_v3_electricity_section(
         self,
         energy_object: Optional[Dict[str, Any]],
+        kpi_object: Optional[Dict[str, Any]] = None,
         period_type: str = "",
     ) -> Dict[str, Any]:
         """
@@ -1581,6 +1583,13 @@ class ReportBuilderService:
                     "area_comparison": {},
                     "period_heatmap": {},
                     "period_area_delta": {},
+                },
+                "shutdown_analysis": {
+                    "enabled": False,
+                    "title": "Shutdown Analysis",
+                    "subtitle": "Off-day vs operation-day energy behavior.",
+                    "steps": {},
+                    "audit": {},
                 },
                 "daily_summary": {"title": "Daily Summary Table", "rows": [], "area_rows": []},
                 "daily_detail_tables": [],
@@ -1706,6 +1715,11 @@ class ReportBuilderService:
             energy_object=energy_object,
             period_type=period_type,
         )
+        shutdown_analysis = self._build_v3_electricity_shutdown_analysis(
+            energy_object=energy_object,
+            kpi_object=kpi_object,
+            period_type=period_type,
+        )
 
         return {
             "title": "ELECTRICITY CONSUMPTION",
@@ -1734,6 +1748,7 @@ class ReportBuilderService:
                 "excluded_meter_rules": {},
             },
             "charts": charts,
+            "shutdown_analysis": shutdown_analysis,
             "daily_summary": {
                 "title": "Daily Summary Table",
                 "rows": daily_summary_rows,
@@ -2267,6 +2282,272 @@ class ReportBuilderService:
             "period_heatmap": periodic_heatmap_chart,
             "period_area_delta": periodic_area_delta_chart,
         }
+
+    def _build_v3_electricity_shutdown_analysis(
+        self,
+        *,
+        energy_object: Optional[Dict[str, Any]],
+        kpi_object: Optional[Dict[str, Any]],
+        period_type: str,
+    ) -> Dict[str, Any]:
+        """Build periodic Electricity shutdown-analysis payload from official energy and KPI production days."""
+        normalized_period_type = str(period_type or "").strip().lower()
+        default_block = {
+            "enabled": False,
+            "title": "Shutdown Analysis",
+            "subtitle": "Off-day vs operation-day energy behavior based on Total Product.",
+            "formula_version": "worksheet_v1",
+            "assumptions": [
+                "Off day = Total Product equals 0",
+                "Operation day = Total Product greater than 0",
+                "Off-day hours fixed at 24",
+                "Operation-day working hours fixed at 12",
+            ],
+            "steps": {},
+            "audit": {},
+        }
+
+        if normalized_period_type not in {"weekly", "monthly"}:
+            return default_block
+
+        if not energy_object or not kpi_object:
+            return default_block
+
+        plant_energy_by_date, missing_official_energy_days = self._build_periodic_plant_energy_by_date(
+            energy_object.get("current", {}).get("daily_tables", []) or [],
+        )
+        production_rows_by_date = self._build_kpi_daily_rows_by_date(
+            kpi_object.get("current", {}).get("daily_rows", []) or [],
+        )
+
+        all_dates = sorted(set(plant_energy_by_date.keys()) | set(production_rows_by_date.keys()))
+        if not all_dates:
+            return default_block
+
+        off_days_count = 0
+        operation_days_count = 0
+        unknown_days_count = 0
+        off_days_total_energy = 0.0
+        operation_days_total_energy = 0.0
+        classified_rows: list[dict[str, Any]] = []
+
+        for dt_value in all_dates:
+            production_row = production_rows_by_date.get(dt_value, {})
+            total_prod = self._safe_float(production_row.get("prod"))
+            day_energy = float(plant_energy_by_date.get(dt_value, 0.0) or 0.0)
+
+            if total_prod is None:
+                day_type = "unknown"
+                unknown_days_count += 1
+            elif total_prod == 0:
+                day_type = "off"
+                off_days_count += 1
+                off_days_total_energy += day_energy
+            elif total_prod > 0:
+                day_type = "operation"
+                operation_days_count += 1
+                operation_days_total_energy += day_energy
+            else:
+                day_type = "unknown"
+                unknown_days_count += 1
+
+            classified_rows.append({
+                "date": dt_value,
+                "day_type": day_type,
+                "total_prod": total_prod,
+                "energy_kwh": day_energy,
+            })
+
+        avg_off_day_energy = (
+            off_days_total_energy / off_days_count
+            if off_days_count > 0 else None
+        )
+        avg_operation_day_energy = (
+            operation_days_total_energy / operation_days_count
+            if operation_days_count > 0 else None
+        )
+
+        off_day_hours = 24.0
+        operation_day_hours = 12.0
+
+        avg_off_hour_kw = (
+            avg_off_day_energy / off_day_hours
+            if avg_off_day_energy is not None and off_day_hours > 0 else None
+        )
+        avg_operation_hour_kw = (
+            avg_operation_day_energy / operation_day_hours
+            if avg_operation_day_energy is not None and operation_day_hours > 0 else None
+        )
+        shutdown_energy_pct = (
+            avg_off_hour_kw / avg_operation_hour_kw
+            if avg_off_hour_kw is not None
+            and avg_operation_hour_kw not in (None, 0.0)
+            else None
+        )
+
+        return {
+            "enabled": True,
+            "title": "Shutdown Analysis",
+            "subtitle": "Off-day vs operation-day energy behavior based on Total Product.",
+            "formula_version": "worksheet_v1",
+            "assumptions": default_block["assumptions"],
+            "steps": {
+                "step1": {
+                    "title": "STEP 1",
+                    "rows": [
+                        {
+                            "label": "Total Electricity used during off days in the period",
+                            "value": off_days_total_energy,
+                            "value_display": self._fmt(off_days_total_energy),
+                            "unit": "kWh",
+                        },
+                        {
+                            "label": "Number of off-working days in the period",
+                            "value": off_days_count,
+                            "value_display": self._fmt_int_or_dash(off_days_count),
+                            "unit": "days",
+                        },
+                        {
+                            "label": "Total Electricity used during working days in the period",
+                            "value": operation_days_total_energy,
+                            "value_display": self._fmt(operation_days_total_energy),
+                            "unit": "kWh",
+                        },
+                        {
+                            "label": "Number of working days in the period",
+                            "value": operation_days_count,
+                            "value_display": self._fmt_int_or_dash(operation_days_count),
+                            "unit": "days",
+                        },
+                        {
+                            "label": "Average electricity used during off days per day",
+                            "value": avg_off_day_energy,
+                            "value_display": self._fmt(avg_off_day_energy),
+                            "unit": "kWh",
+                            "is_emphasis": True,
+                        },
+                        {
+                            "label": "Average electricity used during working days per day",
+                            "value": avg_operation_day_energy,
+                            "value_display": self._fmt(avg_operation_day_energy),
+                            "unit": "kWh",
+                            "is_emphasis": True,
+                        },
+                    ],
+                },
+                "step2": {
+                    "title": "STEP 2",
+                    "rows": [
+                        {
+                            "label": "Average electricity used during off days per day",
+                            "value": avg_off_day_energy,
+                            "value_display": self._fmt(avg_off_day_energy),
+                            "unit": "kWh",
+                        },
+                        {
+                            "label": "Working hours on off days",
+                            "value": off_day_hours,
+                            "value_display": self._fmt_int_or_dash(off_day_hours),
+                            "unit": "hours",
+                        },
+                        {
+                            "label": "Average electricity used during working days per day",
+                            "value": avg_operation_day_energy,
+                            "value_display": self._fmt(avg_operation_day_energy),
+                            "unit": "kWh",
+                        },
+                        {
+                            "label": "Working hours on operation days",
+                            "value": operation_day_hours,
+                            "value_display": self._fmt_int_or_dash(operation_day_hours),
+                            "unit": "hours",
+                            "is_emphasis": True,
+                        },
+                        {
+                            "label": "Average electricity used during off hours",
+                            "value": avg_off_hour_kw,
+                            "value_display": self._fmt(avg_off_hour_kw),
+                            "unit": "kW",
+                            "is_emphasis": True,
+                        },
+                        {
+                            "label": "Average electricity used during operation hours",
+                            "value": avg_operation_hour_kw,
+                            "value_display": self._fmt(avg_operation_hour_kw),
+                            "unit": "kW",
+                            "is_emphasis": True,
+                        },
+                    ],
+                },
+                "step3": {
+                    "title": "STEP 3",
+                    "rows": [
+                        {
+                            "label": "Shutdown Energy %",
+                            "value": shutdown_energy_pct,
+                            "value_display": self._fmt_pct(shutdown_energy_pct),
+                            "unit": "",
+                            "is_highlight": True,
+                        },
+                    ],
+                },
+            },
+            "audit": {
+                "period_type": normalized_period_type,
+                "classified_days": off_days_count + operation_days_count,
+                "off_days_count": off_days_count,
+                "operation_days_count": operation_days_count,
+                "unknown_days_count": unknown_days_count,
+                "missing_official_energy_days_count": len(missing_official_energy_days),
+                "missing_official_energy_dates": [item.isoformat() for item in missing_official_energy_days],
+                "off_days_total_energy_kwh": off_days_total_energy,
+                "operation_days_total_energy_kwh": operation_days_total_energy,
+                "avg_off_day_energy_kwh": avg_off_day_energy,
+                "avg_operation_day_energy_kwh": avg_operation_day_energy,
+                "avg_off_hour_kw": avg_off_hour_kw,
+                "avg_operation_hour_kw": avg_operation_hour_kw,
+                "shutdown_energy_pct": shutdown_energy_pct,
+                "classified_rows": classified_rows,
+            },
+        }
+
+    def _build_periodic_plant_energy_by_date(
+        self,
+        daily_tables: list[dict[str, Any]],
+    ) -> tuple[dict[date, float], list[date]]:
+        """Build dense plant official-energy totals by date from area daily tables."""
+        area_rows_by_date: dict[date, list[float | None]] = {}
+
+        for table in daily_tables:
+            for row in table.get("rows", []) or []:
+                dt_value = row.get("date")
+                if not isinstance(dt_value, date):
+                    continue
+                area_rows_by_date.setdefault(dt_value, []).append(
+                    self._safe_float(row.get("official_daily_total"))
+                )
+
+        plant_energy_by_date: dict[date, float] = {}
+        missing_official_energy_days: list[date] = []
+
+        for dt_value, values in area_rows_by_date.items():
+            if all(value is None for value in values):
+                missing_official_energy_days.append(dt_value)
+            plant_energy_by_date[dt_value] = sum(value or 0.0 for value in values)
+
+        return plant_energy_by_date, sorted(missing_official_energy_days)
+
+    def _build_kpi_daily_rows_by_date(
+        self,
+        daily_rows: list[dict[str, Any]],
+    ) -> dict[date, dict[str, Any]]:
+        """Index KPI daily presentation rows by date."""
+        result: dict[date, dict[str, Any]] = {}
+        for row in daily_rows:
+            dt_value = row.get("dt")
+            if isinstance(dt_value, date):
+                result[dt_value] = row
+        return result
 
     def _build_v3_periodic_area_delta_chart(
         self,
