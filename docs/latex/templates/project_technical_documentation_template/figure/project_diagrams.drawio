@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="system-architecture-vertical-icons" name="System Architecture - Vertical Icons">
-        <mxGraphModel dx="1078" dy="1069" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1060" math="0" shadow="0">
+        <mxGraphModel dx="593" dy="588" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1060" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -49,29 +49,29 @@
                 <mxCell id="sav_context_icon" value="" style="shape=image;html=1;image=img/lib/azure2/analytics/Azure_Workbooks.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
                     <mxGeometry x="273" y="731" width="62" height="62" as="geometry"/>
                 </mxCell>
-                <mxCell id="sav_e_runtime_data_l" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_runtime" target="sav_data_left" edge="1">
+                <mxCell id="sav_e_runtime_data_l" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_runtime" target="sav_data_left" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sav_e_runtime_data_r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_runtime" target="sav_data_right" edge="1">
+                <mxCell id="sav_e_runtime_data_r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_runtime" target="sav_data_right" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sav_e_data_repo_l" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_data_left" target="sav_repo" edge="1">
+                <mxCell id="sav_e_data_repo_l" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_data_left" target="sav_repo" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sav_e_data_repo_r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_data_right" target="sav_repo" edge="1">
+                <mxCell id="sav_e_data_repo_r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_data_right" target="sav_repo" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sav_e_repo_service" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_repo" target="sav_service" edge="1">
+                <mxCell id="sav_e_repo_service" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_repo" target="sav_service" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="sav_e_service_context" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#005496;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_service" target="sav_context" edge="1">
+                <mxCell id="sav_e_service_context" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#005496;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="sav_service" target="sav_context" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
     </diagram>
     <diagram id="report-flow-vertical-icons" name="Report Flow - Vertical Icons">
-        <mxGraphModel dx="1483" dy="1470" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1500" math="0" shadow="0">
+        <mxGraphModel dx="833" dy="588" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1500" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -135,33 +135,33 @@
                 <mxCell id="rfv_i8" value="" style="shape=image;html=1;image=img/lib/mscae/Storage_Accounts.svg;imageAspect=0;aspect=fixed;" parent="1" vertex="1">
                     <mxGeometry x="237" y="1012" width="58" height="58" as="geometry"/>
                 </mxCell>
-                <mxCell id="rfv_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#005496;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s1" target="rfv_s2" edge="1">
+                <mxCell id="rfv_e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#005496;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s1" target="rfv_s2" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rfv_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s2" target="rfv_s3" edge="1">
+                <mxCell id="rfv_e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s2" target="rfv_s3" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rfv_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s3" target="rfv_s4" edge="1">
+                <mxCell id="rfv_e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s3" target="rfv_s4" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rfv_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s4" target="rfv_s5" edge="1">
+                <mxCell id="rfv_e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s4" target="rfv_s5" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rfv_e_loop" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;dashed=1;endArrow=block;endFill=1;" parent="1" source="rfv_loop" edge="1">
+                <mxCell id="rfv_e_loop" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;strokeWidth=2;dashed=1;endArrow=block;endFill=1;" parent="1" source="rfv_loop" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="450" y="620" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="rfv_e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#005496;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s5" target="rfv_s6" edge="1">
+                <mxCell id="rfv_e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#005496;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s5" target="rfv_s6" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rfv_e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s6" target="rfv_s7" edge="1">
+                <mxCell id="rfv_e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s6" target="rfv_s7" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rfv_e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s7" target="rfv_s8" edge="1">
+                <mxCell id="rfv_e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#B26A00;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s7" target="rfv_s8" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="rfv_e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s8" target="rfv_outputs" edge="1">
+                <mxCell id="rfv_e8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;" parent="1" source="rfv_s8" target="rfv_outputs" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
             </root>

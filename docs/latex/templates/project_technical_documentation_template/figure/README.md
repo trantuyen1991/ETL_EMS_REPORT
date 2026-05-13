@@ -6,8 +6,8 @@ Current export mapping:
 
 | Draw.io sheet | Export artifact | Used in |
 | --- | --- | --- |
-| `System Architecture` | `hinh1_1.png` | `chapter_project_overview.tex` / `fig:system_architecture` |
-| `Report Generation Flow` | `hinh1_2.png` | `chapter_project_overview.tex` / `fig:report_generation_flow` |
+| `System Architecture - Vertical Icons` | `hinh1_1.png` | `chapter_project_overview.tex` / `fig:system_architecture` |
+| `Report Flow - Vertical Icons` | `hinh1_2.png` | `chapter_project_overview.tex` / `fig:report_generation_flow` |
 
 Edit diagrams in `project_diagrams.drawio` first. Export the changed sheet from the VS Code Draw.io extension or Draw.io desktop CLI to the matching PNG file, then rebuild the LaTeX manual.
 

@@ -86,13 +86,20 @@ Current sheet-to-artifact mapping:
 
 | Draw.io sheet | Exported artifact used by LaTeX | LaTeX label |
 | --- | --- | --- |
-| `System Architecture` | `figure/hinh1_1.png` | `fig:system_architecture` |
-| `Report Generation Flow` | `figure/hinh1_2.png` | `fig:report_generation_flow` |
+| `System Architecture - Vertical Icons` | `figure/hinh1_1.png` | `fig:system_architecture` |
+| `Report Flow - Vertical Icons` | `figure/hinh1_2.png` | `fig:report_generation_flow` |
 
 Current export format for these draw.io diagrams is PNG because both the VS Code
 Draw.io extension and the local Draw.io desktop workflow support it reliably.
 Use scale `2` and a small border when exporting so text stays readable in the
 generated PDF.
+
+Draw.io diagram design rules:
+
+- keep operational flows top-down unless a left-to-right view is clearly more readable
+- keep image/icon cells on top of their container/card cells before export
+- use straight connectors or orthogonal L-shaped connectors with rounded corners
+- avoid diagonal connector routing in architecture and workflow diagrams
 
 Draw.io CLI page indexes are 1-based:
 
@@ -156,7 +163,8 @@ For this template's current screen-first PDF workflow, verify that:
 - long file paths or code-like table cells wrap inside the table instead of clipping past the right edge
 - tables and figures are not over-forced into `h` placement when `htbp` would produce cleaner rhythm
 - table borders remain readable on screen without relying on fragile custom wrappers
-- flowchart connectors use straight or orthogonal routing instead of diagonal arrows
+- draw.io icons/images render on top of their cards/containers
+- flowchart connectors use straight or rounded orthogonal routing instead of diagonal arrows
 
 ---
 

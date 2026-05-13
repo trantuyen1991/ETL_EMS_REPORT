@@ -192,7 +192,9 @@ For flowcharts and architecture diagrams:
 
 . use straight or orthogonal connectors only
 . prefer vertical, horizontal, or L-shaped routing
+. prefer rounded L-shaped connectors for multi-step draw.io routes
 . avoid diagonal arrows unless there is a very strong reason
+. keep draw.io image/icon cells visually on top of their container/card cells so exported symbols are not hidden
 
 
 

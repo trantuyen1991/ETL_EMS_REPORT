@@ -84,21 +84,21 @@ Hai hình dưới đây thể hiện kiến trúc hiện tại của hệ thốn
 
 \begin{figure}[H]
 	\centering
-	% Draw.io source: figure/project_diagrams.drawio, sheet "System Architecture".
+	% Draw.io source: figure/project_diagrams.drawio, sheet "System Architecture - Vertical Icons".
 	% Export artifact: figure/hinh1_1.png.
 	\includegraphics[width=\textwidth]{figure/hinh1_1.png}
-	\caption{System architecture of the automated energy reporting pipeline}
+	\caption{Energy reporting system architecture and trusted data flow}
 	\label{fig:system_architecture}
 \end{figure}
 
-Hình \ref{fig:system_architecture} mô tả các lớp chính của hệ thống, bao gồm runtime/configuration inputs, data ownership, repository layer, service layer, report context builder, rendering path, Excel export path, và canonical output structure.
+Hình \ref{fig:system_architecture} mô tả các lớp chính của hệ thống, bao gồm runtime orchestration, nguồn MySQL chính thức, nguồn utility và sensor, repository layer, service layer, và hợp đồng \texttt{report\_context} dùng chung cho HTML, PDF, và Excel outputs.
 
 \begin{figure}[H]
 	\centering
-	% Draw.io source: figure/project_diagrams.drawio, sheet "Report Generation Flow".
+	% Draw.io source: figure/project_diagrams.drawio, sheet "Report Flow - Vertical Icons".
 	% Export artifact: figure/hinh1_2.png.
 	\includegraphics[width=\textwidth]{figure/hinh1_2.png}
-	\caption{Report generation and export data flow for the current project runtime}
+	\caption{Top-down report generation and export data flow}
 	\label{fig:report_generation_flow}
 \end{figure}
 
