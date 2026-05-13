@@ -354,6 +354,12 @@ This section should include:
 - daily summary table
 - daily detail tables per area
 
+Target Electricity card layout direction:
+- keep one primary plant `TOTAL` card as the strongest summary card
+- keep one standalone `DIODE` card
+- allow `ICO` and `SAKARI` to be rendered as one composite business card when readability requires a combined quick-read surface
+- when rendered as a composite card, the card should still expose distinct `ICO` and `SAKARI` values plus a clearly-labeled combined `ICO + SAKARI` total
+
 For the `periodic` template family, the electricity chart block should also support:
 - a daily-total heatmap by area
 - a period-only area delta chart (`Current - Previous`)
@@ -361,6 +367,8 @@ For the `periodic` template family, the electricity chart block should also supp
 
 ### 7.3 Total Logic
 Plant and area official totals in the Electricity section must come from pre-calculated values stored in `total_energy`, not from summing all raw energy view columns.
+
+If the UI shows a combined quick-read card such as `ICO + SAKARI`, that combined number must still be derived from the same official area totals rather than reconstructed from raw detail meter columns.
 
 ### 7.4 Top 10 Rules
 Top 10 ranking must exclude main feeder meters.
