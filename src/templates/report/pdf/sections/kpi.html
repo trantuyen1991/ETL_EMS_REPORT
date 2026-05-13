@@ -1,4 +1,5 @@
 {% import "report/macros/common.html" as report %}
+{% set pdf_show_daily_detail = false %}
 {% if flags.show_kpi_section %}
         <section class="report-section daily-highlight-header kpi-section-shell{% if not flags.is_daily_report %} kpi-periodic-section{% endif %}">
             <div class="pdf-section-opening">
@@ -285,7 +286,7 @@
                 </div>
             </div>
 
-            {% if not flags.is_daily_report %}
+            {% if pdf_show_daily_detail and not flags.is_daily_report %}
             <div class="kpi-daily-detail-block kpi-periodic-detail-block pdf-keep-together">
                     <h3 class="electricity-subsection-title">Daily KPI Detail</h3>
 

@@ -1,6 +1,7 @@
 {% import "report/macros/common.html" as report %}
 {% import "report/macros/sensor_monitoring.html" as sensor_ui %}
 {% import "report/macros/utility_blocks.html" as utility_blocks %}
+{% set pdf_show_daily_detail = false %}
 {% if flags.show_utility_section %}
         {% set is_weekly_period = period.type == 'weekly' %}
         {% set is_card_only_period = period.type in ['weekly', 'monthly'] %}
@@ -583,6 +584,7 @@
                     </div>
                 </div>
 
+                {% if pdf_show_daily_detail %}
                 <div class="utility-detail-block utility-detail-block-compact pdf-keep-together">
                     <h3 class="electricity-subsection-title">Daily Utility Detail</h3>
 
@@ -611,6 +613,7 @@
                         </table>
                     </div>
                 </div>
+                {% endif %}
                 {% endif %}
             </div>
 
