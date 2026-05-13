@@ -24,6 +24,7 @@ Focus:
 - complete the JSON-driven inline style/theme rollout and document the stopping point
 - begin the approved enterprise color-palette rollout from a documentation + checkpoint baseline
 - keep sensor monitoring follow-up behind the now-stable presentation checkpoint
+- add the approved periodic Electricity `Shutdown Analysis` subsection using `total_energy` + `energy_kpi.Total_prod`
 Stable baseline:
 - PDF export stabilized after the 2026-04-27 chart-init timing fix and multi-anchor regression batches
 - PDF print flow now also uses a controlled Chrome DevTools Protocol path with `scale=1.0` and `preferCSSPageSize=true`, keeping the old Chromium CLI print as fallback only
@@ -89,6 +90,7 @@ Stable baseline:
 - Periodic area comparison labels tuned for dense workshop names including `ICO`: ✅
 - Weekly periodic `Daily Energy Detail` now keeps `DIODE Part 1/7` on the same page as `Daily Energy Summary`, with the remaining detail blocks repaginated into 3 follow-up pages at 5 tables per page: ✅
 - Weekly lower `Daily Energy Detail` pages now use the same table scale as `DIODE Part 1/7`, while fitting through tighter inter-block spacing instead of smaller text/table sizing: ✅
+- Approved next slice: periodic Electricity will add a final `Shutdown Analysis` sub-section after the heatmap, using `Total Product = 0` as the off-day rule and the worksheet-aligned V1 formula with fixed `24h / 12h` assumptions: 🚧
 
 ### 3.2 Energy KPI Section
 - KPI summary matrix by area + total: ✅

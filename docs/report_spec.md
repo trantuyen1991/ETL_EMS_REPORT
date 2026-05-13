@@ -411,6 +411,34 @@ For the `periodic` template family:
 - the area delta chart should show both delta kWh and delta % labels for quick attribution
 - area comparison labels must stay readable for dense workshop names, including `ICO`
 
+### 7.8 Periodic Shutdown Analysis Sub-section
+For the `periodic` Electricity section, add a dedicated sub-section named `Shutdown Analysis` after the heatmap as the final Electricity block.
+
+Purpose:
+- compare off-day and operation-day electricity behavior
+- show day-level average usage
+- show hour-derived usage rates
+- expose final `Shutdown Energy %`
+
+Classification rule:
+- if `Total Product = 0`, classify the date as an off-working day
+- if `Total Product > 0`, classify the date as an operation day
+- if production data is missing, do not silently classify the date; keep it explicit in backend audit fields
+
+Source rules:
+- electricity values must come from `total_energy`
+- day classification must use production values from `energy_kpi`
+
+Approved V1 formula rule:
+- use the worksheet-aligned formula currently accepted by the customer
+- off-day hours = `24`
+- operation-day working hours = `12`
+- V1 should remain table-first; charts may be added later if needed
+
+Render rule:
+- render this block as a structured table similar to the approved worksheet example
+- render in both HTML and PDF periodic surfaces
+
 ---
 
 ## 8. Utility Usage Section
