@@ -7,6 +7,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from src.config.energy_metadata import get_energy_area_metadata
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -118,6 +119,27 @@ class ReportBuilderService:
         logger.info("Report context V3 built successfully")
 
         return report_context
+
+    def _get_energy_area_specs(self, ordered_keys: tuple[str, ...] = ("diode", "ico", "sakari")) -> list[dict[str, str]]:
+        """Return ordered report label specs for electricity workshop areas."""
+        metadata = get_energy_area_metadata()
+        specs: list[dict[str, str]] = []
+
+        for area_key in ordered_keys:
+            area_meta = metadata.get(area_key, {}) if isinstance(metadata, dict) else {}
+            display_name = str(area_meta.get("display_name") or area_key.upper())
+            specs.append({
+                "key": area_key,
+                "display": display_name,
+                "workshop_label": f"{display_name} Workshop",
+                "meter_label": f"{display_name} Meter",
+            })
+
+        return specs
+
+    def _get_energy_area_spec_map(self) -> dict[str, dict[str, str]]:
+        """Return electricity workshop label specs indexed by area key."""
+        return {spec["key"]: spec for spec in self._get_energy_area_specs()}
 
     def _get_section_chart_node(self, *path: str) -> Dict[str, Any]:
         """Resolve one chart node under components.report.section.<section>.chart.* with legacy alias support."""
@@ -994,10 +1016,13 @@ class ReportBuilderService:
         """Return stable V3 colors and display names for workshop areas."""
         area_cfg = self._get_style_color_node("area")
 
-        def _resolve_area(area_key: str, *, display: str, defaults: Dict[str, str]) -> Dict[str, str]:
+        area_spec_map = self._get_energy_area_spec_map()
+
+        def _resolve_area(area_key: str, *, defaults: Dict[str, str]) -> Dict[str, str]:
             current = area_cfg.get(area_key, {}) if isinstance(area_cfg, dict) else {}
+            display_name = area_spec_map.get(area_key, {}).get("display", area_key.upper())
             return {
-                "display": display,
+                "display": display_name,
                 "bar_color": str(current.get("barColor") or defaults["bar_color"]),
                 "bar_tint": str(current.get("barTint") or defaults["bar_tint"]),
                 "header_bg": str(current.get("headerBg") or defaults["header_bg"]),
@@ -1008,7 +1033,6 @@ class ReportBuilderService:
         return {
             "diode": _resolve_area(
                 "diode",
-                display="DIODE",
                 defaults={
                     "bar_color": "#005496",
                     "bar_tint": "rgba(0, 84, 150, 0.14)",
@@ -1019,7 +1043,6 @@ class ReportBuilderService:
             ),
             "ico": _resolve_area(
                 "ico",
-                display="ICO",
                 defaults={
                     "bar_color": "#6f9a6d",
                     "bar_tint": "rgba(111, 154, 109, 0.16)",
@@ -1030,7 +1053,6 @@ class ReportBuilderService:
             ),
             "sakari": _resolve_area(
                 "sakari",
-                display="SAKARI",
                 defaults={
                     "bar_color": "#d09a45",
                     "bar_tint": "rgba(208, 154, 69, 0.16)",
@@ -1571,13 +1593,25 @@ class ReportBuilderService:
         Example:
             section = self._build_v3_electricity_section(energy_object)
         """
+        area_specs = self._get_energy_area_specs()
         if not energy_object:
             return {
                 "title": "ELECTRICITY CONSUMPTION",
                 "subtitle": "Total, comparison, top meters, and daily detail.",
                 "totals": {"rows": []},
                 "comparison": {"rows": []},
-                "top10": {"rows": [], "area_tables": [], "excluded_meter_rules": {}},
+                "top10": {
+                    "rows": [],
+                    "area_tables": [],
+                    "group_columns": [
+                        {"key": "plant", "label": "Plant Meter"},
+                        *[
+                            {"key": spec["key"], "label": spec["meter_label"]}
+                            for spec in area_specs
+                        ],
+                    ],
+                    "excluded_meter_rules": {},
+                },
                 "charts": {
                     "daily_trend": {},
                     "area_comparison": {},
@@ -1592,14 +1626,21 @@ class ReportBuilderService:
                     "audit": {},
                 },
                 "daily_summary": {"title": "Daily Summary Table", "rows": [], "area_rows": []},
+                "area_summary_order": [
+                    {"key": "plant", "label": "Plant"},
+                    *[
+                        {"key": spec["key"], "label": spec["workshop_label"]}
+                        for spec in area_specs
+                    ],
+                ],
                 "daily_detail_tables": [],
             }
 
         area_display_order = [
-            ("diode", "DIODE Workshop"),
-            ("ico", "ICO Workshop"),
-            ("sakari", "SAKARI Workshop"),
+            (spec["key"], spec["workshop_label"])
+            for spec in area_specs
         ]
+        area_spec_map = {spec["key"]: spec for spec in area_specs}
 
         current_summary = energy_object.get("current", {}).get("summary", {})
         comparison_summary = energy_object.get("comparison", {}).get("summary", {})
@@ -1648,7 +1689,7 @@ class ReportBuilderService:
 
         diode_card = self._build_v3_electricity_area_card_payload(
             area_key="diode",
-            area_name="DIODE",
+            area_name=area_spec_map["diode"]["display"],
             total_rows=total_rows,
             comparison_row_map=comparison_row_map,
         )
@@ -1741,9 +1782,10 @@ class ReportBuilderService:
                 "display_limit": top10_display_limit,
                 "group_columns": [
                     {"key": "plant", "label": "Plant Meter"},
-                    {"key": "diode", "label": "Diode Meter"},
-                    {"key": "ico", "label": "ICO Meter"},
-                    {"key": "sakari", "label": "SAKARI Meter"},
+                    *[
+                        {"key": spec["key"], "label": spec["meter_label"]}
+                        for spec in area_specs
+                    ],
                 ],
                 "excluded_meter_rules": {},
             },
@@ -1754,6 +1796,13 @@ class ReportBuilderService:
                 "rows": daily_summary_rows,
                 "area_rows": area_daily_summary_rows,
             },
+            "area_summary_order": [
+                {"key": "plant", "label": "Plant"},
+                *[
+                    {"key": spec["key"], "label": spec["workshop_label"]}
+                    for spec in area_specs
+                ],
+            ],
             "daily_detail_tables": daily_detail_tables,
             "daily_vertical_detail_tables": daily_vertical_detail_tables,
         }
@@ -1804,7 +1853,9 @@ class ReportBuilderService:
         total_meter_count = 0
 
         columns: list[dict[str, Any]] = []
-        for area_key, area_name in (("ico", "ICO"), ("sakari", "SAKARI")):
+        area_spec_map = self._get_energy_area_spec_map()
+        for area_key in ("ico", "sakari"):
+            area_name = area_spec_map.get(area_key, {}).get("display", area_key.upper())
             current_value = current_summary.get(area_key, {}).get("total_energy")
             previous_value = previous_summary.get(area_key, {}).get("total_energy")
             comparison_item = comparison_summary.get(area_key, {})
@@ -1952,11 +2003,9 @@ class ReportBuilderService:
             previous_daily_values.extend([None] * (max_daily_points - len(previous_daily_values)))
 
         area_rows: list[dict[str, Any]] = []
-        for area_key, area_name in [
-            ("diode", "DIODE"),
-            ("ico", "ICO"),
-            ("sakari", "SAKARI"),
-        ]:
+        for area_spec in self._get_energy_area_specs():
+            area_key = area_spec["key"]
+            area_name = area_spec["display"]
             area_visual = self._get_v3_area_visual_map().get(area_key, {})
             current_value = float(
                 energy_object.get("current", {})
@@ -2790,13 +2839,13 @@ class ReportBuilderService:
         period_type: str,
     ) -> Dict[str, Any]:
         """Build a compact periodic heatmap under the daily trend chart."""
+        area_specs = self._get_energy_area_specs()
         area_summary_rows = self._build_v3_area_daily_summary_rows(
             plant_daily_summary_rows=plant_daily_summary_rows,
             daily_tables=daily_tables,
             area_display_order=[
-                ("diode", "DIODE Workshop"),
-                ("ico", "ICO Workshop"),
-                ("sakari", "SAKARI Workshop"),
+                (spec["key"], spec["workshop_label"])
+                for spec in area_specs
             ],
         )
 
@@ -2810,9 +2859,7 @@ class ReportBuilderService:
 
         row_defs = [
             ("plant", "TOTAL"),
-            ("diode", "DIODE"),
-            ("ico", "ICO"),
-            ("sakari", "SAKARI"),
+            *[(spec["key"], spec["display"]) for spec in area_specs],
         ]
 
         y_labels = [label for _key, label in row_defs]
@@ -3438,11 +3485,12 @@ class ReportBuilderService:
         else:
             return label
 
+        area_spec_map = self._get_energy_area_spec_map()
         prefix_alias_map = {
             "domestic": "Dom",
-            "sakari": "SAKARI",
-            "diode": "DIODE",
-            "ico": "ICO",
+            "sakari": area_spec_map.get("sakari", {}).get("display", "SAKARI"),
+            "diode": area_spec_map.get("diode", {}).get("display", "DIODE"),
+            "ico": area_spec_map.get("ico", {}).get("display", "ICO"),
         }
         prefix = prefix_alias_map.get(prefix_source.strip().lower(), prefix_source.strip())
         if not prefix:
@@ -6473,9 +6521,8 @@ class ReportBuilderService:
         comparison_areas: list[dict[str, Any]] = []
 
         area_display_order = [
-            ("ico", "ICO"),
-            ("diode", "DIODE"),
-            ("sakari", "SAKARI"),
+            (spec["key"], spec["display"])
+            for spec in self._get_energy_area_specs(("ico", "diode", "sakari"))
         ]
 
         for area_key, area_name in area_display_order:
@@ -6777,9 +6824,10 @@ class ReportBuilderService:
             "title": "KPI Summary Matrix",
             "group_columns": [
                 {"key": "total", "label": "Total", "tone": "total", "is_total": True},
-                {"key": "diode", "label": "DIODE", "tone": "diode", "is_total": False},
-                {"key": "ico", "label": "ICO", "tone": "ico", "is_total": False},
-                {"key": "sakari", "label": "SAKARI", "tone": "sakari", "is_total": False},
+                *[
+                    {"key": spec["key"], "label": spec["display"], "tone": spec["key"], "is_total": False}
+                    for spec in self._get_energy_area_specs()
+                ],
             ],
             "rows": rows,
         }
@@ -6876,9 +6924,10 @@ class ReportBuilderService:
 
         card_specs = [
             ("total", "TOTAL", series_palette["current"], series_palette["current_tint"]),
-            ("diode", "DIODE", area_visual_map["diode"]["bar_color"], area_visual_map["diode"]["bar_tint"]),
-            ("ico", "ICO", area_visual_map["ico"]["bar_color"], area_visual_map["ico"]["bar_tint"]),
-            ("sakari", "SAKARI", area_visual_map["sakari"]["bar_color"], area_visual_map["sakari"]["bar_tint"]),
+            *[
+                (spec["key"], spec["display"], area_visual_map[spec["key"]]["bar_color"], area_visual_map[spec["key"]]["bar_tint"])
+                for spec in self._get_energy_area_specs()
+            ],
         ]
 
         cards: list[dict[str, Any]] = []
@@ -7024,7 +7073,7 @@ class ReportBuilderService:
                     "subtitle": compare_subtitle,
                     "empty_message": "No KPI values recorded for this day." if compare_chart_empty else "",
                     "option": self._build_v3_kpi_compare_bar_option(
-                        labels=["Total", "DIODE", "ICO", "SAKARI"],
+                        labels=["Total", *[spec["display"] for spec in self._get_energy_area_specs()]],
                         yesterday_values=yesterday_values,
                         today_values=today_values,
                         previous_series_name=previous_label,
@@ -7088,12 +7137,11 @@ class ReportBuilderService:
         if not current_daily_rows:
             return {}
 
+        area_specs = self._get_energy_area_specs()
         labels: list[str] = []
         series_values = {
             "Total": [],
-            "DIODE": [],
-            "ICO": [],
-            "SAKARI": [],
+            **{spec["display"]: [] for spec in area_specs},
         }
         has_numeric_value = False
 
@@ -7103,9 +7151,7 @@ class ReportBuilderService:
 
             value_map = {
                 "Total": row.get("kpi"),
-                "DIODE": row.get("diode_kpi"),
-                "ICO": row.get("ico_kpi"),
-                "SAKARI": row.get("sakari_kpi"),
+                **{spec["display"]: row.get(f"{spec['key']}_kpi") for spec in area_specs},
             }
             for key, raw_value in value_map.items():
                 if isinstance(raw_value, (int, float)):
@@ -7124,9 +7170,10 @@ class ReportBuilderService:
         split_line_color = str(self._get_style_color_value("#dfe7ef", "chart", "splitLine"))
         series_defs = [
             ("Total", series_palette["current"], series_palette["current_tint"]),
-            ("DIODE", area_visual_map["diode"]["bar_color"], area_visual_map["diode"]["bar_tint"]),
-            ("ICO", area_visual_map["ico"]["bar_color"], area_visual_map["ico"]["bar_tint"]),
-            ("SAKARI", area_visual_map["sakari"]["bar_color"], area_visual_map["sakari"]["bar_tint"]),
+            *[
+                (spec["display"], area_visual_map[spec["key"]]["bar_color"], area_visual_map[spec["key"]]["bar_tint"])
+                for spec in area_specs
+            ],
         ]
 
         return {
@@ -7251,11 +7298,17 @@ class ReportBuilderService:
             self._get_style_color_value("#703cd9", "chart", "series", "previous")
             or self._get_style_color_value("#703cd9", "brand", "accent")
         )
+        area_specs = self._get_energy_area_specs()
         row_defs = [
             ("Total", "kpi", series_palette["current"]),
-            ("DIODE", "diode_kpi", previous_purple if use_area_legend else area_visual_map["diode"]["bar_color"]),
-            ("ICO", "ico_kpi", area_visual_map["ico"]["bar_color"]),
-            ("SAKARI", "sakari_kpi", area_visual_map["sakari"]["bar_color"]),
+            *[
+                (
+                    spec["display"],
+                    f"{spec['key']}_kpi",
+                    previous_purple if (use_area_legend and spec["key"] == "diode") else area_visual_map[spec["key"]]["bar_color"],
+                )
+                for spec in area_specs
+            ],
         ]
         row_value_map: list[list[float | None]] = []
         any_numeric_value = False
@@ -8343,9 +8396,8 @@ class ReportBuilderService:
         areas = kpi_object["comparison"]["areas"]
 
         area_display_order = [
-            ("ico", "ICO"),
-            ("diode", "DIODE"),
-            ("sakari", "SAKARI"),
+            (spec["key"], spec["display"])
+            for spec in self._get_energy_area_specs(("ico", "diode", "sakari"))
         ]
 
         for area_key, area_name in area_display_order:
@@ -8394,21 +8446,18 @@ class ReportBuilderService:
                 "Plant",
                 {"kpi": "kpi", "product": "prod", "energy": "energy"},
             ),
-            (
-                "diode",
-                "DIODE",
-                {"kpi": "diode_kpi", "product": "diode_prod", "energy": "diode_energy"},
-            ),
-            (
-                "ico",
-                "ICO",
-                {"kpi": "ico_kpi", "product": "ico_prod", "energy": "ico_energy"},
-            ),
-            (
-                "sakari",
-                "SAKARI",
-                {"kpi": "sakari_kpi", "product": "sakari_prod", "energy": "sakari_energy"},
-            ),
+            *[
+                (
+                    spec["key"],
+                    spec["display"],
+                    {
+                        "kpi": f"{spec['key']}_kpi",
+                        "product": f"{spec['key']}_prod",
+                        "energy": f"{spec['key']}_energy",
+                    },
+                )
+                for spec in self._get_energy_area_specs()
+            ],
         ]
         metric_max_map: dict[str, float] = {"kpi": 0.0, "product": 0.0, "energy": 0.0}
 

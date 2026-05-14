@@ -8,12 +8,14 @@
             <thead>
                 <tr>
                     <th class="col-date sticky-date-col" rowspan="2">Date</th>
-                    {% for area_key, area_name in area_summary_order %}
+                    {% for area_item in area_summary_order %}
+                    {% set area_key = area_item.key %}
+                    {% set area_name = area_item.label %}
                     <th colspan="2" class="area-group-header {% if loop.first %}area-group-start{% endif %} area-group-end">{{ area_name }}</th>
                     {% endfor %}
                 </tr>
                 <tr>
-                    {% for area_key, area_name in area_summary_order %}
+                    {% for area_item in area_summary_order %}
                     <th class="area-group-start">Total</th>
                     <th class="area-group-end">Avg / meter active</th>
                     {% endfor %}
@@ -23,7 +25,8 @@
                 {% for row in area_rows %}
                 <tr>
                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
-                    {% for area_key, area_name in area_summary_order %}
+                    {% for area_item in area_summary_order %}
+                    {% set area_key = area_item.key %}
                     {% set area_row = row.areas[area_key] %}
                     <td class="col-total-energy area-group-start summary-filled-cell area-{{ area_key }} {{ area_row.total_heat_class }} {{ area_row.total_state_class }}"{% if area_row.total_cell_style %} style="{{ area_row.total_cell_style }}"{% endif %}>{{ area_row.total_display }}</td>
                     <td class="col-avg-active area-group-end summary-filled-cell is-previous-tone {{ area_row.avg_heat_class }} {{ area_row.avg_state_class }}"{% if area_row.avg_cell_style %} style="{{ area_row.avg_cell_style }}"{% endif %}>{{ area_row.avg_per_active_display }}</td>
@@ -332,7 +335,7 @@
             </div>
 
             {% if not flags.is_daily_report %}
-            {% set area_summary_order = [('plant', 'Plant'), ('diode', 'DIODE Workshop'), ('ico', 'ICO Workshop'), ('sakari', 'SAKARI Workshop')] %}
+            {% set area_summary_order = sections.electricity.area_summary_order or [] %}
             {% set is_weekly_period = period.type == 'weekly' %}
             {% set is_monthly_period = period.type == 'monthly' %}
             {% endif %}
@@ -404,6 +407,7 @@
 
             {% set top10_rows = sections.electricity.top10.grouped_rows or [] %}
             {% set top10_display_limit = sections.electricity.top10.display_limit or 10 %}
+            {% set top10_group_columns = sections.electricity.top10.group_columns or [] %}
             <div class="electricity-detail-block">
                 <h3 class="electricity-subsection-title">Top {{ top10_display_limit }} Meter Consumption</h3>
 
@@ -411,10 +415,9 @@
                     <table class="electricity-top10-table electricity-top10-grouped-table report-table-ui">
                         <thead>
                             <tr>
-                                <th colspan="4" class="top10-group-header">Plant Meter</th>
-                                <th colspan="2" class="top10-group-header top10-group-divider">Diode Meter</th>
-                                <th colspan="2" class="top10-group-header top10-group-divider">ICO Meter</th>
-                                <th colspan="2" class="top10-group-header top10-group-divider">SAKARI Meter</th>
+                                {% for column in top10_group_columns %}
+                                <th colspan="{% if column.key == 'plant' %}4{% else %}2{% endif %}" class="top10-group-header{% if column.key != 'plant' %} top10-group-divider{% endif %}">{{ column.label }}</th>
+                                {% endfor %}
                             </tr>
                             <tr>
                                 <th class="col-rank">Rank</th>
