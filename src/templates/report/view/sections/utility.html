@@ -428,6 +428,7 @@
                             {{ sections.utility.charts.period_insight_split.wide.subtitle }}
                         </p>
                         <div id="utility-period-insight-heatmap-chart" class="electricity-heatmap-chart utility-heatmap-chart utility-period-insight-heatmap-chart"></div>
+                        {% if sections.utility.charts.period_insight_split.wide.show_scale_legend is not defined or sections.utility.charts.period_insight_split.wide.show_scale_legend %}
                         <div class="electricity-heatmap-legend" aria-hidden="true">
                             <span class="legend-label">Low</span>
                             <span class="legend-bar"></span>
@@ -435,6 +436,17 @@
                             <span class="legend-bar legend-bar-strong"></span>
                             <span class="legend-label">High</span>
                         </div>
+                        {% endif %}
+                        {% if sections.utility.charts.period_insight_split.wide.area_legend %}
+                        <div class="electricity-heatmap-area-legend" aria-hidden="true">
+                            {% for item in sections.utility.charts.period_insight_split.wide.area_legend %}
+                            <span class="electricity-heatmap-area-legend-item">
+                                <span class="electricity-heatmap-area-legend-dot" style="background: {{ item.color }};"></span>
+                                <span class="electricity-heatmap-area-legend-label">{{ item.label }}</span>
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endif %}
@@ -740,11 +752,7 @@
                                         </div>
                                         <div class="utility-sensor-metric-note {{ sensor.severity_class }}">
                                             {% if flags.is_daily_report %}
-                                                {% if sensor.has_alert and sensor.flag_summary %}
-                                                {{ sensor.flag_summary }}
-                                                {% else %}
-                                                Normal
-                                                {% endif %}
+                                                <span class="utility-sensor-metric-note-main">{{ sensor.measurement_type_label }}</span>
                                             {% else %}
                                                 {% if sensor.has_alert and sensor.flag_summary %}
                                                 <span class="utility-sensor-metric-note-main">{{ sensor.flag_summary }}{% if sensor.days_with_data_display is defined and sensor.days_with_data_display %} · {{ sensor.days_with_data_display }}{% endif %}</span>
@@ -762,9 +770,17 @@
                                         <span class="utility-sensor-metric-value-label">Min</span>
                                         <strong>{{ sensor.min_display }}</strong>
                                     </div>
-                                    <div class="utility-sensor-metric-value col-avg">
+                                    <div class="utility-sensor-metric-value col-avg {% if flags.is_daily_report and sensor.has_alert %}has-alert-message {{ sensor.severity_class }}{% endif %}">
                                         <span class="utility-sensor-metric-value-label">Avg</span>
                                         <strong>{{ sensor.avg_display }}</strong>
+                                        {% if flags.is_daily_report and sensor.has_alert and (sensor.flag_summary or sensor.flag_detail_summary) %}
+                                        <span class="utility-sensor-metric-value-note {{ sensor.severity_class }}">
+                                            <span class="utility-sensor-metric-value-note-main">{{ sensor.flag_summary or 'Alert' }}</span>
+                                            {% if sensor.flag_detail_summary %}
+                                            <span class="utility-sensor-metric-value-note-detail">{{ sensor.flag_detail_summary }}</span>
+                                            {% endif %}
+                                        </span>
+                                        {% endif %}
                                     </div>
                                     <div class="utility-sensor-metric-value col-max">
                                         <span class="utility-sensor-metric-value-label">Max</span>
@@ -784,7 +800,7 @@
                     {% endfor %}
                 </div>
 
-                {% if sensor_monitoring_view.anomaly_rows and (flags.is_daily_report or not is_card_only_period) %}
+                {% if sensor_monitoring_view.anomaly_rows and not flags.is_daily_report and not is_card_only_period %}
                 <div class="utility-sensor-anomaly-block">
                     <h4 class="utility-sensor-anomaly-title">Sensor anomaly scan</h4>
                     <div class="utility-sensor-anomaly-wrap report-table-wrap">
@@ -847,17 +863,20 @@
 
                 {% if flags.is_daily_report and sensor_monitoring.trend_clusters_render %}
                 <div class="utility-sensor-trend-preview-block">
-                    <div class="utility-sensor-trend-preview-head">
-                        <div>
-                            <h4 class="utility-sensor-anomaly-title">Intraday trend by cluster</h4>
-                            <p class="utility-sensor-subtitle">
-                                Timestamp-based raw signal preview grouped by utility cluster
-                            </p>
-                        </div>
-                    </div>
 
                     <div class="utility-sensor-trend-cluster-stack">
                         {% for cluster in sensor_monitoring.trend_clusters_render %}
+                        {% set is_first_trend_cluster = loop.first %}
+                        {% set is_daily_page1_cluster = cluster.cluster_key in ['ico_chiller', 'diode_chiller'] %}
+                        {% if is_first_trend_cluster %}
+                        <div class="utility-sensor-trend-intro-block">
+                            <div class="utility-sensor-section-label-block is-trend-cluster">
+                                <div>
+                                    <h4 class="utility-sensor-section-label-title">Intraday trend by cluster</h4>
+                                    <p class="utility-sensor-section-label-note">Timestamp-based raw signal preview grouped by utility cluster.</p>
+                                </div>
+                            </div>
+                        {% endif %}
                         <div class="utility-sensor-trend-cluster" style="--sensor-accent: {{ cluster.accent_color }}; --sensor-tint: {{ cluster.accent_tint }};">
                             <div class="utility-sensor-trend-cluster-head">
                                 <div>
@@ -876,7 +895,7 @@
 
                             <div class="utility-sensor-trend-preview-grid {% if cluster.chart_count == 1 %}is-single{% endif %}">
                                 {% for chart in cluster.charts %}
-                                <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card {% if chart.is_full_width %}is-full-width{% endif %}">
+                                <div class="electricity-chart-card utility-chart-card utility-sensor-trend-card {% if chart.is_full_width %}is-full-width{% endif %}{% if is_daily_page1_cluster %} is-daily-trend-page1{% endif %}{% if is_daily_page1_cluster and chart.is_full_width %} is-daily-dual-axis-chart{% endif %}">
                                     <h3 class="electricity-chart-card-title">{{ chart.title }}</h3>
                                     <p class="electricity-chart-card-subtitle">{{ chart.subtitle }}</p>
                                     <div id="{{ chart.chart_id }}" class="electricity-chart utility-sensor-trend-chart"></div>
@@ -884,6 +903,9 @@
                                 {% endfor %}
                             </div>
                         </div>
+                        {% if is_first_trend_cluster %}
+                        </div>
+                        {% endif %}
                         {% endfor %}
                     </div>
                 </div>

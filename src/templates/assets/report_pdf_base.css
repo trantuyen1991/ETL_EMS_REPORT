@@ -2915,6 +2915,18 @@
             grid-column: var(--report-components-report-section-utility-chart-heatmap-monthly-pdf-grid-column, 1);
         }
 
+        .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-deviation {
+            display: flex;
+        }
+
+        .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-deviation .utility-chart-card {
+            min-height: 100%;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
         .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-heatmap[data-layout-slot="primary"] .electricity-heatmap-legend {
             justify-content: var(--report-components-report-section-utility-chart-heatmap-monthly-pdf-legend-scale-justify-content, flex-start);
         }
@@ -2928,7 +2940,9 @@
         }
 
         .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-comparison-chart-daily {
-            height: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-height, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px));
+            flex: 1 1 auto;
+            height: auto;
+            min-height: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-height, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px));
         }
 
         .utility-comparison-chart-wide,
@@ -2997,7 +3011,7 @@
         }
 
         .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {
-            height: var(--report-components-report-section-utility-chart-heatmap-monthly-pdf-height, var(--report-components-report-section-utility-chart-heatmap-height-pdf, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px)));
+            height: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-height, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px));
         }
 
         .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {

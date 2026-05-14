@@ -206,13 +206,13 @@
                             {% endif %}
                         </div>
 
-                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile kpi-daily-chart-tile-wide pdf-keep-together">
+                        <div class="electricity-chart-card kpi-chart-card kpi-daily-chart-tile kpi-daily-chart-tile-wide kpi-daily-variance-tile pdf-keep-together">
                             <h3 class="electricity-chart-card-title">{{ sections.kpi.charts.daily_dashboard.charts.variance.title }}</h3>
                             <p class="electricity-chart-card-subtitle">{{ sections.kpi.charts.daily_dashboard.charts.variance.subtitle }}</p>
                             {% if sections.kpi.charts.daily_dashboard.charts.variance.empty_message %}
                             <div class="kpi-daily-empty-state kpi-daily-empty-state-wide">{{ sections.kpi.charts.daily_dashboard.charts.variance.empty_message }}</div>
                             {% else %}
-                            <div id="kpi-daily-variance-chart" class="electricity-chart kpi-daily-dashboard-chart"></div>
+                            <div id="kpi-daily-variance-chart" class="electricity-chart kpi-daily-dashboard-chart kpi-daily-variance-chart"></div>
                             {% endif %}
                         </div>
                         {% endif %}
@@ -226,7 +226,7 @@
                         <div class="kpi-daily-empty-state kpi-daily-empty-state-wide">{{ sections.kpi.charts.daily_dashboard.charts.period_heatmap.empty_message }}</div>
                         {% else %}
                         <div id="kpi-period-heatmap-chart" class="electricity-chart kpi-periodic-heatmap-chart"></div>
-                        {% if period.type == 'monthly' and sections.kpi.charts.daily_dashboard.charts.period_heatmap.option.area_legend %}
+                        {% if sections.kpi.charts.daily_dashboard.charts.period_heatmap.option.area_legend %}
                         <div class="electricity-heatmap-area-legend" aria-hidden="true">
                             {% for item in sections.kpi.charts.daily_dashboard.charts.period_heatmap.option.area_legend %}
                             <span class="electricity-heatmap-area-legend-item">

@@ -825,6 +825,15 @@
 
     .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-deviation {
         grid-column: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-grid-column, 2) !important;
+        display: flex !important;
+    }
+
+    .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-deviation .utility-chart-card {
+        min-height: 100% !important;
+        height: 100% !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
 
     .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-heatmap[data-layout-slot="primary"] {
@@ -848,7 +857,9 @@
     }
 
     .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-comparison-chart-daily {
-        height: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-height, var(--report-components-report-section-utility-chart-deviation-height-pdf, 164px)) !important;
+        flex: 1 1 auto !important;
+        height: auto !important;
+        min-height: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-height, var(--report-components-report-section-utility-chart-deviation-height-pdf, 164px)) !important;
     }
 
     .utility-period-insight-grid .utility-chart-card {
@@ -937,7 +948,7 @@
     }
 
     .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {
-        height: var(--report-components-report-section-utility-chart-heatmap-monthly-pdf-height, var(--report-components-report-section-utility-chart-heatmap-height-pdf, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px))) !important;
+        height: var(--report-components-report-section-utility-chart-deviation-monthly-pdf-height, var(--report-components-report-section-utility-chart-deviation-height-pdf, 228px)) !important;
     }
 
     .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart {
@@ -1247,6 +1258,14 @@
 
     .report-period-daily .kpi-daily-chart-tile-wide .kpi-daily-dashboard-chart {
         height: 148px !important;
+    }
+
+    .report-period-daily .kpi-daily-variance-chart {
+        height: 220px !important;
+    }
+
+    .report-period-daily .kpi-daily-chart-tile-wide .kpi-daily-variance-chart {
+        height: 185px !important;
     }
 
     .kpi-daily-dashboard-note {
@@ -2011,6 +2030,18 @@
         border-left: 3px solid #0f766e !important;
     }
 
+    .utility-sensor-trend-intro-block {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .utility-sensor-trend-intro-block .utility-sensor-section-label-block {
+        margin-bottom: 6px !important;
+    }
+
     .utility-sensor-statline {
         gap: 5px !important;
         margin-bottom: 6px !important;
@@ -2511,6 +2542,39 @@
         line-height: 1.04 !important;
         color: #0f172a !important;
         font-weight: 800 !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-value-note {
+        display: block !important;
+        margin-top: 1px !important;
+        max-width: 94px !important;
+        font-size: 5.2px !important;
+        line-height: 1.1 !important;
+        font-weight: 700 !important;
+        text-align: right !important;
+        color: #64748b !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-value-note-main,
+    .report-period-daily .utility-sensor-metric-value-note-detail {
+        display: block !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-value-note-detail {
+        margin-top: 1px !important;
+        font-size: 4.9px !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning .utility-sensor-metric-value-note,
+    .report-period-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning .utility-sensor-metric-value-note-detail {
+        color: #b45309 !important;
+    }
+
+    .report-period-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical .utility-sensor-metric-value-note,
+    .report-period-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical .utility-sensor-metric-value-note-detail {
+        color: #b91c1c !important;
     }
 
     .report-period-daily .utility-sensor-metric-status {
@@ -3180,11 +3244,13 @@
         height: var(--report-components-report-section-utility-chart-sensor-cluster-height-pdf, 190px) !important;
     }
 
-    .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page1 .utility-sensor-trend-chart {
+    .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page1 .utility-sensor-trend-chart,
+    .report-period-daily .utility-sensor-trend-card.is-daily-trend-page1 .utility-sensor-trend-chart {
         height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page1-summary-pdf, var(--report-components-report-section-utility-chart-sensor-cluster-height-pdf, 190px)) !important;
     }
 
-    .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page1.is-periodic-dual-axis-chart .utility-sensor-trend-chart {
+    .report-family-periodic .utility-sensor-trend-card.is-periodic-trend-page1.is-periodic-dual-axis-chart .utility-sensor-trend-chart,
+    .report-period-daily .utility-sensor-trend-card.is-daily-trend-page1.is-daily-dual-axis-chart .utility-sensor-trend-chart {
         height: var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-page1-dual-axis-pdf, var(--report-components-report-section-utility-chart-sensor-cluster-height-periodic-dual-axis-pdf, calc(var(--report-components-report-section-utility-chart-sensor-cluster-height-pdf, 190px) * 1.1))) !important;
     }
 

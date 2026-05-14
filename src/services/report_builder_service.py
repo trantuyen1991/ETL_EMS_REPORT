@@ -2860,7 +2860,7 @@ class ReportBuilderService:
                 **area_visual_map.get("diode", {}),
                 "bar_color": (
                     str(series_palette.get("previous") or area_visual_map.get("diode", {}).get("bar_color") or total_bar_color)
-                    if is_monthly_period else area_visual_map.get("diode", {}).get("bar_color", total_bar_color)
+                    if (is_monthly_period or is_weekly_period) else area_visual_map.get("diode", {}).get("bar_color", total_bar_color)
                 ),
             },
             "ico": area_visual_map.get("ico", {}),
@@ -2904,7 +2904,7 @@ class ReportBuilderService:
                 heatmap_data.append({
                     "value": [col_index, row_index, round(raw_value, 4)],
                     "label": {
-                        "show": bool(is_monthly_period),
+                        "show": bool(is_monthly_period or is_weekly_period),
                         "formatter": (f"{row_pct:.0f}%" if is_monthly_period else display_value),
                     },
                     "itemStyle": {
@@ -4047,19 +4047,42 @@ class ReportBuilderService:
             row_defs=row_defs,
         )
 
-        if period_type == "monthly" and chart.get("option"):
-            x_labels = list((((chart.get("option") or {}).get("xAxis") or {}).get("data") or []))
-            if x_labels and str(x_labels[-1]) == "Avg":
-                avg_index = len(x_labels) - 1
-                chart["option"]["xAxis"]["data"] = x_labels[:-1]
-                series_list = ((chart.get("option") or {}).get("series") or [])
-                if series_list:
-                    heatmap_series = series_list[0]
-                    heatmap_series["data"] = [
-                        item for item in (heatmap_series.get("data") or [])
-                        if int((item.get("value") or [0])[0]) != avg_index
-                    ]
-            chart["show_scale_legend"] = False
+        if chart.get("option"):
+            if period_type in {"weekly", "monthly"}:
+                x_labels = list((((chart.get("option") or {}).get("xAxis") or {}).get("data") or []))
+                if x_labels and str(x_labels[-1]) == "Avg":
+                    avg_index = len(x_labels) - 1
+                    chart["option"]["xAxis"]["data"] = x_labels[:-1]
+                    series_list = ((chart.get("option") or {}).get("series") or [])
+                    if series_list:
+                        heatmap_series = series_list[0]
+                        heatmap_series["data"] = [
+                            item for item in (heatmap_series.get("data") or [])
+                            if int((item.get("value") or [0])[0]) != avg_index
+                        ]
+
+            if period_type == "weekly":
+                chart["area_legend"] = [
+                    {
+                        "label": str(row_def.get("legend_label") or row_def.get("label") or "-"),
+                        "color": str(row_def.get("color") or "#005496"),
+                    }
+                    for row_def in row_defs
+                ]
+                chart["show_scale_legend"] = False
+                option = chart.get("option") or {}
+                grid = option.get("grid") or {}
+                grid["left"] = 18
+                grid["right"] = 18
+                option["grid"] = grid
+                y_axis = option.get("yAxis") or {}
+                axis_label = y_axis.get("axisLabel") or {}
+                axis_label["show"] = False
+                y_axis["axisLabel"] = axis_label
+                option["yAxis"] = y_axis
+                chart["option"] = option
+            elif period_type == "monthly":
+                chart["show_scale_legend"] = False
 
         return chart
 
@@ -7211,12 +7234,14 @@ class ReportBuilderService:
         if not current_daily_rows:
             return {}
 
+        is_weekly_period = normalized_period_type == "weekly"
         is_monthly_period = normalized_period_type == "monthly"
+        use_area_legend = is_weekly_period or is_monthly_period
         x_labels = [
             self._format_periodic_axis_date_label(row.get("dt"), normalized_period_type)
             for row in current_daily_rows
         ]
-        include_avg_column = not is_monthly_period
+        include_avg_column = not use_area_legend
         if include_avg_column:
             x_labels.append("Avg")
 
@@ -7228,7 +7253,7 @@ class ReportBuilderService:
         )
         row_defs = [
             ("Total", "kpi", series_palette["current"]),
-            ("DIODE", "diode_kpi", previous_purple if is_monthly_period else area_visual_map["diode"]["bar_color"]),
+            ("DIODE", "diode_kpi", previous_purple if use_area_legend else area_visual_map["diode"]["bar_color"]),
             ("ICO", "ico_kpi", area_visual_map["ico"]["bar_color"]),
             ("SAKARI", "sakari_kpi", area_visual_map["sakari"]["bar_color"]),
         ]
@@ -7254,7 +7279,6 @@ class ReportBuilderService:
         if not any_numeric_value:
             return {}
 
-        is_weekly_period = normalized_period_type == "weekly"
         bottom_gap = 62 if is_weekly_period or len(x_labels) > 8 else 44
         label_rotate = 28 if is_weekly_period or len(x_labels) > 8 else 0
         label_font_size = 9 if len(x_labels) <= 8 else 8
@@ -7302,11 +7326,11 @@ class ReportBuilderService:
         ]
 
         return {
-            "area_legend": area_legend if normalized_period_type == "monthly" else [],
+            "area_legend": area_legend if use_area_legend else [],
             "tooltip": {"position": "top"},
             "grid": self._resolve_chart_grid(
                 {
-                    "left": 18 if is_monthly_period else 58,
+                    "left": 18 if use_area_legend else 58,
                     "right": 18,
                     "top": 10,
                     "bottom": bottom_gap,
@@ -7335,7 +7359,7 @@ class ReportBuilderService:
                 "axisLine": {"show": False},
                 "axisTick": {"show": False},
                 "axisLabel": {
-                    "show": normalized_period_type != "monthly",
+                    "show": not use_area_legend,
                     "fontWeight": 700,
                     "color": primary_text_color,
                 },
