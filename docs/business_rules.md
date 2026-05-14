@@ -79,8 +79,10 @@ For all comparable metrics:
   - monthly = Top 5
 - The effective display limit should be exposed by backend context so templates can render the correct heading and table size without re-implementing period-specific logic.
 - If no valid meter data exists:
-  - do not generate fake ranking rows
-  - allow the table to be empty
+  - do not generate fake ranking payload rows in backend ranking data
+  - keep the daily report block visible in the rendered surface
+  - render placeholder table rows with `-` in the daily template rather than hiding the whole block
+  - include a short empty-state note so operators can distinguish `no ranking data` from a rendering failure
 
 ### 3.5 Daily Summary
 - Must include:
@@ -266,6 +268,10 @@ Each daily row should remain dense and carry structured metric payloads such as:
   - max = None
   - latest = None
   - display = "-"
+- For the daily `Intraday trend by cluster` block:
+  - keep the section visible even when no timestamp-based signal is available
+  - render an explicit empty-state card instead of hiding the whole trend section
+  - use this to distinguish `no intraday data` from chart/render failure
 
 ---
 

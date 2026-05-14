@@ -1013,11 +1013,12 @@
                 </div>
                 {% endif %}
 
-                {% if flags.is_daily_report and sensor_monitoring.trend_clusters_render %}
+                {% set daily_trend_clusters = sensor_monitoring.trend_clusters_render or [] %}
+                {% if flags.is_daily_report %}
                 <div class="utility-sensor-trend-preview-block pdf-keep-together">
-
+                    {% if daily_trend_clusters %}
                     <div class="utility-sensor-trend-cluster-stack">
-                        {% for cluster in sensor_monitoring.trend_clusters_render %}
+                        {% for cluster in daily_trend_clusters %}
                         {% set is_first_trend_cluster = loop.first %}
                         {% set is_daily_page1_cluster = cluster.cluster_key in ['ico_chiller', 'diode_chiller'] %}
                         {% if is_first_trend_cluster %}
@@ -1060,6 +1061,21 @@
                         {% endif %}
                         {% endfor %}
                     </div>
+                    {% else %}
+                    <div class="utility-sensor-trend-intro-block pdf-keep-together">
+                        <div class="utility-sensor-section-label-block is-trend-cluster pdf-keep-together">
+                            <div>
+                                <h4 class="utility-sensor-section-label-title">Intraday trend by cluster</h4>
+                                <p class="utility-sensor-section-label-note">Timestamp-based raw signal preview grouped by utility cluster.</p>
+                            </div>
+                        </div>
+                        <div class="report-empty-state-card utility-sensor-trend-empty-card pdf-keep-together">
+                            <div class="report-empty-state-eyebrow">NO INTRADAY DATA</div>
+                            <div class="report-empty-state-title">Intraday trend by cluster is unavailable for this day.</div>
+                            <div class="report-empty-state-note">No timestamp-based sensor signal was found, so this daily chart block stays visible as an empty-state instead of being hidden.</div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 {% endif %}
 

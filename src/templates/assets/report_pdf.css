@@ -1303,6 +1303,59 @@
         min-height: 62px !important;
     }
 
+    .report-empty-state-card {
+        min-height: 78px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 5px !important;
+        padding: 10px 12px !important;
+        border: 1px dashed var(--report-color-border-strong, #b9c8d6) !important;
+        border-radius: 10px !important;
+        background: var(--report-color-surface-muted, #f8fafc) !important;
+        text-align: center !important;
+    }
+
+    .report-empty-state-eyebrow {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 18px !important;
+        padding: 0 8px !important;
+        border-radius: 999px !important;
+        background: rgba(0, 84, 150, 0.10) !important;
+        color: var(--report-color-brand-primary, #005496) !important;
+        font-size: 7.2px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.06em !important;
+    }
+
+    .report-empty-state-title {
+        color: var(--report-color-text-primary, #223548) !important;
+        font-size: 9.2px !important;
+        font-weight: 700 !important;
+        line-height: 1.35 !important;
+    }
+
+    .report-empty-state-note {
+        color: var(--report-color-text-muted, #5f7387) !important;
+        font-size: 7.8px !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+    }
+
+    .electricity-top10-empty-row td {
+        color: var(--report-color-text-muted, #6f8293) !important;
+        text-align: center !important;
+        font-style: italic !important;
+    }
+
+    .utility-sensor-trend-empty-card {
+        width: 100% !important;
+        min-height: 110px !important;
+    }
+
     .utility-chart-block,
     .kpi-chart-block,
     .utility-chart-card,

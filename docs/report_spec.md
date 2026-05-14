@@ -376,6 +376,12 @@ If the UI shows a combined quick-read card such as `ICO + SAKARI`, that combined
 Top 10 ranking must exclude main feeder meters.
 Residual Load may appear as a virtual meter when valid.
 
+For the `daily` template family on no-data or source-missing days:
+- keep the `Top 10 Meter Consumption` block visible
+- do not hide the block just because ranking data is empty
+- render placeholder rows with `-` plus a short explanatory note in the final surface
+- this placeholder presentation is a template/render-layer rule and must not backfill fake ranking data into backend context
+
 ### 7.5 Daily Summary
 The daily summary should include:
 - total energy
@@ -503,6 +509,12 @@ For the `daily` template family, sensor monitoring currently uses a dedicated la
 - anomaly scan table
 - short operator-facing reason text for flagged sensors
 - allowed negative tolerance note for negative anomaly cases
+- an `Intraday trend by cluster` block that stays visible even on no-data days
+
+Empty-state rule for the daily intraday trend block:
+- if timestamp-based sensor points exist, render the normal cluster line charts
+- if no timestamp-based sensor points exist for the day, keep the section heading visible and render an explicit empty-state card
+- do not hide the whole daily intraday-trend section on no-data days
 
 Grouping rule:
 - primary grouping by system group

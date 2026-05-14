@@ -232,10 +232,11 @@ Current anomaly rules:
   - monthly: `This Month / Last Month`
 - Daily PDF layout audit is closed for the current sparse sample baseline:
   - utility page 4-5 pagination was rebalanced
-  - empty electricity Top 10 shell was removed from PDF output
+  - daily electricity `Top 10 Meter Consumption` now stays visible on no-data days with placeholder rows and an explicit empty-state note
   - KPI zero-data pages now use explicit empty-state handling
   - daily Sensor Monitoring PDF was reworked into grouped metric-table cards with all detail cards placed before the anomaly scan
   - daily anomaly scan was compacted onto the same page as the cards and now uses split water group labels for readability
+  - daily `Intraday trend by cluster` now stays visible on no-data days with an explicit empty-state card instead of disappearing
 - Daily view spacing cleanup is closed for the current baseline:
   - electricity, utility, and KPI chart footprints were tightened
   - sparse daily panels now read as intentional rather than malformed

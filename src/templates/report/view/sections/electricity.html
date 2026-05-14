@@ -402,8 +402,10 @@
                 {% endif %}
             </div>
 
+            {% set top10_rows = sections.electricity.top10.grouped_rows or [] %}
+            {% set top10_display_limit = sections.electricity.top10.display_limit or 10 %}
             <div class="electricity-detail-block">
-                <h3 class="electricity-subsection-title">Top {{ sections.electricity.top10.display_limit or 10 }} Meter Consumption</h3>
+                <h3 class="electricity-subsection-title">Top {{ top10_display_limit }} Meter Consumption</h3>
 
                 <div class="electricity-top10-wrap report-table-wrap">
                     <table class="electricity-top10-table electricity-top10-grouped-table report-table-ui">
@@ -428,7 +430,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for row in sections.electricity.top10.grouped_rows %}
+                            {% if top10_rows %}
+                            {% for row in top10_rows %}
                             <tr>
                                 {% set plant = row.plant %}
                                 {% set diode = row.areas.diode %}
@@ -484,14 +487,34 @@
                                         </td>
                                 {% endfor %}
                             </tr>
-                    {% endfor %}
+                            {% endfor %}
+                            {% else %}
+                            {% for rank in range(1, top10_display_limit + 1) %}
+                            <tr class="electricity-top10-empty-row">
+                                <td class="col-rank">{{ rank }}</td>
+                                <td class="col-meter">-</td>
+                                <td class="col-area">-</td>
+                                <td class="col-current">-</td>
+                                <td class="col-meter top10-group-divider">-</td>
+                                <td class="col-current">-</td>
+                                <td class="col-meter top10-group-divider">-</td>
+                                <td class="col-current">-</td>
+                                <td class="col-meter top10-group-divider">-</td>
+                                <td class="col-current">-</td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
 
                 <p class="electricity-top10-note">
-                    Top {{ sections.electricity.top10.display_limit or 10 }} meters are sorted by {{ labels.current_period | lower }} consumption.
+                    {% if top10_rows %}
+                    Top {{ top10_display_limit }} meters are sorted by {{ labels.current_period | lower }} consumption.
                     Configured feeder and excluded meters are filtered by area rules.
+                    {% else %}
+                    No meter ranking data is available for this day. The table structure is kept visible so daily empty-state review stays consistent.
+                    {% endif %}
                 </p>
             </div>
 
