@@ -389,7 +389,7 @@
         .report-header-overlay-html {
             min-height: 142px;
             display: grid;
-            grid-template-columns: 304px minmax(0, 1fr);
+            grid-template-columns: 236px minmax(0, 1fr);
             align-items: stretch;
             gap: 0;
             padding: 0;
@@ -404,53 +404,40 @@
         }
 
         .report-header-column-left-html {
-            display: flex;
-            align-items: center;
-            padding: 0 22px 0 28px;
+            padding: 0;
+            background: #f7fbff;
         }
 
         .report-header-column-right-html {
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding: 0 44px 0 34px;
+            padding: 0 44px 0 24px;
+            background: #ffffff;
         }
 
         .report-header-left-background-html,
         .report-header-right-background-html {
             position: absolute;
-            inset: 0;
-            width: 100%;
+            top: 50%;
             height: 100%;
+            width: auto;
+            max-width: none;
+            transform: translateY(-50%);
             pointer-events: none;
         }
 
         .report-header-left-background-html {
-            object-fit: cover;
-            object-position: left center;
+            left: 0;
         }
 
         .report-header-right-background-html {
-            object-fit: cover;
-            object-position: right center;
+            right: 0;
         }
 
-        .report-banner-logo-slot-html {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            width: 100%;
-            padding-left: 0;
-        }
-
+        .report-banner-logo-slot-html,
         .report-banner-logo-image-html {
-            display: block;
-            width: min(100%, 228px);
-            height: auto;
-            max-height: 48px;
-            filter: none;
+            display: none;
         }
 
         .report-banner-copy-html {
