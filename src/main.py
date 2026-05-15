@@ -109,12 +109,17 @@ def _build_sensor_monitoring_context(
     client: MySQLClient,
     report_start: date,
     report_end: date,
+    report_timezone: str,
 ) -> dict[str, Any]:
     """Build utility sensor monitoring context for a report period."""
     sensor_metadata = get_utility_sensor_metadata()
     sensor_columns = list(sensor_metadata.keys())
 
-    repo = ProcessValueRepository(mysql_client=client)
+    repo = ProcessValueRepository(
+        mysql_client=client,
+        source_timezone="UTC",
+        target_timezone=report_timezone,
+    )
     sensor_service = ProcessValueService()
     utility_service = UtilityService()
 
@@ -148,6 +153,7 @@ def _build_utility_object(
     repos: dict[str, EnergyDataRepository],
     period,
     client: MySQLClient,
+    report_timezone: str,
 ) -> dict[str, Any]:
     """Build the full utility object for current and previous period."""
     utility_repo = repos["utility_usage"]
@@ -165,12 +171,14 @@ def _build_utility_object(
         client=client,
         report_start=period.start_date,
         report_end=period.end_date,
+        report_timezone=report_timezone,
     )
 
     previous_sensor_monitoring = _build_sensor_monitoring_context(
         client=client,
         report_start=period.previous_start_date,
         report_end=period.previous_end_date,
+        report_timezone=report_timezone,
     )
 
     utility_service = UtilityService()
@@ -552,6 +560,10 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
     repos = runtime["repos"]
     client = runtime["client"]
     logger = runtime["logger"]
+    report_timezone = str(
+        (((config.get("config") or {}).get("time") or {}).get("timezone"))
+        or "Asia/Ho_Chi_Minh"
+    ).strip() or "Asia/Ho_Chi_Minh"
 
     period_service = PeriodService()
     scheduled_periods = period_service.resolve_scheduled_periods_from_config(config=config)
@@ -581,6 +593,7 @@ def _run_report_batch(runtime: dict[str, Any]) -> list[dict[str, Any]]:
             repos=repos,
             period=period,
             client=client,
+            report_timezone=report_timezone,
         )
         energy_object = _build_energy_object(repos, period)
 

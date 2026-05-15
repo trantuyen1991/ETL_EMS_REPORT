@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any, Dict, List
+from zoneinfo import ZoneInfo
 
 import logging
 import re
@@ -36,16 +37,28 @@ class ProcessValueRepository:
     TABLE_NAME = "processvalue"
     TIMESTAMP_COLUMN = "Time_Stamp"
 
-    def __init__(self, mysql_client: MySQLClient, database: str | None = None) -> None:
+    def __init__(
+        self,
+        mysql_client: MySQLClient,
+        database: str | None = None,
+        source_timezone: str = "UTC",
+        target_timezone: str = "Asia/Ho_Chi_Minh",
+    ) -> None:
         """Initialize repository.
 
         Args:
             mysql_client: Shared MySQL client instance.
             database: Optional database/schema override. Defaults to the
                 database configured on the shared MySQL client.
+            source_timezone: Timezone used by stored processvalue timestamps.
+            target_timezone: Timezone expected by the report layer.
         """
         self.mysql_client = mysql_client
         self.database = database or mysql_client.database
+        self.source_timezone = source_timezone or "UTC"
+        self.target_timezone = target_timezone or "Asia/Ho_Chi_Minh"
+        self._source_zone = self._load_zoneinfo(self.source_timezone)
+        self._target_zone = self._load_zoneinfo(self.target_timezone)
         self._validate_identifier(self.database)
         self._validate_identifier(self.TABLE_NAME)
         self._validate_identifier(self.TIMESTAMP_COLUMN)
@@ -98,12 +111,20 @@ class ProcessValueRepository:
             ORDER BY {self._quote(self.TIMESTAMP_COLUMN)} ASC
         """
 
-        params = (start_dt, end_dt_exclusive)
+        query_start_dt, query_end_dt_exclusive = self._convert_local_window_to_source(
+            start_dt=start_dt,
+            end_dt_exclusive=end_dt_exclusive,
+        )
+        params = (query_start_dt, query_end_dt_exclusive)
 
         logger.info(
-            "Fetching processvalue sensor rows | start_dt=%s end_dt_exclusive=%s columns=%s",
+            "Fetching processvalue sensor rows | local_start_dt=%s local_end_dt_exclusive=%s query_start_dt=%s query_end_dt_exclusive=%s source_timezone=%s target_timezone=%s columns=%s",
             start_dt,
             end_dt_exclusive,
+            query_start_dt,
+            query_end_dt_exclusive,
+            self.source_timezone,
+            self.target_timezone,
             cleaned_columns,
         )
 
@@ -196,10 +217,52 @@ class ProcessValueRepository:
             Dict[str, Any]: Normalized row with `dt` key.
         """
         mapped: Dict[str, Any] = {
-            "dt": row.get(self.TIMESTAMP_COLUMN),
+            "dt": self._convert_row_timestamp_to_target(row.get(self.TIMESTAMP_COLUMN)),
         }
 
         for column in sensor_columns:
             mapped[column] = row.get(column)
 
         return mapped
+
+    def _load_zoneinfo(self, timezone_name: str) -> ZoneInfo:
+        """Return a ZoneInfo object with a clear error on bad config."""
+        try:
+            return ZoneInfo(str(timezone_name or "").strip())
+        except Exception as exc:
+            raise ValueError(f"Invalid timezone: {timezone_name}") from exc
+
+    def _attach_timezone(self, value: datetime, zone: ZoneInfo) -> datetime:
+        """Attach or convert a datetime into a specific timezone."""
+        if value.tzinfo is None:
+            return value.replace(tzinfo=zone)
+        return value.astimezone(zone)
+
+    def _to_naive_datetime(self, value: datetime) -> datetime:
+        """Drop timezone info after conversion for MySQL-driver compatibility."""
+        return value.replace(tzinfo=None)
+
+    def _convert_local_window_to_source(
+        self,
+        *,
+        start_dt: datetime,
+        end_dt_exclusive: datetime,
+    ) -> tuple[datetime, datetime]:
+        """Convert local report datetimes into the stored source timezone."""
+        localized_start = self._attach_timezone(start_dt, self._target_zone)
+        localized_end = self._attach_timezone(end_dt_exclusive, self._target_zone)
+        source_start = localized_start.astimezone(self._source_zone)
+        source_end = localized_end.astimezone(self._source_zone)
+        return (
+            self._to_naive_datetime(source_start),
+            self._to_naive_datetime(source_end),
+        )
+
+    def _convert_row_timestamp_to_target(self, value: Any) -> Any:
+        """Convert one stored timestamp from source timezone into report timezone."""
+        if not isinstance(value, datetime):
+            return value
+
+        source_value = self._attach_timezone(value, self._source_zone)
+        target_value = source_value.astimezone(self._target_zone)
+        return self._to_naive_datetime(target_value)
