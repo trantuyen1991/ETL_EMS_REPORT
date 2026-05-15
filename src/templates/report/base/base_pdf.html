@@ -152,6 +152,102 @@
             color: #0f172a;
         }
 
+        .pdf-header-print-only {
+            display: none !important;
+        }
+
+        .pdf-header-screen-only {
+            display: block !important;
+        }
+
+        .pdf-preview-header-shell {
+            border-left-width: 0;
+            background: #ffffff;
+        }
+
+        .pdf-preview-header-grid {
+            min-height: 132px;
+            display: grid;
+            grid-template-columns: 236px minmax(0, 1fr);
+            align-items: stretch;
+            gap: 0;
+        }
+
+        .pdf-preview-header-left,
+        .pdf-preview-header-right {
+            position: relative;
+            min-height: 132px;
+            overflow: hidden;
+        }
+
+        .pdf-preview-header-left {
+            background: #ffffff;
+        }
+
+        .pdf-preview-header-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 44px 0 0;
+            background: #ffffff;
+        }
+
+        .pdf-preview-header-left-image,
+        .pdf-preview-header-right-image {
+            position: absolute;
+            top: 50%;
+            height: 100%;
+            width: auto;
+            max-width: none;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .pdf-preview-header-left-image {
+            left: 0;
+        }
+
+        .pdf-preview-header-right-image {
+            right: 0;
+        }
+
+        .pdf-preview-header-copy {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 7px;
+            min-width: 0;
+            max-width: 540px;
+        }
+
+        .pdf-preview-header-copy .report-main-title {
+            color: #0b3554;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .pdf-preview-header-copy .report-hero-subtitle {
+            color: #284b63;
+            line-height: 1.24;
+        }
+
+        .pdf-preview-header-copy .report-meta-line {
+            gap: 6px;
+            color: #3f5f77;
+        }
+
+        .pdf-preview-header-copy .report-meta-line-label {
+            color: #0f3554;
+        }
+
+        .pdf-preview-header-copy .report-meta-line-value,
+        .pdf-preview-header-copy .report-meta-line-icon {
+            color: #005496;
+        }
+
         @media screen {
             html {
                 background: #e5e7eb;
@@ -167,111 +263,15 @@
                 background: #ffffff;
                 box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
             }
-
-            .pdf-header-print-only {
-                display: none !important;
-            }
-
-            .pdf-header-screen-only {
-                display: block !important;
-            }
-
-            .pdf-preview-header-shell {
-                border-left-width: 0;
-                background: #ffffff;
-            }
-
-            .pdf-preview-header-grid {
-                min-height: 132px;
-                display: grid;
-                grid-template-columns: 236px minmax(0, 1fr);
-                align-items: stretch;
-                gap: 0;
-            }
-
-            .pdf-preview-header-left,
-            .pdf-preview-header-right {
-                position: relative;
-                min-height: 132px;
-                overflow: hidden;
-            }
-
-            .pdf-preview-header-left {
-                background: #ffffff;
-            }
-
-            .pdf-preview-header-right {
-                display: flex;
-                align-items: center;
-                justify-content: flex-start;
-                padding: 0 44px 0 0;
-                background: #ffffff;
-            }
-
-            .pdf-preview-header-left-image,
-            .pdf-preview-header-right-image {
-                position: absolute;
-                top: 50%;
-                height: 100%;
-                width: auto;
-                max-width: none;
-                transform: translateY(-50%);
-                pointer-events: none;
-            }
-
-            .pdf-preview-header-left-image {
-                left: 0;
-            }
-
-            .pdf-preview-header-right-image {
-                right: 0;
-            }
-
-            .pdf-preview-header-copy {
-                position: relative;
-                z-index: 1;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: flex-start;
-                gap: 7px;
-                min-width: 0;
-                max-width: 540px;
-            }
-
-            .pdf-preview-header-copy .report-main-title {
-                color: #0b3554;
-                letter-spacing: -0.03em;
-                line-height: 1;
-            }
-
-            .pdf-preview-header-copy .report-hero-subtitle {
-                color: #284b63;
-                line-height: 1.24;
-            }
-
-            .pdf-preview-header-copy .report-meta-line {
-                gap: 6px;
-                color: #3f5f77;
-            }
-
-            .pdf-preview-header-copy .report-meta-line-label {
-                color: #0f3554;
-            }
-
-            .pdf-preview-header-copy .report-meta-line-value,
-            .pdf-preview-header-copy .report-meta-line-icon {
-                color: #005496;
-            }
         }
 
         @media print {
             .pdf-header-print-only {
-                display: block !important;
+                display: none !important;
             }
 
             .pdf-header-screen-only {
-                display: none !important;
+                display: block !important;
             }
         }
 

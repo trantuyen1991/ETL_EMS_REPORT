@@ -534,7 +534,7 @@
                         <div class="web-filter-toggle-meta">
                             <div class="web-filter-summary" id="filter-summary">
                                 <div class="web-summary-chip"><strong>Mode</strong><span id="summary-mode">{{ period_type|default('monthly')|upper }}</span></div>
-                                <div class="web-summary-chip"><strong>Surface</strong><span id="summary-surface">{{ 'Detailed (view.html)' if template_mode|default('view') == 'view' else 'Print Preview (pdf_source.html)' }}</span></div>
+                                <div class="web-summary-chip"><strong>Surface</strong><span id="summary-surface">{{ 'Interactive (view.html)' if template_mode|default('view') == 'view' else 'Print Preview (pdf_source.html)' }}</span></div>
                                 <div class="web-summary-chip"><strong>Selection</strong><span id="summary-selection">{{ month_value or anchor_date or '-' }}</span></div>
                             </div>
                             <span class="web-filter-toggle-caret">⌄</span>
@@ -546,10 +546,10 @@
                             <div class="web-field">
                                 <div class="web-label-row">
                                     <label for="template-mode">Template Surface</label>
-                                    <span class="web-hover-hint" data-tooltip="Switch surface instantly. Detailed is easier to read in browser, while Print Preview follows the PDF-oriented structure." tabindex="0">?</span>
+                                    <span class="web-hover-hint" data-tooltip="Switch surface instantly. Interactive is easier to explore in browser, while Print Preview follows the PDF-oriented structure." tabindex="0">?</span>
                                 </div>
                                 <select id="template-mode" name="template_mode">
-                                    <option value="view" {% if template_mode == 'view' %}selected{% endif %}>Detailed (view.html)</option>
+                                    <option value="view" {% if template_mode == 'view' %}selected{% endif %}>Interactive (view.html)</option>
                                     <option value="pdf_source" {% if template_mode == 'pdf_source' %}selected{% endif %}>Print Preview (pdf_source.html)</option>
                                 </select>
                             </div>
@@ -713,7 +713,7 @@
             function getSurfaceLabel(surface) {
                 return surface === 'pdf_source'
                     ? 'Print Preview (pdf_source.html)'
-                    : 'Detailed (view.html)';
+                    : 'Interactive (view.html)';
             }
 
             function updateSummary() {
