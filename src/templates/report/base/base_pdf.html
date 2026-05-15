@@ -700,22 +700,86 @@
                     container.appendChild(current.page);
                 }
 
-                items.forEach(function (item) {
-                    var isElement = item.nodeType === Node.ELEMENT_NODE;
-                    var forceBreak = isElement && item.classList.contains("page-break-before");
-                    var isLandscape = isElement && item.classList.contains("pdf-landscape-block");
-
+                function ensurePage(isLandscape, forceBreak) {
                     if (!current || forceBreak || (current.page.classList.contains("is-landscape") !== isLandscape)) {
                         openPage(isLandscape);
                     }
+                }
 
-                    current.inner.appendChild(item);
+                function fitsCurrentPage() {
+                    return current && current.inner.scrollHeight <= current.inner.clientHeight;
+                }
 
-                    if (current.inner.scrollHeight > current.inner.clientHeight && current.inner.childNodes.length > 1) {
-                        current.inner.removeChild(item);
+                function appendAtomicNode(node) {
+                    var isElement = node.nodeType === Node.ELEMENT_NODE;
+                    var forceBreak = isElement && node.classList.contains("page-break-before");
+                    var isLandscape = isElement && node.classList.contains("pdf-landscape-block");
+
+                    ensurePage(isLandscape, forceBreak);
+                    current.inner.appendChild(node);
+
+                    if (!fitsCurrentPage() && current.inner.childNodes.length > 1) {
+                        current.inner.removeChild(node);
                         openPage(isLandscape);
-                        current.inner.appendChild(item);
+                        current.inner.appendChild(node);
                     }
+                }
+
+                function createSectionClone(section) {
+                    return section.cloneNode(false);
+                }
+
+                function appendSectionNode(section) {
+                    var children = collectContentNodes(section);
+                    if (!children.length) {
+                        appendAtomicNode(section);
+                        return;
+                    }
+
+                    var sectionClone = null;
+
+                    function ensureSectionClone() {
+                        if (!sectionClone || sectionClone.parentNode !== current.inner) {
+                            sectionClone = createSectionClone(section);
+                            current.inner.appendChild(sectionClone);
+                        }
+                    }
+
+                    children.forEach(function (child) {
+                        var isElement = child.nodeType === Node.ELEMENT_NODE;
+                        var forceBreak = isElement && child.classList.contains("page-break-before");
+                        var isLandscape = isElement && child.classList.contains("pdf-landscape-block");
+
+                        if (isLandscape) {
+                            if (sectionClone && !sectionClone.childNodes.length) {
+                                sectionClone.remove();
+                            }
+                            sectionClone = null;
+                            appendAtomicNode(child);
+                            return;
+                        }
+
+                        ensurePage(false, forceBreak);
+                        ensureSectionClone();
+                        sectionClone.appendChild(child);
+
+                        if (!fitsCurrentPage() && sectionClone.childNodes.length > 1) {
+                            sectionClone.removeChild(child);
+                            openPage(false);
+                            sectionClone = createSectionClone(section);
+                            current.inner.appendChild(sectionClone);
+                            sectionClone.appendChild(child);
+                        }
+                    });
+                }
+
+                items.forEach(function (item) {
+                    var isElement = item.nodeType === Node.ELEMENT_NODE;
+                    if (isElement && item.classList.contains("report-section")) {
+                        appendSectionNode(item);
+                        return;
+                    }
+                    appendAtomicNode(item);
                 });
             }
 
