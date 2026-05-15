@@ -250,18 +250,55 @@
 
         @media screen {
             html {
-                background: #e5e7eb;
+                background: #dbe3ea;
             }
 
             body {
-                width: 252mm;
-                min-width: 252mm;
+                width: auto;
+                min-width: 0;
+                min-height: 100vh;
+                margin: 0;
+                padding: 20px 0 32px;
+                box-sizing: border-box;
+                background: transparent;
+                box-shadow: none;
+            }
+
+            body.pdf-screen-paginated .report-container {
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+                align-items: center;
+                background: transparent;
+            }
+
+            .pdf-preview-page {
+                width: 210mm;
                 min-height: 297mm;
-                margin: 12px auto;
+                height: 297mm;
+                background: #ffffff;
+                box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+                border-radius: 6px;
+                overflow: hidden;
+            }
+
+            .pdf-preview-page.is-landscape {
+                width: 297mm;
+                min-height: 210mm;
+                height: 210mm;
+            }
+
+            .pdf-preview-page-inner {
+                width: 100%;
+                height: 100%;
                 padding: 10mm 8mm;
                 box-sizing: border-box;
+                overflow: hidden;
                 background: #ffffff;
-                box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+            }
+
+            .pdf-preview-page.is-landscape .pdf-preview-page-inner {
+                padding: 8mm;
             }
         }
 
@@ -272,6 +309,18 @@
 
             .pdf-header-screen-only {
                 display: block !important;
+            }
+
+            .pdf-preview-page,
+            .pdf-preview-page-inner {
+                width: auto !important;
+                min-height: 0 !important;
+                height: auto !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                overflow: visible !important;
+                background: transparent !important;
             }
         }
 
@@ -575,6 +624,130 @@
         }
 
     </style>
+    <script>
+        (function () {
+            function isScreenPreviewMode() {
+                return typeof window !== "undefined"
+                    && typeof window.matchMedia === "function"
+                    && window.matchMedia("screen").matches
+                    && !window.matchMedia("print").matches;
+            }
+
+            function collectContentNodes(container) {
+                return Array.from(container.childNodes).filter(function (node) {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        return true;
+                    }
+                    return node.nodeType === Node.TEXT_NODE && node.textContent.trim();
+                });
+            }
+
+            function unwrapPaginatedPreview(container) {
+                var pages = Array.from(container.querySelectorAll(":scope > .pdf-preview-page"));
+                if (!pages.length) {
+                    return;
+                }
+
+                var fragment = document.createDocumentFragment();
+                pages.forEach(function (page) {
+                    var inner = page.querySelector(":scope > .pdf-preview-page-inner");
+                    if (!inner) {
+                        return;
+                    }
+                    while (inner.firstChild) {
+                        fragment.appendChild(inner.firstChild);
+                    }
+                });
+
+                container.innerHTML = "";
+                container.appendChild(fragment);
+            }
+
+            function createPreviewPage(isLandscape) {
+                var page = document.createElement("div");
+                page.className = "pdf-preview-page" + (isLandscape ? " is-landscape" : "");
+
+                var inner = document.createElement("div");
+                inner.className = "pdf-preview-page-inner";
+                page.appendChild(inner);
+
+                return { page: page, inner: inner };
+            }
+
+            function paginatePreview() {
+                if (!isScreenPreviewMode()) {
+                    return;
+                }
+
+                var container = document.querySelector(".report-container");
+                if (!container) {
+                    return;
+                }
+
+                unwrapPaginatedPreview(container);
+                var items = collectContentNodes(container);
+                if (!items.length) {
+                    return;
+                }
+
+                container.innerHTML = "";
+                document.body.classList.add("pdf-screen-paginated");
+
+                var current = null;
+
+                function openPage(isLandscape) {
+                    current = createPreviewPage(isLandscape);
+                    container.appendChild(current.page);
+                }
+
+                items.forEach(function (item) {
+                    var isElement = item.nodeType === Node.ELEMENT_NODE;
+                    var forceBreak = isElement && item.classList.contains("page-break-before");
+                    var isLandscape = isElement && item.classList.contains("pdf-landscape-block");
+
+                    if (!current || forceBreak || (current.page.classList.contains("is-landscape") !== isLandscape)) {
+                        openPage(isLandscape);
+                    }
+
+                    current.inner.appendChild(item);
+
+                    if (current.inner.scrollHeight > current.inner.clientHeight && current.inner.childNodes.length > 1) {
+                        current.inner.removeChild(item);
+                        openPage(isLandscape);
+                        current.inner.appendChild(item);
+                    }
+                });
+            }
+
+            function schedulePagination() {
+                if (!isScreenPreviewMode()) {
+                    return;
+                }
+
+                window.setTimeout(paginatePreview, 120);
+                window.setTimeout(paginatePreview, 900);
+                window.setTimeout(paginatePreview, 2200);
+            }
+
+            document.addEventListener("DOMContentLoaded", schedulePagination, { once: true });
+            window.addEventListener("load", schedulePagination, { once: true });
+            window.addEventListener("resize", function () {
+                if (!isScreenPreviewMode()) {
+                    return;
+                }
+                window.clearTimeout(window.__pdfPreviewPaginateTimer);
+                window.__pdfPreviewPaginateTimer = window.setTimeout(paginatePreview, 180);
+            });
+            window.addEventListener("beforeprint", function () {
+                var container = document.querySelector(".report-container");
+                if (!container) {
+                    return;
+                }
+                unwrapPaginatedPreview(container);
+                document.body.classList.remove("pdf-screen-paginated");
+            });
+        })();
+    </script>
 </head>
 {% set report_scope = 'daily' if period.type == 'daily' else 'periodic' %}
 <body class="pdf-render-mode report-body report-family-{{ report_scope }} report-period-{{ period.type | default('unknown') }}">
