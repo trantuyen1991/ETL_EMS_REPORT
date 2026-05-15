@@ -379,22 +379,17 @@
             border-radius: 18px;
             border-left-width: 0;
             border: 1px solid rgba(191, 212, 229, 0.9);
-            background: linear-gradient(90deg, #d7e6f5 0%, #eaf3fb 34%, #f7fbff 100%);
+            background: #f7fbff;
         }
 
         .report-header-banner-html::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, rgba(236, 245, 252, 0.92) 0%, rgba(240, 247, 252, 0.8) 36%, rgba(255, 255, 255, 0.12) 70%, rgba(255, 255, 255, 0) 100%);
-            z-index: 0;
-            pointer-events: none;
+            content: none;
         }
 
         .report-header-background-html {
-            object-fit: cover;
+            object-fit: fill;
             object-position: center center;
-            opacity: 0.98;
+            opacity: 1;
         }
 
         .report-header-overlay-html {
