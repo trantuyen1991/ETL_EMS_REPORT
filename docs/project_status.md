@@ -365,6 +365,23 @@ Execution rule remains:
 - interactive view-only behavior such as tooltip, hover, and zoom must stay isolated from PDF mode rules
 - builder runtime patching is still allowed as the last merge layer when data-driven chart logic requires it
 
+### 4.6 Approved next phase: FastAPI Web GUI
+Approved direction:
+- preserve the current CLI / scheduled report flow as a stable baseline
+- prepare a new Web GUI phase on a separate branch after tagging the current report-stable milestone
+- use FastAPI + Jinja2 + simple HTML/CSS/JavaScript rather than introducing React/Vue in phase 1
+- keep ThingsBoard explicitly out of the current implementation scope
+
+Approved execution strategy:
+1. tag/release the current report-stable baseline first
+2. create a dedicated feature branch for Web GUI work
+3. extract shared execution services before adding web routes
+4. add browser-facing report routes only after the shared report-engine path is stable
+
+Current architecture warning:
+- this is not just a UI feature
+- it is a request-driven execution-model refactor because period selection must move from `.env`-driven runtime behavior toward service parameters that can be passed safely from web requests
+
 ---
 
 ## 5. Current Export Extensions
@@ -402,6 +419,12 @@ Execution rule remains:
   - repoint lingering local color literals toward palette/theme ownership
   - keep reducing section-specific hardcoded chart colors where practical
   - continue removing compatibility aliases only after each affected surface is verified stable
+
+### 6.5 Web GUI phase preparation
+- document the approved FastAPI Web GUI architecture before implementation
+- create one active checklist for branch/tag strategy, shared report-engine extraction, web routes, browser print, and CSV export
+- keep `custom` period behind the first daily/weekly/monthly rollout unless the service contract is already stable enough to absorb the extra report-semantics work
+- define what `Export CSV` means before implementation so the endpoint does not drift between raw DB rows, normalized ETL rows, and report-ready tabular rows
 
 ---
 

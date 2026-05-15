@@ -788,7 +788,75 @@ The report should remain:
 
 ---
 
-## 15. Style and Theme Configuration Direction
+## 15. Planned Web GUI Surface
+
+### 15.1 Purpose
+The approved next browser-facing phase should let an end user:
+- open the report in a web browser
+- choose a report period
+- refresh the report for the selected timeline
+- print from the browser
+- export CSV for the same selected timeline
+
+The Web GUI should reuse the current report template family and backend report context as much as possible.
+
+### 15.2 Web filter bar scope
+The planned filter bar should contain:
+- `Period Type`
+- one or more dynamic date inputs based on the selected period type
+- `Refresh`
+- `Print`
+- `Export CSV`
+
+Initial period options:
+- `daily`
+- `weekly`
+- `monthly`
+- `custom` only after the shared service contract is stable enough to absorb the extra report-semantics work safely
+
+### 15.3 Period resolution rules for the browser phase
+Approved direction:
+- `daily`: one date input, resolved to that day
+- `weekly`: one date input, backend resolves the enclosing Monday -> Sunday week
+- `monthly`: one month input, backend resolves first day -> last day of month
+- `custom`: explicit `start_date` + `end_date`, inclusive range, maximum 31 days
+
+Validation rule:
+- frontend may guide input, but backend must validate again
+- web requests must not edit `.env` to change runtime period
+- route handlers should resolve request period into explicit service parameters
+
+### 15.4 Print rule for the browser phase
+The first browser-print phase should use:
+- `window.print()`
+- print CSS that hides the filter bar and action buttons
+- A4-oriented page settings where practical
+
+This browser-print surface is related to, but not identical to, the current Chromium PDF batch export path. It should be treated as its own output surface and tuned incrementally.
+
+### 15.5 CSV export rule for the browser phase
+CSV export must use the same resolved timeline as the rendered report page.
+
+Before implementation, the project must lock one explicit export contract for what `raw data` means, for example:
+- raw DB rows
+- normalized ETL rows
+- report-ready tabular rows
+
+The endpoint should not remain ambiguous across these meanings.
+
+### 15.6 Architecture rule for the browser phase
+The approved direction is to keep web routes thin and place heavy execution logic in a shared backend service, for example a `report_engine_service`.
+
+Route responsibilities should stay limited to:
+- reading request parameters
+- validating input
+- resolving the period
+- calling the shared service
+- rendering HTML or returning a file response
+
+---
+
+## 16. Style and Theme Configuration Direction
 
 ### 15.1 Centralization Goal
 Report presentation tokens should move toward a centralized JSON configuration instead of staying hard-coded across templates and CSS assets.

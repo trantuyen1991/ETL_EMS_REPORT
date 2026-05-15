@@ -517,10 +517,63 @@ OpenClaw is expected to:
 
 Planned improvements:
 
+* FastAPI-based Web GUI for browser report access
+* request-driven report execution that resolves period inputs without editing `.env`
+* a shared report-engine service so CLI flow and Web GUI reuse the same backend execution path
+* browser print support for the rendered HTML report surface
+* CSV export for the selected report timeline after the export payload contract is explicitly defined
 * sensor monitoring charts
 * weekly/monthly Excel workbook expansion if later approved
 * advanced KPI visualization
 * alerting / anomaly detection
 * improved PDF layout engine
+* ThingsBoard visualization only after the Web GUI phase is stable
+
+### 13.1 Web GUI phase intent
+
+Approved near-term goal:
+
+* turn the current ETL/report pipeline into a simple browser-based reporting system
+* keep the existing report templates and core ETL logic reusable
+* avoid a frontend-framework rewrite in phase 1
+
+Approved scope for the first browser-facing phase:
+
+* FastAPI web app on the current Ubuntu host
+* Jinja2-rendered report page
+* period filter bar for `daily`, `weekly`, and `monthly`
+* `custom` period only after the shared execution model is stable enough to support the extra semantics safely
+* browser print using `window.print()` plus print CSS that hides the filter controls
+* CSV export for the selected timeline
+
+Explicit non-scope for the current phase:
+
+* ThingsBoard widgets
+* a separate React/Vue SPA
+* per-request edits to `.env`
+* moving business logic into route handlers
+
+### 13.2 Approved execution strategy for the Web GUI phase
+
+Required technical direction:
+
+1. preserve the current CLI/scheduled flow as a stable baseline
+2. tag the current report-stable milestone before major architecture refactor
+3. create a dedicated feature branch for Web GUI work
+4. extract shared execution pieces before adding browser routes
+5. keep web routes thin:
+   * accept request params
+   * validate input
+   * resolve period
+   * call a report-engine service
+   * render template or return file download
+
+Preferred extraction order:
+
+1. `resolve_period(...)`
+2. `run_report_pipeline(...)`
+3. `render_report_html(...)`
+4. `export_report_csv(...)`
+5. web route integration after the shared path is stable
 
 ````
