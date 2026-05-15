@@ -795,8 +795,8 @@ The approved next browser-facing phase should let an end user:
 - open the report in a web browser
 - choose a report period
 - refresh the report for the selected timeline
-- print from the browser
-- export CSV for the same selected timeline
+- inspect either the interactive HTML surface or the real rendered PDF preview
+- download the backend-built report package for the same selected timeline
 
 The Web GUI should reuse the current report template family and backend report context as much as possible.
 
@@ -804,9 +804,12 @@ The Web GUI should reuse the current report template family and backend report c
 The planned filter bar should contain:
 - `Period Type`
 - one or more dynamic date inputs based on the selected period type
-- template switch between `view.html` and `pdf_source.html`
+- template switch between `Interactive (view.html)` and `Print Preview (real PDF)`
 - `Refresh`
 - one package-download action for the rendered report set
+
+Implementation note:
+- `Print Preview` may still be built from the PDF-oriented template family internally, but the browser-facing preview should prefer the final rendered PDF artifact when page-accurate review matters more than HTML immediacy.
 
 Initial period options for phase 1:
 - `daily`
@@ -857,6 +860,11 @@ Route responsibilities should stay limited to:
 - resolving the period
 - calling the shared service
 - rendering HTML or returning a file response
+
+Current browser route shape:
+- `/reports` serves the shell page and the embedded interactive HTML surface
+- `/reports/preview-pdf` returns the real rendered PDF for browser preview
+- `/reports/download-zip` returns the backend-built package download
 
 ---
 

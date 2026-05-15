@@ -129,13 +129,19 @@ The web layer should not:
 - run shared report pipeline
 - render the report page
 
-## 8.3 `GET /reports/download-zip`
+## 8.3 `GET /reports/preview-pdf`
+- resolve period from query params
+- validate request
+- render or reuse the real backend-built PDF artifact for the selected timeline
+- return inline `application/pdf` for browser preview
+
+## 8.4 `GET /reports/download-zip`
 - resolve period from query params
 - validate request
 - resolve the backend-built report package to download
 - return a ZIP file for the selected report folder
 
-## 8.4 `GET /health`
+## 8.5 `GET /health`
 - return a simple health JSON payload
 
 ---
@@ -262,8 +268,9 @@ Recommended cache-key shape:
 
 Implemented cache/result state at the current checkpoint:
 - `ReportEngineService` now owns the in-memory preview cache rather than FastAPI routes.
-- browser preview supports explicit cache bypass through `force_refresh=1`.
-- template-only switching stays on the warm-cache path.
+- HTML browser preview supports explicit cache bypass through `force_refresh=1`.
+- template-only switching stays on the warm-cache path for the interactive HTML surface.
+- real PDF preview now uses a dedicated `/reports/preview-pdf` route and renders or reuses the final PDF artifact instead of relying on simulated browser pagination of `pdf_source.html`.
 - ZIP reuse now follows month-folder freshness rather than rebuilding blindly.
 - validated local timings after implementation were about:
   - forced/cold daily preview: `1.11s`
@@ -291,6 +298,8 @@ Current browser-shell behavior:
 - outer page scroll is hidden while iframe/report scroll remains active.
 - action buttons stay on one row.
 - template-only switching auto reloads preview immediately, while period/date changes still depend on `Refresh`.
+- `Interactive (view.html)` still renders as embedded HTML.
+- `Print Preview` now opens the real rendered PDF inside the WebUI through `/reports/preview-pdf`.
 
 Current header-preview design direction:
 - HTML `view.html` now uses an HTML-native two-column header preview layout.
@@ -301,18 +310,17 @@ Current header-preview design direction:
   - `background_image_left.svg`
   - `background_image_right.svg`
 - preview header shell is now white to avoid a visible seam between the left and right columns.
-- both `view.html` and `pdf_source.html` preview now anchor the left artwork to the left edge of the left column.
+- both `view.html` and the final PDF header now anchor the left artwork to the left edge of the left column.
 
 Current PDF-family preview rule:
-- `pdf_source.html` browser preview now mirrors the newer two-column header layout.
-- actual print/export PDF output remains frozen on the legacy PDF header.
-- this is implemented with separate `pdf-header-screen-only` and `pdf-header-print-only` blocks so browser preview can evolve without risking print stability.
+- `pdf_source.html` remains the backend PDF-oriented HTML source used to build the final PDF artifact.
+- WebUI `Print Preview` no longer depends on simulated screen pagination of `pdf_source.html`.
+- the browser now previews the real PDF artifact so page flow matches export behavior for sections such as Top 10, Utility, Sensor Cluster, and KPI.
 
-Traceability note for the recent header-preview checkpoint chain:
+Traceability note for the recent preview checkpoint chain:
 - `067199a` `feat(web): split html header into two background columns`
 - `65f828a` `fix(web): remove duplicate html header logo overlay`
-- `f3d5125` `feat(web): align pdf source preview header with web layout`
-- `146a11a` `fix(web): switch preview header shell to white`
+- `1dc0a20` `feat(web): preview real pdf in print surface`
 
 ---
 

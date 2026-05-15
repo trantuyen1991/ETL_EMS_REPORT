@@ -101,7 +101,7 @@ Current implementation note:
 - [x] `weekly` resolves Monday -> Sunday correctly
 - [x] `monthly` resolves first day -> last day correctly
 - [x] `view.html` surface renders through the browser route
-- [x] `pdf_source.html` surface renders through the browser route
+- [x] `pdf_source` Print Preview opens the real rendered PDF through the browser route
 - [x] ZIP download returns the selected month package
 - [x] CLI/report flow remains intact after the web layer is added
 
@@ -132,14 +132,15 @@ Chosen cache strategy for the current Web GUI phase:
 - place cache inside the shared service layer (`ReportEngineService`), not in FastAPI route handlers.
 - use two primary cache units for browser preview:
   - `report context cache` keyed by normalized period input (`period_type`, `anchor_date`, `start_date`, `end_date`) plus a cache-version fingerprint.
-  - `rendered HTML cache` keyed by the same normalized period key plus `template_mode` (`view` or `pdf_source`).
-- use one artifact cache rule for ZIP download:
+  - `rendered HTML cache` keyed by the same normalized period key plus `template_mode` for the interactive HTML surface.
+- use one artifact cache rule for real PDF preview and ZIP download:
+  - if the final PDF for the selected request already exists, reuse it for `Print Preview` unless `force_refresh=1` is requested.
   - if the month package ZIP already exists and is newer than the month folder contents, serve it directly.
   - if the month folder exists but the ZIP is stale, rebuild only the ZIP.
   - if the month folder does not exist yet, render the requested package on demand, then zip it.
 - the `Refresh` button is now implemented as an explicit cache-bypass action through `force_refresh=1`.
-- template-only switching does not bypass cache, so the UI can reuse a warm context/HTML path immediately.
-- initial safe TTL for preview caches remains `5 minutes` in-process.
+- template-only switching does not bypass cache for `Interactive`, while `Print Preview` can rebuild or reuse the final PDF artifact as needed.
+- initial safe TTL for preview caches remains `5 minutes` in-process for HTML preview data.
 - validated local result after implementation:
   - forced/cold daily preview: about `1.11s`
   - warm daily preview: about `0.008s` to `0.009s`
@@ -147,7 +148,7 @@ Chosen cache strategy for the current Web GUI phase:
   - explicit refresh bypass
   - process restart/deploy restart
   - style/config version changes included in the cache fingerprint
-  - successful on-demand rerender replacing the corresponding HTML/ZIP artifacts
+  - successful on-demand rerender replacing the corresponding HTML/PDF/ZIP artifacts
 
 ---
 
@@ -158,6 +159,5 @@ Chosen cache strategy for the current Web GUI phase:
 - [x] preserve the current CLI/report flow
 - [x] avoid per-request `.env` edits
 - [x] prefer release/tag first, then a new feature branch
-- [x] freeze actual print PDF header while allowing browser previews to evolve separately
-- [x] use the new two-column header treatment for `view.html` and for `pdf_source.html` preview
-- [x] keep `pdf_source.html` preview changes screen-only by separating `pdf-header-screen-only` from `pdf-header-print-only`
+- [x] unify the new two-column title header across browser preview and final PDF export
+- [x] use real PDF preview for `Print Preview` when simulated `pdf_source.html` pagination is not trustworthy enough
