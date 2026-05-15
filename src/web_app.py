@@ -47,6 +47,7 @@ def render_report_page(
     month: str | None = Query(default=None),
     start_date: str | None = Query(default=None),
     end_date: str | None = Query(default=None),
+    force_refresh: bool = Query(default=False),
     _embed: bool = Query(default=False),
 ) -> HTMLResponse:
     """Render either the report shell or the embedded report body."""
@@ -60,6 +61,7 @@ def render_report_page(
                 anchor_date_text=anchor_date,
                 start_date_text=start_date,
                 end_date_text=end_date,
+                force_refresh=force_refresh,
             )
             return HTMLResponse(content=result.html)
         except ReportRequestError as exc:
@@ -108,13 +110,21 @@ def render_report_page(
         shell_error_message = str(exc)
         show_report_iframe = False
 
-    iframe_query = {
-        "_embed": "1",
+    preview_query = {
         "period_type": normalized_period_type,
         "template_mode": normalized_template_mode,
     }
+    if force_refresh:
+        preview_query["force_refresh"] = "1"
     if normalized_anchor_date:
-        iframe_query["anchor_date"] = normalized_anchor_date
+        preview_query["anchor_date"] = normalized_anchor_date
+
+    if normalized_template_mode == "pdf_source":
+        report_preview_src = f"/reports/preview-pdf?{urlencode(preview_query)}"
+    else:
+        embed_query = dict(preview_query)
+        embed_query["_embed"] = "1"
+        report_preview_src = f"/reports?{urlencode(embed_query)}"
 
     download_query = {
         "period_type": normalized_period_type,
@@ -134,13 +144,59 @@ def render_report_page(
             "month_value": normalized_month,
             "start_date": normalized_start_date,
             "end_date": normalized_end_date,
-            "report_iframe_src": f"/reports?{urlencode(iframe_query)}",
+            "report_iframe_src": report_preview_src,
             "download_zip_url": f"/reports/download-zip?{urlencode(download_query)}",
             "shell_error_message": shell_error_message,
             "show_report_iframe": show_report_iframe,
         },
     )
     return HTMLResponse(content=shell_html)
+
+
+@app.get("/reports/preview-pdf", response_model=None)
+def preview_report_pdf(
+    period_type: str | None = Query(default=None),
+    template_mode: str | None = Query(default=None),
+    anchor_date: str | None = Query(default=None),
+    month: str | None = Query(default=None),
+    force_refresh: bool = Query(default=False),
+):
+    """Return one real rendered PDF for in-browser preview."""
+    try:
+        normalized_period_type = _normalize_phase1_period_type(period_type)
+        _normalize_template_mode(template_mode)
+        normalized_anchor_date = str(anchor_date or "").strip()
+        normalized_month = str(month or "").strip()
+        if normalized_period_type == "monthly" and not normalized_anchor_date and normalized_month:
+            normalized_anchor_date = f"{normalized_month}-01"
+
+        pdf_path = report_engine.build_report_pdf_preview(
+            period_type=normalized_period_type,
+            anchor_date_text=normalized_anchor_date,
+            force_refresh=force_refresh,
+        )
+        return FileResponse(
+            path=pdf_path,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'inline; filename="{pdf_path.name}"',
+            },
+        )
+    except ReportRequestError as exc:
+        return HTMLResponse(
+            content=_build_report_error_html(str(exc)),
+            status_code=400,
+        )
+    except FileNotFoundError as exc:
+        return HTMLResponse(
+            content=_build_report_error_html(str(exc)),
+            status_code=404,
+        )
+    except Exception:
+        return HTMLResponse(
+            content=_build_report_error_html("Failed to render preview PDF."),
+            status_code=500,
+        )
 
 
 @app.get("/reports/download-zip", response_model=None)

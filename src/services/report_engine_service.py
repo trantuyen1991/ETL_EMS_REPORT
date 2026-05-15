@@ -8,10 +8,12 @@ providing a reusable execution path for the existing batch CLI entrypoint.
 from __future__ import annotations
 
 import re
+import time
 import zipfile
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
+from threading import RLock
 from typing import Any, Optional
 
 from src.config.config_loader import load_config
@@ -50,12 +52,24 @@ class ReportRenderResult:
     template_mode: str
 
 
+@dataclass(frozen=True)
+class MemoryCacheEntry:
+    """Simple in-memory cache entry with creation timestamp."""
+
+    created_at: float
+    value: Any
+
+
 class ReportEngineService:
     """Provide shared report rendering entry points for batch and web surfaces."""
 
     def __init__(self, project_root: Path | None = None) -> None:
         self.project_root = project_root
         self.period_service = PeriodService()
+        self.preview_cache_ttl_seconds = 300.0
+        self._preview_context_cache: dict[str, MemoryCacheEntry] = {}
+        self._preview_html_cache: dict[str, MemoryCacheEntry] = {}
+        self._cache_lock = RLock()
 
     def bootstrap_runtime(self) -> dict[str, Any]:
         """Bootstrap runtime objects for report generation."""
@@ -206,37 +220,114 @@ class ReportEngineService:
         anchor_date_text: str | None = None,
         start_date_text: str | None = None,
         end_date_text: str | None = None,
+        force_refresh: bool = False,
     ) -> ReportRenderResult:
         """Render one selected report surface for browser delivery."""
+        project_root = self.project_root or Path(__file__).resolve().parent.parent.parent
+        config = self.load_runtime_config(project_root=project_root)
+        period = self.resolve_request_period_from_config(
+            config,
+            period_type=period_type,
+            anchor_date_text=anchor_date_text,
+            start_date_text=start_date_text,
+            end_date_text=end_date_text,
+        )
+        normalized_template_mode = self._normalize_template_mode(template_mode)
+        render_mode = "pdf" if normalized_template_mode == "pdf_source" else "html"
+        cache_fingerprint = self._build_preview_cache_fingerprint(
+            project_root=project_root,
+            period=period,
+        )
+        context_cache_key = self._build_preview_context_cache_key(
+            period=period,
+            render_mode=render_mode,
+            cache_fingerprint=cache_fingerprint,
+        )
+        html_cache_key = self._build_preview_html_cache_key(
+            period=period,
+            template_mode=normalized_template_mode,
+            cache_fingerprint=cache_fingerprint,
+        )
+
+        cached_context = None if force_refresh else self._get_memory_cache_value(
+            self._preview_context_cache,
+            context_cache_key,
+        )
+        cached_html = None if force_refresh else self._get_memory_cache_value(
+            self._preview_html_cache,
+            html_cache_key,
+        )
+
+        if cached_context is not None and cached_html is not None:
+            logger.info(
+                "Served Web GUI report HTML from warm cache | template_mode=%s period_type=%s start_date=%s end_date=%s",
+                normalized_template_mode,
+                period.period_type,
+                period.start_date,
+                period.end_date,
+            )
+            return ReportRenderResult(
+                period=period,
+                report_context=cached_context,
+                html=cached_html,
+                template_mode=normalized_template_mode,
+            )
+
+        template_bundle = self._select_template_bundle(period.period_type)
+        template_name = template_bundle["pdf"] if normalized_template_mode == "pdf_source" else template_bundle["view"]
+
+        if cached_context is not None:
+            renderer = TemplateRenderingService("src/templates")
+            html = renderer.render(template_name, cached_context)
+            self._set_memory_cache_value(
+                self._preview_html_cache,
+                html_cache_key,
+                html,
+            )
+            logger.info(
+                "Rendered Web GUI report HTML from warm context cache | template_mode=%s period_type=%s start_date=%s end_date=%s",
+                normalized_template_mode,
+                period.period_type,
+                period.start_date,
+                period.end_date,
+            )
+            return ReportRenderResult(
+                period=period,
+                report_context=cached_context,
+                html=html,
+                template_mode=normalized_template_mode,
+            )
+
         runtime: dict[str, Any] | None = None
 
         try:
             runtime = self.bootstrap_runtime()
-            period = self.resolve_request_period(
-                runtime,
-                period_type=period_type,
-                anchor_date_text=anchor_date_text,
-                start_date_text=start_date_text,
-                end_date_text=end_date_text,
-            )
-            normalized_template_mode = self._normalize_template_mode(template_mode)
-            render_mode = "pdf" if normalized_template_mode == "pdf_source" else "html"
             report_context = self.build_report_context(
                 runtime=runtime,
                 period=period,
                 render_mode=render_mode,
             )
             renderer = TemplateRenderingService("src/templates")
-            template_bundle = self._select_template_bundle(period.period_type)
-            template_name = template_bundle["pdf"] if normalized_template_mode == "pdf_source" else template_bundle["view"]
             html = renderer.render(template_name, report_context)
 
+            self._set_memory_cache_value(
+                self._preview_context_cache,
+                context_cache_key,
+                report_context,
+            )
+            self._set_memory_cache_value(
+                self._preview_html_cache,
+                html_cache_key,
+                html,
+            )
+
             logger.info(
-                "Rendered Web GUI report HTML | template_mode=%s period_type=%s start_date=%s end_date=%s",
+                "Rendered Web GUI report HTML | template_mode=%s period_type=%s start_date=%s end_date=%s force_refresh=%s",
                 normalized_template_mode,
                 period.period_type,
                 period.start_date,
                 period.end_date,
+                force_refresh,
             )
 
             return ReportRenderResult(
@@ -247,6 +338,56 @@ class ReportEngineService:
             )
         finally:
             self.close_runtime(runtime)
+
+    def build_report_pdf_preview(
+        self,
+        *,
+        period_type: str | None = None,
+        anchor_date_text: str | None = None,
+        start_date_text: str | None = None,
+        end_date_text: str | None = None,
+        force_refresh: bool = False,
+    ) -> Path:
+        """Return one real rendered PDF path for browser preview."""
+        config = self.load_runtime_config()
+        env_cfg = config.get("env") or {}
+        project_root = self.project_root or Path(__file__).resolve().parent.parent.parent
+        period = self.resolve_request_period_from_config(
+            config,
+            period_type=period_type,
+            anchor_date_text=anchor_date_text,
+            start_date_text=start_date_text,
+            end_date_text=end_date_text,
+        )
+
+        canonical_output_root = self._resolve_canonical_output_root(
+            env_cfg=env_cfg,
+            project_root=project_root,
+        )
+        month_dir = self._resolve_monthly_report_dir(canonical_output_root, period)
+        export_stem = self._build_report_export_stem(env_cfg, period)
+        pdf_path = month_dir / "pdf" / f"{export_stem}.pdf"
+
+        if not force_refresh and pdf_path.exists():
+            logger.info(
+                "Reused existing preview PDF | period_type=%s pdf_path=%s",
+                period.period_type,
+                pdf_path,
+            )
+            return pdf_path
+
+        artifacts = self.render_period_package(period=period)
+        final_pdf_path = artifacts.get("pdf")
+        if not isinstance(final_pdf_path, Path) or not final_pdf_path.exists():
+            raise FileNotFoundError("Failed to build preview PDF artifact.")
+
+        logger.info(
+            "Built preview PDF on demand | period_type=%s pdf_path=%s force_refresh=%s",
+            period.period_type,
+            final_pdf_path,
+            force_refresh,
+        )
+        return final_pdf_path
 
     def build_report_package_zip(
         self,
@@ -284,6 +425,15 @@ class ReportEngineService:
         downloads_dir = canonical_output_root / "_downloads"
         downloads_dir.mkdir(parents=True, exist_ok=True)
         zip_path = downloads_dir / f"{month_dir.name}_report_package.zip"
+
+        if self._is_zip_artifact_fresh(zip_path=zip_path, source_dir=month_dir):
+            logger.info(
+                "Reused fresh report package ZIP | period_type=%s month_dir=%s zip_path=%s",
+                period.period_type,
+                month_dir,
+                zip_path,
+            )
+            return zip_path
 
         with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
             for path in sorted(month_dir.rglob("*")):
@@ -772,6 +922,124 @@ class ReportEngineService:
         """Resolve the canonical month directory for one report anchor."""
         anchor_value = self._resolve_report_anchor_value(period)
         return canonical_output_root / anchor_value.strftime("%Y_%m")
+
+    def _build_preview_cache_fingerprint(
+        self,
+        *,
+        project_root: Path,
+        period: ResolvedPeriod,
+    ) -> str:
+        """Build a lightweight version fingerprint for preview-cache safety."""
+        template_bundle = self._select_template_bundle(period.period_type)
+        tracked_paths = [
+            project_root / "config" / "app.yaml",
+            project_root / "config" / "report_style.json",
+            project_root / "src" / "services" / "report_builder_service.py",
+            project_root / "src" / "templates" / template_bundle["view"],
+            project_root / "src" / "templates" / template_bundle["pdf"],
+        ]
+        parts: list[str] = []
+        for path in tracked_paths:
+            try:
+                parts.append(f"{path.name}:{path.stat().st_mtime_ns}")
+            except FileNotFoundError:
+                parts.append(f"{path.name}:missing")
+        return "|".join(parts)
+
+    def _build_preview_context_cache_key(
+        self,
+        *,
+        period: ResolvedPeriod,
+        render_mode: str,
+        cache_fingerprint: str,
+    ) -> str:
+        """Build one cache key for reusable report context."""
+        anchor_date = getattr(period, "anchor_date", None)
+        return "|".join([
+            "context",
+            str(period.period_type),
+            str(anchor_date.isoformat() if anchor_date else ""),
+            str(period.start_date.isoformat()),
+            str(period.end_date.isoformat()),
+            str(render_mode),
+            cache_fingerprint,
+        ])
+
+    def _build_preview_html_cache_key(
+        self,
+        *,
+        period: ResolvedPeriod,
+        template_mode: str,
+        cache_fingerprint: str,
+    ) -> str:
+        """Build one cache key for rendered preview HTML."""
+        anchor_date = getattr(period, "anchor_date", None)
+        return "|".join([
+            "html",
+            str(period.period_type),
+            str(anchor_date.isoformat() if anchor_date else ""),
+            str(period.start_date.isoformat()),
+            str(period.end_date.isoformat()),
+            str(template_mode),
+            cache_fingerprint,
+        ])
+
+    def _get_memory_cache_value(
+        self,
+        cache_store: dict[str, MemoryCacheEntry],
+        cache_key: str,
+    ) -> Any:
+        """Return cached value when present and not expired."""
+        with self._cache_lock:
+            self._prune_expired_memory_cache_locked(cache_store)
+            entry = cache_store.get(cache_key)
+            if entry is None:
+                return None
+            if (time.time() - entry.created_at) > self.preview_cache_ttl_seconds:
+                cache_store.pop(cache_key, None)
+                return None
+            return entry.value
+
+    def _set_memory_cache_value(
+        self,
+        cache_store: dict[str, MemoryCacheEntry],
+        cache_key: str,
+        value: Any,
+    ) -> None:
+        """Store one in-memory cache value with current timestamp."""
+        with self._cache_lock:
+            self._prune_expired_memory_cache_locked(cache_store)
+            cache_store[cache_key] = MemoryCacheEntry(
+                created_at=time.time(),
+                value=value,
+            )
+
+    def _prune_expired_memory_cache_locked(
+        self,
+        cache_store: dict[str, MemoryCacheEntry],
+    ) -> None:
+        """Drop expired cache items while already holding the lock."""
+        now = time.time()
+        expired_keys = [
+            key
+            for key, entry in cache_store.items()
+            if (now - entry.created_at) > self.preview_cache_ttl_seconds
+        ]
+        for key in expired_keys:
+            cache_store.pop(key, None)
+
+    def _is_zip_artifact_fresh(self, *, zip_path: Path, source_dir: Path) -> bool:
+        """Return True when one ZIP file is at least as new as its source files."""
+        if not zip_path.exists() or not source_dir.exists() or not source_dir.is_dir():
+            return False
+
+        zip_mtime = zip_path.stat().st_mtime
+        newest_source_mtime = 0.0
+        for path in source_dir.rglob("*"):
+            if not path.is_file():
+                continue
+            newest_source_mtime = max(newest_source_mtime, path.stat().st_mtime)
+        return zip_mtime >= newest_source_mtime
 
     def _collect_report_batch_artifacts(
         self,
