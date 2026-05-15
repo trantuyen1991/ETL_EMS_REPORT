@@ -22,6 +22,12 @@
             box-sizing: border-box;
         }
 
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             margin: 0;
             font-family: Inter, Arial, sans-serif;
@@ -30,22 +36,24 @@
         }
 
         .web-shell {
-            min-height: 100vh;
+            height: 100vh;
+            width: 100%;
+            max-width: 1480px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            padding: 18px;
+            gap: 12px;
+            padding: 12px 16px;
+            overflow: hidden;
         }
 
         .web-toolbar {
             background: var(--web-shell-card);
             border: 1px solid var(--web-shell-border);
             border-radius: 18px;
-            padding: 18px 18px 14px;
+            padding: 14px 16px 12px;
             box-shadow: var(--web-shell-shadow);
-            position: sticky;
-            top: 12px;
-            z-index: 20;
+            flex: 0 0 auto;
         }
 
         .web-toolbar-head {
@@ -53,7 +61,7 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 16px;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
 
         .web-toolbar-title {
@@ -63,10 +71,10 @@
         }
 
         .web-toolbar-subtitle {
-            margin: 6px 0 0;
-            font-size: 13px;
+            margin: 4px 0 0;
+            font-size: 12px;
             color: var(--web-shell-muted);
-            line-height: 1.5;
+            line-height: 1.45;
         }
 
         .web-toolbar-status {
@@ -82,14 +90,97 @@
         .web-filter-form {
             display: flex;
             flex-direction: column;
+            gap: 8px;
+        }
+
+        .web-filter-disclosure {
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            overflow: hidden;
+        }
+
+        .web-filter-disclosure[open] {
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .web-filter-toggle {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 12px;
+            padding: 10px 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .web-filter-toggle::-webkit-details-marker {
+            display: none;
+        }
+
+        .web-filter-toggle-head {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .web-filter-toggle-title {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: var(--web-shell-muted);
+        }
+
+        .web-filter-toggle-note {
+            margin: 0;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        .web-filter-toggle-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .web-filter-toggle-caret {
+            flex: 0 0 auto;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid #dbe4ee;
+            background: #ffffff;
+            color: #475569;
+            font-size: 14px;
+            transition: transform 0.18s ease;
+        }
+
+        .web-filter-disclosure[open] .web-filter-toggle-caret {
+            transform: rotate(180deg);
+        }
+
+        .web-filter-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 0 12px 12px;
+            border-top: 1px solid #edf2f7;
         }
 
         .web-filter-grid {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 12px;
-            align-items: end;
+            grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(320px, 1fr);
+            gap: 10px;
+            align-items: stretch;
         }
 
         .web-field {
@@ -97,23 +188,81 @@
             flex-direction: column;
             gap: 6px;
             min-width: 0;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
         }
 
         .web-field.is-hidden {
             display: none;
         }
 
+        .web-label-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .web-field label {
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             color: var(--web-shell-muted);
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .web-hover-hint {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: help;
+            user-select: none;
+        }
+
+        .web-hover-hint::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 240px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.96);
+            color: #f8fafc;
+            font-size: 12px;
+            line-height: 1.45;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.28);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-2px);
+            transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+            z-index: 30;
+            pointer-events: none;
+            white-space: normal;
+        }
+
+        .web-hover-hint:hover::after,
+        .web-hover-hint:focus-visible::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
         .web-field input,
         .web-field select,
         .web-actions a,
         .web-actions button {
-            min-height: 42px;
+            min-height: 40px;
             border-radius: 12px;
             font-size: 14px;
         }
@@ -125,12 +274,48 @@
             background: #ffffff;
             color: var(--web-shell-text);
             padding: 0 12px;
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
+        }
+
+        .web-field input:focus,
+        .web-field select:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.16);
         }
 
         .web-actions {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 8px;
+            min-width: 0;
+            padding: 10px 12px;
+            border: 1px solid #dbe4ee;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+        }
+
+        .web-actions-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .web-actions-title {
+            margin: 0;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--web-shell-muted);
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .web-actions-row {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 8px;
         }
 
         .web-actions button,
@@ -140,9 +325,12 @@
             justify-content: center;
             text-decoration: none;
             border: 1px solid transparent;
-            padding: 0 16px;
+            padding: 0 14px;
             cursor: pointer;
             transition: all 0.18s ease;
+            flex: 1 1 0;
+            min-width: 0;
+            white-space: nowrap;
         }
 
         .web-actions .is-primary {
@@ -165,9 +353,36 @@
         }
 
         .web-filter-note {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--web-shell-muted);
-            line-height: 1.5;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 2px;
+        }
+
+        .web-filter-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .web-summary-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid #dbe4ee;
+            background: #ffffff;
+            color: #334155;
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        .web-summary-chip strong {
+            color: #0f172a;
         }
 
         .web-shell-alert {
@@ -193,7 +408,7 @@
 
         .web-report-panel {
             flex: 1 1 auto;
-            min-height: 70vh;
+            min-height: 0;
             background: var(--web-shell-card);
             border: 1px solid var(--web-shell-border);
             border-radius: 18px;
@@ -203,37 +418,77 @@
 
         .web-report-frame {
             width: 100%;
-            min-height: 78vh;
+            height: 100%;
+            min-height: 0;
             border: 0;
             background: #ffffff;
         }
 
         @media (max-width: 1280px) {
+            .web-shell {
+                max-width: 100%;
+            }
+
+            .web-filter-toggle {
+                align-items: flex-start;
+            }
+
+            .web-filter-toggle-meta {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
             .web-filter-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .web-actions {
+                grid-column: span 2;
             }
         }
 
         @media (max-width: 760px) {
             .web-shell {
-                padding: 12px;
-            }
-
-            .web-toolbar {
-                position: static;
+                padding: 10px;
             }
 
             .web-toolbar-head {
                 flex-direction: column;
             }
 
+            .web-filter-toggle {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .web-filter-toggle-meta {
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
             .web-filter-grid {
                 grid-template-columns: 1fr;
             }
 
-            .web-report-frame {
-                min-height: 88vh;
+            .web-actions {
+                grid-column: auto;
             }
+
+            .web-actions-row {
+                flex-direction: column;
+            }
+
+            .web-actions button,
+            .web-actions a {
+                width: 100%;
+            }
+
+            .web-hover-hint::after {
+                left: auto;
+                right: 0;
+                width: 220px;
+            }
+        }
         }
 
         @media print {
@@ -268,44 +523,82 @@
 
             <form id="report-filter-form" class="web-filter-form" action="/reports" method="get">
                 <input type="hidden" id="anchor-date-hidden" name="anchor_date" value="{{ anchor_date }}">
+                <input type="hidden" id="force-refresh-input" name="force_refresh" value="0">
 
-                <div class="web-filter-grid">
-                    <div class="web-field">
-                        <label for="period-type">Period Type</label>
-                        <select id="period-type" name="period_type">
-                            <option value="daily" {% if period_type == 'daily' %}selected{% endif %}>Daily</option>
-                            <option value="weekly" {% if period_type == 'weekly' %}selected{% endif %}>Weekly</option>
-                            <option value="monthly" {% if period_type == 'monthly' %}selected{% endif %}>Monthly</option>
-                        </select>
+                <details id="filter-disclosure" class="web-filter-disclosure" {% if shell_error_message %}open{% endif %}>
+                    <summary class="web-filter-toggle">
+                        <div class="web-filter-toggle-head">
+                            <p class="web-filter-toggle-title">Filters & Actions</p>
+                            <p class="web-filter-toggle-note">Collapsed by default. Expand only when you need to change filters or trigger actions.</p>
+                        </div>
+                        <div class="web-filter-toggle-meta">
+                            <div class="web-filter-summary" id="filter-summary">
+                                <div class="web-summary-chip"><strong>Mode</strong><span id="summary-mode">{{ period_type|default('monthly')|upper }}</span></div>
+                                <div class="web-summary-chip"><strong>Surface</strong><span id="summary-surface">{{ 'Detailed (view.html)' if template_mode|default('view') == 'view' else 'Print Preview (pdf_source.html)' }}</span></div>
+                                <div class="web-summary-chip"><strong>Selection</strong><span id="summary-selection">{{ month_value or anchor_date or '-' }}</span></div>
+                            </div>
+                            <span class="web-filter-toggle-caret">⌄</span>
+                        </div>
+                    </summary>
+
+                    <div class="web-filter-panel">
+                        <div class="web-filter-grid">
+                            <div class="web-field">
+                                <div class="web-label-row">
+                                    <label for="template-mode">Template Surface</label>
+                                    <span class="web-hover-hint" data-tooltip="Switch surface instantly. Detailed is easier to read in browser, while Print Preview follows the PDF-oriented structure." tabindex="0">?</span>
+                                </div>
+                                <select id="template-mode" name="template_mode">
+                                    <option value="view" {% if template_mode == 'view' %}selected{% endif %}>Detailed (view.html)</option>
+                                    <option value="pdf_source" {% if template_mode == 'pdf_source' %}selected{% endif %}>Print Preview (pdf_source.html)</option>
+                                </select>
+                            </div>
+
+                            <div class="web-field">
+                                <div class="web-label-row">
+                                    <label for="period-type">Period Type</label>
+                                    <span class="web-hover-hint" data-tooltip="Choose the reporting window first. This controls which date selector becomes active." tabindex="0">?</span>
+                                </div>
+                                <select id="period-type" name="period_type">
+                                    <option value="daily" {% if period_type == 'daily' %}selected{% endif %}>Daily</option>
+                                    <option value="weekly" {% if period_type == 'weekly' %}selected{% endif %}>Weekly</option>
+                                    <option value="monthly" {% if period_type == 'monthly' %}selected{% endif %}>Monthly</option>
+                                </select>
+                            </div>
+
+                            <div class="web-field" id="anchor-date-field">
+                                <div class="web-label-row">
+                                    <label for="anchor-date-input" id="anchor-date-label">Report Date</label>
+                                    <span class="web-hover-hint" id="anchor-date-hint" data-tooltip="Pick one exact local report date." tabindex="0">?</span>
+                                </div>
+                                <input type="date" id="anchor-date-input" value="{{ anchor_date }}">
+                            </div>
+
+                            <div class="web-field" id="month-field">
+                                <div class="web-label-row">
+                                    <label for="month-input">Month</label>
+                                    <span class="web-hover-hint" data-tooltip="Choose one month. The backend resolves the first and last day automatically." tabindex="0">?</span>
+                                </div>
+                                <input type="month" id="month-input" name="month" value="{{ month_value }}">
+                            </div>
+
+                            <div class="web-actions">
+                                <div class="web-actions-head">
+                                    <p class="web-actions-title">Actions</p>
+                                    <span class="web-hover-hint" data-tooltip="Use Refresh after changing period or date. Template switching reloads the preview automatically and can reuse warm cache." tabindex="0">?</span>
+                                </div>
+                                <div class="web-actions-row">
+                                    <button type="submit" class="is-primary">Refresh Preview</button>
+                                    <a class="is-secondary" id="download-zip-link" href="{{ download_zip_url }}">Download Report ZIP</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="web-filter-note" id="filter-note">
+                            Daily and weekly use a date anchor. Monthly uses a month selector. Phase 1 preview supports only daily, weekly, and monthly.
+                        </div>
                     </div>
-
-                    <div class="web-field">
-                        <label for="template-mode">Template Surface</label>
-                        <select id="template-mode" name="template_mode">
-                            <option value="view" {% if template_mode == 'view' %}selected{% endif %}>view.html</option>
-                            <option value="pdf_source" {% if template_mode == 'pdf_source' %}selected{% endif %}>pdf_source.html</option>
-                        </select>
-                    </div>
-
-                    <div class="web-field" id="anchor-date-field">
-                        <label for="anchor-date-input" id="anchor-date-label">Report Date</label>
-                        <input type="date" id="anchor-date-input" value="{{ anchor_date }}">
-                    </div>
-
-                    <div class="web-field" id="month-field">
-                        <label for="month-input">Month</label>
-                        <input type="month" id="month-input" name="month" value="{{ month_value }}">
-                    </div>
-
-                    <div class="web-actions">
-                        <button type="submit" class="is-primary">Refresh</button>
-                        <a class="is-secondary" id="download-zip-link" href="{{ download_zip_url }}">Download Report ZIP</a>
-                    </div>
-                </div>
-
-                <div class="web-filter-note" id="filter-note">
-                    Daily and weekly use a date anchor. Monthly uses a month selector. Phase 1 preview supports only daily, weekly, and monthly.
-                </div>
+                </details>
             </form>
         </section>
 
@@ -342,11 +635,16 @@
             const anchorDateLabel = document.getElementById('anchor-date-label');
             const anchorDateInput = document.getElementById('anchor-date-input');
             const anchorDateHidden = document.getElementById('anchor-date-hidden');
+            const forceRefreshInput = document.getElementById('force-refresh-input');
             const monthField = document.getElementById('month-field');
             const monthInput = document.getElementById('month-input');
             const filterNote = document.getElementById('filter-note');
+            const anchorDateHint = document.getElementById('anchor-date-hint');
             const downloadZipLink = document.getElementById('download-zip-link');
             const reportFrame = document.getElementById('report-frame');
+            const summaryMode = document.getElementById('summary-mode');
+            const summarySurface = document.getElementById('summary-surface');
+            const summarySelection = document.getElementById('summary-selection');
 
             function setHidden(element, hidden) {
                 element.classList.toggle('is-hidden', hidden);
@@ -360,13 +658,24 @@
 
                 if (mode === 'daily') {
                     anchorDateLabel.textContent = 'Report Date';
-                    filterNote.textContent = 'Daily reports use one exact local date. Switch template surface if you want to inspect view.html or pdf_source.html.';
+                    if (anchorDateHint) {
+                        anchorDateHint.setAttribute('data-tooltip', 'Pick one exact local report date.');
+                    }
+                    filterNote.textContent = 'Daily reports use one exact local date. Template switching reloads immediately, while period/date changes use Refresh.';
                 } else if (mode === 'weekly') {
                     anchorDateLabel.textContent = 'Week Anchor Date';
-                    filterNote.textContent = 'Weekly reports accept any date inside the target week. Backend resolves Monday to Sunday.';
+                    if (anchorDateHint) {
+                        anchorDateHint.setAttribute('data-tooltip', 'Pick any date inside the target week. The backend resolves Monday to Sunday.');
+                    }
+                    filterNote.textContent = 'Weekly reports accept any date inside the target week. Use Refresh after changing the anchor date.';
                 } else {
-                    filterNote.textContent = 'Monthly reports use the selected month. Backend resolves the first and last day automatically.';
+                    if (anchorDateHint) {
+                        anchorDateHint.setAttribute('data-tooltip', 'Pick one exact local report date.');
+                    }
+                    filterNote.textContent = 'Monthly reports use the selected month. The backend resolves the first and last day automatically.';
                 }
+
+                updateSummary();
             }
 
             function buildQueryParams() {
@@ -401,10 +710,39 @@
                 anchorDateHidden.value = String(anchorDateInput.value || '').trim();
             }
 
+            function getSurfaceLabel(surface) {
+                return surface === 'pdf_source'
+                    ? 'Print Preview (pdf_source.html)'
+                    : 'Detailed (view.html)';
+            }
+
+            function updateSummary() {
+                const mode = String(periodType.value || 'monthly').toLowerCase();
+                const surface = String(templateMode.value || 'view');
+                let selection = '-';
+
+                if (mode === 'monthly') {
+                    selection = String(monthInput.value || '').trim() || '-';
+                } else {
+                    selection = String(anchorDateInput.value || '').trim() || '-';
+                }
+
+                if (summaryMode) {
+                    summaryMode.textContent = mode.toUpperCase();
+                }
+                if (summarySurface) {
+                    summarySurface.textContent = getSurfaceLabel(surface);
+                }
+                if (summarySelection) {
+                    summarySelection.textContent = selection;
+                }
+            }
+
             function updateDownloadLink() {
                 const params = buildQueryParams();
                 params.delete('template_mode');
                 downloadZipLink.href = '/reports/download-zip?' + params.toString();
+                updateSummary();
             }
 
             function updatePreviewFrame() {
@@ -419,6 +757,14 @@
             function updateShellUrl() {
                 const params = buildQueryParams();
                 window.history.replaceState({}, '', '/reports?' + params.toString());
+            }
+
+            function clearForceRefreshUrlFlag() {
+                const currentParams = new URLSearchParams(window.location.search);
+                if (!currentParams.has('force_refresh')) {
+                    return;
+                }
+                updateShellUrl();
             }
 
             periodType.addEventListener('change', function () {
@@ -436,11 +782,15 @@
             form.addEventListener('submit', function () {
                 syncMode();
                 syncHiddenFieldsBeforeSubmit();
+                if (forceRefreshInput) {
+                    forceRefreshInput.value = '1';
+                }
                 updateDownloadLink();
             });
 
             syncMode();
             updateDownloadLink();
+            clearForceRefreshUrlFlag();
         })();
     </script>
 </body>
