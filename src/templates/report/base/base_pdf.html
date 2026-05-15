@@ -763,12 +763,22 @@
                         ensureSectionClone();
                         sectionClone.appendChild(child);
 
-                        if (!fitsCurrentPage() && sectionClone.childNodes.length > 1) {
-                            sectionClone.removeChild(child);
-                            openPage(false);
-                            sectionClone = createSectionClone(section);
-                            current.inner.appendChild(sectionClone);
-                            sectionClone.appendChild(child);
+                        if (!fitsCurrentPage()) {
+                            var sectionIsFirstBlockOnPage = current.inner.firstChild === sectionClone;
+
+                            if (sectionClone.childNodes.length > 1) {
+                                sectionClone.removeChild(child);
+                                openPage(false);
+                                sectionClone = createSectionClone(section);
+                                current.inner.appendChild(sectionClone);
+                                sectionClone.appendChild(child);
+                            } else if (!sectionIsFirstBlockOnPage) {
+                                sectionClone.remove();
+                                openPage(false);
+                                sectionClone = createSectionClone(section);
+                                current.inner.appendChild(sectionClone);
+                                sectionClone.appendChild(child);
+                            }
                         }
                     });
                 }
@@ -788,9 +798,25 @@
                     return;
                 }
 
-                window.setTimeout(paginatePreview, 120);
-                window.setTimeout(paginatePreview, 900);
-                window.setTimeout(paginatePreview, 2200);
+                [120, 900, 2200, 5200, 7200].forEach(function (delayMs) {
+                    window.setTimeout(paginatePreview, delayMs);
+                });
+
+                var settleAttempts = 0;
+                window.clearInterval(window.__pdfPreviewPaginateInterval);
+                window.__pdfPreviewPaginateInterval = window.setInterval(function () {
+                    if (!isScreenPreviewMode()) {
+                        window.clearInterval(window.__pdfPreviewPaginateInterval);
+                        return;
+                    }
+
+                    paginatePreview();
+                    settleAttempts += 1;
+
+                    if (window.status === "ready" || settleAttempts >= 8) {
+                        window.clearInterval(window.__pdfPreviewPaginateInterval);
+                    }
+                }, 1200);
             }
 
             document.addEventListener("DOMContentLoaded", schedulePagination, { once: true });
