@@ -231,6 +231,20 @@ Until that choice is approved, CSV should stay out of the phase-1 browser toolba
 - improved error handling
 - prepare JSON/API direction for future ThingsBoard integration
 
+Initial measured findings on the current host:
+- shell route generation is effectively config-only and very fast, about `0.005s` in local curl timing.
+- embedded report routes are currently full shared-service renders with no request cache layer.
+- representative local timings observed during the first phase-3 review were:
+  - `daily view`: about `1.13s`
+  - `daily pdf_source`: about `1.12s`
+  - `weekly view`: about `1.26s`
+  - `monthly view`: about `1.48s`
+  - `monthly pdf_source`: about `1.51s`
+- warm ZIP download for an already-built month package was about `0.21s`.
+- when a requested month package does not exist yet, ZIP download can trigger a full on-demand render first, so cold-path cost is much higher than the warm ZIP timing.
+
+This suggests the first useful cache discussion should focus on embedded report HTML and on-demand ZIP generation, not on the shell page itself.
+
 ---
 
 ## 14. Success Criteria for the architecture phase

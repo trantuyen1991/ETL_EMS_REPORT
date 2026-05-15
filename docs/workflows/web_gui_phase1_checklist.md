@@ -103,10 +103,22 @@ Current implementation note:
 ---
 
 ## Phase 3 — Post-phase follow-up
-- [ ] review request latency and ETL cost
+- [x] review request latency and ETL cost
 - [ ] decide where caching belongs for browser-driven refresh
 - [ ] define future JSON/API shape for ThingsBoard integration
 - [ ] decide whether realtime telemetry should stay separate from report analytics
+
+Current phase-3 findings:
+- shell route `/reports` is lightweight when it only renders the toolbar shell, about `0.005s` in local curl timing.
+- embedded report renders currently re-bootstrap config + DB runtime on each request and are not cached.
+- observed local route timings on the current host were approximately:
+  - `daily view`: `1.13s`
+  - `daily pdf_source`: `1.12s`
+  - `weekly view`: `1.26s`
+  - `monthly view`: `1.48s`
+  - `monthly pdf_source`: `1.51s`
+- warm ZIP download for an already-built month package was about `0.21s`.
+- cold ZIP generation can be much more expensive because the route now renders the requested report package on demand before zipping when the month folder does not exist yet.
 
 ---
 
