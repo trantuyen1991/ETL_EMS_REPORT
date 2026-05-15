@@ -99,6 +99,8 @@ class ReportBuilderService:
                 "kpi_unit": meta.get("kpi_unit", "kWh/Ton"),
                 "company_logo_uri": self._build_company_logo_data_uri(),
                 "header_background_uri": self._build_icon_data_uri("title_background.png"),
+                "html_company_logo_uri": self._build_html_header_logo_data_uri(),
+                "html_header_background_uri": self._build_html_header_background_data_uri(),
                 "utility_header_icon_uri": self._build_icon_data_uri("utilityheader.svg"),
             },
             "period": v3_period_block["period"],
@@ -713,6 +715,22 @@ class ReportBuilderService:
     def _build_company_logo_data_uri(self) -> str:
         """Embed the company logo so both HTML preview and PDF render consistently."""
         for filename in ("logo_company.svg", "logo_company.png"):
+            asset_uri = self._build_icon_data_uri(filename)
+            if asset_uri:
+                return asset_uri
+        return ""
+
+    def _build_html_header_logo_data_uri(self) -> str:
+        """Embed the dedicated HTML-header logo asset when available."""
+        for filename in ("logo_company_White01.svg", "logo_company_White01.png"):
+            asset_uri = self._build_icon_data_uri(filename)
+            if asset_uri:
+                return asset_uri
+        return self._build_company_logo_data_uri()
+
+    def _build_html_header_background_data_uri(self) -> str:
+        """Embed the dedicated HTML-header background asset when available."""
+        for filename in ("Title_background.svg", "title_background01.png", "title_background.png"):
             asset_uri = self._build_icon_data_uri(filename)
             if asset_uri:
                 return asset_uri

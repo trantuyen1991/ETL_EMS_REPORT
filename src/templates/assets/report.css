@@ -374,6 +374,92 @@
             margin: 6px 0 10px 0;
         }
 
+        .report-header-banner-html {
+            min-height: 142px;
+            border-radius: 18px;
+            border-left-width: 0;
+            border: 1px solid rgba(191, 212, 229, 0.9);
+            background: linear-gradient(90deg, #d7e6f5 0%, #eaf3fb 34%, #f7fbff 100%);
+        }
+
+        .report-header-banner-html::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(236, 245, 252, 0.92) 0%, rgba(240, 247, 252, 0.8) 36%, rgba(255, 255, 255, 0.12) 70%, rgba(255, 255, 255, 0) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .report-header-background-html {
+            object-fit: cover;
+            object-position: center center;
+            opacity: 0.98;
+        }
+
+        .report-header-overlay-html {
+            min-height: 142px;
+            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+            align-items: center;
+            gap: 14px;
+            padding: 0 36px 0 24px;
+            background: none;
+        }
+
+        .report-banner-logo-slot-html {
+            position: relative;
+            z-index: 1;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 0;
+        }
+
+        .report-banner-logo-image-html {
+            display: block;
+            width: min(100%, 220px);
+            height: auto;
+            max-height: 44px;
+            filter: drop-shadow(0 4px 14px rgba(15, 23, 42, 0.16));
+        }
+
+        .report-banner-copy-html {
+            position: relative;
+            z-index: 1;
+            justify-content: center;
+            align-self: center;
+            gap: 7px;
+            max-width: 540px;
+            padding-right: 0;
+        }
+
+        .report-banner-copy-html .report-main-title {
+            line-height: 1;
+            color: #0b3554;
+            letter-spacing: -0.03em;
+        }
+
+        .report-banner-copy-html .report-hero-subtitle {
+            line-height: 1.24;
+            color: #284b63;
+        }
+
+        .report-banner-copy-html .report-meta-line {
+            gap: 6px;
+            color: #3f5f77;
+        }
+
+        .report-banner-copy-html .report-meta-line-label {
+            color: #0f3554;
+        }
+
+        .report-banner-copy-html .report-meta-line-value {
+            color: #005496;
+        }
+
+        .report-banner-copy-html .report-meta-line-icon {
+            color: #005496;
+        }
+
         /* ==========================================================================
         Period strip
         ========================================================================== */

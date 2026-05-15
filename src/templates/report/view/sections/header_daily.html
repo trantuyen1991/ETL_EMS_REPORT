@@ -3,16 +3,14 @@
              Header - Daily layout
              ========================================================== -->
         <header class="report-header-v3">
-            <div class="report-header-center report-header-banner">
-                <img src="{{ meta.header_background_uri }}" alt="" class="report-header-background" aria-hidden="true">
-                <div class="report-header-overlay">
-                    <div class="report-banner-logo-slot">
-                        <div class="report-banner-logo-crop">
-                            <img src="{{ meta.company_logo_uri }}" alt="AkzoNobel" class="report-banner-logo-image">
-                        </div>
+            <div class="report-header-center report-header-banner report-header-banner-html">
+                <img src="{{ meta.html_header_background_uri or meta.header_background_uri }}" alt="" class="report-header-background report-header-background-html" aria-hidden="true">
+                <div class="report-header-overlay report-header-overlay-html">
+                    <div class="report-banner-logo-slot report-banner-logo-slot-html">
+                        <img src="{{ meta.html_company_logo_uri or meta.company_logo_uri }}" alt="AkzoNobel" class="report-banner-logo-image-html">
                     </div>
 
-                    <div class="report-banner-copy">
+                    <div class="report-banner-copy report-banner-copy-html">
                         <h1 class="report-main-title">ENERGY REPORT</h1>
                         <p class="report-hero-subtitle">Daily automatic report • Energy performance overview</p>
                         <div class="report-meta-line">
