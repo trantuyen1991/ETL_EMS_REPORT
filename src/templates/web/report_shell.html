@@ -170,6 +170,27 @@
             line-height: 1.5;
         }
 
+        .web-shell-alert {
+            background: #fff7ed;
+            border: 1px solid #fdba74;
+            color: #9a3412;
+            border-radius: 16px;
+            padding: 14px 16px;
+            box-shadow: var(--web-shell-shadow);
+        }
+
+        .web-shell-alert-title {
+            margin: 0 0 6px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .web-shell-alert-body {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
         .web-report-panel {
             flex: 1 1 auto;
             min-height: 70vh;
@@ -292,13 +313,27 @@
             </form>
         </section>
 
+        {% if shell_error_message %}
+        <section class="web-shell-alert" role="alert">
+            <h2 class="web-shell-alert-title">Request validation error</h2>
+            <p class="web-shell-alert-body">{{ shell_error_message }}</p>
+        </section>
+        {% endif %}
+
         <section class="web-report-panel">
+            {% if show_report_iframe %}
             <iframe
                 id="report-frame"
                 class="web-report-frame"
                 src="{{ report_iframe_src }}"
                 title="Energy report preview"
             ></iframe>
+            {% else %}
+            <div class="web-shell-alert" style="margin: 18px;">
+                <h2 class="web-shell-alert-title">Preview paused</h2>
+                <p class="web-shell-alert-body">Fix the request values above, then press Refresh to load the report preview.</p>
+            </div>
+            {% endif %}
         </section>
     </div>
 

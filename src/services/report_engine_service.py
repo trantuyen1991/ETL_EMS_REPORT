@@ -67,11 +67,7 @@ class ReportEngineService:
         runtime_logger = get_logger(__name__)
         runtime_logger.info("=== REPORT RUN STARTED ===")
 
-        config = load_config(
-            env_path=project_root / "config" / ".env",
-            yaml_path=project_root / "config" / "app.yaml",
-        )
-
+        config = self.load_runtime_config(project_root=project_root)
         env_cfg = config["env"]
 
         mysql_config = MySQLConfig(
@@ -108,6 +104,14 @@ class ReportEngineService:
         if callable(close_fn):
             close_fn()
 
+    def load_runtime_config(self, project_root: Path | None = None) -> dict[str, Any]:
+        """Load config only, without opening DB connections."""
+        resolved_root = project_root or self.project_root or Path(__file__).resolve().parent.parent.parent
+        return load_config(
+            env_path=resolved_root / "config" / ".env",
+            yaml_path=resolved_root / "config" / "app.yaml",
+        )
+
     def resolve_request_period(
         self,
         runtime: dict[str, Any],
@@ -119,6 +123,24 @@ class ReportEngineService:
     ) -> ResolvedPeriod:
         """Resolve one browser/API request into the canonical period object."""
         config = runtime.get("config") or {}
+        return self.resolve_request_period_from_config(
+            config,
+            period_type=period_type,
+            anchor_date_text=anchor_date_text,
+            start_date_text=start_date_text,
+            end_date_text=end_date_text,
+        )
+
+    def resolve_request_period_from_config(
+        self,
+        config: dict[str, Any],
+        *,
+        period_type: str | None = None,
+        anchor_date_text: str | None = None,
+        start_date_text: str | None = None,
+        end_date_text: str | None = None,
+    ) -> ResolvedPeriod:
+        """Resolve one browser/API request using config only, without DB runtime."""
         normalized_period_type = str(period_type or "").strip().lower()
 
         if not normalized_period_type:

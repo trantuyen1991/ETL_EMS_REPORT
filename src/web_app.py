@@ -75,6 +75,35 @@ def render_report_page(
     normalized_start_date = str(start_date or "").strip()
     normalized_end_date = str(end_date or "").strip()
 
+    shell_error_message = ""
+    show_report_iframe = True
+
+    try:
+        config = report_engine.load_runtime_config()
+        resolved_period = report_engine.resolve_request_period_from_config(
+            config,
+            period_type=normalized_period_type,
+            anchor_date_text=normalized_anchor_date,
+            start_date_text=normalized_start_date,
+            end_date_text=normalized_end_date,
+        )
+        normalized_period_type = resolved_period.period_type
+        if normalized_period_type == "monthly":
+            normalized_anchor_date = resolved_period.anchor_date.isoformat() if resolved_period.anchor_date else ""
+            normalized_month = resolved_period.start_date.strftime("%Y-%m")
+        elif normalized_period_type in {"daily", "weekly"}:
+            normalized_anchor_date = resolved_period.anchor_date.isoformat() if resolved_period.anchor_date else ""
+            normalized_month = _derive_month_value(normalized_anchor_date)
+            normalized_start_date = ""
+            normalized_end_date = ""
+        elif normalized_period_type == "custom":
+            normalized_start_date = resolved_period.start_date.isoformat()
+            normalized_end_date = resolved_period.end_date.isoformat()
+            normalized_anchor_date = ""
+    except ReportRequestError as exc:
+        shell_error_message = str(exc)
+        show_report_iframe = False
+
     iframe_query = {
         "_embed": "1",
         "period_type": normalized_period_type,
@@ -107,6 +136,8 @@ def render_report_page(
             "end_date": normalized_end_date,
             "report_iframe_src": f"/reports?{urlencode(iframe_query)}",
             "csv_export_url": f"/reports/export-csv?{urlencode(csv_query)}",
+            "shell_error_message": shell_error_message,
+            "show_report_iframe": show_report_iframe,
         },
     )
     return HTMLResponse(content=shell_html)
