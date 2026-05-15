@@ -379,7 +379,7 @@
             border-radius: 18px;
             border-left-width: 0;
             border: 1px solid rgba(191, 212, 229, 0.9);
-            background: #f7fbff;
+            background: #ffffff;
         }
 
         .report-header-banner-html::after {
@@ -405,7 +405,7 @@
 
         .report-header-column-left-html {
             padding: 0;
-            background: #f7fbff;
+            background: #ffffff;
         }
 
         .report-header-column-right-html {
