@@ -346,6 +346,7 @@
             const monthInput = document.getElementById('month-input');
             const filterNote = document.getElementById('filter-note');
             const downloadZipLink = document.getElementById('download-zip-link');
+            const reportFrame = document.getElementById('report-frame');
 
             function setHidden(element, hidden) {
                 element.classList.toggle('is-hidden', hidden);
@@ -406,11 +407,29 @@
                 downloadZipLink.href = '/reports/download-zip?' + params.toString();
             }
 
+            function updatePreviewFrame() {
+                if (!reportFrame) {
+                    return;
+                }
+                const params = buildQueryParams();
+                params.set('_embed', '1');
+                reportFrame.src = '/reports?' + params.toString();
+            }
+
+            function updateShellUrl() {
+                const params = buildQueryParams();
+                window.history.replaceState({}, '', '/reports?' + params.toString());
+            }
+
             periodType.addEventListener('change', function () {
                 syncMode();
                 updateDownloadLink();
             });
-            templateMode.addEventListener('change', updateDownloadLink);
+            templateMode.addEventListener('change', function () {
+                updateDownloadLink();
+                updatePreviewFrame();
+                updateShellUrl();
+            });
             anchorDateInput.addEventListener('change', updateDownloadLink);
             monthInput.addEventListener('change', updateDownloadLink);
 
