@@ -28,6 +28,8 @@ Important notes
   smoke testing
 - Only install or enable the timer after B3 has restored:
   REPORT_ANCHOR_DATE=
+- Scheduled production expects host timezone Asia/Ho_Chi_Minh unless you
+  intentionally deploy another timezone
 - The bootstrap flow is meant to support 2 modes:
   - non-interactive flags for curl|bash / automation
   - interactive prompts for a local script run on a desktop/operator host
@@ -49,7 +51,11 @@ sudo ./bootstrap_ubuntu_host.sh --interactive --reset-project
 B1 - Fresh bootstrap + month-end smoke (Daily + Monthly)
 --------------------------------------------------------
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref deploy/stable --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --mysql-password admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref deploy/stable --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project
+
+Optional same-host Web UI install during bootstrap:
+
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref deploy/stable --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project --install-webui --web-host 0.0.0.0 --web-port 8000
 
 Check what was deployed:
 
@@ -60,6 +66,8 @@ OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" -path "$OUTPUT_ROOT/_staging" -prune -o -type f -print | sort | tail -n 30
 
 Expected idea for B1:
+- script prompts securely for MySQL password if it was omitted and the operator has a TTY
+- bootstrap warns if host timezone is not Asia/Ho_Chi_Minh
 - Daily artifacts for 2025-05-31 under "$OUTPUT_ROOT"/2025_05/
 - Monthly artifacts for 2025-05-31 under "$OUTPUT_ROOT"/2025_05/
 - Temporary print files are auto-cleaned after successful copy-back
@@ -92,6 +100,15 @@ sudo grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
 
 Expected result:
 - REPORT_ANCHOR_DATE=
+
+
+Timezone preflight before scheduled production
+----------------------------------------------
+
+timedatectl
+sudo timedatectl set-timezone Asia/Ho_Chi_Minh
+
+Only change timezone if the host is meant to follow Vietnam local time.
 
 
 B4 - Install systemd service and timer only after B3
@@ -184,6 +201,16 @@ Remove project and outputs:
 sudo rm -rf /srv/energy-report /srv/energy-report-output
 
 Then run B1 again.
+
+
+Production-ready quick sign-off
+-------------------------------
+
+timedatectl
+sudo grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+sudo systemctl status energy-report-etl.timer --no-pager
+sudo systemctl status energy-report-etl.service --no-pager
+curl -fsS http://127.0.0.1:8000/health || true
 
 
 Re-run only the bootstrap from scratch on a test host

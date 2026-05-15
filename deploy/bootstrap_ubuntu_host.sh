@@ -23,6 +23,7 @@ SKIP_SMOKE=0
 INTERACTIVE=0
 WEB_HOST="0.0.0.0"
 WEB_PORT="8000"
+EXPECTED_TIMEZONE="Asia/Ho_Chi_Minh"
 
 ARG_MYSQL_HOST=0
 ARG_MYSQL_PORT=0
@@ -77,11 +78,18 @@ Examples:
 
   sudo bash deploy/bootstrap_ubuntu_host.sh --interactive
 
-One-command remote usage (non-interactive):
+One-command remote usage (TTY prompt for MySQL password when omitted):
   curl -fsSL https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh | sudo bash -s -- \
     --mysql-host 192.168.100.82 \
     --mysql-database ems_db \
     --mysql-user admin
+
+One-command remote usage with Web UI too:
+  curl -fsSL https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh | sudo bash -s -- \
+    --mysql-host 192.168.100.82 \
+    --mysql-database ems_db \
+    --mysql-user admin \
+    --install-webui --web-host 0.0.0.0 --web-port 8000
 
 Interactive recommendation:
   curl -fsSL -o bootstrap_ubuntu_host.sh https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh
@@ -97,6 +105,10 @@ log() {
 die() {
   printf 'ERROR: %s\n' "$*" >&2
   exit 1
+}
+
+warn() {
+  printf 'WARNING: %s\n' "$*" >&2
 }
 
 has_tty() {
@@ -474,6 +486,26 @@ done
 [[ "${EUID}" -eq 0 ]] || die "Run this script as root, for example with sudo."
 
 configure_interactively
+check_timezone_preflight() {
+  local current_timezone=""
+
+  if ! command -v timedatectl >/dev/null 2>&1; then
+    warn "timedatectl is not available, so bootstrap cannot verify the host timezone. Expected: ${EXPECTED_TIMEZONE}."
+    return 0
+  fi
+
+  current_timezone="$(timedatectl show --property=Timezone --value 2>/dev/null || true)"
+  if [[ -z "${current_timezone}" ]]; then
+    warn "Bootstrap could not read the current host timezone. Expected scheduled baseline: ${EXPECTED_TIMEZONE}."
+    return 0
+  fi
+
+  log "Host timezone detected: ${current_timezone}"
+  if [[ "${current_timezone}" != "${EXPECTED_TIMEZONE}" ]]; then
+    warn "Host timezone is ${current_timezone}, not ${EXPECTED_TIMEZONE}. ETL timer runs in host local time, so 23:00 may fire at the wrong local hour until you run: sudo timedatectl set-timezone ${EXPECTED_TIMEZONE}"
+  fi
+}
+
 validate_configuration
 confirm_interactive_summary
 
@@ -482,6 +514,8 @@ export DEBIAN_FRONTEND=noninteractive
 log "Installing baseline packages"
 apt update
 apt install -y git python3 python3-venv python3-pip ca-certificates curl netcat-openbsd poppler-utils acl
+
+check_timezone_preflight
 
 log "Checking MySQL network access"
 nc -vz "${MYSQL_HOST}" "${MYSQL_PORT}"
@@ -624,4 +658,7 @@ If OUTPUT_DIR or PRINT_STAGING_DIR live under /home/<user>, bootstrap has alread
 
 Optional Web UI URL:
   http://127.0.0.1:${WEB_PORT}/reports
+
+Timezone expectation for scheduled production:
+  ${EXPECTED_TIMEZONE}
 EOF

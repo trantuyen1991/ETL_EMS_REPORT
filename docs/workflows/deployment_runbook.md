@@ -48,10 +48,21 @@ Recommended B1 command:
 curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --reset-project
 ```
 
+Behavior note:
+- if `--mysql-password` is omitted and the operator is running from a normal terminal, bootstrap prompts securely via TTY
+- this is now the preferred fresh-machine command shape for interactive human operators
+
+Optional B1 variant when the same host should expose Web UI immediately:
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --reset-project --install-webui --web-host 0.0.0.0 --web-port 8000
+```
+
 Important:
 - B1 intentionally does **not** use `--install-systemd`
 - do not enable the timer while `REPORT_ANCHOR_DATE` is still pinned for smoke testing
 - install or enable the timer only after B3 has restored `REPORT_ANCHOR_DATE=`
+- Web UI can be installed during B1 because it does not depend on scheduled-mode anchor rules
 
 ### 1.2 Hybrid bootstrap modes
 
@@ -138,6 +149,7 @@ sudo -u "$(whoami)" google-chrome \
 Timezone rule:
 - the scheduled ETL run uses the host timezone
 - if the job must fire at `23:00` Vietnam time, confirm the host timezone first
+- bootstrap now prints a preflight warning when the detected host timezone is not `Asia/Ho_Chi_Minh`
 
 ```bash
 timedatectl
@@ -444,20 +456,35 @@ systemctl list-timers energy-report-etl.timer --all
 
 ---
 
-## 9. Recommended deployment validation checklist
+## 9. Production-ready deployment checklist
 
-Before calling the deployment usable, verify:
+Before calling the deployment production-ready, verify all of the following:
+
+### 9.1 Host baseline
+- host timezone is intentionally set, normally `Asia/Ho_Chi_Minh`
+- the bootstrap timezone preflight warning was either clean or explicitly acknowledged
+- MySQL target is reachable from the host on the configured port
+- Google Chrome headless works on the host and under the `energy-report` service account
+
+### 9.2 Runtime configuration
 - MySQL credentials in `config/.env` are correct
 - `REPORT_ANCHOR_DATE` is blank in steady-state scheduled mode
 - output path is writable and non-hidden
+- if output/staging lives under `/home/<user>/...`, ACL setup was applied and the human owner can open/remove generated files
 - runtime app logging is size-rotated in `config/logging.yaml`
-- Chrome / Chromium is present and PDF export works
+- deployed branch/commit is the intended one for that machine
+
+### 9.3 ETL execution path
 - one manual run succeeds from `./venv/bin/python -m src.main`
 - `energy-report-etl.service` succeeds when started manually
 - `energy-report-etl.timer` is enabled and shows the expected next run
 - generated files land in the expected month-grouped folders under the configured output root
-- if Web UI is enabled, `energy-report-web.service` is active and `/health` responds locally
+
+### 9.4 Optional Web UI path
+- if Web UI is enabled, `energy-report-web.service` is active
+- if Web UI is enabled, `/health` responds locally
 - if Web UI is enabled, `/reports` loads on the chosen bind host/port
+- if Web UI is bound to `0.0.0.0`, host firewall / reverse-proxy exposure is intentional, not accidental
 
 Runtime application log baseline:
 - config source: `config/logging.yaml`
@@ -470,7 +497,28 @@ Runtime application log baseline:
 
 ---
 
-## 10. Operational troubleshooting notes
+## 10. Recommended quick production sign-off
+
+Use this minimal sign-off sequence on a fresh machine after bootstrap:
+
+```bash
+timedatectl
+sudo grep '^REPORT_ANCHOR_DATE=' /srv/energy-report/config/.env
+sudo systemctl status energy-report-etl.timer --no-pager
+sudo systemctl status energy-report-etl.service --no-pager
+curl -fsS http://127.0.0.1:8000/health || true
+```
+
+Expected reading:
+- timezone is the intended deployment timezone
+- `REPORT_ANCHOR_DATE=` is blank before scheduled production use
+- ETL timer is enabled and waiting for the right next run
+- ETL service has no immediate failure state
+- Web UI health is OK when that service is enabled
+
+---
+
+## 11. Operational troubleshooting notes
 
 If the timer runs but outputs look wrong, check these first:
 
@@ -498,7 +546,7 @@ find "$OUTPUT_ROOT" \
 
 ---
 
-## 11. Recommended document pairing
+## 12. Recommended document pairing
 
 Use these together:
 - deployment/bootstrap on a new host: `docs/workflows/deployment_runbook.md`
