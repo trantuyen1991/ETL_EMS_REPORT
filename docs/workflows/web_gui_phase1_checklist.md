@@ -70,13 +70,17 @@ Current prep note:
 ---
 
 ## Phase 2.1 — Web UI controls
-- [ ] add filter bar layout
-- [ ] add dynamic input switching by period type
-- [ ] add frontend guard rails for invalid custom ranges
-- [ ] add `Refresh` button flow
-- [ ] add `Print` button flow using `window.print()`
-- [ ] add `Export CSV` button flow
-- [ ] add print CSS to hide filter/action controls
+- [x] add filter bar layout
+- [x] add dynamic input switching by period type
+- [x] add frontend guard rails for invalid custom ranges
+- [x] add `Refresh` button flow
+- [x] add `Print` button flow using `window.print()`
+- [x] add `Export CSV` button flow
+- [x] add print CSS to hide filter/action controls
+
+Current implementation note:
+- `/reports` now serves a shell page with a filter toolbar and embedded report iframe.
+- `Export CSV` currently points to the reserved placeholder endpoint until the CSV contract is finalized.
 
 ---
 

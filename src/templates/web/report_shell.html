@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title or "Energy Report Web GUI" }}</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --web-shell-bg: #f8fafc;
+            --web-shell-card: #ffffff;
+            --web-shell-border: #dbe4ee;
+            --web-shell-border-strong: #cbd5e1;
+            --web-shell-text: #0f172a;
+            --web-shell-muted: #475569;
+            --web-shell-primary: #005496;
+            --web-shell-primary-strong: #003f72;
+            --web-shell-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, Arial, sans-serif;
+            background: var(--web-shell-bg);
+            color: var(--web-shell-text);
+        }
+
+        .web-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 18px;
+        }
+
+        .web-toolbar {
+            background: var(--web-shell-card);
+            border: 1px solid var(--web-shell-border);
+            border-radius: 18px;
+            padding: 18px 18px 14px;
+            box-shadow: var(--web-shell-shadow);
+            position: sticky;
+            top: 12px;
+            z-index: 20;
+        }
+
+        .web-toolbar-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .web-toolbar-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .web-toolbar-subtitle {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: var(--web-shell-muted);
+            line-height: 1.5;
+        }
+
+        .web-toolbar-status {
+            font-size: 12px;
+            color: var(--web-shell-muted);
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 999px;
+            padding: 6px 10px;
+            white-space: nowrap;
+        }
+
+        .web-filter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .web-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        .web-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .web-field.is-hidden {
+            display: none;
+        }
+
+        .web-field label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--web-shell-muted);
+        }
+
+        .web-field input,
+        .web-field select,
+        .web-actions a,
+        .web-actions button {
+            min-height: 42px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .web-field input,
+        .web-field select {
+            width: 100%;
+            border: 1px solid var(--web-shell-border-strong);
+            background: #ffffff;
+            color: var(--web-shell-text);
+            padding: 0 12px;
+        }
+
+        .web-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .web-actions button,
+        .web-actions a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border: 1px solid transparent;
+            padding: 0 16px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .web-actions .is-primary {
+            background: var(--web-shell-primary);
+            color: #ffffff;
+        }
+
+        .web-actions .is-primary:hover {
+            background: var(--web-shell-primary-strong);
+        }
+
+        .web-actions .is-secondary {
+            background: #ffffff;
+            color: var(--web-shell-text);
+            border-color: var(--web-shell-border-strong);
+        }
+
+        .web-actions .is-secondary:hover {
+            background: #f8fafc;
+        }
+
+        .web-filter-note {
+            font-size: 12px;
+            color: var(--web-shell-muted);
+            line-height: 1.5;
+        }
+
+        .web-report-panel {
+            flex: 1 1 auto;
+            min-height: 70vh;
+            background: var(--web-shell-card);
+            border: 1px solid var(--web-shell-border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--web-shell-shadow);
+        }
+
+        .web-report-frame {
+            width: 100%;
+            min-height: 78vh;
+            border: 0;
+            background: #ffffff;
+        }
+
+        @media (max-width: 1280px) {
+            .web-filter-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+            .web-shell {
+                padding: 12px;
+            }
+
+            .web-toolbar {
+                position: static;
+            }
+
+            .web-toolbar-head {
+                flex-direction: column;
+            }
+
+            .web-filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .web-report-frame {
+                min-height: 88vh;
+            }
+        }
+
+        @media print {
+            .web-toolbar {
+                display: none !important;
+            }
+
+            .web-shell {
+                padding: 0;
+            }
+
+            .web-report-panel {
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="web-shell">
+        <section class="web-toolbar">
+            <div class="web-toolbar-head">
+                <div>
+                    <h1 class="web-toolbar-title">Energy Report Web GUI</h1>
+                    <p class="web-toolbar-subtitle">
+                        Choose a period, refresh the report, then print or export from the current selection.
+                    </p>
+                </div>
+                <div class="web-toolbar-status">Shared report-engine path active</div>
+            </div>
+
+            <form id="report-filter-form" class="web-filter-form" action="/reports" method="get">
+                <input type="hidden" id="anchor-date-hidden" name="anchor_date" value="{{ anchor_date }}">
+
+                <div class="web-filter-grid">
+                    <div class="web-field">
+                        <label for="period-type">Period Type</label>
+                        <select id="period-type" name="period_type">
+                            <option value="daily" {% if period_type == 'daily' %}selected{% endif %}>Daily</option>
+                            <option value="weekly" {% if period_type == 'weekly' %}selected{% endif %}>Weekly</option>
+                            <option value="monthly" {% if period_type == 'monthly' %}selected{% endif %}>Monthly</option>
+                            <option value="custom" {% if period_type == 'custom' %}selected{% endif %}>Custom</option>
+                        </select>
+                    </div>
+
+                    <div class="web-field" id="anchor-date-field">
+                        <label for="anchor-date-input" id="anchor-date-label">Report Date</label>
+                        <input type="date" id="anchor-date-input" value="{{ anchor_date }}">
+                    </div>
+
+                    <div class="web-field" id="month-field">
+                        <label for="month-input">Month</label>
+                        <input type="month" id="month-input" name="month" value="{{ month_value }}">
+                    </div>
+
+                    <div class="web-field" id="start-date-field">
+                        <label for="start-date-input">Start Date</label>
+                        <input type="date" id="start-date-input" name="start_date" value="{{ start_date }}">
+                    </div>
+
+                    <div class="web-field" id="end-date-field">
+                        <label for="end-date-input">End Date</label>
+                        <input type="date" id="end-date-input" name="end_date" value="{{ end_date }}">
+                    </div>
+
+                    <div class="web-actions">
+                        <button type="submit" class="is-primary">Refresh</button>
+                        <button type="button" class="is-secondary" id="print-report-button">Print</button>
+                        <a class="is-secondary" id="export-csv-link" href="{{ csv_export_url }}">Export CSV</a>
+                    </div>
+                </div>
+
+                <div class="web-filter-note" id="filter-note">
+                    Daily and weekly use a date anchor. Monthly uses a month selector. Custom accepts an inclusive range up to 31 days.
+                </div>
+            </form>
+        </section>
+
+        <section class="web-report-panel">
+            <iframe
+                id="report-frame"
+                class="web-report-frame"
+                src="{{ report_iframe_src }}"
+                title="Energy report preview"
+            ></iframe>
+        </section>
+    </div>
+
+    <script>
+        (function () {
+            const form = document.getElementById('report-filter-form');
+            const periodType = document.getElementById('period-type');
+            const anchorDateField = document.getElementById('anchor-date-field');
+            const anchorDateLabel = document.getElementById('anchor-date-label');
+            const anchorDateInput = document.getElementById('anchor-date-input');
+            const anchorDateHidden = document.getElementById('anchor-date-hidden');
+            const monthField = document.getElementById('month-field');
+            const monthInput = document.getElementById('month-input');
+            const startDateField = document.getElementById('start-date-field');
+            const startDateInput = document.getElementById('start-date-input');
+            const endDateField = document.getElementById('end-date-field');
+            const endDateInput = document.getElementById('end-date-input');
+            const exportCsvLink = document.getElementById('export-csv-link');
+            const printButton = document.getElementById('print-report-button');
+            const reportFrame = document.getElementById('report-frame');
+            const filterNote = document.getElementById('filter-note');
+            const csvBaseUrl = {{ csv_export_url | tojson }};
+
+            function setHidden(element, hidden) {
+                element.classList.toggle('is-hidden', hidden);
+            }
+
+            function syncMode() {
+                const mode = String(periodType.value || 'monthly').toLowerCase();
+
+                setHidden(anchorDateField, mode === 'monthly' || mode === 'custom');
+                setHidden(monthField, mode !== 'monthly');
+                setHidden(startDateField, mode !== 'custom');
+                setHidden(endDateField, mode !== 'custom');
+
+                if (mode === 'daily') {
+                    anchorDateLabel.textContent = 'Report Date';
+                    filterNote.textContent = 'Daily reports use one exact local date.';
+                } else if (mode === 'weekly') {
+                    anchorDateLabel.textContent = 'Week Anchor Date';
+                    filterNote.textContent = 'Weekly reports accept any date inside the target week. Backend resolves Monday to Sunday.';
+                } else if (mode === 'monthly') {
+                    filterNote.textContent = 'Monthly reports use the selected month. Backend resolves the first and last day automatically.';
+                } else {
+                    filterNote.textContent = 'Custom reports accept an inclusive range up to 31 days. Backend validates the final range again.';
+                }
+            }
+
+            function buildQueryParams() {
+                const mode = String(periodType.value || 'monthly').toLowerCase();
+                const params = new URLSearchParams();
+                params.set('period_type', mode);
+
+                if (mode === 'monthly') {
+                    const monthValue = String(monthInput.value || '').trim();
+                    if (monthValue) {
+                        params.set('month', monthValue);
+                        params.set('anchor_date', monthValue + '-01');
+                    }
+                } else if (mode === 'custom') {
+                    const startValue = String(startDateInput.value || '').trim();
+                    const endValue = String(endDateInput.value || '').trim();
+                    if (startValue) {
+                        params.set('start_date', startValue);
+                    }
+                    if (endValue) {
+                        params.set('end_date', endValue);
+                    }
+                } else {
+                    const anchorValue = String(anchorDateInput.value || '').trim();
+                    if (anchorValue) {
+                        params.set('anchor_date', anchorValue);
+                    }
+                }
+
+                return params;
+            }
+
+            function validateCustomRange() {
+                if (String(periodType.value || '').toLowerCase() !== 'custom') {
+                    return true;
+                }
+
+                const startValue = String(startDateInput.value || '').trim();
+                const endValue = String(endDateInput.value || '').trim();
+                if (!startValue || !endValue) {
+                    return true;
+                }
+
+                const start = new Date(startValue + 'T00:00:00');
+                const end = new Date(endValue + 'T00:00:00');
+                if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+                    return true;
+                }
+
+                if (end < start) {
+                    window.alert('End date must be greater than or equal to start date.');
+                    return false;
+                }
+
+                const dayCount = Math.floor((end - start) / 86400000) + 1;
+                if (dayCount > 31) {
+                    window.alert('Custom date range must be 31 days or fewer.');
+                    return false;
+                }
+
+                return true;
+            }
+
+            function syncHiddenFieldsBeforeSubmit() {
+                const mode = String(periodType.value || 'monthly').toLowerCase();
+                if (mode === 'monthly') {
+                    const monthValue = String(monthInput.value || '').trim();
+                    anchorDateHidden.value = monthValue ? monthValue + '-01' : '';
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                } else if (mode === 'custom') {
+                    anchorDateHidden.value = '';
+                } else {
+                    anchorDateHidden.value = String(anchorDateInput.value || '').trim();
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+                }
+            }
+
+            function updateExportLink() {
+                exportCsvLink.href = '/reports/export-csv?' + buildQueryParams().toString();
+            }
+
+            periodType.addEventListener('change', function () {
+                syncMode();
+                updateExportLink();
+            });
+            anchorDateInput.addEventListener('change', updateExportLink);
+            monthInput.addEventListener('change', updateExportLink);
+            startDateInput.addEventListener('change', updateExportLink);
+            endDateInput.addEventListener('change', updateExportLink);
+
+            form.addEventListener('submit', function (event) {
+                syncMode();
+                if (!validateCustomRange()) {
+                    event.preventDefault();
+                    return;
+                }
+                syncHiddenFieldsBeforeSubmit();
+                updateExportLink();
+            });
+
+            printButton.addEventListener('click', function () {
+                if (reportFrame && reportFrame.contentWindow) {
+                    reportFrame.contentWindow.focus();
+                    reportFrame.contentWindow.print();
+                    return;
+                }
+                window.print();
+            });
+
+            syncMode();
+            updateExportLink();
+        })();
+    </script>
+</body>
+</html>
