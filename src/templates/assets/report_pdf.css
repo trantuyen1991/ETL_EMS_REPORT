@@ -182,7 +182,7 @@
     }
 
     .pdf-daily-chart-grid .electricity-chart-card-share .electricity-chart {
-        height: 227px !important;
+        height: var(--report-components-report-section-electric-chart-area-share-height-pdf-default, 220px) !important;
     }
 
     .electricity-chart-card-area .electricity-chart {
@@ -190,7 +190,7 @@
     }
 
     .pdf-daily-chart-grid .electricity-chart-card-area .electricity-chart {
-        height: 227px !important;
+        height: var(--report-components-report-section-electric-chart-area-comparison-height-pdf-default, 220px) !important;
     }
 
     .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart {
