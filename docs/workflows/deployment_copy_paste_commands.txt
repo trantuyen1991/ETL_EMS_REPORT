@@ -20,12 +20,13 @@ Important notes
 - Default final output dir: /srv/energy-report-output
 - Default staging dir during runtime: /srv/energy-report-output/_staging
 - After a successful run, staging files are auto-cleaned and the empty `_staging` folder is removed
-- The one-command bootstrap below intentionally uses the deploy branch:
-  deploy/stable
-- Bootstrap now forces the checkout/clone to the latest remote tip of the selected
+- The one-command bootstrap below must match the branch you actually want to deploy
+- For the current in-progress Web UI branch, use:
+  feature/web-gui-phase1
+- Bootstrap forces the checkout/clone to the latest remote tip of the selected
   branch/ref during deploy
-- That branch currently contains deploy-flow fixes newer than the older reviewed
-  tag v4.3.0-dev
+- After this branch is merged into a stable deploy branch, update these commands back
+  to that stable branch on purpose
 - B1 intentionally does NOT install systemd yet, because the anchor is pinned for
   smoke testing
 - Only install or enable the timer after B3 has restored:
@@ -45,19 +46,19 @@ Interactive wizard entrypoint
 
 Prefer a local file for the interactive mode:
 
-curl -fsSL -o bootstrap_ubuntu_host.sh "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh"
+curl -fsSL -o bootstrap_ubuntu_host.sh "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/feature/web-gui-phase1/deploy/bootstrap_ubuntu_host.sh"
 chmod +x bootstrap_ubuntu_host.sh
-sudo ./bootstrap_ubuntu_host.sh --interactive --reset-project
+sudo ./bootstrap_ubuntu_host.sh --interactive --deploy-ref feature/web-gui-phase1 --reset-project
 
 
 B1 - Fresh bootstrap + month-end smoke (Daily + Monthly)
 --------------------------------------------------------
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref deploy/stable --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/feature/web-gui-phase1/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref feature/web-gui-phase1 --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project
 
 Optional same-host Web UI install during bootstrap:
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref deploy/stable --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project --install-webui --web-host 0.0.0.0 --web-port 8000
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/feature/web-gui-phase1/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref feature/web-gui-phase1 --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project --install-webui --web-host 0.0.0.0 --web-port 8000
 
 Check what was deployed:
 
@@ -218,11 +219,11 @@ curl -fsS http://127.0.0.1:8000/health || true
 Re-run only the bootstrap from scratch on a test host
 -----------------------------------------------------
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/feature/web-gui-phase1/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref feature/web-gui-phase1 --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --reset-project
 
 If no TTY is available and password prompt cannot be used, pass it explicitly:
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deploy/stable/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --mysql-password '__FILL_DB_PASSWORD__' --anchor-date 2025-05-31 --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/feature/web-gui-phase1/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref feature/web-gui-phase1 --mysql-host 192.168.100.82 --mysql-database bms_db --mysql-user admin --mysql-password '__FILL_DB_PASSWORD__' --anchor-date 2025-05-31 --reset-project
 
 Use this when you want to recreate the project root quickly without manually doing Step B2 or B4.
 
