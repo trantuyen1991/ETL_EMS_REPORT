@@ -2,7 +2,7 @@
         <!-- ==========================================================
              Header - Weekly/Monthly layout
              ========================================================== -->
-        <header class="report-header-v3">
+        <header class="report-header-v3 pdf-header-print-only">
             <div class="report-header-center report-header-banner">
                 <img src="{{ meta.header_background_uri }}" alt="" class="report-header-background" aria-hidden="true">
                 <div class="report-header-overlay">
@@ -21,6 +21,31 @@
                             </span>
                             <span class="report-meta-line-label">Created:</span>
                             <span class="report-meta-line-value">{{ generated_at }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <header class="report-header-v3 pdf-header-screen-only">
+            <div class="report-header-center report-header-banner pdf-preview-header-shell">
+                <div class="pdf-preview-header-grid">
+                    <div class="pdf-preview-header-left">
+                        <img src="{{ meta.html_header_left_background_uri or meta.html_header_background_uri or meta.header_background_uri }}" alt="" class="pdf-preview-header-left-image" aria-hidden="true">
+                    </div>
+
+                    <div class="pdf-preview-header-right">
+                        <img src="{{ meta.html_header_right_background_uri or meta.html_header_background_uri or meta.header_background_uri }}" alt="" class="pdf-preview-header-right-image" aria-hidden="true">
+                        <div class="pdf-preview-header-copy">
+                            <h1 class="report-main-title">ENERGY REPORT</h1>
+                            <p class="report-hero-subtitle">Periodic automatic report • Energy performance overview</p>
+                            <div class="report-meta-line">
+                                <span class="report-meta-line-icon">
+                                    {% include "assets/icon/calendar.svg" %}
+                                </span>
+                                <span class="report-meta-line-label">Created:</span>
+                                <span class="report-meta-line-value">{{ generated_at }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
