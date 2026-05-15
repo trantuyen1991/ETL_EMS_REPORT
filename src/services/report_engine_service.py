@@ -8,6 +8,7 @@ providing a reusable execution path for the existing batch CLI entrypoint.
 from __future__ import annotations
 
 import re
+import zipfile
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
@@ -46,6 +47,7 @@ class ReportRenderResult:
     period: ResolvedPeriod
     report_context: dict[str, Any]
     html: str
+    template_mode: str
 
 
 class ReportEngineService:
@@ -188,6 +190,24 @@ class ReportEngineService:
         end_date_text: str | None = None,
     ) -> ReportRenderResult:
         """Render one report HTML view for browser delivery."""
+        return self.render_report_surface(
+            template_mode="view",
+            period_type=period_type,
+            anchor_date_text=anchor_date_text,
+            start_date_text=start_date_text,
+            end_date_text=end_date_text,
+        )
+
+    def render_report_surface(
+        self,
+        *,
+        template_mode: str = "view",
+        period_type: str | None = None,
+        anchor_date_text: str | None = None,
+        start_date_text: str | None = None,
+        end_date_text: str | None = None,
+    ) -> ReportRenderResult:
+        """Render one selected report surface for browser delivery."""
         runtime: dict[str, Any] | None = None
 
         try:
@@ -199,13 +219,21 @@ class ReportEngineService:
                 start_date_text=start_date_text,
                 end_date_text=end_date_text,
             )
-            report_context = self.build_report_context(runtime=runtime, period=period)
+            normalized_template_mode = self._normalize_template_mode(template_mode)
+            render_mode = "pdf" if normalized_template_mode == "pdf_source" else "html"
+            report_context = self.build_report_context(
+                runtime=runtime,
+                period=period,
+                render_mode=render_mode,
+            )
             renderer = TemplateRenderingService("src/templates")
             template_bundle = self._select_template_bundle(period.period_type)
-            html = renderer.render(template_bundle["view"], report_context)
+            template_name = template_bundle["pdf"] if normalized_template_mode == "pdf_source" else template_bundle["view"]
+            html = renderer.render(template_name, report_context)
 
             logger.info(
-                "Rendered Web GUI report HTML | period_type=%s start_date=%s end_date=%s",
+                "Rendered Web GUI report HTML | template_mode=%s period_type=%s start_date=%s end_date=%s",
+                normalized_template_mode,
                 period.period_type,
                 period.start_date,
                 period.end_date,
@@ -215,9 +243,61 @@ class ReportEngineService:
                 period=period,
                 report_context=report_context,
                 html=html,
+                template_mode=normalized_template_mode,
             )
         finally:
             self.close_runtime(runtime)
+
+    def build_report_package_zip(
+        self,
+        *,
+        period_type: str | None = None,
+        anchor_date_text: str | None = None,
+        start_date_text: str | None = None,
+        end_date_text: str | None = None,
+    ) -> Path:
+        """Package one built report month folder into a ZIP file for download."""
+        config = self.load_runtime_config()
+        env_cfg = config.get("env") or {}
+        project_root = self.project_root or Path(__file__).resolve().parent.parent.parent
+        period = self.resolve_request_period_from_config(
+            config,
+            period_type=period_type,
+            anchor_date_text=anchor_date_text,
+            start_date_text=start_date_text,
+            end_date_text=end_date_text,
+        )
+
+        canonical_output_root = self._resolve_canonical_output_root(
+            env_cfg=env_cfg,
+            project_root=project_root,
+        )
+        month_dir = self._resolve_monthly_report_dir(canonical_output_root, period)
+        if not month_dir.exists() or not month_dir.is_dir():
+            self.render_period_package(period=period)
+
+        if not month_dir.exists() or not month_dir.is_dir():
+            raise FileNotFoundError(
+                f"Built report package not found for {month_dir.name}."
+            )
+
+        downloads_dir = canonical_output_root / "_downloads"
+        downloads_dir.mkdir(parents=True, exist_ok=True)
+        zip_path = downloads_dir / f"{month_dir.name}_report_package.zip"
+
+        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
+            for path in sorted(month_dir.rglob("*")):
+                if not path.is_file():
+                    continue
+                zip_file.write(path, arcname=path.relative_to(month_dir.parent))
+
+        logger.info(
+            "Prepared report package ZIP | period_type=%s month_dir=%s zip_path=%s",
+            period.period_type,
+            month_dir,
+            zip_path,
+        )
+        return zip_path
 
     def run_scheduled_batch(self, runtime: dict[str, Any]) -> list[dict[str, Any]]:
         """Render all reports scheduled for the effective anchor day."""
@@ -303,11 +383,63 @@ class ReportEngineService:
         finally:
             self.close_runtime(runtime)
 
+    def render_period_package(self, *, period: ResolvedPeriod) -> dict[str, Path]:
+        """Render one requested period into the canonical output structure on demand."""
+        runtime: dict[str, Any] | None = None
+        try:
+            runtime = self.bootstrap_runtime()
+            renderer = TemplateRenderingService("src/templates")
+            pdf_service = PDFService(runtime["config"])
+            excel_service = ExcelExportService()
+
+            canonical_output_root = self._resolve_canonical_output_root(
+                env_cfg=runtime["env_cfg"],
+                project_root=runtime["project_root"],
+            )
+            canonical_output_root.mkdir(parents=True, exist_ok=True)
+
+            staging_output_dir = self._resolve_pdf_staging_dir(
+                env_cfg=runtime["env_cfg"],
+                canonical_output_root=canonical_output_root,
+                project_root=runtime["project_root"],
+            )
+            staging_output_dir.mkdir(parents=True, exist_ok=True)
+
+            report_context = self.build_report_context(runtime=runtime, period=period)
+            artifacts = self._render_report_artifacts(
+                renderer=renderer,
+                pdf_service=pdf_service,
+                excel_service=excel_service,
+                env_cfg=runtime["env_cfg"],
+                period=period,
+                report_context=report_context,
+                canonical_output_root=canonical_output_root,
+                staging_output_dir=staging_output_dir,
+            )
+
+            self._cleanup_output_artifacts(
+                rendered_reports=[{"period": period, "artifacts": artifacts}],
+                canonical_output_root=canonical_output_root,
+                staging_output_dir=staging_output_dir,
+                logger_obj=runtime["logger"],
+            )
+
+            runtime["logger"].info(
+                "Rendered on-demand report package | period_type=%s anchor_date=%s month_dir=%s",
+                period.period_type,
+                getattr(period, "anchor_date", None),
+                self._resolve_monthly_report_dir(canonical_output_root, period),
+            )
+            return artifacts
+        finally:
+            self.close_runtime(runtime)
+
     def build_report_context(
         self,
         *,
         runtime: dict[str, Any],
         period: ResolvedPeriod,
+        render_mode: str = "html",
     ) -> dict[str, Any]:
         """Build one reusable report context for the requested period."""
         repos = runtime["repos"]
@@ -355,7 +487,7 @@ class ReportEngineService:
             energy_object=energy_object,
             kpi_object=kpi_object,
             utility_object=utility_object,
-            mode="html",
+            mode=render_mode,
             style_config=style_context.get("report_style"),
         )
         report_context.update(style_context)
@@ -549,6 +681,15 @@ class ReportEngineService:
             "view": "report/view/report_view_periodic.html",
             "pdf": "report/pdf/report_pdf_periodic.html",
         }
+
+    def _normalize_template_mode(self, template_mode: str | None) -> str:
+        """Normalize browser template surface selection."""
+        normalized = str(template_mode or "view").strip().lower() or "view"
+        if normalized not in {"view", "pdf_source"}:
+            raise ReportRequestError(
+                "template_mode must be one of: view, pdf_source."
+            )
+        return normalized
 
     def _sanitize_filename_part(self, value: str) -> str:
         """Convert free text into a file-safe lowercase token."""

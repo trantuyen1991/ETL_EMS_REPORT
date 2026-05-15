@@ -37,13 +37,13 @@ Implemented prep slice:
 - [x] implement backend validation rules for `daily`
 - [x] implement backend validation rules for `weekly`
 - [x] implement backend validation rules for `monthly`
-- [ ] decide whether `custom` is included in the first browser rollout or deferred
+- [x] decide whether `custom` is included in the first browser rollout or deferred
 - [x] if `custom` is included, implement and validate the inclusive 31-day limit
 - [x] define clear backend error responses for invalid requests
 
-Current prep behavior:
-- invalid browser params return backend validation errors through the web layer
-- `custom` validation is coded but product rollout is still a phase decision
+Current product decision:
+- `custom` is deferred from the phase-1 browser release.
+- validation code may remain in the backend for future use, but phase-1 UI should focus on `daily`, `weekly`, and `monthly` only.
 
 ---
 
@@ -53,6 +53,10 @@ Current prep behavior:
 - [ ] define filename rules by period type
 - [ ] define whether CSV is generated from raw rows, normalized rows, or report-ready tabular rows
 
+Current product decision:
+- CSV is not part of the active phase-1 UI until the payload contract is explicitly approved.
+- the placeholder route may remain reserved internally, but the browser toolbar should not expose an Export CSV action for now.
+
 ---
 
 ## Phase 2 — FastAPI web app
@@ -60,12 +64,14 @@ Current prep behavior:
 - [x] create a thin web route layer
 - [x] add `GET /`
 - [x] add `GET /reports`
+- [x] add `GET /reports/download-zip`
 - [x] add `GET /reports/export-csv`
 - [x] add `GET /health`
 - [x] wire Jinja2 template rendering for the report page
 
 Current prep note:
-- `/reports/export-csv` is intentionally a 501 placeholder until the CSV contract is finalized.
+- `/reports/download-zip` now packages the existing backend-built month folder for the selected timeline.
+- `/reports/export-csv` remains an internal 501 placeholder until the CSV contract is finalized.
 
 ---
 
@@ -74,25 +80,25 @@ Current prep note:
 - [x] add dynamic input switching by period type
 - [x] add frontend guard rails for invalid custom ranges
 - [x] add `Refresh` button flow
-- [x] add `Print` button flow using `window.print()`
-- [x] add `Export CSV` button flow
+- [x] add template switch between `view.html` and `pdf_source.html`
+- [x] replace browser-print action with backend package download action
+- [x] remove `Export CSV` from the active phase-1 toolbar
 - [x] add print CSS to hide filter/action controls
 
 Current implementation note:
 - `/reports` now serves a shell page with a filter toolbar and embedded report iframe.
-- `Export CSV` currently points to the reserved placeholder endpoint until the CSV contract is finalized.
+- phase-1 toolbar is now limited to `daily`, `weekly`, `monthly`, a template-mode switch, `Refresh`, and `Download Report ZIP`.
 
 ---
 
 ## Phase 2.2 — Verification
-- [ ] `daily` renders one selected day correctly
-- [ ] `weekly` resolves Monday -> Sunday correctly
-- [ ] `monthly` resolves first day -> last day correctly
-- [ ] `custom` works correctly if included in this phase
-- [ ] invalid custom ranges fail safely and clearly
-- [ ] browser print hides the filter controls
-- [ ] CSV download matches the selected timeline
-- [ ] CLI/report flow remains intact after the web layer is added
+- [x] `daily` renders one selected day correctly
+- [x] `weekly` resolves Monday -> Sunday correctly
+- [x] `monthly` resolves first day -> last day correctly
+- [x] `view.html` surface renders through the browser route
+- [x] `pdf_source.html` surface renders through the browser route
+- [x] ZIP download returns the selected month package
+- [x] CLI/report flow remains intact after the web layer is added
 
 ---
 

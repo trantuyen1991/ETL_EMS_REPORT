@@ -9,7 +9,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 from fastapi import FastAPI, Query
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 
 from src.services.report_engine_service import ReportEngineService, ReportRequestError
 from src.services.template_service import TemplateRenderingService
@@ -42,6 +42,7 @@ def health() -> dict[str, str]:
 @app.get("/reports", response_class=HTMLResponse)
 def render_report_page(
     period_type: str | None = Query(default=None),
+    template_mode: str | None = Query(default=None),
     anchor_date: str | None = Query(default=None),
     month: str | None = Query(default=None),
     start_date: str | None = Query(default=None),
@@ -51,8 +52,11 @@ def render_report_page(
     """Render either the report shell or the embedded report body."""
     if _embed:
         try:
-            result = report_engine.render_view_report(
-                period_type=period_type,
+            normalized_period_type = _normalize_phase1_period_type(period_type)
+            normalized_template_mode = _normalize_template_mode(template_mode)
+            result = report_engine.render_report_surface(
+                template_mode=normalized_template_mode,
+                period_type=normalized_period_type,
                 anchor_date_text=anchor_date,
                 start_date_text=start_date,
                 end_date_text=end_date,
@@ -69,11 +73,15 @@ def render_report_page(
                 status_code=500,
             )
 
-    normalized_period_type = str(period_type or "monthly").strip().lower() or "monthly"
+    normalized_period_type = _normalize_phase1_period_type(period_type)
+    normalized_template_mode = _normalize_template_mode(template_mode)
     normalized_anchor_date = str(anchor_date or "").strip()
     normalized_month = str(month or "").strip() or _derive_month_value(normalized_anchor_date)
     normalized_start_date = str(start_date or "").strip()
     normalized_end_date = str(end_date or "").strip()
+
+    if normalized_period_type == "monthly" and not normalized_anchor_date and normalized_month:
+        normalized_anchor_date = f"{normalized_month}-01"
 
     shell_error_message = ""
     show_report_iframe = True
@@ -96,10 +104,6 @@ def render_report_page(
             normalized_month = _derive_month_value(normalized_anchor_date)
             normalized_start_date = ""
             normalized_end_date = ""
-        elif normalized_period_type == "custom":
-            normalized_start_date = resolved_period.start_date.isoformat()
-            normalized_end_date = resolved_period.end_date.isoformat()
-            normalized_anchor_date = ""
     except ReportRequestError as exc:
         shell_error_message = str(exc)
         show_report_iframe = False
@@ -107,40 +111,77 @@ def render_report_page(
     iframe_query = {
         "_embed": "1",
         "period_type": normalized_period_type,
+        "template_mode": normalized_template_mode,
     }
     if normalized_anchor_date:
         iframe_query["anchor_date"] = normalized_anchor_date
-    if normalized_start_date:
-        iframe_query["start_date"] = normalized_start_date
-    if normalized_end_date:
-        iframe_query["end_date"] = normalized_end_date
 
-    csv_query = {
+    download_query = {
         "period_type": normalized_period_type,
     }
     if normalized_anchor_date:
-        csv_query["anchor_date"] = normalized_anchor_date
-    if normalized_start_date:
-        csv_query["start_date"] = normalized_start_date
-    if normalized_end_date:
-        csv_query["end_date"] = normalized_end_date
+        download_query["anchor_date"] = normalized_anchor_date
+    if normalized_month:
+        download_query["month"] = normalized_month
 
     shell_html = web_renderer.render(
         "web/report_shell.html",
         {
             "page_title": "Energy Report Web GUI",
             "period_type": normalized_period_type,
+            "template_mode": normalized_template_mode,
             "anchor_date": normalized_anchor_date,
             "month_value": normalized_month,
             "start_date": normalized_start_date,
             "end_date": normalized_end_date,
             "report_iframe_src": f"/reports?{urlencode(iframe_query)}",
-            "csv_export_url": f"/reports/export-csv?{urlencode(csv_query)}",
+            "download_zip_url": f"/reports/download-zip?{urlencode(download_query)}",
             "shell_error_message": shell_error_message,
             "show_report_iframe": show_report_iframe,
         },
     )
     return HTMLResponse(content=shell_html)
+
+
+@app.get("/reports/download-zip", response_model=None)
+def download_report_zip(
+    period_type: str | None = Query(default=None),
+    anchor_date: str | None = Query(default=None),
+    month: str | None = Query(default=None),
+):
+    """Download one backend-built month package as a ZIP file."""
+    try:
+        normalized_period_type = _normalize_phase1_period_type(period_type)
+        normalized_anchor_date = str(anchor_date or "").strip()
+        normalized_month = str(month or "").strip()
+        if normalized_period_type == "monthly" and not normalized_anchor_date and normalized_month:
+            normalized_anchor_date = f"{normalized_month}-01"
+
+        zip_path = report_engine.build_report_package_zip(
+            period_type=normalized_period_type,
+            anchor_date_text=normalized_anchor_date,
+        )
+        return FileResponse(
+            path=zip_path,
+            filename=zip_path.name,
+            media_type="application/zip",
+        )
+    except ReportRequestError as exc:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "status": "bad_request",
+                "message": str(exc),
+            },
+        )
+    except FileNotFoundError as exc:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "status": "not_found",
+                "message": str(exc),
+            },
+        )
 
 
 @app.get("/reports/export-csv")
@@ -164,6 +205,24 @@ def export_csv_placeholder(
             },
         },
     )
+
+
+def _normalize_phase1_period_type(period_type: str | None) -> str:
+    """Allow only the phase-1 browser periods."""
+    normalized = str(period_type or "monthly").strip().lower() or "monthly"
+    if normalized not in {"daily", "weekly", "monthly"}:
+        raise ReportRequestError(
+            "phase-1 browser period_type must be one of: daily, weekly, monthly. custom is deferred."
+        )
+    return normalized
+
+
+def _normalize_template_mode(template_mode: str | None) -> str:
+    """Normalize the browser template selector."""
+    normalized = str(template_mode or "view").strip().lower() or "view"
+    if normalized not in {"view", "pdf_source"}:
+        raise ReportRequestError("template_mode must be one of: view, pdf_source.")
+    return normalized
 
 
 def _derive_month_value(anchor_date: str) -> str:

@@ -804,15 +804,18 @@ The Web GUI should reuse the current report template family and backend report c
 The planned filter bar should contain:
 - `Period Type`
 - one or more dynamic date inputs based on the selected period type
+- template switch between `view.html` and `pdf_source.html`
 - `Refresh`
-- `Print`
-- `Export CSV`
+- one package-download action for the rendered report set
 
-Initial period options:
+Initial period options for phase 1:
 - `daily`
 - `weekly`
 - `monthly`
-- `custom` only after the shared service contract is stable enough to absorb the extra report-semantics work safely
+
+Deferred from phase 1 toolbar:
+- `custom`
+- `Export CSV`
 
 ### 15.3 Period resolution rules for the browser phase
 Approved direction:
@@ -826,18 +829,19 @@ Validation rule:
 - web requests must not edit `.env` to change runtime period
 - route handlers should resolve request period into explicit service parameters
 
-### 15.4 Print rule for the browser phase
-The first browser-print phase should use:
-- `window.print()`
-- print CSS that hides the filter bar and action buttons
-- A4-oriented page settings where practical
+### 15.4 Download/package rule for the browser phase
+For phase 1, the toolbar action should prefer downloading a backend-built ZIP package for the selected report timeline instead of using direct browser print as the primary user action.
 
-This browser-print surface is related to, but not identical to, the current Chromium PDF batch export path. It should be treated as its own output surface and tuned incrementally.
+Recommended payload:
+- the rendered report folder already built by the backend for the selected timeline
+- for example, one month folder such as `2026_03`
+
+Naming rule:
+- the UI label should clearly indicate that the action downloads a package
+- avoid labeling a ZIP download as `Print`, because that would be misleading
 
 ### 15.5 CSV export rule for the browser phase
-CSV export must use the same resolved timeline as the rendered report page.
-
-Before implementation, the project must lock one explicit export contract for what `raw data` means, for example:
+CSV export is deferred from the phase-1 browser toolbar until the project locks one explicit export contract, for example:
 - raw DB rows
 - normalized ETL rows
 - report-ready tabular rows

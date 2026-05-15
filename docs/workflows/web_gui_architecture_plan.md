@@ -10,17 +10,17 @@ The goal is to add a practical Web GUI without breaking the stable CLI and sched
 
 ## 2. Product Goal
 
-Target user experience:
+Target user experience for phase 1:
 
 1. Open a browser URL on the Ubuntu host.
 2. Select a report period.
-3. Click `Refresh`.
-4. Backend resolves the selected period.
-5. Backend runs the shared report pipeline.
+3. Choose which rendered surface to inspect.
+4. Click `Refresh`.
+5. Backend resolves the selected period.
 6. Browser shows the updated report.
-7. User can print from the browser.
-8. User can export CSV for the selected timeline.
+7. User can download the backend-built report package as a ZIP file.
 
+Phase-1 browser scope no longer includes direct CSV export or `custom` period release.
 ---
 
 ## 3. Scope Boundaries
@@ -28,10 +28,10 @@ Target user experience:
 ## 3.1 In Scope
 - FastAPI web app
 - Jinja2-rendered report page
-- period filter bar
+- period filter bar for `daily`, `weekly`, and `monthly`
+- template switch between the `view` surface and the `pdf_source` surface
 - backend validation of browser inputs
-- browser print support
-- CSV export endpoint
+- backend-built ZIP download for the selected report package
 - preservation of current CLI/report flow
 
 ## 3.2 Out of Scope for the first implementation phase
@@ -40,6 +40,8 @@ Target user experience:
 - editing `.env` per request
 - moving heavy ETL logic into route handlers
 - broad report-layout redesign unrelated to web delivery
+- public release of `custom` period in the phase-1 browser toolbar
+- CSV export in the phase-1 browser toolbar
 
 ---
 
@@ -123,14 +125,15 @@ The web layer should not:
 ## 8.2 `GET /reports`
 - resolve period from query params
 - validate request
+- allow template-mode selection (`view` or `pdf_source`)
 - run shared report pipeline
 - render the report page
 
-## 8.3 `GET /reports/export-csv`
+## 8.3 `GET /reports/download-zip`
 - resolve period from query params
 - validate request
-- export CSV for the same timeline
-- return `FileResponse`
+- resolve the backend-built report package to download
+- return a ZIP file for the selected report folder
 
 ## 8.4 `GET /health`
 - return a simple health JSON payload
@@ -155,7 +158,8 @@ The web layer should not:
 - `start_date` + `end_date`
 - inclusive range
 - maximum 31 days
-- keep this behind the initial daily/weekly/monthly rollout unless the shared service contract is already stable enough
+- backend support may remain for future use
+- phase-1 browser release defers `custom` from the active toolbar
 
 ---
 
@@ -175,29 +179,29 @@ Mandatory backend checks:
 
 ---
 
-## 11. Browser Print Direction
+## 11. Download / print package direction
 
-Phase-1 print rule:
-- use `window.print()`
-- hide filter controls and buttons in print CSS
-- keep A4-friendly page setup where practical
+Phase-1 action rule:
+- the toolbar should favor downloading a backend-built ZIP package over invoking direct browser print
+- the ZIP may contain the rendered report folder for the selected timeline, for example one month folder such as `2026_03`
+- naming should make it clear that the action downloads a package rather than invoking native print
 
 Important rule:
-- browser print is a distinct surface from the current CDP batch PDF export
-- do not assume both surfaces are identical without dedicated validation
+- if the UI label says `Print`, but the behavior actually downloads a ZIP package, the action will be misleading
+- prefer a label such as `Download Report ZIP` or `Download Print Package`
 
 ---
 
 ## 12. CSV Export Contract Warning
 
-`Export CSV` must be defined before implementation.
+`Export CSV` remains unresolved.
 
-The project must choose one explicit meaning for the exported payload:
+The project still needs to choose one explicit meaning for the exported payload:
 - raw DB rows
 - normalized ETL rows
 - report-ready tabular rows
 
-Do not leave the endpoint ambiguous.
+Until that choice is approved, CSV should stay out of the phase-1 browser toolbar and must not be presented as a finished user action.
 
 ---
 
@@ -217,8 +221,9 @@ Do not leave the endpoint ambiguous.
 - add FastAPI app
 - add `/reports`
 - add filter bar
-- add browser print
-- add CSV export
+- add template-mode switch
+- add backend ZIP download action
+- keep CSV outside the active toolbar until its contract is approved
 
 ## Phase 3
 - performance tuning

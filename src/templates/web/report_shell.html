@@ -87,7 +87,7 @@
 
         .web-filter-grid {
             display: grid;
-            grid-template-columns: repeat(6, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 12px;
             align-items: end;
         }
@@ -260,7 +260,7 @@
                 <div>
                     <h1 class="web-toolbar-title">Energy Report Web GUI</h1>
                     <p class="web-toolbar-subtitle">
-                        Choose a period, refresh the report, then print or export from the current selection.
+                        Choose a period, switch the rendered template surface, refresh the preview, then download the backend-built report ZIP package.
                     </p>
                 </div>
                 <div class="web-toolbar-status">Shared report-engine path active</div>
@@ -276,7 +276,14 @@
                             <option value="daily" {% if period_type == 'daily' %}selected{% endif %}>Daily</option>
                             <option value="weekly" {% if period_type == 'weekly' %}selected{% endif %}>Weekly</option>
                             <option value="monthly" {% if period_type == 'monthly' %}selected{% endif %}>Monthly</option>
-                            <option value="custom" {% if period_type == 'custom' %}selected{% endif %}>Custom</option>
+                        </select>
+                    </div>
+
+                    <div class="web-field">
+                        <label for="template-mode">Template Surface</label>
+                        <select id="template-mode" name="template_mode">
+                            <option value="view" {% if template_mode == 'view' %}selected{% endif %}>view.html</option>
+                            <option value="pdf_source" {% if template_mode == 'pdf_source' %}selected{% endif %}>pdf_source.html</option>
                         </select>
                     </div>
 
@@ -290,25 +297,14 @@
                         <input type="month" id="month-input" name="month" value="{{ month_value }}">
                     </div>
 
-                    <div class="web-field" id="start-date-field">
-                        <label for="start-date-input">Start Date</label>
-                        <input type="date" id="start-date-input" name="start_date" value="{{ start_date }}">
-                    </div>
-
-                    <div class="web-field" id="end-date-field">
-                        <label for="end-date-input">End Date</label>
-                        <input type="date" id="end-date-input" name="end_date" value="{{ end_date }}">
-                    </div>
-
                     <div class="web-actions">
                         <button type="submit" class="is-primary">Refresh</button>
-                        <button type="button" class="is-secondary" id="print-report-button">Print</button>
-                        <a class="is-secondary" id="export-csv-link" href="{{ csv_export_url }}">Export CSV</a>
+                        <a class="is-secondary" id="download-zip-link" href="{{ download_zip_url }}">Download Report ZIP</a>
                     </div>
                 </div>
 
                 <div class="web-filter-note" id="filter-note">
-                    Daily and weekly use a date anchor. Monthly uses a month selector. Custom accepts an inclusive range up to 31 days.
+                    Daily and weekly use a date anchor. Monthly uses a month selector. Phase 1 preview supports only daily, weekly, and monthly.
                 </div>
             </form>
         </section>
@@ -341,21 +337,15 @@
         (function () {
             const form = document.getElementById('report-filter-form');
             const periodType = document.getElementById('period-type');
+            const templateMode = document.getElementById('template-mode');
             const anchorDateField = document.getElementById('anchor-date-field');
             const anchorDateLabel = document.getElementById('anchor-date-label');
             const anchorDateInput = document.getElementById('anchor-date-input');
             const anchorDateHidden = document.getElementById('anchor-date-hidden');
             const monthField = document.getElementById('month-field');
             const monthInput = document.getElementById('month-input');
-            const startDateField = document.getElementById('start-date-field');
-            const startDateInput = document.getElementById('start-date-input');
-            const endDateField = document.getElementById('end-date-field');
-            const endDateInput = document.getElementById('end-date-input');
-            const exportCsvLink = document.getElementById('export-csv-link');
-            const printButton = document.getElementById('print-report-button');
-            const reportFrame = document.getElementById('report-frame');
             const filterNote = document.getElementById('filter-note');
-            const csvBaseUrl = {{ csv_export_url | tojson }};
+            const downloadZipLink = document.getElementById('download-zip-link');
 
             function setHidden(element, hidden) {
                 element.classList.toggle('is-hidden', hidden);
@@ -364,21 +354,17 @@
             function syncMode() {
                 const mode = String(periodType.value || 'monthly').toLowerCase();
 
-                setHidden(anchorDateField, mode === 'monthly' || mode === 'custom');
+                setHidden(anchorDateField, mode === 'monthly');
                 setHidden(monthField, mode !== 'monthly');
-                setHidden(startDateField, mode !== 'custom');
-                setHidden(endDateField, mode !== 'custom');
 
                 if (mode === 'daily') {
                     anchorDateLabel.textContent = 'Report Date';
-                    filterNote.textContent = 'Daily reports use one exact local date.';
+                    filterNote.textContent = 'Daily reports use one exact local date. Switch template surface if you want to inspect view.html or pdf_source.html.';
                 } else if (mode === 'weekly') {
                     anchorDateLabel.textContent = 'Week Anchor Date';
                     filterNote.textContent = 'Weekly reports accept any date inside the target week. Backend resolves Monday to Sunday.';
-                } else if (mode === 'monthly') {
-                    filterNote.textContent = 'Monthly reports use the selected month. Backend resolves the first and last day automatically.';
                 } else {
-                    filterNote.textContent = 'Custom reports accept an inclusive range up to 31 days. Backend validates the final range again.';
+                    filterNote.textContent = 'Monthly reports use the selected month. Backend resolves the first and last day automatically.';
                 }
             }
 
@@ -386,21 +372,13 @@
                 const mode = String(periodType.value || 'monthly').toLowerCase();
                 const params = new URLSearchParams();
                 params.set('period_type', mode);
+                params.set('template_mode', String(templateMode.value || 'view').toLowerCase());
 
                 if (mode === 'monthly') {
                     const monthValue = String(monthInput.value || '').trim();
                     if (monthValue) {
                         params.set('month', monthValue);
                         params.set('anchor_date', monthValue + '-01');
-                    }
-                } else if (mode === 'custom') {
-                    const startValue = String(startDateInput.value || '').trim();
-                    const endValue = String(endDateInput.value || '').trim();
-                    if (startValue) {
-                        params.set('start_date', startValue);
-                    }
-                    if (endValue) {
-                        params.set('end_date', endValue);
                     }
                 } else {
                     const anchorValue = String(anchorDateInput.value || '').trim();
@@ -412,87 +390,38 @@
                 return params;
             }
 
-            function validateCustomRange() {
-                if (String(periodType.value || '').toLowerCase() !== 'custom') {
-                    return true;
-                }
-
-                const startValue = String(startDateInput.value || '').trim();
-                const endValue = String(endDateInput.value || '').trim();
-                if (!startValue || !endValue) {
-                    return true;
-                }
-
-                const start = new Date(startValue + 'T00:00:00');
-                const end = new Date(endValue + 'T00:00:00');
-                if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-                    return true;
-                }
-
-                if (end < start) {
-                    window.alert('End date must be greater than or equal to start date.');
-                    return false;
-                }
-
-                const dayCount = Math.floor((end - start) / 86400000) + 1;
-                if (dayCount > 31) {
-                    window.alert('Custom date range must be 31 days or fewer.');
-                    return false;
-                }
-
-                return true;
-            }
-
             function syncHiddenFieldsBeforeSubmit() {
                 const mode = String(periodType.value || 'monthly').toLowerCase();
                 if (mode === 'monthly') {
                     const monthValue = String(monthInput.value || '').trim();
                     anchorDateHidden.value = monthValue ? monthValue + '-01' : '';
-                    startDateInput.value = '';
-                    endDateInput.value = '';
-                } else if (mode === 'custom') {
-                    anchorDateHidden.value = '';
-                } else {
-                    anchorDateHidden.value = String(anchorDateInput.value || '').trim();
-                    startDateInput.value = '';
-                    endDateInput.value = '';
+                    return;
                 }
+                anchorDateHidden.value = String(anchorDateInput.value || '').trim();
             }
 
-            function updateExportLink() {
-                exportCsvLink.href = '/reports/export-csv?' + buildQueryParams().toString();
+            function updateDownloadLink() {
+                const params = buildQueryParams();
+                params.delete('template_mode');
+                downloadZipLink.href = '/reports/download-zip?' + params.toString();
             }
 
             periodType.addEventListener('change', function () {
                 syncMode();
-                updateExportLink();
+                updateDownloadLink();
             });
-            anchorDateInput.addEventListener('change', updateExportLink);
-            monthInput.addEventListener('change', updateExportLink);
-            startDateInput.addEventListener('change', updateExportLink);
-            endDateInput.addEventListener('change', updateExportLink);
+            templateMode.addEventListener('change', updateDownloadLink);
+            anchorDateInput.addEventListener('change', updateDownloadLink);
+            monthInput.addEventListener('change', updateDownloadLink);
 
-            form.addEventListener('submit', function (event) {
+            form.addEventListener('submit', function () {
                 syncMode();
-                if (!validateCustomRange()) {
-                    event.preventDefault();
-                    return;
-                }
                 syncHiddenFieldsBeforeSubmit();
-                updateExportLink();
-            });
-
-            printButton.addEventListener('click', function () {
-                if (reportFrame && reportFrame.contentWindow) {
-                    reportFrame.contentWindow.focus();
-                    reportFrame.contentWindow.print();
-                    return;
-                }
-                window.print();
+                updateDownloadLink();
             });
 
             syncMode();
-            updateExportLink();
+            updateDownloadLink();
         })();
     </script>
 </body>
