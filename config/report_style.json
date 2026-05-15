@@ -691,8 +691,8 @@
                     "monthly": "130px"
                   },
                   "pdf": {
-                    "default": "240px",
-                    "periodic": "240px",
+                    "default": "220px",
+                    "periodic": "220px",
                     "weekly": "244px",
                     "monthly": "130px"
                   }
@@ -736,10 +736,10 @@
                 },
                 "height": {
                   "view": {
-                    "default": "340px"
+                    "default": "300px"
                   },
                   "pdf": {
-                    "default": "240px"
+                    "default": "220px"
                   }
                 }
               },
