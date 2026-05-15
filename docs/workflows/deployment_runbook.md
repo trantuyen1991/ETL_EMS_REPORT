@@ -42,6 +42,8 @@ Copy the one-command bootstrap from the plain text file, not from the PDF. PDF r
 
 Current one-command bootstrap intentionally uses the deploy branch `deploy/stable`, not the older reviewed tag `v4.3.0-dev`, because that branch currently carries newer deploy-flow fixes.
 
+Bootstrap now forces both fresh clone and existing checkout update onto the latest remote tip of the selected `DEPLOY_REF`, so the target host does not stay on a stale local branch copy by accident.
+
 Recommended B1 command:
 
 ```bash

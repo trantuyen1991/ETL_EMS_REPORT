@@ -541,7 +541,7 @@ if [[ -e "${PROJECT_ROOT}" && "${RESET_PROJECT}" -eq 1 ]]; then
 fi
 
 if [[ -e "${PROJECT_ROOT}/.git" ]]; then
-  log "Existing checkout found at ${PROJECT_ROOT}; updating ${DEPLOY_REF}"
+  log "Existing checkout found at ${PROJECT_ROOT}; forcing latest remote tip of ${DEPLOY_REF}"
   git -C "${PROJECT_ROOT}" fetch --depth 1 origin "${DEPLOY_REF}"
   git -C "${PROJECT_ROOT}" checkout --force -B "${DEPLOY_REF}" FETCH_HEAD
 elif [[ -e "${PROJECT_ROOT}" && -n "$(find "${PROJECT_ROOT}" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
@@ -549,7 +549,8 @@ elif [[ -e "${PROJECT_ROOT}" && -n "$(find "${PROJECT_ROOT}" -mindepth 1 -maxdep
 else
   mkdir -p "$(dirname "${PROJECT_ROOT}")"
   chown "${SERVICE_USER}:${SERVICE_USER}" "$(dirname "${PROJECT_ROOT}")"
-  as_service_user git clone --branch "${DEPLOY_REF}" --depth 1 "${REPO_URL}" "${PROJECT_ROOT}"
+  log "Cloning latest remote tip of ${DEPLOY_REF} into ${PROJECT_ROOT}"
+  as_service_user git clone --branch "${DEPLOY_REF}" --single-branch --depth 1 "${REPO_URL}" "${PROJECT_ROOT}"
 fi
 
 chown -R "${SERVICE_USER}:${SERVICE_USER}" "${PROJECT_ROOT}"
