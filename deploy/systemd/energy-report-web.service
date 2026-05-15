@@ -1,20 +1,24 @@
-# Sample systemd unit template for the recommended deployment baseline.
+# Sample systemd unit template for the optional Web GUI deployment.
 # The installer renders these placeholders:
 # - __SERVICE_USER__
 # - __PROJECT_ROOT__
+# - __WEB_HOST__
+# - __WEB_PORT__
 
 [Unit]
-Description=Energy Report ETL batch run
+Description=Energy Report Web GUI
 Wants=network-online.target
 After=network-online.target
 
 [Service]
-Type=oneshot
+Type=simple
 User=__SERVICE_USER__
 Group=__SERVICE_USER__
 WorkingDirectory=__PROJECT_ROOT__
-ExecStart=__PROJECT_ROOT__/venv/bin/python -m src.main
+ExecStart=__PROJECT_ROOT__/venv/bin/uvicorn src.web_app:app --host __WEB_HOST__ --port __WEB_PORT__
 Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

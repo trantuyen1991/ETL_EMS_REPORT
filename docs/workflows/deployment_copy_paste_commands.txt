@@ -33,6 +33,8 @@ Important notes
   - interactive prompts for a local script run on a desktop/operator host
 - In interactive mode, passed flags should win and only missing values should be asked
 - Interactive runs should end with a summary/confirmation before the real work starts
+- Bootstrap can now optionally install/start the Web UI service too via:
+  --install-webui --web-host 0.0.0.0 --web-port 8000
 
 Interactive wizard entrypoint
 -----------------------------
@@ -109,7 +111,24 @@ OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" -path "$OUTPUT_ROOT/_staging" -prune -o -type f -print | sort | tail -n 30
 
 
-B4.1 - Change the timer schedule later
+B4.1 - Optionally install/start the Web UI service
+--------------------------------------------------
+
+cd /srv/energy-report
+sudo ./deploy/systemd/install_systemd_units.sh --with-web --web-host 0.0.0.0 --web-port 8000
+curl -fsS http://127.0.0.1:8000/health
+curl -I http://127.0.0.1:8000/reports
+sudo systemctl status energy-report-web.service --no-pager
+journalctl -u energy-report-web.service -n 100 --no-pager
+
+If ETL timer was already installed and you only want Web UI later:
+
+cd /srv/energy-report
+sudo ./deploy/systemd/install_systemd_units.sh --web-only --web-host 0.0.0.0 --web-port 8000
+curl -fsS http://127.0.0.1:8000/health
+
+
+B4.2 - Change the timer schedule later
 --------------------------------------
 
 sudo nano /etc/systemd/system/energy-report-etl.timer
@@ -139,6 +158,11 @@ If systemd unit files changed in the repo, re-install them:
 cd /srv/energy-report
 sudo ./deploy/systemd/install_systemd_units.sh
 
+If this host also serves Web UI, re-install Web UI together:
+
+cd /srv/energy-report
+sudo ./deploy/systemd/install_systemd_units.sh --with-web --web-host 0.0.0.0 --web-port 8000
+
 Check the current deployed commit:
 
 cd /srv/energy-report
@@ -148,10 +172,11 @@ sudo -u energy-report git log -1 --oneline
 Clean reinstall from zero
 -------------------------
 
-Stop timer first if it already exists:
+Stop timer/Web UI first if they already exist:
 
 sudo systemctl disable --now energy-report-etl.timer || true
-sudo rm -f /etc/systemd/system/energy-report-etl.service /etc/systemd/system/energy-report-etl.timer || true
+sudo systemctl disable --now energy-report-web.service || true
+sudo rm -f /etc/systemd/system/energy-report-etl.service /etc/systemd/system/energy-report-etl.timer /etc/systemd/system/energy-report-web.service || true
 sudo systemctl daemon-reload
 
 Remove project and outputs:

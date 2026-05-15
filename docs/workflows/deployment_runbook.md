@@ -8,6 +8,7 @@ Scope:
 - configure runtime `.env`
 - run a manual smoke check
 - install a `systemd` service + timer for a fixed daily schedule such as `23:00`
+- optionally install a `systemd` service for the FastAPI Web UI
 
 Assumptions:
 - host OS uses `systemd`
@@ -90,7 +91,9 @@ Interactive prompts should normally cover only operator-facing values such as:
 - `PRINT_STAGING_DIR`
 - `REPORT_ANCHOR_DATE`
 - whether to run smoke now
-- whether to install `systemd` now
+- whether to install the ETL `systemd` timer now
+- whether to install the Web UI `systemd` service now
+- optional `WEB_HOST` / `WEB_PORT` when Web UI is enabled
 
 The interactive flow should finish with a summary/confirmation screen before any destructive or long-running action starts.
 
@@ -348,33 +351,67 @@ sudo ./deploy/systemd/install_systemd_units.sh
 The repo now includes:
 - `deploy/systemd/energy-report-etl.service`
 - `deploy/systemd/energy-report-etl.timer`
+- `deploy/systemd/energy-report-web.service`
 - `deploy/systemd/install_systemd_units.sh`
 
 What the helper does:
 - self-escalates with `sudo` when needed
 - backs up existing installed unit files if they already exist
-- installs the repo sample service and timer into `/etc/systemd/system/`
+- renders the repo unit templates with the requested `service user`, `project root`, and optional Web UI bind host/port
+- installs the rendered unit files into `/etc/systemd/system/`
 - runs `systemctl daemon-reload`
-- runs `systemctl enable --now energy-report-etl.timer`
-- shows timer status and next/last schedule summary
+- runs `systemctl enable --now energy-report-etl.timer` when ETL install is requested
+- runs `systemctl enable --now energy-report-web.service` when Web UI install is requested
+- shows status output for the units it just installed
 
-Sample assumptions baked into the repo unit files:
-- `User=energy-report`
-- `Group=energy-report`
-- `WorkingDirectory=/srv/energy-report`
-- `ExecStart=/srv/energy-report/venv/bin/python -m src.main`
+Current helper defaults:
+- `--service-user energy-report`
+- `--project-root /srv/energy-report`
+- `--web-host 0.0.0.0`
+- `--web-port 8000`
 
-If your deployment differs from that baseline, edit the files under `deploy/systemd/` before running the helper.
+If your deployment differs from that baseline, pass the matching flags to the helper or to bootstrap instead of manually editing the installed files afterward.
 
 The application itself already reads `config/.env`, so a separate `EnvironmentFile=` is not required unless you intentionally add more host-level variables.
 
-Manual service test:
+Manual ETL service test:
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl start energy-report-etl.service
 sudo systemctl status energy-report-etl.service --no-pager
 journalctl -u energy-report-etl.service -n 100 --no-pager
+```
+
+### 7.1 Optional Web UI service
+
+If this host should also expose the FastAPI browser UI, install the Web UI service too:
+
+```bash
+cd /srv/energy-report
+sudo ./deploy/systemd/install_systemd_units.sh --with-web --web-host 0.0.0.0 --web-port 8000
+curl -fsS http://127.0.0.1:8000/health
+```
+
+If ETL units were already installed earlier and you only want to add Web UI later:
+
+```bash
+cd /srv/energy-report
+sudo ./deploy/systemd/install_systemd_units.sh --web-only --web-host 0.0.0.0 --web-port 8000
+curl -fsS http://127.0.0.1:8000/health
+```
+
+Expected behavior:
+- `/health` returns `{"status":"ok","service":"energy-report-web-gui"}`
+- `/reports` serves the browser shell
+- `energy-report-web.service` restarts on failure
+
+Manual Web UI service test:
+
+```bash
+sudo systemctl status energy-report-web.service --no-pager
+journalctl -u energy-report-web.service -n 100 --no-pager
+curl -I http://127.0.0.1:8000/reports
 ```
 
 If you need additional deterministic smoke anchors later, use the companion runbook:
@@ -419,6 +456,8 @@ Before calling the deployment usable, verify:
 - `energy-report-etl.service` succeeds when started manually
 - `energy-report-etl.timer` is enabled and shows the expected next run
 - generated files land in the expected month-grouped folders under the configured output root
+- if Web UI is enabled, `energy-report-web.service` is active and `/health` responds locally
+- if Web UI is enabled, `/reports` loads on the chosen bind host/port
 
 Runtime application log baseline:
 - config source: `config/logging.yaml`
@@ -446,8 +485,10 @@ Useful commands:
 
 ```bash
 journalctl -u energy-report-etl.service -n 200 --no-pager
+journalctl -u energy-report-web.service -n 200 --no-pager
 timedatectl
 systemctl list-timers energy-report-etl.timer --all
+curl -fsS http://127.0.0.1:8000/health
 OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
 OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" \

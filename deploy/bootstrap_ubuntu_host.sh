@@ -17,9 +17,12 @@ REPORT_ANCHOR_DATE=""
 WORKSHOP_NAME="ENERGY REPORT"
 ENERGY_UNIT="kWh"
 INSTALL_SYSTEMD=0
+INSTALL_WEBUI=0
 RESET_PROJECT=0
 SKIP_SMOKE=0
 INTERACTIVE=0
+WEB_HOST="0.0.0.0"
+WEB_PORT="8000"
 
 ARG_MYSQL_HOST=0
 ARG_MYSQL_PORT=0
@@ -31,7 +34,10 @@ ARG_OUTPUT_DIR=0
 ARG_PRINT_STAGING_DIR=0
 ARG_ANCHOR_DATE=0
 ARG_INSTALL_SYSTEMD=0
+ARG_INSTALL_WEBUI=0
 ARG_SKIP_SMOKE=0
+ARG_WEB_HOST=0
+ARG_WEB_PORT=0
 
 usage() {
   cat <<'EOF'
@@ -55,6 +61,9 @@ Options:
   --workshop-name NAME           Default: ENERGY REPORT
   --energy-unit UNIT             Default: kWh
   --install-systemd              Install and enable the systemd timer after smoke.
+  --install-webui                Install and start the optional Web UI systemd service.
+  --web-host HOST                Default: 0.0.0.0
+  --web-port PORT                Default: 8000
   --reset-project                Remove the existing project root before clone.
   --skip-smoke                   Configure only; do not run src.main.
   -h, --help
@@ -245,6 +254,9 @@ validate_configuration() {
   if [[ "${INSTALL_SYSTEMD}" -eq 1 && -n "${REPORT_ANCHOR_DATE}" ]]; then
     die "--install-systemd cannot be combined with a pinned REPORT_ANCHOR_DATE. Restore scheduled mode first, then enable the timer."
   fi
+
+  [[ -n "${WEB_HOST}" ]] || die "--web-host cannot be blank."
+  [[ "${WEB_PORT}" =~ ^[0-9]+$ ]] || die "--web-port must be numeric."
 }
 
 confirm_interactive_summary() {
@@ -266,6 +278,10 @@ confirm_interactive_summary() {
   tty_echo "  Anchor date        : ${REPORT_ANCHOR_DATE:-<blank>}"
   tty_echo "  Run smoke          : $([[ "${SKIP_SMOKE}" -eq 0 ]] && printf 'yes' || printf 'no')"
   tty_echo "  Install systemd    : $([[ "${INSTALL_SYSTEMD}" -eq 1 ]] && printf 'yes' || printf 'no')"
+  tty_echo "  Install Web UI     : $([[ "${INSTALL_WEBUI}" -eq 1 ]] && printf 'yes' || printf 'no')"
+  if [[ "${INSTALL_WEBUI}" -eq 1 ]]; then
+    tty_echo "  Web bind           : ${WEB_HOST}:${WEB_PORT}"
+  fi
   tty_echo "  Reset project      : $([[ "${RESET_PROJECT}" -eq 1 ]] && printf 'yes' || printf 'no')"
   if [[ "${OUTPUT_DIR}" == /home/* || "${PRINT_STAGING_DIR}" == /home/* ]]; then
     tty_echo "  Home-path ACL fix  : will be applied automatically"
@@ -279,6 +295,7 @@ configure_interactively() {
   local suggested_output_dir="${OUTPUT_DIR}"
   local run_smoke=1
   local install_systemd_now="${INSTALL_SYSTEMD}"
+  local install_webui_now="${INSTALL_WEBUI}"
 
   [[ "${INTERACTIVE}" -eq 1 ]] || return 0
   has_tty || die "--interactive requires an attached TTY. Download the script locally or run it from a normal terminal."
@@ -321,6 +338,16 @@ configure_interactively() {
   if [[ "${ARG_INSTALL_SYSTEMD}" -eq 0 ]]; then
     prompt_yes_no install_systemd_now "Install and enable systemd timer now?" 0
     INSTALL_SYSTEMD="${install_systemd_now}"
+  fi
+
+  if [[ "${ARG_INSTALL_WEBUI}" -eq 0 ]]; then
+    prompt_yes_no install_webui_now "Install and start Web UI systemd service now?" 0
+    INSTALL_WEBUI="${install_webui_now}"
+  fi
+
+  if [[ "${INSTALL_WEBUI}" -eq 1 ]]; then
+    [[ "${ARG_WEB_HOST}" -eq 1 ]] || prompt_text WEB_HOST "Web UI bind host" "${WEB_HOST}" 1
+    [[ "${ARG_WEB_PORT}" -eq 1 ]] || prompt_text WEB_PORT "Web UI port" "${WEB_PORT}" 1
   fi
 }
 
@@ -434,6 +461,9 @@ while [[ $# -gt 0 ]]; do
     --workshop-name) WORKSHOP_NAME="${2:-}"; shift 2 ;;
     --energy-unit) ENERGY_UNIT="${2:-}"; shift 2 ;;
     --install-systemd) INSTALL_SYSTEMD=1; ARG_INSTALL_SYSTEMD=1; shift ;;
+    --install-webui) INSTALL_WEBUI=1; ARG_INSTALL_WEBUI=1; shift ;;
+    --web-host) WEB_HOST="${2:-}"; ARG_WEB_HOST=1; shift 2 ;;
+    --web-port) WEB_PORT="${2:-}"; ARG_WEB_PORT=1; shift 2 ;;
     --reset-project) RESET_PROJECT=1; shift ;;
     --skip-smoke) SKIP_SMOKE=1; ARG_SKIP_SMOKE=1; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -548,9 +578,34 @@ if [[ "${SKIP_SMOKE}" -eq 0 ]]; then
   fi
 fi
 
-if [[ "${INSTALL_SYSTEMD}" -eq 1 ]]; then
+if [[ "${INSTALL_SYSTEMD}" -eq 1 || "${INSTALL_WEBUI}" -eq 1 ]]; then
   log "Installing systemd units"
-  "${PROJECT_ROOT}/deploy/systemd/install_systemd_units.sh"
+  installer_args=(
+    --service-user "${SERVICE_USER}"
+    --project-root "${PROJECT_ROOT}"
+  )
+
+  if [[ "${INSTALL_SYSTEMD}" -eq 1 && "${INSTALL_WEBUI}" -eq 1 ]]; then
+    installer_args+=(--with-web)
+  elif [[ "${INSTALL_SYSTEMD}" -eq 0 && "${INSTALL_WEBUI}" -eq 1 ]]; then
+    installer_args+=(--web-only)
+  fi
+
+  if [[ "${INSTALL_WEBUI}" -eq 1 ]]; then
+    installer_args+=(--web-host "${WEB_HOST}" --web-port "${WEB_PORT}")
+  fi
+
+  "${PROJECT_ROOT}/deploy/systemd/install_systemd_units.sh" "${installer_args[@]}"
+fi
+
+if [[ "${INSTALL_WEBUI}" -eq 1 ]]; then
+  web_health_host="${WEB_HOST}"
+  if [[ "${web_health_host}" == "0.0.0.0" || "${web_health_host}" == "::" ]]; then
+    web_health_host="127.0.0.1"
+  fi
+
+  log "Checking Web UI health"
+  curl --retry 10 --retry-delay 1 --retry-connrefused -fsS "http://${web_health_host}:${WEB_PORT}/health"
 fi
 
 cat <<EOF
@@ -566,4 +621,7 @@ If this was a smoke test with --anchor-date, restore scheduled mode with:
   sudo sed -i 's|^REPORT_ANCHOR_DATE=.*|REPORT_ANCHOR_DATE=|' ${PROJECT_ROOT}/config/.env
 
 If OUTPUT_DIR or PRINT_STAGING_DIR live under /home/<user>, bootstrap has already applied ACL so ${SERVICE_USER} can write there and the home owner can open generated files.
+
+Optional Web UI URL:
+  http://127.0.0.1:${WEB_PORT}/reports
 EOF
