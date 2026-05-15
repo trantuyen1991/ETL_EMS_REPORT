@@ -101,6 +101,8 @@ class ReportBuilderService:
                 "header_background_uri": self._build_icon_data_uri("title_background.png"),
                 "html_company_logo_uri": self._build_html_header_logo_data_uri(),
                 "html_header_background_uri": self._build_html_header_background_data_uri(),
+                "html_header_left_background_uri": self._build_html_header_left_background_data_uri(),
+                "html_header_right_background_uri": self._build_html_header_right_background_data_uri(),
                 "utility_header_icon_uri": self._build_icon_data_uri("utilityheader.svg"),
             },
             "period": v3_period_block["period"],
@@ -729,12 +731,28 @@ class ReportBuilderService:
         return self._build_company_logo_data_uri()
 
     def _build_html_header_background_data_uri(self) -> str:
-        """Embed the dedicated HTML-header background asset when available."""
+        """Embed the legacy single-piece HTML-header background asset when available."""
         for filename in ("Title_background.svg", "title_background01.png", "title_background.png"):
             asset_uri = self._build_icon_data_uri(filename)
             if asset_uri:
                 return asset_uri
         return ""
+
+    def _build_html_header_left_background_data_uri(self) -> str:
+        """Embed the dedicated left-side HTML-header background asset when available."""
+        for filename in ("background_image_left.svg", "background_image_left.png"):
+            asset_uri = self._build_icon_data_uri(filename)
+            if asset_uri:
+                return asset_uri
+        return self._build_html_header_background_data_uri()
+
+    def _build_html_header_right_background_data_uri(self) -> str:
+        """Embed the dedicated right-side HTML-header background asset when available."""
+        for filename in ("background_image_right.svg", "background_image_right.png"):
+            asset_uri = self._build_icon_data_uri(filename)
+            if asset_uri:
+                return asset_uri
+        return self._build_html_header_background_data_uri()
 
     def _build_icon_data_uri(self, filename: str) -> str:
         """Embed a template icon asset for stable HTML/PDF rendering."""
