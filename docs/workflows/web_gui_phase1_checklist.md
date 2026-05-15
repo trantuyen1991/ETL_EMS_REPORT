@@ -84,10 +84,15 @@ Current prep note:
 - [x] replace browser-print action with backend package download action
 - [x] remove `Export CSV` from the active phase-1 toolbar
 - [x] add print CSS to hide filter/action controls
+- [x] auto reload preview when only `template_mode` changes
+- [x] compact the shell with a collapsible `Filters & Actions` disclosure
+- [x] keep action buttons on one row
+- [x] hide outer-page scroll while preserving iframe/report scroll
 
 Current implementation note:
 - `/reports` now serves a shell page with a filter toolbar and embedded report iframe.
 - phase-1 toolbar is now limited to `daily`, `weekly`, `monthly`, a template-mode switch, `Refresh`, and `Download Report ZIP`.
+- the current shell uses a centered, compact filter surface with hover hints/tooltips and disclosure-style controls by default.
 
 ---
 
@@ -104,7 +109,9 @@ Current implementation note:
 
 ## Phase 3 — Post-phase follow-up
 - [x] review request latency and ETL cost
-- [ ] decide where caching belongs for browser-driven refresh
+- [x] decide where caching belongs for browser-driven refresh
+- [x] implement service-layer preview cache and ZIP freshness reuse
+- [x] validate warm-cache behavior over real HTTP
 - [ ] define future JSON/API shape for ThingsBoard integration
 - [ ] decide whether realtime telemetry should stay separate from report analytics
 
@@ -120,6 +127,28 @@ Current phase-3 findings:
 - warm ZIP download for an already-built month package was about `0.21s`.
 - cold ZIP generation can be much more expensive because the route now renders the requested report package on demand before zipping when the month folder does not exist yet.
 
+Chosen cache strategy for the current Web GUI phase:
+- do not add a cache layer to `/health` or to the lightweight shell rendering path.
+- place cache inside the shared service layer (`ReportEngineService`), not in FastAPI route handlers.
+- use two primary cache units for browser preview:
+  - `report context cache` keyed by normalized period input (`period_type`, `anchor_date`, `start_date`, `end_date`) plus a cache-version fingerprint.
+  - `rendered HTML cache` keyed by the same normalized period key plus `template_mode` (`view` or `pdf_source`).
+- use one artifact cache rule for ZIP download:
+  - if the month package ZIP already exists and is newer than the month folder contents, serve it directly.
+  - if the month folder exists but the ZIP is stale, rebuild only the ZIP.
+  - if the month folder does not exist yet, render the requested package on demand, then zip it.
+- the `Refresh` button is now implemented as an explicit cache-bypass action through `force_refresh=1`.
+- template-only switching does not bypass cache, so the UI can reuse a warm context/HTML path immediately.
+- initial safe TTL for preview caches remains `5 minutes` in-process.
+- validated local result after implementation:
+  - forced/cold daily preview: about `1.11s`
+  - warm daily preview: about `0.008s` to `0.009s`
+- cache invalidation should at minimum react to:
+  - explicit refresh bypass
+  - process restart/deploy restart
+  - style/config version changes included in the cache fingerprint
+  - successful on-demand rerender replacing the corresponding HTML/ZIP artifacts
+
 ---
 
 ## Current decisions already approved
@@ -129,3 +158,6 @@ Current phase-3 findings:
 - [x] preserve the current CLI/report flow
 - [x] avoid per-request `.env` edits
 - [x] prefer release/tag first, then a new feature branch
+- [x] freeze actual print PDF header while allowing browser previews to evolve separately
+- [x] use the new two-column header treatment for `view.html` and for `pdf_source.html` preview
+- [x] keep `pdf_source.html` preview changes screen-only by separating `pdf-header-screen-only` from `pdf-header-print-only`

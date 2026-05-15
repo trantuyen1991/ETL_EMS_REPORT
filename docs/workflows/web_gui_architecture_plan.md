@@ -245,9 +245,78 @@ Initial measured findings on the current host:
 
 This suggests the first useful cache discussion should focus on embedded report HTML and on-demand ZIP generation, not on the shell page itself.
 
+Decided cache direction for the next implementation slice:
+- keep caching in the shared backend service layer, not in the FastAPI route layer.
+- do not spend effort caching the shell page first, because its measured cost is already negligible.
+- first cache target: reusable report context for one resolved period request.
+- second cache target: rendered HTML output per template surface (`view` or `pdf_source`) for that same resolved period.
+- third cache target: ZIP artifact reuse based on month-folder freshness.
+
+Recommended cache-key shape:
+- `period_type`
+- resolved `anchor_date`
+- resolved `start_date`
+- resolved `end_date`
+- `template_mode` for HTML surface cache only
+- a cache-version fingerprint derived from deploy/runtime-sensitive inputs such as style/config revision markers
+
+Implemented cache/result state at the current checkpoint:
+- `ReportEngineService` now owns the in-memory preview cache rather than FastAPI routes.
+- browser preview supports explicit cache bypass through `force_refresh=1`.
+- template-only switching stays on the warm-cache path.
+- ZIP reuse now follows month-folder freshness rather than rebuilding blindly.
+- validated local timings after implementation were about:
+  - forced/cold daily preview: `1.11s`
+  - warm daily preview: `0.008s` to `0.009s`
+
+Recommended initial invalidation behavior:
+- explicit browser `Refresh` should bypass preview cache and force rebuild for the selected request.
+- template-only switching should stay on the warm cache path whenever the normalized period key is unchanged.
+- process restart may safely clear in-memory cache.
+- successful rerender should replace the current HTML/ZIP artifact entry for the same normalized key.
+
+Recommended initial TTLs:
+- in-memory preview cache: `5 minutes`
+- ZIP artifact cache: no short TTL requirement, prefer freshness based on existing month-folder contents and ZIP mtime
+
+This direction preserves the current request-driven web behavior while avoiding premature cross-process infrastructure such as Redis in the current phase.
+
 ---
 
-## 14. Success Criteria for the architecture phase
+## 14. Current preview/UI implementation state
+
+Current browser-shell behavior:
+- `/reports` now uses a compact, centered filter shell with a collapsible `Filters & Actions` section.
+- helper copy moved into hover hints/tooltips.
+- outer page scroll is hidden while iframe/report scroll remains active.
+- action buttons stay on one row.
+- template-only switching auto reloads preview immediately, while period/date changes still depend on `Refresh`.
+
+Current header-preview design direction:
+- HTML `view.html` now uses an HTML-native two-column header preview layout.
+- left column is a fixed-width brand/art area.
+- right column is flexible and owns title/subtitle/generated-time text.
+- current dedicated preview assets include:
+  - `logo_company_White01.svg`
+  - `background_image_left.svg`
+  - `background_image_right.svg`
+- preview header shell is now white to avoid a visible seam between the left and right columns.
+- both `view.html` and `pdf_source.html` preview now anchor the left artwork to the left edge of the left column.
+
+Current PDF-family preview rule:
+- `pdf_source.html` browser preview now mirrors the newer two-column header layout.
+- actual print/export PDF output remains frozen on the legacy PDF header.
+- this is implemented with separate `pdf-header-screen-only` and `pdf-header-print-only` blocks so browser preview can evolve without risking print stability.
+
+Traceability note for the recent header-preview checkpoint chain:
+- `067199a` `feat(web): split html header into two background columns`
+- `65f828a` `fix(web): remove duplicate html header logo overlay`
+- `f3d5125` `feat(web): align pdf source preview header with web layout`
+- `146a11a` `fix(web): switch preview header shell to white`
+
+---
+
+## 15. Success Criteria for the architecture phase
 
 The architecture refactor is successful only when:
 - current CLI flow still works
