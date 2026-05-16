@@ -571,6 +571,116 @@ class EnergyService:
                 "cells": cells,
             })
 
+        column_positive_value_map: dict[str, list[float]] = {}
+        for row in daily_rows:
+            for cell in row.get("cells", []):
+                key = str(cell.get("key") or "")
+                raw_value = cell.get("raw_value")
+                if not key or not isinstance(raw_value, (int, float)):
+                    continue
+                numeric_value = float(raw_value)
+                if numeric_value <= 0:
+                    continue
+                column_positive_value_map.setdefault(key, []).append(numeric_value)
+
+        column_max_value_map = {
+            key: max(values) for key, values in column_positive_value_map.items() if values
+        }
+        column_ranked_value_map = {
+            key: sorted(set(values), reverse=True)
+            for key, values in column_positive_value_map.items()
+            if values
+        }
+
+        def _build_period_column_visual_meta(cell_key: str, raw_numeric_value: Any) -> dict[str, Any]:
+            cell_class = ""
+            heat_class = ""
+            is_column_max = False
+            fill_pct = 0.0
+            rank_class = "rank-none"
+            rank_order = None
+
+            if not isinstance(raw_numeric_value, (int, float)):
+                return {
+                    "cell_class": cell_class,
+                    "heat_class": heat_class,
+                    "is_column_max": is_column_max,
+                    "fill_pct": fill_pct,
+                    "rank_class": rank_class,
+                    "rank_order": rank_order,
+                }
+
+            numeric_value = float(raw_numeric_value)
+            if numeric_value == 0:
+                cell_class = "value-zero"
+                rank_class = "rank-zero"
+                return {
+                    "cell_class": cell_class,
+                    "heat_class": heat_class,
+                    "is_column_max": is_column_max,
+                    "fill_pct": fill_pct,
+                    "rank_class": rank_class,
+                    "rank_order": rank_order,
+                }
+
+            column_max_value = column_max_value_map.get(cell_key)
+            if column_max_value is not None and numeric_value == column_max_value and numeric_value > 0:
+                is_column_max = True
+
+            if column_max_value is not None and column_max_value > 0 and numeric_value > 0:
+                ratio = numeric_value / column_max_value
+                fill_pct = min(100.0, ratio * 100.0)
+                if 0 < fill_pct < 2.0:
+                    fill_pct = 2.0
+
+                if ratio >= 0.80:
+                    heat_class = "heat-4"
+                elif ratio >= 0.55:
+                    heat_class = "heat-3"
+                elif ratio >= 0.25:
+                    heat_class = "heat-2"
+                elif ratio >= 0.10:
+                    heat_class = "heat-1"
+
+                ranked_values = column_ranked_value_map.get(cell_key, [])
+                try:
+                    rank_order = ranked_values.index(numeric_value) + 1
+                except ValueError:
+                    rank_order = None
+
+                if rank_order == 1:
+                    rank_class = "rank-top"
+                elif rank_order is not None and rank_order <= 3:
+                    rank_class = "rank-high"
+                elif ratio >= 0.45:
+                    rank_class = "rank-mid"
+                elif ratio >= 0.15:
+                    rank_class = "rank-low"
+                else:
+                    rank_class = "rank-minor"
+
+            return {
+                "cell_class": cell_class,
+                "heat_class": heat_class,
+                "is_column_max": is_column_max,
+                "fill_pct": round(fill_pct, 2),
+                "rank_class": rank_class,
+                "rank_order": rank_order,
+            }
+
+        for row in daily_rows:
+            for cell in row.get("cells", []):
+                period_visual_meta = _build_period_column_visual_meta(
+                    str(cell.get("key") or ""),
+                    cell.get("raw_value"),
+                )
+                cell["period_cell_class"] = period_visual_meta["cell_class"]
+                cell["period_heat_class"] = period_visual_meta["heat_class"]
+                cell["period_is_column_max"] = period_visual_meta["is_column_max"]
+                cell["period_fill_pct"] = period_visual_meta["fill_pct"]
+                cell["period_rank_class"] = period_visual_meta["rank_class"]
+                cell["period_rank_order"] = period_visual_meta["rank_order"]
+
         area_display_name = str(area_meta.get("display_name") or area_key.upper())
 
         return {
