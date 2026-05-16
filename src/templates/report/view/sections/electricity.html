@@ -593,8 +593,11 @@
                                     <td class="col-index sticky-index-col">{{ loop.index }}</td>
                                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                                     {% for cell in row.cells %}
-                                    <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}{% if loop.last %} detail-group-end{% endif %}">
-                                        {{ cell.display }}
+                                    <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {{ cell.rank_class or '' }} {% if cell.is_row_max %}value-max{% endif %}{% if loop.last %} detail-group-end{% endif %}">
+                                        <div class="electricity-periodic-value-bar-cell {{ cell.rank_class or '' }} {% if cell.is_row_max %}is-max{% endif %} {% if cell.cell_class %}{{ cell.cell_class }}{% endif %}" style="--periodic-detail-fill-width: {{ cell.fill_pct or 0 }}%;">
+                                            <span class="electricity-periodic-value-bar-fill"></span>
+                                            <span class="electricity-periodic-value-bar-label">{{ cell.display }}</span>
+                                        </div>
                                     </td>
                                     {% endfor %}
                                 </tr>

@@ -2712,28 +2712,69 @@
         }
 
         .electricity-periodic-detail-table .col-value {
-            position: relative;
-            overflow: hidden;
-            isolation: isolate;
             color: var(--report-components-chart-meta-value-color, #0f172a);
             font-weight: 700;
-            background: rgba(255, 255, 255, 0.74);
-            transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+            background: rgba(255, 255, 255, 0.76);
+            transition: background-color 0.18s ease, box-shadow 0.18s ease;
         }
 
-        .electricity-periodic-detail-table .col-value::before {
-            content: "";
+        .electricity-periodic-value-bar-cell {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            min-height: 30px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.08)) 0%, rgba(255, 255, 255, 0) 100%);
+        }
+
+        .electricity-periodic-value-bar-fill {
             position: absolute;
-            left: 8px;
+            left: 0;
             top: 50%;
             transform: translateY(-50%);
             width: var(--periodic-detail-fill-width, 0%);
-            height: 20px;
-            border-radius: 0 8px 8px 0;
-            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.18)) 0%, rgba(255, 255, 255, 0.18) 100%);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
-            opacity: 0.96;
-            z-index: -1;
+            height: 18px;
+            border-radius: 0 6px 6px 0;
+            background: var(--detail-accent-color, var(--report-color-brand-primary, #60a5fa));
+            opacity: 0.18;
+        }
+
+        .electricity-periodic-value-bar-label {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            text-align: right;
+            font-weight: 700;
+            color: var(--report-components-chart-meta-value-color, #0f172a);
+        }
+
+        .electricity-periodic-value-bar-cell.rank-top .electricity-periodic-value-bar-fill {
+            opacity: 0.34;
+        }
+
+        .electricity-periodic-value-bar-cell.rank-high .electricity-periodic-value-bar-fill {
+            opacity: 0.28;
+        }
+
+        .electricity-periodic-value-bar-cell.rank-mid .electricity-periodic-value-bar-fill {
+            opacity: 0.22;
+        }
+
+        .electricity-periodic-value-bar-cell.rank-low .electricity-periodic-value-bar-fill {
+            opacity: 0.17;
+        }
+
+        .electricity-periodic-value-bar-cell.rank-minor .electricity-periodic-value-bar-fill {
+            opacity: 0.12;
+        }
+
+        .electricity-periodic-value-bar-cell.rank-zero .electricity-periodic-value-bar-fill,
+        .electricity-periodic-value-bar-cell.value-zero .electricity-periodic-value-bar-fill {
+            width: 0;
+            opacity: 0;
         }
 
         .electricity-periodic-detail-table .value-zero {
@@ -2741,9 +2782,10 @@
             font-weight: 500;
         }
 
-        .electricity-periodic-detail-table .value-zero::before {
-            width: 0;
-            opacity: 0;
+        .electricity-periodic-value-bar-cell.value-zero .electricity-periodic-value-bar-label,
+        .electricity-periodic-value-bar-cell.rank-zero .electricity-periodic-value-bar-label {
+            color: #94a3b8;
+            font-weight: 500;
         }
 
         .electricity-periodic-detail-table .value-max {
@@ -2752,29 +2794,27 @@
             box-shadow: inset 0 -2px 0 var(--detail-accent-color, #3b82f6);
         }
 
-        .electricity-periodic-detail-table .value-max::before {
-            width: 100%;
-            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, rgba(255, 255, 255, 0.22) 100%);
-            opacity: 1;
+        .electricity-periodic-value-bar-cell.is-max .electricity-periodic-value-bar-fill {
+            opacity: 0.36;
+        }
+
+        .electricity-periodic-value-bar-cell.is-max .electricity-periodic-value-bar-label {
+            color: var(--detail-accent-color, #1d4ed8);
         }
 
         .electricity-periodic-detail-table .heat-1 {
-            --periodic-detail-fill-width: 24%;
             background: rgba(248, 251, 255, 0.92);
         }
 
         .electricity-periodic-detail-table .heat-2 {
-            --periodic-detail-fill-width: 46%;
             background: linear-gradient(90deg, var(--detail-soft-bg, #f8fbff) 0%, rgba(255, 255, 255, 0.96) 100%);
         }
 
         .electricity-periodic-detail-table .heat-3 {
-            --periodic-detail-fill-width: 70%;
             background: linear-gradient(90deg, rgba(232, 242, 255, 0.96) 0%, rgba(255, 255, 255, 0.98) 100%);
         }
 
         .electricity-periodic-detail-table .heat-4 {
-            --periodic-detail-fill-width: 92%;
             background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, rgba(255, 255, 255, 0.98) 100%);
         }
 

@@ -452,77 +452,111 @@ class EnergyService:
 
             positive_values = [value for value in row_numeric_map.values() if value > 0]
             row_max_value = max(positive_values) if positive_values else None
+            ranked_positive_values = sorted(set(positive_values), reverse=True)
 
-            for column in base_meter_columns:
-                raw_value = source_row.get(column)
-
+            def _build_cell_visual_meta(raw_numeric_value: Any) -> dict[str, Any]:
                 cell_class = ""
                 heat_class = ""
                 is_row_max = False
+                fill_pct = 0.0
+                rank_class = "rank-none"
+                rank_order = None
 
-                if isinstance(raw_value, (int, float)):
-                    numeric_value = float(raw_value)
+                if not isinstance(raw_numeric_value, (int, float)):
+                    return {
+                        "cell_class": cell_class,
+                        "heat_class": heat_class,
+                        "is_row_max": is_row_max,
+                        "fill_pct": fill_pct,
+                        "rank_class": rank_class,
+                        "rank_order": rank_order,
+                    }
 
-                    if numeric_value == 0:
-                        cell_class = "value-zero"
+                numeric_value = float(raw_numeric_value)
 
-                    if row_max_value is not None and numeric_value == row_max_value and numeric_value > 0:
-                        is_row_max = True
+                if numeric_value == 0:
+                    cell_class = "value-zero"
+                    rank_class = "rank-zero"
+                    return {
+                        "cell_class": cell_class,
+                        "heat_class": heat_class,
+                        "is_row_max": is_row_max,
+                        "fill_pct": fill_pct,
+                        "rank_class": rank_class,
+                        "rank_order": rank_order,
+                    }
 
-                    if row_max_value is not None and row_max_value > 0 and numeric_value > 0:
-                        ratio = numeric_value / row_max_value
+                if row_max_value is not None and numeric_value == row_max_value and numeric_value > 0:
+                    is_row_max = True
 
-                        if ratio >= 0.85:
-                            heat_class = "heat-4"
-                        elif ratio >= 0.60:
-                            heat_class = "heat-3"
-                        elif ratio >= 0.35:
-                            heat_class = "heat-2"
-                        elif ratio >= 0.15:
-                            heat_class = "heat-1"
+                if row_max_value is not None and row_max_value > 0 and numeric_value > 0:
+                    ratio = numeric_value / row_max_value
+                    fill_pct = max(4.0, min(100.0, ratio * 100.0))
 
+                    if ratio >= 0.85:
+                        heat_class = "heat-4"
+                    elif ratio >= 0.60:
+                        heat_class = "heat-3"
+                    elif ratio >= 0.35:
+                        heat_class = "heat-2"
+                    elif ratio >= 0.15:
+                        heat_class = "heat-1"
+
+                    try:
+                        rank_order = ranked_positive_values.index(numeric_value) + 1
+                    except ValueError:
+                        rank_order = None
+
+                    if rank_order == 1:
+                        rank_class = "rank-top"
+                    elif rank_order is not None and rank_order <= 3:
+                        rank_class = "rank-high"
+                    elif ratio >= 0.45:
+                        rank_class = "rank-mid"
+                    elif ratio >= 0.18:
+                        rank_class = "rank-low"
+                    else:
+                        rank_class = "rank-minor"
+
+                return {
+                    "cell_class": cell_class,
+                    "heat_class": heat_class,
+                    "is_row_max": is_row_max,
+                    "fill_pct": round(fill_pct, 2),
+                    "rank_class": rank_class,
+                    "rank_order": rank_order,
+                }
+
+            for column in base_meter_columns:
+                raw_value = source_row.get(column)
+                visual_meta = _build_cell_visual_meta(raw_value)
                 meter_role = "main_feeder" if column in main_feeder_columns else "submeter"
 
                 cells.append({
                     "key": column,
                     "raw_value": raw_value,
                     "display": self._fmt_or_dash(raw_value),
-                    "cell_class": cell_class,
-                    "heat_class": heat_class,
-                    "is_row_max": is_row_max,
+                    "cell_class": visual_meta["cell_class"],
+                    "heat_class": visual_meta["heat_class"],
+                    "is_row_max": visual_meta["is_row_max"],
+                    "fill_pct": visual_meta["fill_pct"],
+                    "rank_class": visual_meta["rank_class"],
+                    "rank_order": visual_meta["rank_order"],
                     "meter_role": meter_role,
                 })
 
-            unknown_cell_class = ""
-            unknown_heat_class = ""
-            unknown_is_row_max = False
-
-            if isinstance(unknown_load, (int, float)):
-                if float(unknown_load) == 0:
-                    unknown_cell_class = "value-zero"
-
-                if row_max_value is not None and float(unknown_load) == row_max_value and float(unknown_load) > 0:
-                    unknown_is_row_max = True
-
-                if row_max_value is not None and row_max_value > 0 and float(unknown_load) > 0:
-                    ratio = float(unknown_load) / row_max_value
-
-                    if ratio >= 0.85:
-                        unknown_heat_class = "heat-4"
-                    elif ratio >= 0.60:
-                        unknown_heat_class = "heat-3"
-                    elif ratio >= 0.35:
-                        unknown_heat_class = "heat-2"
-                    elif ratio >= 0.15:
-                        unknown_heat_class = "heat-1"
+            unknown_visual_meta = _build_cell_visual_meta(unknown_load)
 
             cells.append({
                 "key": unknown_load_key,
                 "raw_value": unknown_load,
                 "display": self._fmt_or_dash(unknown_load),
-                "cell_class": unknown_cell_class,
-                "heat_class": unknown_heat_class,
-                "is_row_max": unknown_is_row_max,
+                "cell_class": unknown_visual_meta["cell_class"],
+                "heat_class": unknown_visual_meta["heat_class"],
+                "is_row_max": unknown_visual_meta["is_row_max"],
+                "fill_pct": unknown_visual_meta["fill_pct"],
+                "rank_class": unknown_visual_meta["rank_class"],
+                "rank_order": unknown_visual_meta["rank_order"],
                 "meter_role": "unknown",
             })
 
