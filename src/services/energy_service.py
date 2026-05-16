@@ -537,9 +537,11 @@ class EnergyService:
                 "cells": cells,
             })
 
+        area_display_name = str(area_meta.get("display_name") or area_key.upper())
+
         return {
             "area_key": area_key,
-            "title": f"{area_key.upper()} Daily Energy Detail",
+            "title": f"{area_display_name} Daily Energy Detail",
             "columns": columns,
             "rows": daily_rows,
             "meter_columns": base_meter_columns + [unknown_load_key],

@@ -567,44 +567,35 @@
                 {% else %}
                 {% set periodic_detail_tables = sections.electricity.daily_detail_tables or [] %}
                 {% set periodic_detail_max_height = '420px' if is_monthly_period else '360px' if is_weekly_period else '390px' %}
-                {% if periodic_detail_tables %}
-                <div class="electricity-periodic-detail-table-block electricity-periodic-detail-table-block-merged"
-                    style="--periodic-detail-max-height: {{ periodic_detail_max_height }};">
+                {% for table in periodic_detail_tables %}
+                    {% set meter_columns = table.columns[1:] %}
+                    {% set detail_block_vars = '--periodic-detail-max-height: ' ~ periodic_detail_max_height ~ '; --detail-accent-color: ' ~ table.accent_color ~ '; --detail-accent-tint: ' ~ table.accent_tint ~ '; --detail-head-bg: ' ~ table.accent_header_bg ~ '; --detail-soft-bg: ' ~ table.accent_soft_bg ~ '; --detail-strong-bg: ' ~ table.accent_strong_bg ~ ';' %}
+                <div class="electricity-periodic-detail-table-block electricity-periodic-detail-table-block-merged area-{{ table.area_key }}"
+                    style="{{ detail_block_vars }}">
+                    <h4 class="electricity-subsection-title">{{ table.title }}</h4>
                     <div class="electricity-daily-detail-table-wrap electricity-periodic-detail-wrap electricity-periodic-detail-wrap-merged report-table-wrap">
                         <table class="electricity-daily-detail-table electricity-periodic-detail-table electricity-periodic-detail-table-merged report-table-ui">
                             <thead>
                                 <tr>
                                     <th class="col-index sticky-index-col">Index</th>
                                     <th class="col-date sticky-date-col">Date</th>
-                                    {% for table in periodic_detail_tables %}
-                                        {% set meter_columns = table.columns[1:] %}
-                                        {% set detail_cell_vars = '--detail-accent-color: ' ~ table.accent_color ~ '; --detail-accent-tint: ' ~ table.accent_tint ~ '; --detail-head-bg: ' ~ table.accent_header_bg ~ '; --detail-soft-bg: ' ~ table.accent_soft_bg ~ '; --detail-strong-bg: ' ~ table.accent_strong_bg ~ ';' %}
-                                        {% for column in meter_columns %}
-                                        <th class="periodic-meter-col{% if loop.last %} detail-group-end{% endif %}" style="{{ detail_cell_vars }}">
-                                            <span class="periodic-meter-header-area area-{{ table.area_key }}">{{ table.title | replace(' Daily Energy Detail', '') }}</span>
-                                            <span class="periodic-meter-header-name">{{ column.display_name }}</span>
-                                        </th>
-                                        {% endfor %}
+                                    {% for column in meter_columns %}
+                                    <th class="periodic-meter-col{% if loop.last %} detail-group-end{% endif %}">
+                                        <span class="periodic-meter-header-area area-{{ table.area_key }}">{{ table.title | replace(' Daily Energy Detail', '') }}</span>
+                                        <span class="periodic-meter-header-name">{{ column.display_name }}</span>
+                                    </th>
                                     {% endfor %}
                                 </tr>
                             </thead>
                             <tbody>
-                                {% set base_rows = periodic_detail_tables[0].rows if periodic_detail_tables else [] %}
-                                {% for base_row in base_rows %}
-                                {% set row_index = loop.index0 %}
+                                {% for row in table.rows %}
                                 <tr>
                                     <td class="col-index sticky-index-col">{{ loop.index }}</td>
-                                    <td class="col-date sticky-date-col">{{ base_row.date_display }}</td>
-                                    {% for table in periodic_detail_tables %}
-                                        {% set meter_columns = table.columns[1:] %}
-                                        {% set current_row = table.rows[row_index] if table.rows|length > row_index else none %}
-                                        {% set detail_cell_vars = '--detail-accent-color: ' ~ table.accent_color ~ '; --detail-accent-tint: ' ~ table.accent_tint ~ '; --detail-head-bg: ' ~ table.accent_header_bg ~ '; --detail-soft-bg: ' ~ table.accent_soft_bg ~ '; --detail-strong-bg: ' ~ table.accent_strong_bg ~ ';' %}
-                                        {% for column in meter_columns %}
-                                            {% set cell = current_row.cells[loop.index0] if current_row and current_row.cells|length > loop.index0 else none %}
-                                    <td class="col-value {% if cell %}{{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}{% endif %}{% if loop.last %} detail-group-end{% endif %}" style="{{ detail_cell_vars }}">
-                                        {{ cell.display if cell else '-' }}
+                                    <td class="col-date sticky-date-col">{{ row.date_display }}</td>
+                                    {% for cell in row.cells %}
+                                    <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {% if cell.is_row_max %}value-max{% endif %}{% if loop.last %} detail-group-end{% endif %}">
+                                        {{ cell.display }}
                                     </td>
-                                        {% endfor %}
                                     {% endfor %}
                                 </tr>
                                 {% endfor %}
@@ -612,7 +603,7 @@
                         </table>
                     </div>
                 </div>
-                {% endif %}
+                {% endfor %}
                 {% endif %}
             </div>
 
