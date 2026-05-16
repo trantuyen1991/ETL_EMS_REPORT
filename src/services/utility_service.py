@@ -322,7 +322,7 @@ class UtilityService:
             },
             {
                 "key": "diode_chilled_water",
-                "display_name": "DIODE Chilled Water",
+                "display_name": "MPC Chilled Water",
                 "unit": "kg/h",
                 "source_sensor": "dch_supflow",
             },
@@ -334,7 +334,7 @@ class UtilityService:
             },
             {
                 "key": "diode_air",
-                "display_name": "DIODE Air",
+                "display_name": "MPC Air",
                 "unit": "m³/h",
                 "source_sensor": "dac_airflow",
             },
@@ -685,11 +685,11 @@ class UtilityService:
             },
             {
                 "key": "diode_chiller",
-                "title": "DIODE Chiller",
+                "title": "MPC Chiller",
                 "groups": [
                     {
                         "key": "diode_chiller",
-                        "label": "DIODE Chiller",
+                        "label": "MPC Chiller",
                         "group_keys": ["diode_chiller"],
                         "visual": group_visuals.get("diode_chiller", group_visuals["default"]),
                     }
@@ -697,7 +697,7 @@ class UtilityService:
             },
             {
                 "key": "air_split",
-                "title": "ICO Air + DIODE Air",
+                "title": "ICO Air + MPC Air",
                 "groups": [
                     {
                         "key": "ico_air",
@@ -707,7 +707,7 @@ class UtilityService:
                     },
                     {
                         "key": "diode_air",
-                        "label": "DIODE Air",
+                        "label": "MPC Air",
                         "group_keys": ["diode_air"],
                         "visual": group_visuals.get("diode_air", group_visuals["default"]),
                     },
