@@ -156,15 +156,15 @@
         }
 
         .report-family-periodic .electricity-periodic-detail-table .heat-2 {
-            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.06)) 0%, var(--report-components-card-background, #ffffff) 90%);
+            background: var(--detail-heat-2-bg, #edf4fb);
         }
 
         .report-family-periodic .electricity-periodic-detail-table .heat-3 {
-            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.10)) 0%, var(--report-components-card-background, #ffffff) 82%);
+            background: var(--detail-heat-3-bg, #e4eef8);
         }
 
         .report-family-periodic .electricity-periodic-detail-table .heat-4 {
-            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, var(--report-components-card-background, #ffffff) 74%);
+            background: var(--detail-heat-4-bg, var(--detail-strong-bg, #d7e7f4));
         }
 
         .report-family-periodic .kpi-periodic-detail-table .col-area {
@@ -2584,43 +2584,67 @@
         .electricity-periodic-detail-table-block-merged {
             --periodic-sticky-index-width: 72px;
             --periodic-sticky-date-width: 154px;
-            --periodic-sticky-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 248, 252, 0.98) 100%);
-            --periodic-sticky-surface-alt: linear-gradient(180deg, rgba(252, 253, 255, 0.98) 0%, rgba(247, 250, 252, 0.98) 100%);
-            --periodic-sticky-header-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, var(--detail-head-bg, #eff6ff) 100%);
+            --detail-accent-color: #005496;
+            --detail-accent-tint: rgba(0, 84, 150, 0.14);
+            --detail-head-bg: #edf5fb;
+            --detail-soft-bg: #f8fbfe;
+            --detail-heat-2-bg: #edf4fb;
+            --detail-heat-3-bg: #e4eef8;
+            --detail-strong-bg: #d7e7f4;
+            --detail-heat-4-bg: #d7e7f4;
+            --periodic-sticky-surface: linear-gradient(180deg, rgba(245, 250, 255, 0.99) 0%, rgba(235, 245, 251, 0.99) 100%);
+            --periodic-sticky-surface-alt: linear-gradient(180deg, rgba(249, 252, 255, 0.99) 0%, rgba(239, 247, 252, 0.99) 100%);
+            --periodic-sticky-header-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(226, 240, 249, 0.98) 100%);
             --periodic-sticky-divider: rgba(148, 163, 184, 0.18);
             --periodic-sticky-shadow: 10px 0 18px rgba(15, 23, 42, 0.05);
-            --periodic-header-chip-bg: rgba(255, 255, 255, 0.72);
-            --periodic-header-chip-border: rgba(255, 255, 255, 0.78);
         }
 
         .electricity-periodic-detail-table-block-merged.area-diode {
+            --detail-accent-color: #005496;
+            --detail-accent-tint: rgba(0, 84, 150, 0.14);
+            --detail-head-bg: #edf5fb;
+            --detail-soft-bg: #f8fbfe;
+            --detail-heat-2-bg: #edf4fb;
+            --detail-heat-3-bg: #e4eef8;
+            --detail-strong-bg: #d7e7f4;
+            --detail-heat-4-bg: #d7e7f4;
             --periodic-sticky-surface: linear-gradient(180deg, rgba(245, 250, 255, 0.99) 0%, rgba(235, 245, 251, 0.99) 100%);
             --periodic-sticky-surface-alt: linear-gradient(180deg, rgba(249, 252, 255, 0.99) 0%, rgba(239, 247, 252, 0.99) 100%);
             --periodic-sticky-header-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(226, 240, 249, 0.98) 100%);
             --periodic-sticky-divider: rgba(0, 84, 150, 0.18);
             --periodic-sticky-shadow: 10px 0 20px rgba(0, 84, 150, 0.07);
-            --periodic-header-chip-bg: rgba(0, 84, 150, 0.08);
-            --periodic-header-chip-border: rgba(0, 84, 150, 0.14);
         }
 
         .electricity-periodic-detail-table-block-merged.area-ico {
+            --detail-accent-color: #6f9a6d;
+            --detail-accent-tint: rgba(111, 154, 109, 0.16);
+            --detail-head-bg: #f1f7f0;
+            --detail-soft-bg: #fbfdfb;
+            --detail-heat-2-bg: #f0f6ef;
+            --detail-heat-3-bg: #e8f2e6;
+            --detail-strong-bg: #e2eedf;
+            --detail-heat-4-bg: #e2eedf;
             --periodic-sticky-surface: linear-gradient(180deg, rgba(248, 252, 247, 0.99) 0%, rgba(239, 247, 238, 0.99) 100%);
             --periodic-sticky-surface-alt: linear-gradient(180deg, rgba(251, 253, 250, 0.99) 0%, rgba(243, 249, 242, 0.99) 100%);
             --periodic-sticky-header-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 242, 230, 0.98) 100%);
             --periodic-sticky-divider: rgba(111, 154, 109, 0.22);
             --periodic-sticky-shadow: 10px 0 20px rgba(111, 154, 109, 0.08);
-            --periodic-header-chip-bg: rgba(111, 154, 109, 0.09);
-            --periodic-header-chip-border: rgba(111, 154, 109, 0.16);
         }
 
         .electricity-periodic-detail-table-block-merged.area-sakari {
+            --detail-accent-color: #d09a45;
+            --detail-accent-tint: rgba(208, 154, 69, 0.16);
+            --detail-head-bg: #fcf6ec;
+            --detail-soft-bg: #fffdf9;
+            --detail-heat-2-bg: #fbf5ea;
+            --detail-heat-3-bg: #f8efdf;
+            --detail-strong-bg: #f5e6cd;
+            --detail-heat-4-bg: #f5e6cd;
             --periodic-sticky-surface: linear-gradient(180deg, rgba(255, 251, 245, 0.99) 0%, rgba(251, 244, 231, 0.99) 100%);
             --periodic-sticky-surface-alt: linear-gradient(180deg, rgba(255, 253, 249, 0.99) 0%, rgba(252, 247, 238, 0.99) 100%);
             --periodic-sticky-header-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 236, 215, 0.98) 100%);
             --periodic-sticky-divider: rgba(208, 154, 69, 0.22);
             --periodic-sticky-shadow: 10px 0 20px rgba(208, 154, 69, 0.08);
-            --periodic-header-chip-bg: rgba(208, 154, 69, 0.10);
-            --periodic-header-chip-border: rgba(208, 154, 69, 0.18);
         }
 
         .electricity-periodic-detail-wrap {
@@ -2728,23 +2752,6 @@
             min-width: 126px;
         }
 
-        .electricity-periodic-detail-table-merged .periodic-meter-header-area {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 4px;
-            padding: 2px 8px;
-            border: 1px solid var(--periodic-header-chip-border);
-            border-radius: 999px;
-            background: var(--periodic-header-chip-bg);
-            font-size: 9px;
-            font-weight: 800;
-            line-height: 1.15;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--detail-accent-color, var(--report-color-brand-primary, #1d4ed8));
-        }
-
         .electricity-periodic-detail-table-merged .periodic-meter-header-name {
             display: block;
             font-size: 10.5px;
@@ -2829,15 +2836,15 @@
         }
 
         .electricity-periodic-detail-table .heat-2 {
-            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.06)) 0%, var(--report-components-card-background, #ffffff) 90%);
+            background: var(--detail-heat-2-bg, #edf4fb);
         }
 
         .electricity-periodic-detail-table .heat-3 {
-            background: linear-gradient(90deg, var(--detail-accent-tint, rgba(59, 130, 246, 0.1)) 0%, var(--report-components-card-background, #ffffff) 82%);
+            background: var(--detail-heat-3-bg, #e4eef8);
         }
 
         .electricity-periodic-detail-table .heat-4 {
-            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, var(--report-components-card-background, #ffffff) 74%);
+            background: var(--detail-heat-4-bg, var(--detail-strong-bg, #d7e7f4));
         }
 
         .electricity-periodic-detail-table tbody tr:hover td {

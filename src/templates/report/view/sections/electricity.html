@@ -569,7 +569,7 @@
                 {% set periodic_detail_max_height = '420px' if is_monthly_period else '468px' if is_weekly_period else '390px' %}
                 {% for table in periodic_detail_tables %}
                     {% set meter_columns = table.columns[1:] %}
-                    {% set detail_block_vars = '--periodic-detail-max-height: ' ~ periodic_detail_max_height ~ '; --detail-accent-color: ' ~ table.accent_color ~ '; --detail-accent-tint: ' ~ table.accent_tint ~ '; --detail-head-bg: ' ~ table.accent_header_bg ~ '; --detail-soft-bg: ' ~ table.accent_soft_bg ~ '; --detail-strong-bg: ' ~ table.accent_strong_bg ~ ';' %}
+                    {% set detail_block_vars = '--periodic-detail-max-height: ' ~ periodic_detail_max_height ~ ';' %}
                 <div class="electricity-periodic-detail-table-block electricity-periodic-detail-table-block-merged area-{{ table.area_key }}"
                     style="{{ detail_block_vars }}">
                     <h4 class="electricity-subsection-title">{{ table.title }}</h4>
@@ -581,7 +581,6 @@
                                     <th class="col-date sticky-date-col">Date</th>
                                     {% for column in meter_columns %}
                                     <th class="periodic-meter-col{% if loop.last %} detail-group-end{% endif %}">
-                                        <span class="periodic-meter-header-area area-{{ table.area_key }}">{{ table.title | replace(' Daily Energy Detail', '') }}</span>
                                         <span class="periodic-meter-header-name">{{ column.display_name }}</span>
                                     </th>
                                     {% endfor %}
