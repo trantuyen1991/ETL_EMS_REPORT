@@ -571,31 +571,24 @@ class EnergyService:
                 "cells": cells,
             })
 
-        column_positive_value_map: dict[str, list[float]] = {}
+        table_positive_values: list[float] = []
         for row in daily_rows:
             for cell in row.get("cells", []):
-                key = str(cell.get("key") or "")
                 raw_value = cell.get("raw_value")
-                if not key or not isinstance(raw_value, (int, float)):
+                if not isinstance(raw_value, (int, float)):
                     continue
                 numeric_value = float(raw_value)
                 if numeric_value <= 0:
                     continue
-                column_positive_value_map.setdefault(key, []).append(numeric_value)
+                table_positive_values.append(numeric_value)
 
-        column_max_value_map = {
-            key: max(values) for key, values in column_positive_value_map.items() if values
-        }
-        column_ranked_value_map = {
-            key: sorted(set(values), reverse=True)
-            for key, values in column_positive_value_map.items()
-            if values
-        }
+        table_max_value = max(table_positive_values) if table_positive_values else None
+        table_ranked_values = sorted(set(table_positive_values), reverse=True)
 
-        def _build_period_column_visual_meta(cell_key: str, raw_numeric_value: Any) -> dict[str, Any]:
+        def _build_period_table_visual_meta(raw_numeric_value: Any) -> dict[str, Any]:
             cell_class = ""
             heat_class = ""
-            is_column_max = False
+            is_table_max = False
             fill_pct = 0.0
             rank_class = "rank-none"
             rank_order = None
@@ -604,7 +597,7 @@ class EnergyService:
                 return {
                     "cell_class": cell_class,
                     "heat_class": heat_class,
-                    "is_column_max": is_column_max,
+                    "is_table_max": is_table_max,
                     "fill_pct": fill_pct,
                     "rank_class": rank_class,
                     "rank_order": rank_order,
@@ -617,18 +610,17 @@ class EnergyService:
                 return {
                     "cell_class": cell_class,
                     "heat_class": heat_class,
-                    "is_column_max": is_column_max,
+                    "is_table_max": is_table_max,
                     "fill_pct": fill_pct,
                     "rank_class": rank_class,
                     "rank_order": rank_order,
                 }
 
-            column_max_value = column_max_value_map.get(cell_key)
-            if column_max_value is not None and numeric_value == column_max_value and numeric_value > 0:
-                is_column_max = True
+            if table_max_value is not None and numeric_value == table_max_value and numeric_value > 0:
+                is_table_max = True
 
-            if column_max_value is not None and column_max_value > 0 and numeric_value > 0:
-                ratio = numeric_value / column_max_value
+            if table_max_value is not None and table_max_value > 0 and numeric_value > 0:
+                ratio = numeric_value / table_max_value
                 fill_pct = min(100.0, ratio * 100.0)
                 if 0 < fill_pct < 2.0:
                     fill_pct = 2.0
@@ -642,9 +634,8 @@ class EnergyService:
                 elif ratio >= 0.10:
                     heat_class = "heat-1"
 
-                ranked_values = column_ranked_value_map.get(cell_key, [])
                 try:
-                    rank_order = ranked_values.index(numeric_value) + 1
+                    rank_order = table_ranked_values.index(numeric_value) + 1
                 except ValueError:
                     rank_order = None
 
@@ -662,7 +653,7 @@ class EnergyService:
             return {
                 "cell_class": cell_class,
                 "heat_class": heat_class,
-                "is_column_max": is_column_max,
+                "is_table_max": is_table_max,
                 "fill_pct": round(fill_pct, 2),
                 "rank_class": rank_class,
                 "rank_order": rank_order,
@@ -670,13 +661,12 @@ class EnergyService:
 
         for row in daily_rows:
             for cell in row.get("cells", []):
-                period_visual_meta = _build_period_column_visual_meta(
-                    str(cell.get("key") or ""),
+                period_visual_meta = _build_period_table_visual_meta(
                     cell.get("raw_value"),
                 )
                 cell["period_cell_class"] = period_visual_meta["cell_class"]
                 cell["period_heat_class"] = period_visual_meta["heat_class"]
-                cell["period_is_column_max"] = period_visual_meta["is_column_max"]
+                cell["period_is_table_max"] = period_visual_meta["is_table_max"]
                 cell["period_fill_pct"] = period_visual_meta["fill_pct"]
                 cell["period_rank_class"] = period_visual_meta["rank_class"]
                 cell["period_rank_order"] = period_visual_meta["rank_order"]
