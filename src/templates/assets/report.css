@@ -2707,15 +2707,16 @@
             min-width: var(--periodic-sticky-index-width);
             width: var(--periodic-sticky-index-width);
             text-align: center;
-            font-weight: 700;
-            color: #607287;
+            font-weight: 650;
+            color: #7b8da1;
         }
 
         .electricity-periodic-detail-table-merged .col-date {
             min-width: var(--periodic-sticky-date-width);
             width: var(--periodic-sticky-date-width);
-            font-weight: 700;
-            color: var(--report-color-text-primary);
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            color: #0f172a;
         }
 
         .electricity-periodic-detail-table-merged .sticky-index-col {
@@ -2733,19 +2734,22 @@
 
         .electricity-periodic-detail-table-merged .sticky-date-col {
             left: var(--periodic-sticky-index-width);
-            z-index: 4;
-            background: var(--periodic-sticky-surface);
-            box-shadow: inset -1px 0 0 var(--periodic-sticky-divider), 6px 0 12px rgba(15, 23, 42, 0.04);
+            z-index: 6;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, var(--detail-head-bg, #eff6ff) 100%);
+            box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.65), inset -2px 0 0 var(--periodic-sticky-divider), 8px 0 16px rgba(15, 23, 42, 0.06);
         }
 
         .electricity-periodic-detail-table-merged thead .sticky-date-col {
-            z-index: 7;
-            background: var(--periodic-sticky-header-surface);
+            z-index: 9;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, var(--detail-head-bg, #eff6ff) 100%);
         }
 
-        .electricity-periodic-detail-table-merged tbody tr:nth-child(even) .sticky-index-col,
-        .electricity-periodic-detail-table-merged tbody tr:nth-child(even) .sticky-date-col {
+        .electricity-periodic-detail-table-merged tbody tr:nth-child(even) .sticky-index-col {
             background: var(--periodic-sticky-surface-alt);
+        }
+
+        .electricity-periodic-detail-table-merged tbody tr:nth-child(even) .sticky-date-col {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.985) 0%, var(--detail-head-bg, #eff6ff) 100%);
         }
 
         .electricity-periodic-detail-table-merged .periodic-meter-col {
@@ -2793,6 +2797,14 @@
             opacity: 0.22;
         }
 
+        .electricity-periodic-detail-table .rank-minor .electricity-daily-value-bar-fill {
+            opacity: 0.12;
+        }
+
+        .electricity-periodic-detail-table .rank-low .electricity-daily-value-bar-fill {
+            opacity: 0.16;
+        }
+
         .electricity-periodic-detail-table .electricity-daily-value-bar-label {
             font-size: 12px;
             font-weight: 650;
@@ -2802,6 +2814,14 @@
         .electricity-periodic-detail-table .value-zero {
             color: #cbd5e1;
             font-weight: 400;
+        }
+
+        .electricity-periodic-detail-table .value-zero .electricity-periodic-value-bar-match {
+            background: transparent;
+        }
+
+        .electricity-periodic-detail-table .value-zero .electricity-daily-value-bar-fill {
+            opacity: 0;
         }
 
         .electricity-periodic-detail-table .value-zero .electricity-daily-value-bar-label {

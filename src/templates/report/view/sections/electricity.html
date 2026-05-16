@@ -592,8 +592,16 @@
                                     <td class="col-index sticky-index-col">{{ loop.index }}</td>
                                     <td class="col-date sticky-date-col">{{ row.date_display }}</td>
                                     {% for cell in row.cells %}
+                                    {% set display_fill_pct = cell.fill_pct or 0 %}
+                                    {% if cell.cell_class == 'value-zero' %}
+                                        {% set display_fill_pct = 0 %}
+                                    {% elif cell.rank_class == 'rank-minor' %}
+                                        {% set display_fill_pct = display_fill_pct * 0.45 %}
+                                    {% elif cell.rank_class == 'rank-low' and display_fill_pct < 18 %}
+                                        {% set display_fill_pct = display_fill_pct * 0.72 %}
+                                    {% endif %}
                                     <td class="col-value {{ cell.cell_class }} {{ cell.heat_class }} {{ cell.rank_class or '' }} {% if cell.is_row_max %}value-max{% endif %}{% if loop.last %} detail-group-end{% endif %}">
-                                        <div class="electricity-daily-value-bar-cell electricity-periodic-value-bar-match {% if cell.cell_class %}{{ cell.cell_class }}{% endif %}" style="--detail-fill-width: {{ cell.fill_pct or 0 }}%;">
+                                        <div class="electricity-daily-value-bar-cell electricity-periodic-value-bar-match {% if cell.cell_class %}{{ cell.cell_class }}{% endif %}" style="--detail-fill-width: {{ display_fill_pct|round(2) }}%;">
                                             <span class="electricity-daily-value-bar-fill"></span>
                                             <span class="electricity-daily-value-bar-label">{{ cell.display }}</span>
                                         </div>
