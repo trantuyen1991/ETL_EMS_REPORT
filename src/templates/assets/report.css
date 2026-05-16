@@ -149,22 +149,16 @@
         }
 
         .report-family-periodic .electricity-periodic-detail-table .value-max {
-            background: linear-gradient(90deg, var(--detail-strong-bg, #deecff) 0%, var(--report-components-card-background, #ffffff) 100%);
+            background: transparent;
             color: var(--detail-accent-color, var(--report-color-brand-primary, #1d4ed8));
             border-bottom: none;
             box-shadow: none;
         }
 
-        .report-family-periodic .electricity-periodic-detail-table .heat-2 {
-            background: var(--detail-heat-2-bg, #edf4fb);
-        }
-
-        .report-family-periodic .electricity-periodic-detail-table .heat-3 {
-            background: var(--detail-heat-3-bg, #e4eef8);
-        }
-
+        .report-family-periodic .electricity-periodic-detail-table .heat-2,
+        .report-family-periodic .electricity-periodic-detail-table .heat-3,
         .report-family-periodic .electricity-periodic-detail-table .heat-4 {
-            background: var(--detail-heat-4-bg, var(--detail-strong-bg, #d7e7f4));
+            background: transparent;
         }
 
         .report-family-periodic .kpi-periodic-detail-table .col-area {
@@ -2780,10 +2774,26 @@
         }
 
         .electricity-periodic-detail-table .col-value {
+            position: relative;
             color: var(--report-color-brand-primary);
             font-weight: 500;
             background: transparent;
             transition: background-color 0.15s ease;
+        }
+
+        .electricity-periodic-detail-table .col-value::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: var(--detail-accent-color, var(--report-color-brand-primary, #60a5fa));
+            opacity: var(--periodic-cell-bg-alpha, 0);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .electricity-periodic-detail-table .col-value > * {
+            position: relative;
+            z-index: 1;
         }
 
         .electricity-periodic-detail-table .electricity-periodic-value-bar-match {
@@ -2796,18 +2806,6 @@
         .electricity-periodic-detail-table .electricity-daily-value-bar-fill {
             background: var(--detail-accent-color, var(--report-color-brand-primary, #60a5fa));
             opacity: 0.22;
-        }
-
-        .electricity-periodic-detail-table .rank-minor .electricity-daily-value-bar-fill {
-            opacity: 0.12;
-        }
-
-        .electricity-periodic-detail-table .rank-low .electricity-daily-value-bar-fill {
-            opacity: 0.16;
-        }
-
-        .electricity-periodic-detail-table .rank-mid .electricity-daily-value-bar-fill {
-            opacity: 0.2;
         }
 
         .electricity-periodic-detail-table .electricity-daily-value-bar-label {
@@ -2836,7 +2834,7 @@
         }
 
         .electricity-periodic-detail-table .value-max {
-            background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
+            background: transparent;
             color: #1d4ed8;
             font-weight: 600;
             border-bottom: none;
@@ -2844,12 +2842,10 @@
         }
 
         .electricity-periodic-detail-table-block-merged.area-ico .value-max {
-            background: linear-gradient(90deg, rgba(225, 241, 223, 0.98) 0%, rgba(244, 250, 243, 0.98) 100%);
             color: #4f7750;
         }
 
         .electricity-periodic-detail-table-block-merged.area-sakari .value-max {
-            background: linear-gradient(90deg, rgba(248, 236, 214, 0.98) 0%, rgba(252, 246, 237, 0.98) 100%);
             color: #9c6a22;
         }
 
@@ -2857,20 +2853,11 @@
             color: var(--report-components-chart-meta-value-color, #0f172a);
         }
 
-        .electricity-periodic-detail-table .heat-1 {
-            background: var(--detail-soft-bg, #f8fbff);
-        }
-
-        .electricity-periodic-detail-table .heat-2 {
-            background: var(--detail-heat-2-bg, #edf4fb);
-        }
-
-        .electricity-periodic-detail-table .heat-3 {
-            background: var(--detail-heat-3-bg, #e4eef8);
-        }
-
+        .electricity-periodic-detail-table .heat-1,
+        .electricity-periodic-detail-table .heat-2,
+        .electricity-periodic-detail-table .heat-3,
         .electricity-periodic-detail-table .heat-4 {
-            background: var(--detail-heat-4-bg, var(--detail-strong-bg, #d7e7f4));
+            background: transparent;
         }
 
         .electricity-periodic-detail-table tbody tr:hover td {

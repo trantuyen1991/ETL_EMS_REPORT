@@ -597,7 +597,9 @@
                                     {% set periodic_rank_class = cell.period_rank_class or cell.rank_class or '' %}
                                     {% set display_fill_pct = cell.period_fill_pct if cell.period_fill_pct is defined else (cell.fill_pct or 0) %}
                                     {% set is_period_max = cell.period_is_table_max if cell.period_is_table_max is defined else cell.is_row_max %}
-                                    <td class="col-value {{ periodic_cell_class }} {{ periodic_heat_class }} {{ periodic_rank_class }} {% if is_period_max %}value-max{% endif %}{% if loop.last %} detail-group-end{% endif %}">
+                                    {% set display_fill_ratio = (display_fill_pct / 100) %}
+                                    {% set display_bg_alpha = 0 if periodic_cell_class == 'value-zero' else (display_fill_ratio * 0.18) %}
+                                    <td class="col-value {{ periodic_cell_class }} {{ periodic_heat_class }} {{ periodic_rank_class }} {% if is_period_max %}value-max{% endif %}{% if loop.last %} detail-group-end{% endif %}" style="--periodic-cell-bg-alpha: {{ display_bg_alpha|round(4) }};">
                                         <div class="electricity-daily-value-bar-cell electricity-periodic-value-bar-match {% if periodic_cell_class %}{{ periodic_cell_class }}{% endif %}" style="--detail-fill-width: {{ display_fill_pct|round(2) }}%;">
                                             <span class="electricity-daily-value-bar-fill"></span>
                                             <span class="electricity-daily-value-bar-label">{{ cell.display }}</span>
