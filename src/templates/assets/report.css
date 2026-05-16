@@ -2581,8 +2581,45 @@
         }
 
         .electricity-periodic-detail-table-block-merged {
-            --periodic-sticky-index-width: 68px;
-            --periodic-sticky-date-width: 148px;
+            --periodic-sticky-index-width: 72px;
+            --periodic-sticky-date-width: 154px;
+            --periodic-sticky-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 248, 252, 0.98) 100%);
+            --periodic-sticky-surface-alt: linear-gradient(180deg, rgba(252, 253, 255, 0.98) 0%, rgba(247, 250, 252, 0.98) 100%);
+            --periodic-sticky-header-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, var(--detail-head-bg, #eff6ff) 100%);
+            --periodic-sticky-divider: rgba(148, 163, 184, 0.18);
+            --periodic-sticky-shadow: 10px 0 18px rgba(15, 23, 42, 0.05);
+            --periodic-header-chip-bg: rgba(255, 255, 255, 0.72);
+            --periodic-header-chip-border: rgba(255, 255, 255, 0.78);
+        }
+
+        .electricity-periodic-detail-table-block-merged.area-diode {
+            --periodic-sticky-surface: linear-gradient(180deg, rgba(245, 250, 255, 0.99) 0%, rgba(235, 245, 251, 0.99) 100%);
+            --periodic-sticky-surface-alt: linear-gradient(180deg, rgba(249, 252, 255, 0.99) 0%, rgba(239, 247, 252, 0.99) 100%);
+            --periodic-sticky-header-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(226, 240, 249, 0.98) 100%);
+            --periodic-sticky-divider: rgba(0, 84, 150, 0.18);
+            --periodic-sticky-shadow: 10px 0 20px rgba(0, 84, 150, 0.07);
+            --periodic-header-chip-bg: rgba(0, 84, 150, 0.08);
+            --periodic-header-chip-border: rgba(0, 84, 150, 0.14);
+        }
+
+        .electricity-periodic-detail-table-block-merged.area-ico {
+            --periodic-sticky-surface: linear-gradient(180deg, rgba(248, 252, 247, 0.99) 0%, rgba(239, 247, 238, 0.99) 100%);
+            --periodic-sticky-surface-alt: linear-gradient(180deg, rgba(251, 253, 250, 0.99) 0%, rgba(243, 249, 242, 0.99) 100%);
+            --periodic-sticky-header-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 242, 230, 0.98) 100%);
+            --periodic-sticky-divider: rgba(111, 154, 109, 0.22);
+            --periodic-sticky-shadow: 10px 0 20px rgba(111, 154, 109, 0.08);
+            --periodic-header-chip-bg: rgba(111, 154, 109, 0.09);
+            --periodic-header-chip-border: rgba(111, 154, 109, 0.16);
+        }
+
+        .electricity-periodic-detail-table-block-merged.area-sakari {
+            --periodic-sticky-surface: linear-gradient(180deg, rgba(255, 251, 245, 0.99) 0%, rgba(251, 244, 231, 0.99) 100%);
+            --periodic-sticky-surface-alt: linear-gradient(180deg, rgba(255, 253, 249, 0.99) 0%, rgba(252, 247, 238, 0.99) 100%);
+            --periodic-sticky-header-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 236, 215, 0.98) 100%);
+            --periodic-sticky-divider: rgba(208, 154, 69, 0.22);
+            --periodic-sticky-shadow: 10px 0 20px rgba(208, 154, 69, 0.08);
+            --periodic-header-chip-bg: rgba(208, 154, 69, 0.10);
+            --periodic-header-chip-border: rgba(208, 154, 69, 0.18);
         }
 
         .electricity-periodic-detail-wrap {
@@ -2598,6 +2635,7 @@
             overflow: auto;
             max-height: var(--periodic-detail-max-height, 390px);
             -webkit-overflow-scrolling: touch;
+            scrollbar-gutter: stable both-edges;
         }
 
         .electricity-periodic-detail-wrap .report-table-ui {
@@ -2613,6 +2651,12 @@
             min-width: 100%;
         }
 
+        .electricity-periodic-detail-table th,
+        .electricity-periodic-detail-table td {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
         .electricity-periodic-detail-table thead th {
             background: var(--detail-head-bg, #eff6ff);
             color: var(--report-color-text-primary);
@@ -2622,6 +2666,8 @@
 
         .electricity-periodic-detail-table-merged thead th {
             vertical-align: bottom;
+            padding-top: 10px;
+            padding-bottom: 9px;
         }
 
         .electricity-periodic-detail-table .col-index {
@@ -2636,63 +2682,73 @@
             min-width: var(--periodic-sticky-index-width);
             width: var(--periodic-sticky-index-width);
             text-align: center;
+            font-weight: 700;
+            color: #607287;
         }
 
         .electricity-periodic-detail-table-merged .col-date {
             min-width: var(--periodic-sticky-date-width);
             width: var(--periodic-sticky-date-width);
+            font-weight: 700;
+            color: var(--report-color-text-primary);
         }
 
         .electricity-periodic-detail-table-merged .sticky-index-col {
             position: sticky;
             left: 0;
             z-index: 5;
-            background: var(--report-components-card-background, #ffffff);
-            box-shadow: inset -1px 0 0 rgba(148, 163, 184, 0.18);
+            background: var(--periodic-sticky-surface);
+            box-shadow: inset -1px 0 0 var(--periodic-sticky-divider), var(--periodic-sticky-shadow);
         }
 
         .electricity-periodic-detail-table-merged thead .sticky-index-col {
             z-index: 8;
-            background: var(--detail-head-bg, #eff6ff);
+            background: var(--periodic-sticky-header-surface);
         }
 
         .electricity-periodic-detail-table-merged .sticky-date-col {
             left: var(--periodic-sticky-index-width);
             z-index: 4;
-            background: var(--report-components-card-background, #ffffff);
-            box-shadow: inset -1px 0 0 rgba(148, 163, 184, 0.18);
+            background: var(--periodic-sticky-surface);
+            box-shadow: inset -1px 0 0 var(--periodic-sticky-divider), 6px 0 12px rgba(15, 23, 42, 0.04);
         }
 
         .electricity-periodic-detail-table-merged thead .sticky-date-col {
             z-index: 7;
-            background: var(--detail-head-bg, #eff6ff);
+            background: var(--periodic-sticky-header-surface);
         }
 
         .electricity-periodic-detail-table-merged tbody tr:nth-child(even) .sticky-index-col,
         .electricity-periodic-detail-table-merged tbody tr:nth-child(even) .sticky-date-col {
-            background: var(--report-components-report-section-common-table-base-stripe-background, #fcfcfc);
+            background: var(--periodic-sticky-surface-alt);
         }
 
         .electricity-periodic-detail-table-merged .periodic-meter-col {
-            min-width: 132px;
+            min-width: 126px;
         }
 
         .electricity-periodic-detail-table-merged .periodic-meter-header-area {
-            display: block;
-            margin-bottom: 3px;
-            font-size: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+            padding: 2px 8px;
+            border: 1px solid var(--periodic-header-chip-border);
+            border-radius: 999px;
+            background: var(--periodic-header-chip-bg);
+            font-size: 9px;
             font-weight: 800;
-            line-height: 1.2;
-            letter-spacing: 0.04em;
+            line-height: 1.15;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
             color: var(--detail-accent-color, var(--report-color-brand-primary, #1d4ed8));
         }
 
         .electricity-periodic-detail-table-merged .periodic-meter-header-name {
             display: block;
-            font-size: 11.5px;
+            font-size: 10.5px;
             font-weight: 700;
-            line-height: 1.35;
+            line-height: 1.28;
             color: var(--report-color-text-primary);
             white-space: normal;
             word-break: break-word;
@@ -2719,7 +2775,14 @@
         }
 
         .electricity-periodic-detail-table .electricity-periodic-value-bar-match {
-            min-height: 30px;
+            min-height: 28px;
+            padding: 5px 8px;
+        }
+
+        .electricity-periodic-detail-table .electricity-daily-value-bar-label {
+            font-size: 12px;
+            font-weight: 650;
+            letter-spacing: 0.01em;
         }
 
         .electricity-periodic-detail-table .value-zero {
@@ -2738,6 +2801,18 @@
             font-weight: 600;
             border-bottom: 2px solid #3b82f6;
             box-shadow: none;
+        }
+
+        .electricity-periodic-detail-table-block-merged.area-ico .value-max {
+            background: linear-gradient(90deg, rgba(225, 241, 223, 0.98) 0%, rgba(244, 250, 243, 0.98) 100%);
+            color: #4f7750;
+            border-bottom-color: #6f9a6d;
+        }
+
+        .electricity-periodic-detail-table-block-merged.area-sakari .value-max {
+            background: linear-gradient(90deg, rgba(248, 236, 214, 0.98) 0%, rgba(252, 246, 237, 0.98) 100%);
+            color: #9c6a22;
+            border-bottom-color: #d09a45;
         }
 
         .electricity-periodic-detail-table .value-max .electricity-daily-value-bar-label {

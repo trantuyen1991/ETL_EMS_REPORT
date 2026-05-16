@@ -566,7 +566,7 @@
                 </div>
                 {% else %}
                 {% set periodic_detail_tables = sections.electricity.daily_detail_tables or [] %}
-                {% set periodic_detail_max_height = '420px' if is_monthly_period else '360px' if is_weekly_period else '390px' %}
+                {% set periodic_detail_max_height = '420px' if is_monthly_period else '468px' if is_weekly_period else '390px' %}
                 {% for table in periodic_detail_tables %}
                     {% set meter_columns = table.columns[1:] %}
                     {% set detail_block_vars = '--periodic-detail-max-height: ' ~ periodic_detail_max_height ~ '; --detail-accent-color: ' ~ table.accent_color ~ '; --detail-accent-tint: ' ~ table.accent_tint ~ '; --detail-head-bg: ' ~ table.accent_header_bg ~ '; --detail-soft-bg: ' ~ table.accent_soft_bg ~ '; --detail-strong-bg: ' ~ table.accent_strong_bg ~ ';' %}
