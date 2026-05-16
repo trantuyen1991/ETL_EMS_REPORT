@@ -161,3 +161,26 @@ Chosen cache strategy for the current Web GUI phase:
 - [x] prefer release/tag first, then a new feature branch
 - [x] unify the new two-column title header across browser preview and final PDF export
 - [x] use real PDF preview for `Print Preview` when simulated `pdf_source.html` pagination is not trustworthy enough
+- [x] keep periodic `view.html` Electricity Daily Detail as 3 separate area tables, while merging split chunks inside each area only
+- [x] keep periodic detail browser-only polish isolated from PDF output unless explicitly requested otherwise
+- [x] normalize periodic detail review visuals to one global max per visible area table and period window
+- [x] drive both periodic detail bar width and cell background intensity from the same global-max ratio
+- [x] rename Utility business-facing `DIODE` labels to `MPC` in browser-facing display text while preserving raw source IDs
+
+## Current browser review state
+- periodic Electricity Daily Detail in `view.html` now uses:
+  - sticky `Index`
+  - stronger sticky `Date`
+  - bounded internal scroll
+  - clean zero-value cells
+  - global-max table scaling for both bar width and cell background intensity
+- Utility `view.html` now shows `MPC Chiller`, `MPC Air`, and `MPC Chilled Water` instead of `DIODE` display labels.
+- remaining `DIODE...` text observed in render is currently limited to raw meter/source IDs such as `DIODEMSB1`, `DIODEAC2`, and `DIODECH1`.
+
+Recent checkpoints for this browser review slice:
+- `166d768` `style(web): fix periodic detail area accents`
+- `2857d11` `style(web): clean periodic detail zero fills`
+- `35b5412` `style(web): simplify periodic detail fill background`
+- `4c6a5a3` `style(web): scale periodic detail by table max`
+- `f859193` `style(web): sync periodic cell heat with global fill`
+- `4d06c8d` `fix(web): rename utility diode labels to mpc`

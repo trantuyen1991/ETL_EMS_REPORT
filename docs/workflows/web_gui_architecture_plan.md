@@ -301,6 +301,15 @@ Current browser-shell behavior:
 - `Interactive (view.html)` still renders as embedded HTML.
 - `Print Preview` now opens the real rendered PDF inside the WebUI through `/reports/preview-pdf`.
 
+Current browser report-review state:
+- periodic `view.html` Electricity Daily Detail remains split into 3 area tables (`MPC`, `ICO`, `SAKARI`), while split chunks inside each area are merged into one scrollable table per area.
+- periodic detail keeps sticky `Index`, sticky `Date`, sticky header, bounded internal scrolling, and area-specific browser tones without affecting PDF output.
+- periodic detail value bars and cell-background intensity are now synchronized to one rule: both read from the same global-max ratio of the current visible area table and period window.
+- periodic detail now uses one shared max of the whole visible area table for the selected week/month, not per-row and not per-meter normalization.
+- zero-value cells in periodic detail no longer render a misleading background fill track.
+- Utility `view.html` display labels now use `MPC` instead of `DIODE` for business-facing text such as `MPC Chiller`, `MPC Air`, and `MPC Chilled Water`.
+- raw meter/source IDs such as `DIODEMSB1`, `DIODEAC2`, and `DIODECH1` intentionally remain unchanged.
+
 Current header-preview design direction:
 - HTML `view.html` now uses an HTML-native two-column header preview layout.
 - left column is a fixed-width brand/art area.
@@ -321,6 +330,11 @@ Traceability note for the recent preview checkpoint chain:
 - `067199a` `feat(web): split html header into two background columns`
 - `65f828a` `fix(web): remove duplicate html header logo overlay`
 - `1dc0a20` `feat(web): preview real pdf in print surface`
+- `166d768` `style(web): fix periodic detail area accents`
+- `2857d11` `style(web): clean periodic detail zero fills`
+- `4c6a5a3` `style(web): scale periodic detail by table max`
+- `f859193` `style(web): sync periodic cell heat with global fill`
+- `4d06c8d` `fix(web): rename utility diode labels to mpc`
 
 ---
 
