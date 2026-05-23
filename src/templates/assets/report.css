@@ -7372,8 +7372,22 @@
             .kpi-periodic-insight-grid,
             .kpi-monthly-insight-grid,
             .electricity-chart-pair-grid,
-            .kpi-weekly-compare-grid {
+            .kpi-weekly-compare-grid,
+            .periodic-electricity-chart-grid,
+            .utility-periodic-chart-grid,
+            .utility-period-insight-grid,
+            .utility-energy-chart-grid,
+            .utility-sensor-trend-preview-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-trend,
+            .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-deviation,
+            .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-chart-block-heatmap[data-layout-slot="primary"],
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-trend,
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-heatmap,
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-deviation {
+                grid-column: 1 / -1;
             }
 
             .electricity-total-card,
@@ -7382,16 +7396,18 @@
             .kpi-daily-card,
             .electricity-chart-card {
                 min-height: auto;
-                padding: 11px 12px 10px;
+                padding: 11px 12px 11px;
             }
 
             .electricity-chart-card-title {
-                font-size: 13px;
+                font-size: 12.5px;
+                line-height: 1.3;
             }
 
             .electricity-chart-card-subtitle {
-                margin: 4px 0 9px;
-                font-size: 10.5px;
+                margin: 3px 0 7px;
+                font-size: 10px;
+                line-height: 1.35;
             }
 
             .utility-header-shell {
@@ -7542,7 +7558,6 @@
             }
 
             .electricity-chart-card-trend .electricity-chart,
-            .electricity-chart-card-share .electricity-chart,
             .electricity-chart-card-area .electricity-chart,
             .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart,
             .periodic-electricity-chart-grid .electricity-chart-card-area .electricity-chart,
@@ -7550,24 +7565,101 @@
             .periodic-electricity-chart-grid-weekly .electricity-chart-card-area .electricity-chart,
             .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart,
             .periodic-electricity-chart-grid-monthly .electricity-chart-card-area .electricity-chart,
-            .electricity-heatmap-chart,
-            .periodic-electricity-chart-grid-weekly .electricity-heatmap-chart,
-            .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart,
+            .utility-period-type-trend-chart,
+            .utility-comparison-chart-daily,
+            .utility-energy-trend-chart,
+            .utility-sensor-trend-chart,
+            .kpi-daily-dashboard-chart,
+            .kpi-periodic-trend-chart,
+            .kpi-periodic-variance-chart {
+                height: 252px;
+            }
+
+            .electricity-chart-card-share .electricity-chart,
+            .utility-comparison-chart,
+            .utility-comparison-chart-wide,
+            .utility-comparison-chart-narrow,
+            .utility-period-insight-grid .utility-period-mix-chart,
+            .utility-energy-distribution-chart,
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-deviation-chart,
             .electricity-delta-chart,
             .periodic-electricity-chart-grid-weekly .electricity-delta-chart,
             .periodic-electricity-chart-grid .electricity-delta-chart,
-            .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart,
-            .kpi-daily-dashboard-chart,
-            .kpi-periodic-trend-chart,
-            .kpi-periodic-variance-chart,
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart {
+                height: 236px;
+            }
+
+            .electricity-heatmap-chart,
+            .periodic-electricity-chart-grid-weekly .electricity-heatmap-chart,
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart,
+            .utility-period-insight-grid .utility-period-insight-heatmap-chart,
+            .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart,
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart,
             .kpi-periodic-heatmap-chart {
-                height: 220px;
+                height: 246px;
             }
 
             .electricity-heatmap-legend,
             .electricity-heatmap-area-legend {
                 justify-content: flex-start;
-                gap: 8px 10px;
+                gap: 6px 8px;
+                flex-wrap: wrap;
+            }
+
+            .electricity-heatmap-legend {
+                margin-top: 7px;
+                font-size: 10px;
+            }
+
+            .electricity-heatmap-legend .legend-bar {
+                width: 56px;
+                height: 7px;
+            }
+
+            .electricity-heatmap-legend .legend-unit {
+                min-width: 0;
+            }
+
+            .electricity-heatmap-area-legend-item {
+                font-size: 10px;
+                gap: 5px;
+            }
+
+            .utility-energy-distribution-layout,
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-layout {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-chart-wrap {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .utility-energy-distribution-chart-wrap {
+                min-height: 220px;
+            }
+
+            .utility-energy-distribution-center,
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-center {
+                left: 50%;
+                top: 50%;
+            }
+
+            .utility-energy-distribution-center-caption {
+                white-space: normal;
+            }
+
+            .utility-energy-distribution-legend,
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-legend {
+                padding-left: 0;
+                align-items: stretch;
+            }
+
+            .utility-energy-distribution-total,
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-total {
+                justify-content: flex-start;
             }
 
             .utility-overview-card-grid {
@@ -7633,6 +7725,68 @@
             .report-meta-line,
             .report-banner-copy-html .report-meta-line {
                 font-size: 10px;
+            }
+
+            .electricity-chart-card,
+            .report-family-daily .utility-chart-card,
+            .report-family-daily .kpi-chart-card {
+                padding: 10px 10px 11px;
+            }
+
+            .electricity-chart-card-title {
+                font-size: 12px;
+            }
+
+            .electricity-chart-card-subtitle {
+                margin-bottom: 6px;
+                font-size: 9.5px;
+            }
+
+            .electricity-chart-card-trend .electricity-chart,
+            .electricity-chart-card-area .electricity-chart,
+            .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart,
+            .periodic-electricity-chart-grid .electricity-chart-card-area .electricity-chart,
+            .utility-period-type-trend-chart,
+            .utility-comparison-chart-daily,
+            .utility-energy-trend-chart,
+            .utility-sensor-trend-chart,
+            .kpi-daily-dashboard-chart,
+            .kpi-periodic-trend-chart,
+            .kpi-periodic-variance-chart {
+                height: 264px;
+            }
+
+            .electricity-chart-card-share .electricity-chart,
+            .utility-comparison-chart,
+            .utility-comparison-chart-wide,
+            .utility-comparison-chart-narrow,
+            .utility-period-insight-grid .utility-period-mix-chart,
+            .utility-energy-distribution-chart,
+            .electricity-delta-chart,
+            .periodic-electricity-chart-grid .electricity-delta-chart,
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart {
+                height: 244px;
+            }
+
+            .electricity-heatmap-chart,
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart,
+            .utility-period-insight-grid .utility-period-insight-heatmap-chart,
+            .utility-periodic-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart,
+            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-heatmap-chart,
+            .kpi-periodic-heatmap-chart {
+                height: 252px;
+            }
+
+            .electricity-heatmap-legend {
+                font-size: 9.5px;
+            }
+
+            .electricity-heatmap-legend .legend-bar {
+                width: 46px;
+            }
+
+            .electricity-heatmap-area-legend-item {
+                font-size: 9.5px;
             }
         }
 

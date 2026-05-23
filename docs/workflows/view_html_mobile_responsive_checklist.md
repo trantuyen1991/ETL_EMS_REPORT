@@ -121,11 +121,11 @@ Expected audit buckets:
 ---
 
 ## Phase 7 — Mobile chart strategy
-- [ ] audit chart crop/overflow behavior on mobile
-- [ ] reduce label density where necessary
-- [ ] move legends or resize chart areas when needed
-- [ ] verify touch usability of interactive charts
-- [ ] decide which charts should keep desktop behavior vs mobile adjustments
+- [x] audit chart crop/overflow behavior on mobile
+- [x] reduce label density where necessary
+- [x] move legends or resize chart areas when needed
+- [x] verify touch usability of interactive charts
+- [x] decide which charts should keep desktop behavior vs mobile adjustments
 
 ---
 
@@ -135,7 +135,7 @@ Expected audit buckets:
 - [x] step 3: summary-card stacking
 - [x] step 4: section-grid layout for Electricity / Utility / KPI
 - [x] step 5: long-table strategy
-- [ ] step 6: chart mobile polish
+- [x] step 6: chart mobile polish
 
 Reason for the order:
 - foundation first
@@ -168,7 +168,7 @@ Reason for the order:
 - [x] header remains readable on mobile
 - [x] summary cards do not break layout
 - [x] long tables are still usable when scroll is required
-- [ ] charts do not suffer severe crop/overlap issues
+- [x] charts do not suffer severe crop/overlap issues
 - [x] desktop layout is not materially regressed
 - [ ] PDF output is unchanged
 
@@ -300,6 +300,27 @@ Phase 4 / Step 4.1 non-blocking carry-over:
 - table internals are now stable enough to stop being the main blocker, so the next best slice is chart-specific mobile polish rather than more table restructuring
 - PDF-family output was intentionally not changed in this slice and still needs a separate explicit verification step if we want to close the final PDF-related checklist item
 
+Phase 5 / Step 5.1 implementation result (mapped to checklist Phase 7 mobile chart strategy):
+- completed a browser-only chart polish pass in `src/templates/assets/report.css` focused on Electricity, Utility, and KPI chart readability for `Interactive (view.html)` at phone and tablet widths
+- expanded mobile chart stacking by moving the remaining dense chart grids to safer one-column behavior on narrow screens, including periodic Utility grids, Utility energy grids, and sensor-trend preview grids that still felt cramped after the table phase
+- increased effective plot area for the chart types that were visibly too shallow on mobile, with differentiated height adjustments for trend, comparison, heatmap, delta, donut/distribution, and KPI dashboard charts instead of one blanket mobile height
+- reduced chart-card chrome pressure through tighter mobile title/subtitle spacing and better legend sizing/wrapping, especially for heatmap legends and chart cards that combine subtitle plus legend plus axis labels
+- rebalanced the Utility energy distribution card on narrow screens by collapsing the internal donut-and-legend split into a single-column mobile layout so the chart center, legend, and total block no longer compete horizontally
+- kept all changes inside browser/mobile CSS for `Interactive (view.html)` only, without touching PDF templates, PDF CSS, or report business logic
+
+Phase 5 / Step 5.1 verification result:
+- re-checked `daily`, `weekly`, and `monthly` at `360px`, `390px`, `430px`, and `768px`
+- ran a desktop sanity check at `1280px` after the chart-specific mobile changes
+- no blocking chart-shell regressions, severe crop/overlap issues, or broken section wrappers were observed in the verification screenshots
+- the previously cramped weekly/monthly chart cards now have materially more usable plot area on phone widths, and the remaining chart-dense states stay contained rather than visually broken
+- desktop-width chart layout remained stable in the sanity check
+
+Phase 5 / Step 5.1 non-blocking carry-over:
+- the smallest `360px` views are still information-dense in a few multi-series Utility and KPI states, but the charts now remain contained and readable enough for this phase
+- some labels and legends are necessarily compact at the narrowest widths, especially in heatmap and comparison views, but they do not show blocking clipping/overflow after this pass
+- `768px` works well functionally, though a few chart sections still feel like scaled mobile compositions rather than a fully spacious tablet-specific layout
+- PDF-family output was intentionally left untouched and still needs a separate explicit verification step if we want to close the final PDF-related checklist item
+
 ## Current next action
 Recommended next action after this checklist lands:
-- continue with **Phase 5 / Step 5.1** by moving from mobile table strategy into chart-specific mobile polish for `Interactive (view.html)`, while keeping PDF output out of scope unless separately requested.
+- continue with **Phase 6 / Step 6.1** only if you want formal closure of the remaining checklist item by explicitly verifying that PDF output stayed unchanged after the browser-only mobile work.
