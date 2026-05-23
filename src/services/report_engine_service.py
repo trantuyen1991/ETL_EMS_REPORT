@@ -371,15 +371,39 @@ class ReportEngineService:
         month_dir = self._resolve_monthly_report_dir(canonical_output_root, period)
         export_stem = self._build_report_export_stem(env_cfg, period)
         pdf_path = month_dir / "pdf" / f"{export_stem}.pdf"
+        lock_key = self._build_period_artifact_lock_key(period=period)
+
+        logger.info(
+            "Preview PDF request received | lock_key=%s period_type=%s force_refresh=%s pdf_exists=%s pdf_path=%s",
+            lock_key,
+            period.period_type,
+            force_refresh,
+            pdf_path.exists(),
+            pdf_path,
+        )
 
         with self._acquire_period_artifact_lock(period, scope="preview-pdf"):
             if not force_refresh and pdf_path.exists():
                 logger.info(
-                    "Reused existing preview PDF | period_type=%s pdf_path=%s",
+                    "Reused existing preview PDF | lock_key=%s period_type=%s pdf_path=%s",
+                    lock_key,
                     period.period_type,
                     pdf_path,
                 )
                 return pdf_path
+
+            if force_refresh and pdf_path.exists():
+                logger.info(
+                    "Preview PDF force refresh requested, rebuilding artifact | lock_key=%s pdf_path=%s",
+                    lock_key,
+                    pdf_path,
+                )
+            else:
+                logger.info(
+                    "Preview PDF artifact missing, building on demand | lock_key=%s pdf_path=%s",
+                    lock_key,
+                    pdf_path,
+                )
 
             artifacts = self.render_period_package(period=period)
             final_pdf_path = artifacts.get("pdf")
@@ -387,7 +411,8 @@ class ReportEngineService:
                 raise FileNotFoundError("Failed to build preview PDF artifact.")
 
             logger.info(
-                "Built preview PDF on demand | period_type=%s pdf_path=%s force_refresh=%s",
+                "Built preview PDF on demand | lock_key=%s period_type=%s pdf_path=%s force_refresh=%s",
+                lock_key,
                 period.period_type,
                 final_pdf_path,
                 force_refresh,
@@ -422,9 +447,24 @@ class ReportEngineService:
         downloads_dir = canonical_output_root / "_downloads"
         downloads_dir.mkdir(parents=True, exist_ok=True)
         zip_path = downloads_dir / f"{month_dir.name}_report_package.zip"
+        lock_key = self._build_period_artifact_lock_key(period=period)
+
+        logger.info(
+            "Report ZIP request received | lock_key=%s period_type=%s month_dir_exists=%s zip_exists=%s zip_path=%s",
+            lock_key,
+            period.period_type,
+            month_dir.exists() and month_dir.is_dir(),
+            zip_path.exists(),
+            zip_path,
+        )
 
         with self._acquire_period_artifact_lock(period, scope="download-zip"):
             if not month_dir.exists() or not month_dir.is_dir():
+                logger.info(
+                    "Report month directory missing, rendering package before ZIP build | lock_key=%s month_dir=%s",
+                    lock_key,
+                    month_dir,
+                )
                 self.render_period_package(period=period)
 
             if not month_dir.exists() or not month_dir.is_dir():
@@ -434,12 +474,28 @@ class ReportEngineService:
 
             if self._is_zip_artifact_fresh(zip_path=zip_path, source_dir=month_dir):
                 logger.info(
-                    "Reused fresh report package ZIP | period_type=%s month_dir=%s zip_path=%s",
+                    "Reused fresh report package ZIP | lock_key=%s period_type=%s month_dir=%s zip_path=%s",
+                    lock_key,
                     period.period_type,
                     month_dir,
                     zip_path,
                 )
                 return zip_path
+
+            if zip_path.exists():
+                logger.info(
+                    "Existing report ZIP is stale, rebuilding | lock_key=%s month_dir=%s zip_path=%s",
+                    lock_key,
+                    month_dir,
+                    zip_path,
+                )
+            else:
+                logger.info(
+                    "Report ZIP artifact missing, building on demand | lock_key=%s month_dir=%s zip_path=%s",
+                    lock_key,
+                    month_dir,
+                    zip_path,
+                )
 
             temp_zip_path = self._build_temp_output_path(zip_path)
             try:
@@ -454,7 +510,8 @@ class ReportEngineService:
                     temp_zip_path.unlink(missing_ok=True)
 
             logger.info(
-                "Prepared report package ZIP | period_type=%s month_dir=%s zip_path=%s",
+                "Prepared report package ZIP | lock_key=%s period_type=%s month_dir=%s zip_path=%s",
+                lock_key,
                 period.period_type,
                 month_dir,
                 zip_path,
@@ -548,6 +605,14 @@ class ReportEngineService:
     def render_period_package(self, *, period: ResolvedPeriod) -> dict[str, Path]:
         """Render one requested period into the canonical output structure on demand."""
         runtime: dict[str, Any] | None = None
+        period_lock_key = self._build_period_artifact_lock_key(period=period)
+        logger.info(
+            "Starting on-demand report package render | lock_key=%s period_type=%s start_date=%s end_date=%s",
+            period_lock_key,
+            period.period_type,
+            period.start_date,
+            period.end_date,
+        )
         try:
             runtime = self.bootstrap_runtime()
             renderer = TemplateRenderingService("src/templates")
@@ -587,7 +652,8 @@ class ReportEngineService:
             )
 
             runtime["logger"].info(
-                "Rendered on-demand report package | period_type=%s anchor_date=%s month_dir=%s",
+                "Rendered on-demand report package | lock_key=%s period_type=%s anchor_date=%s month_dir=%s",
+                period_lock_key,
                 period.period_type,
                 getattr(period, "anchor_date", None),
                 self._resolve_monthly_report_dir(canonical_output_root, period),
@@ -1068,11 +1134,21 @@ class ReportEngineService:
                 lock = RLock()
                 self._period_artifact_locks[lock_key] = lock
 
-        logger.info(
-            "Waiting for period artifact lock | scope=%s lock_key=%s",
-            scope,
-            lock_key,
-        )
+        acquired_immediately = lock.acquire(blocking=False)
+        if acquired_immediately:
+            lock.release()
+            logger.info(
+                "Period artifact lock available immediately | scope=%s lock_key=%s",
+                scope,
+                lock_key,
+            )
+        else:
+            logger.info(
+                "Period artifact lock busy, waiting | scope=%s lock_key=%s",
+                scope,
+                lock_key,
+            )
+
         with lock:
             logger.info(
                 "Acquired period artifact lock | scope=%s lock_key=%s",
