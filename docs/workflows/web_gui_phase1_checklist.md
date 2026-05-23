@@ -208,4 +208,4 @@ Current mobile-phase status:
 - section-level layout for Electricity / Utility / KPI is complete
 - mobile table strategy for Electricity / Utility / KPI is complete
 - chart-specific mobile polish is complete
-- remaining formal closure item is optional explicit PDF-output verification, because PDF output stayed out of scope during the browser-only responsive work unless separately requested
+- explicit PDF verification is complete, so the dedicated browser-only mobile responsive phase is now fully closed

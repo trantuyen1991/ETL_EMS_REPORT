@@ -48,7 +48,7 @@ Current status of the mobile workstream:
 - section-level mobile layout for Electricity / Utility / KPI is complete
 - explicit mobile table strategy for Electricity / Utility / KPI is complete
 - chart-specific mobile polish for `Interactive (view.html)` is complete
-- the only remaining checklist closure item is optional explicit PDF-output verification, since PDF was intentionally kept out of scope during the browser-only responsive work
+- explicit PDF verification is complete, and the dedicated browser-only mobile responsive checklist is now fully closed
 
 ---
 

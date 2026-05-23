@@ -170,7 +170,7 @@ Reason for the order:
 - [x] long tables are still usable when scroll is required
 - [x] charts do not suffer severe crop/overlap issues
 - [x] desktop layout is not materially regressed
-- [ ] PDF output is unchanged
+- [x] PDF output is unchanged
 
 ---
 
@@ -319,8 +319,18 @@ Phase 5 / Step 5.1 non-blocking carry-over:
 - the smallest `360px` views are still information-dense in a few multi-series Utility and KPI states, but the charts now remain contained and readable enough for this phase
 - some labels and legends are necessarily compact at the narrowest widths, especially in heatmap and comparison views, but they do not show blocking clipping/overflow after this pass
 - `768px` works well functionally, though a few chart sections still feel like scaled mobile compositions rather than a fully spacious tablet-specific layout
-- PDF-family output was intentionally left untouched and still needs a separate explicit verification step if we want to close the final PDF-related checklist item
+
+Phase 6 / Step 6.1 verification result (PDF unaffected check):
+- confirmed the mobile-responsive implementation range from `35c4aff` to current HEAD stayed on browser-only paths, with no diffs under PDF templates, PDF CSS, `base_pdf.html`, `pdf_service.py`, `report_builder_service.py`, or `report_engine_service.py` from the responsive slices
+- rendered representative real PDFs through the live Web GUI preview path for `daily`, `weekly`, and `monthly`
+- verified the generated PDFs still use A4 page size and remain structurally stable without blocking clipping, overflow, missing content blocks, or severe section misalignment
+- reviewed full-page PDF contact sheets for the representative outputs and found only non-blocking pagination whitespace on some weekly/monthly trailing pages, not a regression tied to the mobile browser work
+- this closes the final checklist item for the browser-only mobile responsive phase
+
+Phase 6 / Step 6.1 non-blocking carry-over:
+- some weekly/monthly PDF pages still have large unused lower-page whitespace in later sections, but this appears to be a pre-existing pagination efficiency issue rather than a mobile-phase regression
+- if needed later, PDF pagination compactness should be handled as a separate PDF-specific optimization task, not mixed back into the browser-responsive stream
 
 ## Current next action
 Recommended next action after this checklist lands:
-- continue with **Phase 6 / Step 6.1** only if you want formal closure of the remaining checklist item by explicitly verifying that PDF output stayed unchanged after the browser-only mobile work.
+- the dedicated `Interactive (view.html)` mobile responsive phase is now complete, so the next follow-up can return to the broader Web GUI backlog instead of continuing this checklist.
