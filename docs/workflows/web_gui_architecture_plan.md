@@ -395,13 +395,14 @@ Reference:
 Latest dev-machine verification result:
 - `energy-report-web.service` is installed and `enabled`
 - local `/health` responds successfully on `127.0.0.1:8000`
-- however, the currently listening `uvicorn` process is not owned by the `systemd` service unit; it is a manually-started process under the current user session/cgroup
-- a clean `systemctl start energy-report-web.service` could not be proven from the current tool session while port `8000` was already occupied by that manual process
+- the earlier manual `uvicorn` listener conflict on port `8000` was reproduced and then cleared during the Phase 8 follow-up
+- after the manual listener was removed, tool-side `systemctl start energy-report-web.service` still could not be completed because this environment cannot satisfy the required `sudo` password / TTY flow for the system service start
+- Web UI availability on the dev machine was then restored with the known manual `uvicorn` command so the environment did not stay down
 
 Meaning:
 - the Web UI itself is healthy on the dev machine
 - the `systemd` install path looks prepared
-- but a clean proof that the current runtime is `systemd`-owned still requires operator-side cleanup/restart of the manual process on this machine
+- the remaining blocker is no longer port ownership ambiguity alone; it is privileged operator access needed to perform and verify the clean `systemd` handoff on this machine
 
 ## 17. Success Criteria for the architecture phase
 

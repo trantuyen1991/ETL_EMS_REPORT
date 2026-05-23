@@ -438,6 +438,7 @@ pgrep -af 'uvicorn src.web_app:app|python .*src.web_app|energy-report-web'
 Interpretation rule:
 - if the listener belongs to a user-session/manual process instead of the `systemd` unit, health may still be OK even though auto-start ownership is not actually verified
 - in that case, stop the manual process first, then re-test `sudo systemctl start energy-report-web.service`
+- if the verification is being done from a non-interactive automation/tool session, the remaining blocker may simply be that `sudo` cannot read a password or open a TTY; in that case, repeat the handoff test from a real terminal owned by the operator
 
 If you need additional deterministic smoke anchors later, use the companion runbook:
 - `docs/workflows/release_runbook.md`

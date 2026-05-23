@@ -156,9 +156,10 @@ Chosen cache strategy for the current Web GUI phase:
   - successful on-demand rerender replacing the corresponding HTML/PDF/ZIP artifacts
 - operational verification on the current dev machine showed a meaningful mismatch:
   - `energy-report-web.service` is installed and `enabled`
-  - `/health` is currently healthy on `127.0.0.1:8000`
-  - but the live `uvicorn` process listening on `8000` is a manual session-owned process rather than the active `systemd` unit
-  - because that manual process currently occupies the port, a clean tool-side proof of `systemd`-owned runtime remains pending operator cleanup/restart on this machine
+  - `/health` is healthy on `127.0.0.1:8000`
+  - the manual `uvicorn` listener conflict on port `8000` was cleared during the follow-up check
+  - however, clean `systemd` ownership still could not be proven because this tool session cannot satisfy the required `sudo` password / TTY flow to start the system service after the port was freed
+  - Web UI availability was restored manually after the check, but final proof of `systemd`-owned runtime remains pending a privileged operator-side restart on this machine
 - approved API direction for the next integration phase is now:
   - keep realtime telemetry separate from finalized report analytics
   - expose one canonical `GET /api/v1/report/snapshot` endpoint first
