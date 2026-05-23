@@ -8,6 +8,7 @@ providing a reusable execution path for the existing batch CLI entrypoint.
 from __future__ import annotations
 
 import re
+import tempfile
 import time
 import zipfile
 from contextlib import contextmanager
@@ -440,11 +441,17 @@ class ReportEngineService:
                 )
                 return zip_path
 
-            with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
-                for path in sorted(month_dir.rglob("*")):
-                    if not path.is_file():
-                        continue
-                    zip_file.write(path, arcname=path.relative_to(month_dir.parent))
+            temp_zip_path = self._build_temp_output_path(zip_path)
+            try:
+                with zipfile.ZipFile(temp_zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
+                    for path in sorted(month_dir.rglob("*")):
+                        if not path.is_file():
+                            continue
+                        zip_file.write(path, arcname=path.relative_to(month_dir.parent))
+                temp_zip_path.replace(zip_path)
+            finally:
+                if temp_zip_path.exists():
+                    temp_zip_path.unlink(missing_ok=True)
 
             logger.info(
                 "Prepared report package ZIP | period_type=%s month_dir=%s zip_path=%s",
@@ -1003,6 +1010,49 @@ class ReportEngineService:
             str(period.end_date.isoformat()),
         ])
 
+    def _build_unique_staging_path(
+        self,
+        staging_output_dir: Path,
+        stem: str,
+        suffix: str,
+    ) -> Path:
+        """Build a unique staging path so concurrent workers never share temp files."""
+        safe_stem = re.sub(r"[^A-Za-z0-9._-]+", "_", str(stem)).strip("._") or "artifact"
+        return staging_output_dir / f"{safe_stem}_{time.time_ns()}{suffix}"
+
+    def _build_temp_output_path(self, final_path: Path) -> Path:
+        """Build a unique temp file path in the same directory for atomic replace."""
+        final_path.parent.mkdir(parents=True, exist_ok=True)
+        temp_file = tempfile.NamedTemporaryFile(
+            dir=str(final_path.parent),
+            prefix=f".{final_path.stem}.",
+            suffix=f"{final_path.suffix}.tmp",
+            delete=False,
+        )
+        temp_name = temp_file.name
+        temp_file.close()
+        return Path(temp_name)
+
+    def _atomic_write_text(self, target_path: Path, content: str, *, encoding: str = "utf-8") -> None:
+        """Write text via temp file then atomically replace the final path."""
+        temp_path = self._build_temp_output_path(target_path)
+        try:
+            temp_path.write_text(content, encoding=encoding)
+            temp_path.replace(target_path)
+        finally:
+            if temp_path.exists():
+                temp_path.unlink(missing_ok=True)
+
+    def _atomic_write_bytes(self, target_path: Path, content: bytes) -> None:
+        """Write bytes via temp file then atomically replace the final path."""
+        temp_path = self._build_temp_output_path(target_path)
+        try:
+            temp_path.write_bytes(content)
+            temp_path.replace(target_path)
+        finally:
+            if temp_path.exists():
+                temp_path.unlink(missing_ok=True)
+
     @contextmanager
     def _acquire_period_artifact_lock(
         self,
@@ -1194,16 +1244,24 @@ class ReportEngineService:
 
         view_path = view_dir / f"{export_stem}.html"
         pdf_source_path = pdf_source_dir / f"{export_stem}.html"
-        staging_html_path = staging_output_dir / f"{export_stem}_pdf_source.html"
+        staging_html_path = self._build_unique_staging_path(
+            staging_output_dir,
+            f"{export_stem}_pdf_source",
+            ".html",
+        )
         final_pdf_path = pdf_dir / f"{export_stem}.pdf"
-        staging_pdf_path = staging_output_dir / f"{export_stem}.pdf"
+        staging_pdf_path = self._build_unique_staging_path(
+            staging_output_dir,
+            export_stem,
+            ".pdf",
+        )
 
-        view_path.write_text(view_html, encoding="utf-8")
-        pdf_source_path.write_text(pdf_html, encoding="utf-8")
+        self._atomic_write_text(view_path, view_html)
+        self._atomic_write_text(pdf_source_path, pdf_html)
         staging_html_path.write_text(pdf_html, encoding="utf-8")
 
         pdf_service.export(staging_html_path, staging_pdf_path)
-        final_pdf_path.write_bytes(staging_pdf_path.read_bytes())
+        self._atomic_write_bytes(final_pdf_path, staging_pdf_path.read_bytes())
 
         artifacts = {
             "view_html": view_path,
@@ -1215,7 +1273,13 @@ class ReportEngineService:
 
         if str(period.period_type or "").strip().lower() == "daily":
             excel_path = excel_dir / f"{export_stem}.xlsx"
-            excel_service.export_daily_workbook(excel_path, report_context)
+            temp_excel_path = self._build_temp_output_path(excel_path)
+            try:
+                excel_service.export_daily_workbook(temp_excel_path, report_context)
+                temp_excel_path.replace(excel_path)
+            finally:
+                if temp_excel_path.exists():
+                    temp_excel_path.unlink(missing_ok=True)
             artifacts["excel"] = excel_path
 
         return artifacts
