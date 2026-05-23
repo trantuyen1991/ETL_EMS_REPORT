@@ -10,11 +10,12 @@ from __future__ import annotations
 import re
 import time
 import zipfile
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
 from threading import RLock
-from typing import Any, Optional
+from typing import Any, Iterator, Optional
 
 from src.config.config_loader import load_config
 from src.config.data_sources import get_data_sources
@@ -70,6 +71,8 @@ class ReportEngineService:
         self._preview_context_cache: dict[str, MemoryCacheEntry] = {}
         self._preview_html_cache: dict[str, MemoryCacheEntry] = {}
         self._cache_lock = RLock()
+        self._period_artifact_locks: dict[str, RLock] = {}
+        self._period_artifact_locks_guard = RLock()
 
     def bootstrap_runtime(self) -> dict[str, Any]:
         """Bootstrap runtime objects for report generation."""
@@ -368,26 +371,27 @@ class ReportEngineService:
         export_stem = self._build_report_export_stem(env_cfg, period)
         pdf_path = month_dir / "pdf" / f"{export_stem}.pdf"
 
-        if not force_refresh and pdf_path.exists():
+        with self._acquire_period_artifact_lock(period, scope="preview-pdf"):
+            if not force_refresh and pdf_path.exists():
+                logger.info(
+                    "Reused existing preview PDF | period_type=%s pdf_path=%s",
+                    period.period_type,
+                    pdf_path,
+                )
+                return pdf_path
+
+            artifacts = self.render_period_package(period=period)
+            final_pdf_path = artifacts.get("pdf")
+            if not isinstance(final_pdf_path, Path) or not final_pdf_path.exists():
+                raise FileNotFoundError("Failed to build preview PDF artifact.")
+
             logger.info(
-                "Reused existing preview PDF | period_type=%s pdf_path=%s",
+                "Built preview PDF on demand | period_type=%s pdf_path=%s force_refresh=%s",
                 period.period_type,
-                pdf_path,
+                final_pdf_path,
+                force_refresh,
             )
-            return pdf_path
-
-        artifacts = self.render_period_package(period=period)
-        final_pdf_path = artifacts.get("pdf")
-        if not isinstance(final_pdf_path, Path) or not final_pdf_path.exists():
-            raise FileNotFoundError("Failed to build preview PDF artifact.")
-
-        logger.info(
-            "Built preview PDF on demand | period_type=%s pdf_path=%s force_refresh=%s",
-            period.period_type,
-            final_pdf_path,
-            force_refresh,
-        )
-        return final_pdf_path
+            return final_pdf_path
 
     def build_report_package_zip(
         self,
@@ -414,40 +418,41 @@ class ReportEngineService:
             project_root=project_root,
         )
         month_dir = self._resolve_monthly_report_dir(canonical_output_root, period)
-        if not month_dir.exists() or not month_dir.is_dir():
-            self.render_period_package(period=period)
-
-        if not month_dir.exists() or not month_dir.is_dir():
-            raise FileNotFoundError(
-                f"Built report package not found for {month_dir.name}."
-            )
-
         downloads_dir = canonical_output_root / "_downloads"
         downloads_dir.mkdir(parents=True, exist_ok=True)
         zip_path = downloads_dir / f"{month_dir.name}_report_package.zip"
 
-        if self._is_zip_artifact_fresh(zip_path=zip_path, source_dir=month_dir):
+        with self._acquire_period_artifact_lock(period, scope="download-zip"):
+            if not month_dir.exists() or not month_dir.is_dir():
+                self.render_period_package(period=period)
+
+            if not month_dir.exists() or not month_dir.is_dir():
+                raise FileNotFoundError(
+                    f"Built report package not found for {month_dir.name}."
+                )
+
+            if self._is_zip_artifact_fresh(zip_path=zip_path, source_dir=month_dir):
+                logger.info(
+                    "Reused fresh report package ZIP | period_type=%s month_dir=%s zip_path=%s",
+                    period.period_type,
+                    month_dir,
+                    zip_path,
+                )
+                return zip_path
+
+            with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
+                for path in sorted(month_dir.rglob("*")):
+                    if not path.is_file():
+                        continue
+                    zip_file.write(path, arcname=path.relative_to(month_dir.parent))
+
             logger.info(
-                "Reused fresh report package ZIP | period_type=%s month_dir=%s zip_path=%s",
+                "Prepared report package ZIP | period_type=%s month_dir=%s zip_path=%s",
                 period.period_type,
                 month_dir,
                 zip_path,
             )
             return zip_path
-
-        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
-            for path in sorted(month_dir.rglob("*")):
-                if not path.is_file():
-                    continue
-                zip_file.write(path, arcname=path.relative_to(month_dir.parent))
-
-        logger.info(
-            "Prepared report package ZIP | period_type=%s month_dir=%s zip_path=%s",
-            period.period_type,
-            month_dir,
-            zip_path,
-        )
-        return zip_path
 
     def run_scheduled_batch(self, runtime: dict[str, Any]) -> list[dict[str, Any]]:
         """Render all reports scheduled for the effective anchor day."""
@@ -983,6 +988,48 @@ class ReportEngineService:
             str(template_mode),
             cache_fingerprint,
         ])
+
+    def _build_period_artifact_lock_key(
+        self,
+        *,
+        period: ResolvedPeriod,
+    ) -> str:
+        """Build one lock key for period-scoped artifact generation."""
+        anchor_date = getattr(period, "anchor_date", None)
+        return "|".join([
+            str(period.period_type),
+            str(anchor_date.isoformat() if anchor_date else ""),
+            str(period.start_date.isoformat()),
+            str(period.end_date.isoformat()),
+        ])
+
+    @contextmanager
+    def _acquire_period_artifact_lock(
+        self,
+        period: ResolvedPeriod,
+        *,
+        scope: str,
+    ) -> Iterator[None]:
+        """Serialize on-demand artifact work per resolved period."""
+        lock_key = self._build_period_artifact_lock_key(period=period)
+        with self._period_artifact_locks_guard:
+            lock = self._period_artifact_locks.get(lock_key)
+            if lock is None:
+                lock = RLock()
+                self._period_artifact_locks[lock_key] = lock
+
+        logger.info(
+            "Waiting for period artifact lock | scope=%s lock_key=%s",
+            scope,
+            lock_key,
+        )
+        with lock:
+            logger.info(
+                "Acquired period artifact lock | scope=%s lock_key=%s",
+                scope,
+                lock_key,
+            )
+            yield
 
     def _get_memory_cache_value(
         self,
