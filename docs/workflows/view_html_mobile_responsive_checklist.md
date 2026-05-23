@@ -76,11 +76,11 @@ Expected audit buckets:
 ---
 
 ## Phase 2 — Responsive foundation
-- [ ] verify viewport/container assumptions for browser reading
-- [ ] normalize responsive spacing tokens in `report.css`
-- [ ] reduce fixed-width / nowrap constraints that break mobile layout
-- [ ] define safe stack rules for cards and section grids
-- [ ] isolate mobile-only rules so desktop and PDF are not affected
+- [x] verify viewport/container assumptions for browser reading
+- [x] normalize responsive spacing tokens in `report.css`
+- [x] reduce fixed-width / nowrap constraints that break mobile layout
+- [x] define safe stack rules for cards and section grids
+- [x] isolate mobile-only rules so desktop and PDF are not affected
 
 ---
 
@@ -239,6 +239,25 @@ Phase 1 outcome:
 - shell compactness improved enough to stop being the top mobile blocker
 - Phase 1 has identified the next two major responsive fronts: `view.html` header reflow and top summary-card stacking
 
+Phase 2 implementation result:
+- responsive foundation work was implemented primarily in `src/templates/assets/report.css`
+- mobile header/banner received a first reflow pass with smaller mobile-specific header heights, narrower art columns, lighter right-side text pressure, and mobile-only readability support for the copy block
+- periodic period-strip metadata was collapsed into a single-column mobile flow under `700px`
+- top card systems were given explicit mobile stacking rules so `electricity-total-grid`, `kpi-daily-card-grid`, `kpi-daily-dashboard-grid`, `kpi-periodic-insight-grid`, and `kpi-monthly-insight-grid` all move to a safer single-column layout on narrow screens
+- card compare blocks and footer/meta rows were converted to mobile-safe stacked behavior where needed to reduce width pressure from long values and comparison labels
+- section date-chip metadata was made more mobile-friendly by allowing full-width chips and wrapped text instead of hard `nowrap`
+- all of the above were kept in browser/mobile media rules and did not alter PDF-family templates or PDF CSS
+
+Phase 2 verification result:
+- daily, weekly, and monthly were re-checked at `390px` and `430px`
+- header/banner readability is improved enough to keep content contained and readable at phone widths
+- top summary-card stacking is now stable enough to close the foundation phase
+- date/metadata readability is materially improved, especially in weekly/monthly
+- top-of-report density is reduced enough that the next work can move deeper into section layout instead of fighting the initial viewport
+
+Phase 2 non-blocking carry-over:
+- the banner copy over the background image can still benefit from later polish, especially for the smaller subtitle and created timestamp, but it is no longer the main blocker for continuing the mobile phase
+
 ## Current next action
 Recommended next action after this checklist lands:
-- continue with **Phase 2 / Step 2.1** by implementing the first `view.html` responsive-foundation slice, starting with header/banner mobile reflow and top summary-card stacking rules before touching deeper tables or chart polish.
+- continue with **Phase 3 / Step 3.1** by moving from responsive foundation into section-level mobile layout for `Electricity`, `Utility`, and `KPI`, while still deferring deep table strategy and chart polish.
