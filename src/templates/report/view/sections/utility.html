@@ -228,7 +228,7 @@
             <div class="utility-total-block utility-total-block-daily">
                 <h3 class="electricity-subsection-title">Utility Detail Summary</h3>
 
-                <div class="utility-total-table-wrap report-table-wrap">
+                <div class="utility-total-table-wrap report-table-wrap mobile-scroll-table-wrap">
                     <table class="utility-total-table report-table-ui {% if sections.utility.energy.enabled %}utility-energy-detail-table{% endif %}">
                         <colgroup>
                             {% if sections.utility.energy.enabled %}
@@ -252,7 +252,7 @@
                         <thead>
                             {% if sections.utility.energy.enabled %}
                             <tr>
-                                <th rowspan="2">Utility</th>
+                                <th rowspan="2" class="sticky-utility-col">Utility</th>
                                 <th colspan="4" class="utility-energy-table-group">
                                     Consumption <span class="utility-energy-table-unit">({{ sections.utility.unit_badge or "m³" }})</span>
                                 </th>
@@ -284,7 +284,7 @@
                             {% if sections.utility.energy.enabled %}
                             {% for row in sections.utility.energy.detail_rows %}
                             <tr>
-                                <td class="col-utility">{{ row.display_name }}</td>
+                                <td class="col-utility sticky-utility-col">{{ row.display_name }}</td>
                                 <td class="col-current utility-current-text">{{ row.current_display }}</td>
                                 <td class="col-previous utility-previous-text">{{ row.previous_display }}</td>
                                 <td class="col-delta {{ row.delta_pct_class }}"><span class="utility-delta-chip {{ row.delta_pct_class }}">{{ row.delta_display }}</span></td>
@@ -297,7 +297,7 @@
                             {% else %}
                             {% for row in sections.utility.consumption.totals.rows %}
                             <tr>
-                                <td class="col-utility">{{ row.display_name }}</td>
+                                <td class="col-utility sticky-utility-col">{{ row.display_name }}</td>
                                 <td class="col-unit">{{ row.unit }}</td>
                                 <td class="col-current utility-bar-column utility-current-column">
                                     <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.current_fill_pct }}%;">
@@ -540,7 +540,7 @@
             <div class="utility-total-block">
                 <h3 class="electricity-subsection-title">Utility Detail Summary</h3>
 
-                <div class="utility-total-table-wrap report-table-wrap">
+                <div class="utility-total-table-wrap report-table-wrap mobile-scroll-table-wrap">
                     <table class="utility-total-table report-table-ui">
                         <colgroup>
                             <col class="col-utility">
@@ -552,7 +552,7 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>Utility</th>
+                                <th class="sticky-utility-col">Utility</th>
                                 <th>Unit</th>
                                 <th>{{ labels.current_period or "Current" }}</th>
                                 <th>{{ labels.previous_period or "Previous" }}</th>
@@ -563,7 +563,7 @@
                         <tbody>
                             {% for row in sections.utility.consumption.totals.rows %}
                             <tr>
-                                <td class="col-utility">{{ row.display_name }}</td>
+                                <td class="col-utility sticky-utility-col">{{ row.display_name }}</td>
                                 <td class="col-unit">{{ row.unit }}</td>
                                 <td class="col-current utility-bar-column utility-current-column">
                                     <div class="utility-value-bar-cell {{ row.value_tone_class }}" style="--utility-fill-width: {{ row.current_fill_pct }}%;">
@@ -594,7 +594,7 @@
             <div class="utility-detail-block">
                 <h3 class="electricity-subsection-title">Daily Utility Detail</h3>
 
-                <div class="utility-detail-table-wrap report-table-wrap">
+                <div class="utility-detail-table-wrap report-table-wrap mobile-scroll-table-wrap">
                     <table class="utility-detail-table report-table-ui">
                         <thead>
                             <tr>
@@ -803,7 +803,7 @@
                 {% if sensor_monitoring_view.anomaly_rows and not flags.is_daily_report and not is_card_only_period %}
                 <div class="utility-sensor-anomaly-block">
                     <h4 class="utility-sensor-anomaly-title">Sensor anomaly scan</h4>
-                    <div class="utility-sensor-anomaly-wrap report-table-wrap">
+                    <div class="utility-sensor-anomaly-wrap report-table-wrap mobile-scroll-table-wrap">
                         <table class="utility-sensor-anomaly-table report-table-ui">
                             <thead>
                                 <tr>
@@ -949,7 +949,7 @@
                             </div>
                         </div>
 
-                        <div class="utility-sensor-table-wrap report-table-wrap">
+                        <div class="utility-sensor-table-wrap report-table-wrap mobile-scroll-table-wrap">
                             <table class="utility-sensor-table utility-sensor-period-detail-table report-table-ui">
                                 <thead>
                                     <tr>
@@ -1004,7 +1004,7 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="utility-sensor-table-wrap report-table-wrap">
+                <div class="utility-sensor-table-wrap report-table-wrap mobile-scroll-table-wrap">
                     <table class="utility-sensor-table report-table-ui">
                         <thead>
                             <tr>
@@ -1120,7 +1120,7 @@
             <div class="utility-detail-block">
                 <h3 class="electricity-subsection-title">Daily Utility Detail</h3>
 
-                <div class="utility-detail-table-wrap report-table-wrap">
+                <div class="utility-detail-table-wrap report-table-wrap mobile-scroll-table-wrap">
                     <table class="utility-detail-table report-table-ui">
                         <thead>
                             <tr>

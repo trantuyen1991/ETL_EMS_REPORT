@@ -3,7 +3,7 @@
 <div class="electricity-daily-summary-block {{ extra_block_class }}">
     <h3 class="electricity-subsection-title">Daily Energy Summary</h3>
 
-    <div class="electricity-daily-summary-wrap report-table-wrap electricity-daily-summary-area-wrap">
+    <div class="electricity-daily-summary-wrap report-table-wrap mobile-scroll-table-wrap electricity-daily-summary-area-wrap">
         <table class="electricity-daily-summary-table electricity-daily-summary-area-table report-table-ui">
             <thead>
                 <tr>
@@ -411,7 +411,7 @@
             <div class="electricity-detail-block">
                 <h3 class="electricity-subsection-title">Top {{ top10_display_limit }} Meter Consumption</h3>
 
-                <div class="electricity-top10-wrap report-table-wrap">
+                <div class="electricity-top10-wrap report-table-wrap mobile-scroll-table-wrap">
                     <table class="electricity-top10-table electricity-top10-grouped-table report-table-ui">
                         <thead>
                             <tr>
@@ -420,8 +420,8 @@
                                 {% endfor %}
                             </tr>
                             <tr>
-                                <th class="col-rank">Rank</th>
-                                <th class="col-meter">Meter</th>
+                                <th class="col-rank sticky-rank">Rank</th>
+                                <th class="col-meter sticky-meter">Meter</th>
                                 <th class="col-area">Area</th>
                                 <th>{{ labels.current_period }}</th>
                                 <th class="top10-group-divider">Meter</th>
@@ -441,8 +441,8 @@
                                 {% set ico = row.areas.ico %}
                                 {% set sakari = row.areas.sakari %}
 
-                                <td class="col-rank">{{ row.rank }}</td>
-                                <td class="col-meter">
+                                <td class="col-rank sticky-rank">{{ row.rank }}</td>
+                                <td class="col-meter sticky-meter">
                                     {% if plant %}
                                     <div
                                         class="electricity-meter-bar-cell area-{{ plant.area_key }}"
@@ -494,8 +494,8 @@
                             {% else %}
                             {% for rank in range(1, top10_display_limit + 1) %}
                             <tr class="electricity-top10-empty-row">
-                                <td class="col-rank">{{ rank }}</td>
-                                <td class="col-meter">-</td>
+                                <td class="col-rank sticky-rank">{{ rank }}</td>
+                                <td class="col-meter sticky-meter">-</td>
                                 <td class="col-area">-</td>
                                 <td class="col-current">-</td>
                                 <td class="col-meter top10-group-divider">-</td>
@@ -573,7 +573,7 @@
                 <div class="electricity-periodic-detail-table-block electricity-periodic-detail-table-block-merged area-{{ table.area_key }}"
                     style="{{ detail_block_vars }}">
                     <h4 class="electricity-subsection-title">{{ table.title }}</h4>
-                    <div class="electricity-daily-detail-table-wrap electricity-periodic-detail-wrap electricity-periodic-detail-wrap-merged report-table-wrap">
+                    <div class="electricity-daily-detail-table-wrap electricity-periodic-detail-wrap electricity-periodic-detail-wrap-merged report-table-wrap mobile-scroll-table-wrap">
                         <table class="electricity-daily-detail-table electricity-periodic-detail-table electricity-periodic-detail-table-merged report-table-ui">
                             <thead>
                                 <tr>

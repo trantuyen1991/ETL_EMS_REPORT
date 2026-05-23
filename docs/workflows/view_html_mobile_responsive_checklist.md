@@ -112,11 +112,11 @@ Expected audit buckets:
 ---
 
 ## Phase 6 — Mobile table strategy
-- [ ] classify tables into `stackable` vs `scroll-required`
-- [ ] keep critical detail tables usable with horizontal scroll where necessary
-- [ ] re-evaluate sticky-column strategy for narrow widths
-- [ ] improve font-size, padding, and readable density for mobile tables
-- [ ] define a mobile rule for periodic detail tables before deep styling polish
+- [x] classify tables into `stackable` vs `scroll-required`
+- [x] keep critical detail tables usable with horizontal scroll where necessary
+- [x] re-evaluate sticky-column strategy for narrow widths
+- [x] improve font-size, padding, and readable density for mobile tables
+- [x] define a mobile rule for periodic detail tables before deep styling polish
 
 ---
 
@@ -134,7 +134,7 @@ Expected audit buckets:
 - [x] step 2: `view.html` header mobile layout
 - [x] step 3: summary-card stacking
 - [x] step 4: section-grid layout for Electricity / Utility / KPI
-- [ ] step 5: long-table strategy
+- [x] step 5: long-table strategy
 - [ ] step 6: chart mobile polish
 
 Reason for the order:
@@ -148,28 +148,28 @@ Reason for the order:
 - [x] test `daily` at `360px`
 - [x] test `daily` at `390px`
 - [x] test `daily` at `430px`
-- [ ] test `daily` at `768px`
+- [x] test `daily` at `768px`
 - [x] test `weekly` at `360px`
 - [x] test `weekly` at `390px`
 - [x] test `weekly` at `430px`
-- [ ] test `weekly` at `768px`
+- [x] test `weekly` at `768px`
 - [x] test `monthly` at `360px`
 - [x] test `monthly` at `390px`
 - [x] test `monthly` at `430px`
-- [ ] test `monthly` at `768px`
-- [ ] re-check desktop after each major slice
+- [x] test `monthly` at `768px`
+- [x] re-check desktop after each major slice
 - [ ] verify PDF output remains unaffected
 
 ---
 
 ## Phase 10 — Done criteria
-- [ ] no major horizontal overflow for primary mobile flows
-- [ ] shell controls are touch-friendly
-- [ ] header remains readable on mobile
-- [ ] summary cards do not break layout
-- [ ] long tables are still usable when scroll is required
+- [x] no major horizontal overflow for primary mobile flows
+- [x] shell controls are touch-friendly
+- [x] header remains readable on mobile
+- [x] summary cards do not break layout
+- [x] long tables are still usable when scroll is required
 - [ ] charts do not suffer severe crop/overlap issues
-- [ ] desktop layout is not materially regressed
+- [x] desktop layout is not materially regressed
 - [ ] PDF output is unchanged
 
 ---
@@ -280,6 +280,26 @@ Phase 3 / Step 3.1 non-blocking carry-over:
 - long detail tables still rely on the existing scroll fallback and need the explicit mobile table strategy phase next
 - a few tiny secondary metric rows inside cards remain tight, but they are readable and no longer a layout blocker
 
+Phase 4 / Step 4.1 implementation result (mapped to checklist Phase 6 mobile table strategy):
+- classified current browser tables into two practical mobile buckets: compact tables continue to fit within the section flow, while dense matrix/detail tables explicitly stay scroll-first instead of forcing unsafe card conversion
+- added a dedicated browser-only `mobile-scroll-table-wrap` treatment for the key long-table surfaces across Electricity, Utility, and KPI so horizontal scrolling gets clearer containment, visible scrollbars, and right-edge affordance on phone widths
+- tightened mobile table density through smaller padding, smaller table typography, and more compact bar-cell internals without changing report business logic or PDF templates/CSS
+- preserved or expanded sticky-first-column behavior where it materially helps narrow-width reading, including Electricity Top 10 rank/meter columns, Utility summary first-column labels, and KPI metric/index/date anchors
+- made the periodic-detail mobile rule explicit: keep merged/detail tables tabular and scrollable with stable minimum widths rather than collapsing them into stacked cards
+- kept all implementation changes inside `Interactive (view.html)` templates and browser CSS only
+
+Phase 4 / Step 4.1 verification result:
+- re-checked `daily`, `weekly`, and `monthly` at `360px`, `390px`, `430px`, and `768px`
+- ran an additional desktop sanity check at `1280px` after the table-strategy CSS/template changes
+- no blocking table-shell regressions, clipped sticky columns, or broken section wrappers were observed in the verification screenshots
+- long-table sections now stay contained and readable with explicit scroll behavior instead of feeling accidentally overflowed on narrow screens
+- tablet portrait (`768px`) now passes for the three supported browser period types in this mobile phase
+
+Phase 4 / Step 4.1 non-blocking carry-over:
+- some chart interiors still look dense at phone widths, especially where axis labels and legends compete inside short chart cards
+- table internals are now stable enough to stop being the main blocker, so the next best slice is chart-specific mobile polish rather than more table restructuring
+- PDF-family output was intentionally not changed in this slice and still needs a separate explicit verification step if we want to close the final PDF-related checklist item
+
 ## Current next action
 Recommended next action after this checklist lands:
-- continue with **Phase 4 / Step 4.1** by moving from section-level mobile layout into the explicit mobile table strategy for `Electricity`, `Utility`, and `KPI`, while still keeping chart polish as a later slice.
+- continue with **Phase 5 / Step 5.1** by moving from mobile table strategy into chart-specific mobile polish for `Interactive (view.html)`, while keeping PDF output out of scope unless separately requested.

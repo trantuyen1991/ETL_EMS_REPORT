@@ -957,6 +957,28 @@
             box-shadow: var(--report-components-card-shadow, var(--report-shadow-card));
         }
 
+        .mobile-scroll-table-wrap {
+            position: relative;
+            overscroll-behavior-x: contain;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, 0.9) rgba(226, 232, 240, 0.6);
+        }
+
+        .mobile-scroll-table-wrap::-webkit-scrollbar {
+            height: 9px;
+        }
+
+        .mobile-scroll-table-wrap::-webkit-scrollbar-track {
+            background: rgba(226, 232, 240, 0.56);
+            border-radius: 999px;
+        }
+
+        .mobile-scroll-table-wrap::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, rgba(148, 163, 184, 0.96) 0%, rgba(100, 116, 139, 0.96) 100%);
+            border-radius: 999px;
+            border: 2px solid rgba(226, 232, 240, 0.56);
+        }
+
         .report-table-ui {
             width: 100%;
             border-collapse: collapse;
@@ -1053,6 +1075,26 @@
         }
 
         .report-table-ui tbody tr:nth-child(even) .sticky-date-col {
+            background: var(--report-components-report-section-common-table-base-stripe-background, #fcfcfc);
+        }
+
+        .report-table-ui .sticky-utility-col,
+        .report-table-ui .sticky-metric-col {
+            position: sticky;
+            left: 0;
+            z-index: 4;
+            background: var(--report-components-card-background, var(--report-color-card-background));
+            box-shadow: inset -1px 0 0 rgba(203, 213, 225, 0.88), 8px 0 16px rgba(15, 23, 42, 0.06);
+        }
+
+        .report-table-ui thead .sticky-utility-col,
+        .report-table-ui thead .sticky-metric-col {
+            z-index: 7;
+            background: var(--report-components-report-section-common-table-base-header-background, var(--report-color-table-header-background));
+        }
+
+        .utility-total-table tbody tr:nth-child(even) .sticky-utility-col,
+        .kpi-summary-table tbody tr:nth-child(even) .sticky-metric-col {
             background: var(--report-components-report-section-common-table-base-stripe-background, #fcfcfc);
         }
 
@@ -2142,7 +2184,7 @@
 
         .electricity-top10-table .sticky-meter {
             position: sticky;
-            left: 40px;
+            left: 68px;
             z-index: 3;
             background: var(--report-components-card-background, var(--report-color-card-background));
         }
@@ -6778,6 +6820,39 @@
             min-width: var(--report-components-report-section-kpi-table-daily-detail-source-column-width-view, 56px);
         }
 
+        .kpi-periodic-detail-table .sticky-index-col {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: inset -1px 0 0 rgba(203, 213, 225, 0.86), 8px 0 16px rgba(15, 23, 42, 0.05);
+        }
+
+        .kpi-periodic-detail-table thead .sticky-index-col {
+            z-index: 8;
+            background: var(--report-components-report-section-common-table-base-header-background, var(--report-color-table-header-background));
+        }
+
+        .kpi-periodic-detail-table .sticky-date-col {
+            left: var(--report-components-report-section-kpi-table-daily-detail-index-column-width-view, 56px);
+            z-index: 6;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(241, 247, 255, 0.96) 100%);
+            box-shadow: inset -1px 0 0 rgba(203, 213, 225, 0.86), 10px 0 18px rgba(15, 23, 42, 0.06);
+        }
+
+        .kpi-periodic-detail-table thead .sticky-date-col {
+            z-index: 9;
+            background: var(--report-components-report-section-common-table-base-header-background, var(--report-color-table-header-background));
+        }
+
+        .kpi-periodic-detail-table tbody tr:nth-child(even) .sticky-index-col {
+            background: rgba(252, 252, 252, 0.98);
+        }
+
+        .kpi-periodic-detail-table tbody tr:nth-child(even) .sticky-date-col {
+            background: linear-gradient(180deg, rgba(252, 252, 252, 0.985) 0%, rgba(241, 247, 255, 0.94) 100%);
+        }
+
         .kpi-periodic-detail-table td.col-index,
         .kpi-periodic-detail-table td.col-date,
         .kpi-periodic-detail-table td.col-source,
@@ -7171,7 +7246,7 @@
             }
 
             .electricity-top10-table {
-                min-width: 680px;
+                min-width: 1180px;
             }
 
             .electricity-top10-table .col-area {
@@ -7181,32 +7256,58 @@
             }
 
             .electricity-top10-table .col-meter {
-                min-width: 60px;
+                min-width: 148px;
             }
 
             .electricity-daily-summary-table {
-                min-width: 680px;
+                min-width: 860px;
+            }
+
+            .electricity-daily-summary-area-table {
+                min-width: 920px;
             }
 
             .electricity-daily-summary-table .col-top1-meter {
-                min-width: 60px;
+                min-width: 84px;
             }
 
             .electricity-daily-detail-table {
                 min-width: 860px;
             }
 
-            .utility-total-table,
+            .utility-total-table {
+                min-width: 760px;
+                table-layout: auto;
+            }
+
+            .utility-energy-detail-table {
+                min-width: 920px;
+                table-layout: auto;
+            }
+
             .utility-detail-table {
                 min-width: 760px;
+            }
+
+            .utility-sensor-anomaly-table {
+                min-width: 900px;
+            }
+
+            .utility-sensor-table {
+                min-width: 920px;
             }
 
             .kpi-product-table {
                 min-width: 720px;
             }
 
-            .kpi-daily-detail-table {
-                min-width: 920px;
+            .kpi-summary-table {
+                min-width: 1180px;
+            }
+
+            .kpi-daily-detail-table,
+            .kpi-periodic-detail-table {
+                min-width: 840px;
             }
 
             .report-table-wrap,
@@ -7214,6 +7315,54 @@
                 max-height: 60vh;
                 overflow: auto;
                 -webkit-overflow-scrolling: touch;
+            }
+
+            .mobile-scroll-table-wrap {
+                padding-bottom: 4px;
+            }
+
+            .mobile-scroll-table-wrap::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 18px;
+                pointer-events: none;
+                background: linear-gradient(90deg, rgba(248, 250, 252, 0) 0%, rgba(248, 250, 252, 0.92) 100%);
+                opacity: 1;
+            }
+
+            .mobile-scroll-table-wrap .report-table-ui th,
+            .mobile-scroll-table-wrap .report-table-ui td,
+            .mobile-scroll-table-wrap .surface-table th,
+            .mobile-scroll-table-wrap .surface-table td {
+                padding: 7px 8px;
+                font-size: 11px;
+            }
+
+            .mobile-scroll-table-wrap .report-table-ui thead th,
+            .mobile-scroll-table-wrap .surface-table thead th {
+                font-size: 10px;
+                letter-spacing: 0.015em;
+            }
+
+            .mobile-scroll-table-wrap .value,
+            .mobile-scroll-table-wrap .utility-delta-chip,
+            .mobile-scroll-table-wrap .report-delta-inline,
+            .mobile-scroll-table-wrap .pct {
+                white-space: nowrap;
+            }
+
+            .mobile-scroll-table-wrap .utility-value-bar-cell,
+            .mobile-scroll-table-wrap .electricity-meter-bar-cell {
+                min-height: 28px;
+                padding: 5px 7px;
+            }
+
+            .mobile-scroll-table-wrap .utility-value-bar-label,
+            .mobile-scroll-table-wrap .electricity-meter-bar-label {
+                font-size: 10.5px;
             }
 
 

@@ -206,4 +206,5 @@ Current mobile-phase status:
 - shell mobile UX is complete
 - header/banner and summary-card responsive foundation is complete
 - section-level layout for Electricity / Utility / KPI is complete
-- next follow-up should move to the mobile table strategy, with chart polish still deferred after that
+- mobile table strategy for Electricity / Utility / KPI is complete
+- next follow-up should move to chart-specific mobile polish, with PDF output still out of scope unless separately requested
