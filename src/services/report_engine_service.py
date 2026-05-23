@@ -450,6 +450,7 @@ class ReportEngineService:
         pdf_path = month_dir / "pdf" / f"{export_stem}.pdf"
         excel_path = month_dir / "excel" / f"{export_stem}.xlsx"
         zip_path = downloads_dir / f"{month_dir.name}_report_package.zip"
+        artifact_urls = self._build_machine_artifact_urls(period=period)
 
         artifact_state = {
             "group": {
@@ -458,22 +459,30 @@ class ReportEngineService:
             },
             "interactive": self._build_artifact_descriptor(
                 artifact_key="interactive",
-                url=self._build_machine_artifact_urls(period=period)["interactive_url"],
+                artifact_type="interactive_html",
+                media_type="text/html",
+                url=artifact_urls["interactive_url"],
                 file_path=view_path,
             ),
             "pdf_preview": self._build_artifact_descriptor(
                 artifact_key="pdf_preview",
-                url=self._build_machine_artifact_urls(period=period)["pdf_preview_url"],
+                artifact_type="preview_pdf",
+                media_type="application/pdf",
+                url=artifact_urls["pdf_preview_url"],
                 file_path=pdf_path,
             ),
             "pdf_source_html": self._build_artifact_descriptor(
                 artifact_key="pdf_source_html",
+                artifact_type="pdf_source_html",
+                media_type="text/html",
                 url=None,
                 file_path=pdf_source_path,
             ),
             "zip_package": self._build_artifact_descriptor(
                 artifact_key="zip_package",
-                url=self._build_machine_artifact_urls(period=period)["zip_download_url"],
+                artifact_type="report_zip_package",
+                media_type="application/zip",
+                url=artifact_urls["zip_download_url"],
                 file_path=zip_path,
                 freshness={
                     "source_dir_exists": month_dir.exists() and month_dir.is_dir(),
@@ -484,6 +493,8 @@ class ReportEngineService:
         if str(period.period_type or "").strip().lower() == "daily":
             artifact_state["excel"] = self._build_artifact_descriptor(
                 artifact_key="excel",
+                artifact_type="daily_excel_workbook",
+                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 url=None,
                 file_path=excel_path,
             )
@@ -1124,6 +1135,7 @@ class ReportEngineService:
             "interactive_url": f"/reports?{urlencode(interactive_query)}",
             "pdf_preview_url": f"/reports/preview-pdf?{urlencode(pdf_query)}",
             "zip_download_url": f"/reports/download-zip?{urlencode(query)}",
+            "artifact_manifest_url": f"/api/v1/report/artifacts?{urlencode(query)}",
         }
 
     def _build_report_export_stem(self, env_cfg: dict[str, Any], period: ResolvedPeriod) -> str:
@@ -1401,14 +1413,22 @@ class ReportEngineService:
         self,
         *,
         artifact_key: str,
+        artifact_type: str,
+        media_type: str,
         file_path: Path,
         url: str | None,
         freshness: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Build one JSON-safe artifact descriptor without forcing generation."""
         exists = file_path.exists() and file_path.is_file()
+        is_stale = bool((freshness or {}).get("is_fresh") is False and exists)
+        status = "stale" if is_stale else "available" if exists else "missing"
+
         descriptor: dict[str, Any] = {
             "artifact_key": artifact_key,
+            "artifact_type": artifact_type,
+            "media_type": media_type,
+            "status": status,
             "filename": file_path.name,
             "exists": exists,
             "url": url,

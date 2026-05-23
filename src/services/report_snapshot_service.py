@@ -25,16 +25,16 @@ class ReportSnapshotService:
     ) -> dict[str, Any]:
         """Return a JSON-safe machine-facing report snapshot payload."""
         return {
-            "meta": {
-                "api_version": "v1",
-                "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-                "report_generated_at": self._sanitize_json_value(report_context.get("generated_at")),
-                "source": "report_engine_service",
-                "cache": {
+            "meta": self._build_meta_payload(
+                payload_type="report_snapshot",
+                contract_name="report_snapshot",
+                contract_version=2,
+                cache_payload={
                     "hit": bool(cache_hit),
                     "fingerprint": str(cache_fingerprint or ""),
                 },
-            },
+                report_generated_at=self._sanitize_json_value(report_context.get("generated_at")),
+            ),
             "period": self._build_period_payload(period=period, report_context=report_context),
             "availability": self._build_availability_payload(report_context=report_context),
             "summary": self._build_summary_payload(report_context=report_context),
@@ -50,18 +50,45 @@ class ReportSnapshotService:
         cache_fingerprint: str,
     ) -> dict[str, Any]:
         """Return one JSON-safe artifact manifest payload."""
+        sanitized_state = self._sanitize_json_value(artifact_state)
+        artifacts_payload = self._build_artifact_manifest_payload(sanitized_state)
         return {
-            "meta": {
-                "api_version": "v1",
-                "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-                "source": "report_engine_service",
-                "cache": {
+            "meta": self._build_meta_payload(
+                payload_type="report_artifact_manifest",
+                contract_name="report_artifact_manifest",
+                contract_version=2,
+                cache_payload={
                     "fingerprint": str(cache_fingerprint or ""),
                 },
-            },
+            ),
             "period": self._build_period_payload(period=period, report_context={}),
-            "artifacts": self._sanitize_json_value(artifact_state),
+            "artifacts": artifacts_payload,
         }
+
+    def _build_meta_payload(
+        self,
+        *,
+        payload_type: str,
+        contract_name: str,
+        contract_version: int,
+        cache_payload: dict[str, Any],
+        report_generated_at: str | None = None,
+    ) -> dict[str, Any]:
+        """Build one standard machine-facing meta payload."""
+        payload = {
+            "api_version": "v1",
+            "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "source": "report_engine_service",
+            "payload_type": payload_type,
+            "contract": {
+                "name": contract_name,
+                "version": int(contract_version),
+            },
+            "cache": cache_payload,
+        }
+        if report_generated_at is not None:
+            payload["report_generated_at"] = report_generated_at
+        return payload
 
     def _build_period_payload(
         self,
@@ -88,7 +115,8 @@ class ReportSnapshotService:
     def _build_availability_payload(self, *, report_context: dict[str, Any]) -> dict[str, Any]:
         """Build coarse availability and warning metadata."""
         summary = report_context.get("summary") if isinstance(report_context.get("summary"), dict) else {}
-        kpi_section = ((report_context.get("sections") or {}).get("kpi") or {}) if isinstance(report_context.get("sections"), dict) else {}
+        sections = report_context.get("sections") if isinstance(report_context.get("sections"), dict) else {}
+        kpi_section = sections.get("kpi") if isinstance(sections.get("kpi"), dict) else {}
         coverage_summary = summary.get("coverage") if isinstance(summary.get("coverage"), dict) else {}
         coverage_detail = kpi_section.get("coverage") if isinstance(kpi_section.get("coverage"), dict) else {}
 
@@ -109,6 +137,7 @@ class ReportSnapshotService:
             "has_report": True,
             "coverage_status": coverage_status,
             "warnings": warnings,
+            "warning_count": len(warnings),
         }
 
     def _build_summary_payload(self, *, report_context: dict[str, Any]) -> dict[str, Any]:
@@ -154,13 +183,15 @@ class ReportSnapshotService:
         self._append_named_table_list(tables, section.get("daily_vertical_detail_tables"), source_key="daily_vertical_detail")
         self._append_rows_table(tables, table_key="shutdown_analysis", title=shutdown_analysis.get("title") or "Shutdown analysis", rows=shutdown_analysis.get("rows"))
 
-        return {
-            "title": self._sanitize_json_value(section.get("title")),
-            "subtitle": self._sanitize_json_value(section.get("subtitle")),
-            "cards": cards,
-            "tables": tables,
-            "charts": self._deduplicate_charts(self._collect_chart_nodes(section.get("charts"), prefix="electricity")),
-        }
+        charts = self._deduplicate_charts(self._collect_chart_nodes(section.get("charts"), prefix="electricity"))
+        return self._build_section_payload(
+            section_key="electricity",
+            title=section.get("title"),
+            subtitle=section.get("subtitle"),
+            cards=cards,
+            tables=tables,
+            charts=charts,
+        )
 
     def _build_utility_section(self, section: dict[str, Any]) -> dict[str, Any]:
         """Build the Utility section payload."""
@@ -184,13 +215,14 @@ class ReportSnapshotService:
         charts.extend(self._collect_chart_nodes(energy.get("charts"), prefix="utility.energy"))
         charts.extend(self._collect_chart_nodes(sensor_monitoring.get("charts"), prefix="utility.sensor_monitoring"))
 
-        return {
-            "title": self._sanitize_json_value(section.get("title")),
-            "subtitle": self._sanitize_json_value(section.get("subtitle")),
-            "cards": cards,
-            "tables": tables,
-            "charts": self._deduplicate_charts(charts),
-        }
+        return self._build_section_payload(
+            section_key="utility",
+            title=section.get("title"),
+            subtitle=section.get("subtitle"),
+            cards=cards,
+            tables=tables,
+            charts=self._deduplicate_charts(charts),
+        )
 
     def _build_kpi_section(self, section: dict[str, Any]) -> dict[str, Any]:
         """Build the KPI section payload."""
@@ -212,12 +244,37 @@ class ReportSnapshotService:
         self._append_rows_table(tables, table_key="kpi_product_context", title=product_context.get("title") or "Production context", rows=product_context.get("rows"))
         self._append_rows_table(tables, table_key="kpi_uncovered_ranges", title="KPI uncovered ranges", rows=coverage.get("uncovered_ranges"))
 
+        charts = self._deduplicate_charts(self._collect_chart_nodes(section.get("charts"), prefix="kpi"))
+        return self._build_section_payload(
+            section_key="kpi",
+            title=section.get("title"),
+            subtitle=section.get("subtitle"),
+            cards=cards,
+            tables=tables,
+            charts=charts,
+        )
+
+    def _build_section_payload(
+        self,
+        *,
+        section_key: str,
+        title: Any,
+        subtitle: Any,
+        cards: list[dict[str, Any]],
+        tables: list[dict[str, Any]],
+        charts: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Build one normalized section payload with stable counts."""
         return {
-            "title": self._sanitize_json_value(section.get("title")),
-            "subtitle": self._sanitize_json_value(section.get("subtitle")),
+            "section_key": section_key,
+            "title": self._sanitize_json_value(title),
+            "subtitle": self._sanitize_json_value(subtitle),
+            "card_count": len(cards),
+            "table_count": len(tables),
+            "chart_count": len(charts),
             "cards": cards,
             "tables": tables,
-            "charts": self._deduplicate_charts(self._collect_chart_nodes(section.get("charts"), prefix="kpi")),
+            "charts": charts,
         }
 
     def _build_artifact_payload(self, *, period: ResolvedPeriod) -> dict[str, str]:
@@ -242,7 +299,35 @@ class ReportSnapshotService:
             "interactive_url": f"/reports?{urlencode(interactive_query)}",
             "pdf_preview_url": f"/reports/preview-pdf?{urlencode(pdf_query)}",
             "zip_download_url": f"/reports/download-zip?{urlencode(query)}",
+            "artifact_manifest_url": f"/api/v1/report/artifacts?{urlencode(query)}",
         }
+
+    def _build_artifact_manifest_payload(self, artifact_state: dict[str, Any]) -> dict[str, Any]:
+        """Build one normalized artifact manifest payload with stable summary fields."""
+        group = artifact_state.get("group") if isinstance(artifact_state.get("group"), dict) else {}
+        descriptors = [
+            value
+            for value in artifact_state.values()
+            if isinstance(value, dict) and str(value.get("artifact_key") or "").strip()
+        ]
+        available_count = sum(1 for item in descriptors if str(item.get("status") or "") == "available")
+        stale_count = sum(1 for item in descriptors if str(item.get("status") or "") == "stale")
+        missing_count = sum(1 for item in descriptors if str(item.get("status") or "") == "missing")
+
+        payload = {
+            "summary": {
+                "artifact_count": len(descriptors),
+                "available_count": available_count,
+                "stale_count": stale_count,
+                "missing_count": missing_count,
+            },
+            "group": group,
+        }
+        for key, value in artifact_state.items():
+            if key == "group":
+                continue
+            payload[key] = value
+        return payload
 
     def _collect_chart_nodes(self, node: Any, *, prefix: str) -> list[dict[str, Any]]:
         """Collect chart descriptors recursively from one context branch."""
@@ -287,6 +372,7 @@ class ReportSnapshotService:
             "chart_type": str(first_series.get("style") or first_series.get("chart_type") or "unknown"),
             "title": self._sanitize_json_value(chart_node.get("title")),
             "subtitle": self._sanitize_json_value(chart_node.get("subtitle")),
+            "series_count": len(series_payload),
             "x_axis": x_axis,
             "series": series_payload,
             "legend": legend,
@@ -443,6 +529,7 @@ class ReportSnapshotService:
             "table_key": str(table_key),
             "title": self._sanitize_json_value(title or table_key.replace("_", " ").title()),
             "row_count": len(rows),
+            "columns": self._extract_table_columns(rows),
             "rows": self._sanitize_json_value(rows),
         })
 
@@ -469,8 +556,21 @@ class ReportSnapshotService:
                 "table_key": table_key,
                 "title": self._sanitize_json_value(title),
                 "row_count": len(rows),
+                "columns": self._extract_table_columns(rows),
                 "rows": self._sanitize_json_value(rows),
             })
+
+    def _extract_table_columns(self, rows: list[Any]) -> list[str]:
+        """Extract a stable ordered column list from row dictionaries."""
+        columns: list[str] = []
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            for key in row.keys():
+                key_text = str(key)
+                if key_text not in columns:
+                    columns.append(key_text)
+        return columns
 
     def _deduplicate_charts(self, charts: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Drop duplicate chart keys while preserving order."""

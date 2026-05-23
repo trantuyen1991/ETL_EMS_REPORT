@@ -11,8 +11,12 @@ Current implementation status:
 - `GET /api/v1/report/artifacts` is now available in the local Web GUI app
 - both routes currently reuse the shared resolved-period contract for `daily`, `weekly`, and `monthly`
 - the snapshot route exposes normalized `meta`, `period`, `availability`, `summary`, `sections`, and `artifacts` blocks
-- the artifact route exposes `meta`, `period`, and a read-only artifact manifest with existence, filename, size, modified-at, and ZIP freshness metadata
+- the current snapshot contract now includes explicit section counts, table column lists, chart series counts, and an `artifact_manifest_url` companion link
+- the artifact route exposes `meta`, `period`, and a read-only artifact manifest with existence, status, filename, size, modified-at, and ZIP freshness metadata plus manifest-level artifact counts
 - chart payloads are exposed through a controlled renderer-agnostic schema instead of raw ECharts `option` blobs
+- lightweight automated coverage now exists in:
+  - `tests/test_report_snapshot_service.py`
+  - `scripts/smoke_report_api.py`
 
 ---
 
@@ -269,9 +273,10 @@ Current implementation order now reached:
 1. `GET /api/v1/report/snapshot` is implemented
 2. `GET /api/v1/report/artifacts` is implemented
 3. both routes were validated on `daily`, `weekly`, and `monthly`
+4. the DTO contract was tightened with explicit counts/status fields and lightweight automated smoke coverage
 
 Recommended next order from here:
 
-1. improve and stabilize the snapshot/artifact DTO field contract as machine consumers become concrete
-2. add lightweight API smoke coverage for the machine-facing routes
+1. finalize which DTO fields are truly product-facing for ThingsBoard consumers versus implementation detail
+2. expand smoke coverage into a broader release check or CI step when deployment workflow is ready
 3. only after that, design any separate telemetry endpoints

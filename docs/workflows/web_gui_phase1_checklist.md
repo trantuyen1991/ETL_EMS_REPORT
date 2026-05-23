@@ -174,7 +174,9 @@ Chosen cache strategy for the current Web GUI phase:
   - both routes reuse `ReportEngineService` rather than duplicating period logic in FastAPI handlers
   - validated local HTTP responses for `daily`, `weekly`, and `monthly`
   - confirmed the snapshot JSON payload does not expose raw ECharts `option` blobs
+  - the tightened DTO contract now includes section counts, table column lists, chart series counts, artifact status fields, and an `artifact_manifest_url` link
   - the artifact manifest now reports read-only existence and freshness metadata without forcing artifact regeneration
+  - lightweight automated coverage now exists in `tests/test_report_snapshot_service.py` and `scripts/smoke_report_api.py`
 - reference for the machine-facing contract and implementation direction:
   - `docs/workflows/web_gui_api_direction.md`
 

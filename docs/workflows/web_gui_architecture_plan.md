@@ -391,8 +391,11 @@ Current machine-facing implementation note:
 - both routes reuse the shared resolved-period service path
 - supported public period types remain `daily`, `weekly`, and `monthly`
 - the snapshot payload exposes `meta`, `period`, `availability`, `summary`, `sections`, and `artifacts`
-- the artifact manifest exposes read-only artifact metadata such as existence, filename, size, modified-at, and ZIP freshness state without forcing a rebuild
+- the tightened snapshot contract now includes explicit section counts, table column lists, chart series counts, and an `artifact_manifest_url` companion link
+- the artifact manifest exposes read-only artifact metadata such as status, existence, filename, size, modified-at, and ZIP freshness state without forcing a rebuild
+- the artifact manifest also exposes manifest-level summary counts for available / stale / missing artifacts
 - chart payloads are normalized into controlled chart descriptors instead of raw ECharts `option` blobs
+- lightweight automated checks now exist as one serializer-focused pytest module plus one real HTTP smoke script
 
 Reference:
 - `docs/workflows/web_gui_api_direction.md`
