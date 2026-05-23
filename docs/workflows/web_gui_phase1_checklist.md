@@ -114,6 +114,8 @@ Current implementation note:
 - [x] validate warm-cache behavior over real HTTP
 - [x] define future JSON/API shape for ThingsBoard integration
 - [x] decide whether realtime telemetry should stay separate from report analytics
+- [x] implement the first read-only `GET /api/v1/report/snapshot` endpoint
+- [x] validate the snapshot payload on `daily`, `weekly`, and `monthly`
 
 Current phase-3 findings:
 - shell route `/reports` is lightweight when it only renders the toolbar shell, about `0.005s` in local curl timing.
@@ -165,7 +167,12 @@ Chosen cache strategy for the current Web GUI phase:
   - expose one canonical `GET /api/v1/report/snapshot` endpoint first
   - keep artifact links under a separate manifest-style object or companion endpoint
   - avoid raw ECharts option blobs in the machine-facing contract
-- reference for the proposed machine-facing contract:
+- implementation result for the first machine-facing slice:
+  - `GET /api/v1/report/snapshot` is now available in `src/web_app.py`
+  - the route reuses `ReportEngineService` rather than duplicating period logic in FastAPI handlers
+  - validated local HTTP responses for `daily`, `weekly`, and `monthly`
+  - confirmed the JSON payload does not expose raw ECharts `option` blobs
+- reference for the machine-facing contract and implementation direction:
   - `docs/workflows/web_gui_api_direction.md`
 
 ---

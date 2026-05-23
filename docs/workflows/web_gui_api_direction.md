@@ -4,7 +4,14 @@
 
 Define the approved JSON/API direction that can later support ThingsBoard or other machine-facing consumers without coupling them to HTML templates.
 
-This document is intentionally about **direction and contract shape**, not immediate implementation.
+This document is intentionally about **direction and contract shape**, with the first endpoint now partially implemented.
+
+Current implementation status:
+- `GET /api/v1/report/snapshot` is now available in the local Web GUI app
+- it currently reuses the shared resolved-period contract for `daily`, `weekly`, and `monthly`
+- it exposes normalized `meta`, `period`, `availability`, `summary`, `sections`, and `artifacts` blocks
+- chart payloads are exposed through a controlled renderer-agnostic schema instead of raw ECharts `option` blobs
+- `GET /api/v1/report/artifacts` remains a future companion endpoint
 
 ---
 
@@ -100,6 +107,10 @@ Purpose:
 Purpose:
 - return URLs and freshness metadata for backend-built artifacts
 - keeps artifact delivery separate from the main analytics JSON when a client only needs files
+
+Current status:
+- not implemented yet
+- the current snapshot endpoint already includes basic artifact URLs under `artifacts`
 
 ### C. Realtime telemetry family, future and separate
 
@@ -253,8 +264,7 @@ Still out of scope here:
 
 When this direction becomes active implementation work, the safest next order is:
 
-1. add a backend serializer from shared report context to one stable snapshot DTO
-2. expose `GET /api/v1/report/snapshot`
-3. expose `GET /api/v1/report/artifacts`
-4. validate the payload on `daily`, `weekly`, and `monthly`
-5. only after that, design any separate telemetry endpoints
+1. improve and stabilize the snapshot DTO field contract as machine consumers become concrete
+2. expose `GET /api/v1/report/artifacts`
+3. validate and document consumer expectations on `daily`, `weekly`, and `monthly`
+4. only after that, design any separate telemetry endpoints

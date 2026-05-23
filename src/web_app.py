@@ -39,6 +39,39 @@ def health() -> dict[str, str]:
     }
 
 
+@app.get("/api/v1/report/snapshot")
+def get_report_snapshot(
+    period_type: str | None = Query(default=None),
+    anchor_date: str | None = Query(default=None),
+    force_refresh: bool = Query(default=False),
+) -> JSONResponse:
+    """Return one machine-facing report snapshot for the selected period."""
+    try:
+        normalized_period_type = _normalize_phase1_period_type(period_type)
+        snapshot = report_engine.build_report_snapshot(
+            period_type=normalized_period_type,
+            anchor_date_text=anchor_date,
+            force_refresh=force_refresh,
+        )
+        return JSONResponse(content=snapshot)
+    except ReportRequestError as exc:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "status": "bad_request",
+                "message": str(exc),
+            },
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": "Failed to build report snapshot.",
+            },
+        )
+
+
 @app.get("/reports", response_class=HTMLResponse)
 def render_report_page(
     period_type: str | None = Query(default=None),

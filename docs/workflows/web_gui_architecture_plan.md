@@ -383,9 +383,15 @@ Approved direction after the mobile-responsive closure:
 - let machine consumers read JSON directly rather than scraping `view.html`
 
 Recommended first machine-facing endpoints:
-- `GET /api/v1/report/snapshot`
+- `GET /api/v1/report/snapshot` (now implemented in the local Web GUI app)
 - `GET /api/v1/report/artifacts`
 - separate future telemetry family under `/api/v1/telemetry/...`
+
+Current snapshot implementation note:
+- the first snapshot route reuses the shared resolved-period service path
+- supported public period types remain `daily`, `weekly`, and `monthly`
+- the payload currently exposes `meta`, `period`, `availability`, `summary`, `sections`, and `artifacts`
+- chart payloads are normalized into controlled chart descriptors instead of raw ECharts `option` blobs
 
 Reference:
 - `docs/workflows/web_gui_api_direction.md`

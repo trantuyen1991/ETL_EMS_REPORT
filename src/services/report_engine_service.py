@@ -32,6 +32,7 @@ from src.services.pdf_service import PDFService
 from src.services.period_service import PeriodService
 from src.services.processvalue_service import ProcessValueService
 from src.services.report_builder_service import ReportBuilderService
+from src.services.report_snapshot_service import ReportSnapshotService
 from src.services.style_service import ReportStyleService
 from src.services.template_service import TemplateRenderingService
 from src.services.utility_service import UtilityService
@@ -342,6 +343,75 @@ class ReportEngineService:
             )
         finally:
             self.close_runtime(runtime)
+
+    def build_report_snapshot(
+        self,
+        *,
+        period_type: str | None = None,
+        anchor_date_text: str | None = None,
+        start_date_text: str | None = None,
+        end_date_text: str | None = None,
+        force_refresh: bool = False,
+    ) -> dict[str, Any]:
+        """Return one machine-facing report snapshot for the selected period."""
+        project_root = self.project_root or Path(__file__).resolve().parent.parent.parent
+        config = self.load_runtime_config(project_root=project_root)
+        period = self.resolve_request_period_from_config(
+            config,
+            period_type=period_type,
+            anchor_date_text=anchor_date_text,
+            start_date_text=start_date_text,
+            end_date_text=end_date_text,
+        )
+        cache_fingerprint = self._build_preview_cache_fingerprint(
+            project_root=project_root,
+            period=period,
+        )
+        context_cache_key = self._build_preview_context_cache_key(
+            period=period,
+            render_mode="html",
+            cache_fingerprint=cache_fingerprint,
+        )
+
+        report_context = None if force_refresh else self._get_memory_cache_value(
+            self._preview_context_cache,
+            context_cache_key,
+        )
+        cache_hit = report_context is not None
+
+        if report_context is None:
+            runtime: dict[str, Any] | None = None
+            try:
+                runtime = self.bootstrap_runtime()
+                report_context = self.build_report_context(
+                    runtime=runtime,
+                    period=period,
+                    render_mode="html",
+                )
+                self._set_memory_cache_value(
+                    self._preview_context_cache,
+                    context_cache_key,
+                    report_context,
+                )
+            finally:
+                self.close_runtime(runtime)
+
+        snapshot_service = ReportSnapshotService()
+        snapshot = snapshot_service.build_snapshot(
+            period=period,
+            report_context=report_context,
+            cache_hit=cache_hit,
+            cache_fingerprint=cache_fingerprint,
+        )
+        logger.info(
+            "Built Web GUI report snapshot | period_type=%s start_date=%s end_date=%s cache_hit=%s force_refresh=%s",
+            period.period_type,
+            period.start_date,
+            period.end_date,
+            cache_hit,
+            force_refresh,
+        )
+        return snapshot
 
     def build_report_pdf_preview(
         self,
