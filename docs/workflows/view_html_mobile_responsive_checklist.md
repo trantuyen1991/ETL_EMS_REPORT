@@ -85,29 +85,29 @@ Expected audit buckets:
 ---
 
 ## Phase 3 — `/reports` shell mobile UX
-- [ ] make filter controls fully touch-friendly on mobile
-- [ ] keep collapsible `Filters & Actions` usable on narrow screens
-- [ ] ensure action buttons remain readable and tappable
-- [ ] reduce shell chrome height so the report gets more screen space
-- [ ] verify iframe/report viewport behavior on mobile
+- [x] make filter controls fully touch-friendly on mobile
+- [x] keep collapsible `Filters & Actions` usable on narrow screens
+- [x] ensure action buttons remain readable and tappable
+- [x] reduce shell chrome height so the report gets more screen space
+- [x] verify iframe/report viewport behavior on mobile
 
 ---
 
 ## Phase 4 — Header and summary-card mobile layout
-- [ ] reduce `view.html` header height pressure on small screens
-- [ ] prevent title/subtitle overlap with artwork/logo treatment
-- [ ] stack summary cards safely without horizontal overflow
-- [ ] preserve readable hierarchy for title, generated time, and totals
-- [ ] re-check seam/background behavior on narrow widths
+- [x] reduce `view.html` header height pressure on small screens
+- [x] prevent title/subtitle overlap with artwork/logo treatment
+- [x] stack summary cards safely without horizontal overflow
+- [x] preserve readable hierarchy for title, generated time, and totals
+- [x] re-check seam/background behavior on narrow widths
 
 ---
 
 ## Phase 5 — Section layout for Electricity / Utility / KPI
-- [ ] review each section card/grid on mobile
-- [ ] stack multi-column blocks where needed
-- [ ] reduce padding/density where it hurts readability
-- [ ] preserve section hierarchy and readability on narrow widths
-- [ ] clean up badge/chip/legend wrapping
+- [x] review each section card/grid on mobile
+- [x] stack multi-column blocks where needed
+- [x] reduce padding/density where it hurts readability
+- [x] preserve section hierarchy and readability on narrow widths
+- [x] clean up badge/chip/legend wrapping
 
 ---
 
@@ -130,10 +130,10 @@ Expected audit buckets:
 ---
 
 ## Phase 8 — Recommended implementation order
-- [ ] step 1: `/reports` shell baseline
-- [ ] step 2: `view.html` header mobile layout
-- [ ] step 3: summary-card stacking
-- [ ] step 4: section-grid layout for Electricity / Utility / KPI
+- [x] step 1: `/reports` shell baseline
+- [x] step 2: `view.html` header mobile layout
+- [x] step 3: summary-card stacking
+- [x] step 4: section-grid layout for Electricity / Utility / KPI
 - [ ] step 5: long-table strategy
 - [ ] step 6: chart mobile polish
 
@@ -145,17 +145,17 @@ Reason for the order:
 ---
 
 ## Phase 9 — Test matrix
-- [ ] test `daily` at `360px`
-- [ ] test `daily` at `390px`
-- [ ] test `daily` at `430px`
+- [x] test `daily` at `360px`
+- [x] test `daily` at `390px`
+- [x] test `daily` at `430px`
 - [ ] test `daily` at `768px`
-- [ ] test `weekly` at `360px`
-- [ ] test `weekly` at `390px`
-- [ ] test `weekly` at `430px`
+- [x] test `weekly` at `360px`
+- [x] test `weekly` at `390px`
+- [x] test `weekly` at `430px`
 - [ ] test `weekly` at `768px`
-- [ ] test `monthly` at `360px`
-- [ ] test `monthly` at `390px`
-- [ ] test `monthly` at `430px`
+- [x] test `monthly` at `360px`
+- [x] test `monthly` at `390px`
+- [x] test `monthly` at `430px`
 - [ ] test `monthly` at `768px`
 - [ ] re-check desktop after each major slice
 - [ ] verify PDF output remains unaffected
@@ -258,6 +258,28 @@ Phase 2 verification result:
 Phase 2 non-blocking carry-over:
 - the banner copy over the background image can still benefit from later polish, especially for the smaller subtitle and created timestamp, but it is no longer the main blocker for continuing the mobile phase
 
+Phase 3 / Step 3.1 implementation result (mapped to checklist Phase 5 section layout):
+- section-level mobile work was completed in `src/templates/assets/report.css` without touching PDF CSS, PDF templates, or report business logic
+- compacted Electricity / Utility / KPI section headers for phone widths by reducing icon size, badge density, title spacing, and metadata pressure
+- rebalanced weekly/monthly period-strip summary cards into a denser two-column mobile layout at `390px+`, while preserving a one-column fallback below `389px`
+- tightened Electricity total cards, Utility overview cards, KPI cards, and shared compare blocks so the first screenful of each section consumes less height on mobile
+- normalized chip/badge behavior so status pills and unit badges stay predictable on narrow widths instead of competing with titles
+- stacked remaining multi-column section grids where needed, including mobile-safe one-column behavior for section-level chart pair layouts and KPI weekly compare layouts
+- reduced shared chart-card padding and mobile chart heights enough to stabilize section rhythm, while still deferring deeper chart-specific polish to a later phase
+- kept all changes inside browser/mobile media rules for `Interactive (view.html)` only
+
+Phase 3 / Step 3.1 verification result:
+- re-checked `daily`, `weekly`, and `monthly` at `360px`, `390px`, and `430px`
+- no blocking section-level overflow or clipped card shells were observed in the verified mobile screenshots
+- section rhythm is now more consistent across Electricity, Utility, and KPI, especially for the primary card stacks and the handoff into chart blocks
+- weekly/monthly summary strips are denser at common phone widths without reintroducing the older readability issues on the narrowest fallback
+- chart interiors and long data tables still have later-phase polish opportunities, but they are no longer blocking closure of the section-layout slice
+
+Phase 3 / Step 3.1 non-blocking carry-over:
+- some chart internals remain visually dense at `360px`, which belongs to the later chart-specific mobile polish phase
+- long detail tables still rely on the existing scroll fallback and need the explicit mobile table strategy phase next
+- a few tiny secondary metric rows inside cards remain tight, but they are readable and no longer a layout blocker
+
 ## Current next action
 Recommended next action after this checklist lands:
-- continue with **Phase 3 / Step 3.1** by moving from responsive foundation into section-level mobile layout for `Electricity`, `Utility`, and `KPI`, while still deferring deep table strategy and chart polish.
+- continue with **Phase 4 / Step 4.1** by moving from section-level mobile layout into the explicit mobile table strategy for `Electricity`, `Utility`, and `KPI`, while still keeping chart polish as a later slice.

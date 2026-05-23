@@ -42,6 +42,12 @@ Its explicit guardrails are:
 Detailed execution checklist:
 - `docs/workflows/view_html_mobile_responsive_checklist.md`
 
+Current status of the mobile workstream:
+- `/reports` shell mobile UX is complete
+- header/banner and summary-card responsive foundation is complete
+- section-level mobile layout for Electricity / Utility / KPI is complete
+- the next planned slice is the explicit mobile table strategy, with chart polish still deferred after that
+
 ---
 
 ## 3. Scope Boundaries

@@ -201,3 +201,9 @@ Recent checkpoints for this browser review slice:
 
 Reference:
 - `docs/workflows/view_html_mobile_responsive_checklist.md`
+
+Current mobile-phase status:
+- shell mobile UX is complete
+- header/banner and summary-card responsive foundation is complete
+- section-level layout for Electricity / Utility / KPI is complete
+- next follow-up should move to the mobile table strategy, with chart polish still deferred after that

@@ -7065,29 +7065,91 @@
             }
 
             .section-header {
-                margin-bottom: 14px;
+                margin-bottom: 12px;
             }
 
             .section-header h2 {
-                font-size: 18px;
+                font-size: 17px;
             }
 
             .section-subtitle {
-                margin: 6px 0 0 14px;
-                font-size: 12px;
+                margin: 4px 0 0 0;
+                font-size: 11px;
+                line-height: 1.35;
+            }
+
+            .daily-highlight-header .section-header {
+                padding: 8px 10px 7px;
+                border-left-width: 4px;
+            }
+
+            .daily-highlight-header .section-header-title-row {
+                gap: 6px;
+            }
+
+            .daily-highlight-header .section-unit-badge-inline {
+                padding: 2px 6px;
+                font-size: 8px;
+            }
+
+            .utility-header-shell,
+            .kpi-header-shell,
+            .electricity-header-shell,
+            .utility-periodic-section .utility-header-shell {
+                gap: 8px;
+            }
+
+            .utility-header-main,
+            .kpi-section-shell .utility-header-main,
+            .electricity-section-shell .utility-header-main,
+            .utility-periodic-section .utility-header-main {
+                gap: 9px;
+                width: 100%;
+            }
+
+            .utility-header-icon,
+            .kpi-section-shell .utility-header-icon,
+            .electricity-section-shell .utility-header-icon,
+            .utility-periodic-section .utility-header-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .utility-header-icon svg,
+            .utility-header-icon img,
+            .kpi-section-shell .utility-header-icon svg,
+            .electricity-section-shell .utility-header-icon svg,
+            .utility-periodic-section .utility-header-icon svg,
+            .utility-periodic-section .utility-header-icon img {
+                width: 22px;
+                height: 22px;
             }
 
             .period-strip-table {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .period-strip-cell {
-                border-right: none;
+                min-height: 52px;
+                padding: 7px 10px;
                 border-bottom: 1px solid var(--report-color-border-default);
             }
 
-            .period-strip-cell:last-child {
+            .period-strip-cell:nth-child(2n) {
+                border-right: none;
+            }
+
+            .period-strip-cell:nth-last-child(-n + 2) {
                 border-bottom: none;
+            }
+
+            .period-strip-label {
+                margin-bottom: 3px;
+                font-size: 10px;
+            }
+
+            .period-strip-value {
+                font-size: 13px;
             }
 
             .report-footer {
@@ -7154,27 +7216,33 @@
                 -webkit-overflow-scrolling: touch;
             }
 
-            .section-header h2 {
-                font-size: 18px;
-            }
-
-            .section-subtitle {
-                font-size: 12px;
-            }
 
             .electricity-total-grid,
             .kpi-daily-card-grid,
             .kpi-daily-dashboard-grid,
             .kpi-periodic-insight-grid,
-            .kpi-monthly-insight-grid {
+            .kpi-monthly-insight-grid,
+            .electricity-chart-pair-grid,
+            .kpi-weekly-compare-grid {
                 grid-template-columns: 1fr;
             }
 
             .electricity-total-card,
+            .utility-overview-card,
             .kpi-plant-card,
-            .kpi-daily-card {
+            .kpi-daily-card,
+            .electricity-chart-card {
                 min-height: auto;
-                padding: 12px 14px;
+                padding: 11px 12px 10px;
+            }
+
+            .electricity-chart-card-title {
+                font-size: 13px;
+            }
+
+            .electricity-chart-card-subtitle {
+                margin: 4px 0 9px;
+                font-size: 10.5px;
             }
 
             .utility-header-shell {
@@ -7190,37 +7258,105 @@
             .utility-date-chip,
             .report-family-periodic .utility-date-chip {
                 width: 100%;
-                padding: 9px 11px;
-                gap: 8px;
+                padding: 8px 10px;
+                gap: 7px;
             }
 
-            .utility-date-chip-current,
+            .utility-date-chip-current {
+                font-size: 10.5px;
+                white-space: normal;
+            }
+
             .utility-date-chip-previous {
+                font-size: 9.5px;
                 white-space: normal;
             }
 
             .electricity-total-card-top,
-            .kpi-daily-card-top {
+            .kpi-daily-card-top,
+            .utility-overview-card-top {
                 gap: 8px;
             }
 
+            .electricity-total-card-title-row,
+            .kpi-daily-card-top {
+                flex-wrap: wrap;
+            }
+
+            .kpi-daily-card-badge,
+            .kpi-daily-card.is-total .kpi-daily-card-badge {
+                min-width: 0;
+                padding: 3px 8px;
+                font-size: 9px;
+                white-space: nowrap;
+            }
+
+            .electricity-total-card-title,
+            .utility-overview-card-title,
+            .kpi-daily-card-title {
+                font-size: 11.5px;
+            }
+
+            .utility-overview-card-icon {
+                width: 44px;
+                height: 44px;
+            }
+
+            .utility-overview-card-icon svg {
+                width: 26px;
+                height: 26px;
+            }
+
+            .utility-overview-card-value {
+                font-size: 18px;
+            }
+
+            .utility-overview-card-unit {
+                font-size: 11px;
+            }
+
+            .utility-overview-card-compare,
             .electricity-total-card-compare,
             .kpi-daily-card-compare {
                 grid-template-columns: 1fr;
+                padding: 8px 9px;
             }
 
+            .utility-overview-card-compare-item,
+            .electricity-total-card-compare-item,
+            .kpi-daily-card-compare-item {
+                min-height: 0;
+                padding: 6px 8px;
+            }
+
+            .utility-overview-card-compare-item + .utility-overview-card-compare-item,
             .electricity-total-card-compare-item + .electricity-total-card-compare-item,
             .kpi-daily-card-compare-item + .kpi-daily-card-compare-item {
                 border-left: none;
                 border-top: 1px solid var(--section-card-compare-divider, rgba(214, 226, 236, 0.95));
             }
 
-            .electricity-total-card-primary {
+            .utility-overview-card-compare-label,
+            .electricity-total-card-compare-label,
+            .kpi-daily-card-compare-label {
+                font-size: 9px;
+            }
+
+            .utility-overview-card-compare-value,
+            .electricity-total-card-compare-value,
+            .kpi-daily-card-compare-value {
+                font-size: 13px;
+            }
+
+            .electricity-total-card-primary,
+            .kpi-daily-card-primary,
+            .utility-overview-card-value-row {
                 flex-wrap: wrap;
                 row-gap: 2px;
             }
 
-            .electricity-total-card-primary-value {
+            .electricity-total-card-primary-value,
+            .kpi-daily-card-primary-value {
                 font-size: 22px;
                 line-height: 1;
             }
@@ -7251,8 +7387,38 @@
             .kpi-daily-card-note,
             .electricity-total-card-footer-label,
             .electricity-total-card-meter-label,
-            .electricity-total-card-note {
+            .electricity-total-card-note,
+            .utility-overview-card-compare-note {
                 font-size: 10.5px;
+            }
+
+            .electricity-chart-card-trend .electricity-chart,
+            .electricity-chart-card-share .electricity-chart,
+            .electricity-chart-card-area .electricity-chart,
+            .periodic-electricity-chart-grid .electricity-chart-card-trend .electricity-chart,
+            .periodic-electricity-chart-grid .electricity-chart-card-area .electricity-chart,
+            .periodic-electricity-chart-grid-weekly .electricity-chart-card-trend .electricity-chart,
+            .periodic-electricity-chart-grid-weekly .electricity-chart-card-area .electricity-chart,
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart,
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-area .electricity-chart,
+            .electricity-heatmap-chart,
+            .periodic-electricity-chart-grid-weekly .electricity-heatmap-chart,
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart,
+            .electricity-delta-chart,
+            .periodic-electricity-chart-grid-weekly .electricity-delta-chart,
+            .periodic-electricity-chart-grid .electricity-delta-chart,
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart,
+            .kpi-daily-dashboard-chart,
+            .kpi-periodic-trend-chart,
+            .kpi-periodic-variance-chart,
+            .kpi-periodic-heatmap-chart {
+                height: 220px;
+            }
+
+            .electricity-heatmap-legend,
+            .electricity-heatmap-area-legend {
+                justify-content: flex-start;
+                gap: 8px 10px;
             }
 
             .utility-overview-card-grid {
@@ -7266,6 +7432,24 @@
             .utility-overview-card-compare-item + .utility-overview-card-compare-item {
                 border-left: none;
                 border-top: 1px solid rgba(203, 213, 225, 0.92);
+            }
+        }
+
+        @media (max-width: 389px) {
+            .period-strip-table {
+                grid-template-columns: 1fr;
+            }
+
+            .period-strip-cell {
+                border-right: none;
+            }
+
+            .period-strip-cell:nth-last-child(-n + 2) {
+                border-bottom: 1px solid var(--report-color-border-default);
+            }
+
+            .period-strip-cell:last-child {
+                border-bottom: none;
             }
         }
 
