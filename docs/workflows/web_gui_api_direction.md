@@ -8,10 +8,11 @@ This document is intentionally about **direction and contract shape**, with the 
 
 Current implementation status:
 - `GET /api/v1/report/snapshot` is now available in the local Web GUI app
-- it currently reuses the shared resolved-period contract for `daily`, `weekly`, and `monthly`
-- it exposes normalized `meta`, `period`, `availability`, `summary`, `sections`, and `artifacts` blocks
+- `GET /api/v1/report/artifacts` is now available in the local Web GUI app
+- both routes currently reuse the shared resolved-period contract for `daily`, `weekly`, and `monthly`
+- the snapshot route exposes normalized `meta`, `period`, `availability`, `summary`, `sections`, and `artifacts` blocks
+- the artifact route exposes `meta`, `period`, and a read-only artifact manifest with existence, filename, size, modified-at, and ZIP freshness metadata
 - chart payloads are exposed through a controlled renderer-agnostic schema instead of raw ECharts `option` blobs
-- `GET /api/v1/report/artifacts` remains a future companion endpoint
 
 ---
 
@@ -109,8 +110,9 @@ Purpose:
 - keeps artifact delivery separate from the main analytics JSON when a client only needs files
 
 Current status:
-- not implemented yet
-- the current snapshot endpoint already includes basic artifact URLs under `artifacts`
+- implemented as a read-only manifest route
+- the current snapshot endpoint still includes basic artifact URLs under `artifacts`
+- the companion artifact route adds existence and freshness-oriented metadata without forcing a rebuild
 
 ### C. Realtime telemetry family, future and separate
 
@@ -262,9 +264,14 @@ Still out of scope here:
 
 ## Recommended Next Implementation Slice
 
-When this direction becomes active implementation work, the safest next order is:
+Current implementation order now reached:
 
-1. improve and stabilize the snapshot DTO field contract as machine consumers become concrete
-2. expose `GET /api/v1/report/artifacts`
-3. validate and document consumer expectations on `daily`, `weekly`, and `monthly`
-4. only after that, design any separate telemetry endpoints
+1. `GET /api/v1/report/snapshot` is implemented
+2. `GET /api/v1/report/artifacts` is implemented
+3. both routes were validated on `daily`, `weekly`, and `monthly`
+
+Recommended next order from here:
+
+1. improve and stabilize the snapshot/artifact DTO field contract as machine consumers become concrete
+2. add lightweight API smoke coverage for the machine-facing routes
+3. only after that, design any separate telemetry endpoints

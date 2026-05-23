@@ -13,7 +13,7 @@ from src.models.period_models import ResolvedPeriod
 
 
 class ReportSnapshotService:
-    """Build a stable JSON snapshot from the shared report context."""
+    """Build stable machine-facing payloads from shared report context and artifacts."""
 
     def build_snapshot(
         self,
@@ -40,6 +40,27 @@ class ReportSnapshotService:
             "summary": self._build_summary_payload(report_context=report_context),
             "sections": self._build_sections_payload(report_context=report_context),
             "artifacts": self._build_artifact_payload(period=period),
+        }
+
+    def build_artifact_manifest(
+        self,
+        *,
+        period: ResolvedPeriod,
+        artifact_state: dict[str, Any],
+        cache_fingerprint: str,
+    ) -> dict[str, Any]:
+        """Return one JSON-safe artifact manifest payload."""
+        return {
+            "meta": {
+                "api_version": "v1",
+                "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                "source": "report_engine_service",
+                "cache": {
+                    "fingerprint": str(cache_fingerprint or ""),
+                },
+            },
+            "period": self._build_period_payload(period=period, report_context={}),
+            "artifacts": self._sanitize_json_value(artifact_state),
         }
 
     def _build_period_payload(

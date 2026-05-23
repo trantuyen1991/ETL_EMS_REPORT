@@ -13,10 +13,11 @@ import time
 import zipfile
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 from threading import RLock
 from typing import Any, Iterator, Optional
+from urllib.parse import urlencode
 
 from src.config.config_loader import load_config
 from src.config.data_sources import get_data_sources
@@ -412,6 +413,94 @@ class ReportEngineService:
             force_refresh,
         )
         return snapshot
+
+    def build_report_artifact_manifest(
+        self,
+        *,
+        period_type: str | None = None,
+        anchor_date_text: str | None = None,
+        start_date_text: str | None = None,
+        end_date_text: str | None = None,
+    ) -> dict[str, Any]:
+        """Return one machine-facing manifest for backend-built report artifacts."""
+        project_root = self.project_root or Path(__file__).resolve().parent.parent.parent
+        config = self.load_runtime_config(project_root=project_root)
+        env_cfg = config.get("env") or {}
+        period = self.resolve_request_period_from_config(
+            config,
+            period_type=period_type,
+            anchor_date_text=anchor_date_text,
+            start_date_text=start_date_text,
+            end_date_text=end_date_text,
+        )
+        cache_fingerprint = self._build_preview_cache_fingerprint(
+            project_root=project_root,
+            period=period,
+        )
+        export_stem = self._build_report_export_stem(env_cfg, period)
+        canonical_output_root = self._resolve_canonical_output_root(
+            env_cfg=env_cfg,
+            project_root=project_root,
+        )
+        month_dir = self._resolve_monthly_report_dir(canonical_output_root, period)
+        downloads_dir = canonical_output_root / "_downloads"
+
+        view_path = month_dir / "view_html" / f"{export_stem}.html"
+        pdf_source_path = month_dir / "pdf_source_html" / f"{export_stem}.html"
+        pdf_path = month_dir / "pdf" / f"{export_stem}.pdf"
+        excel_path = month_dir / "excel" / f"{export_stem}.xlsx"
+        zip_path = downloads_dir / f"{month_dir.name}_report_package.zip"
+
+        artifact_state = {
+            "group": {
+                "month_bucket": month_dir.name,
+                "month_dir_exists": month_dir.exists() and month_dir.is_dir(),
+            },
+            "interactive": self._build_artifact_descriptor(
+                artifact_key="interactive",
+                url=self._build_machine_artifact_urls(period=period)["interactive_url"],
+                file_path=view_path,
+            ),
+            "pdf_preview": self._build_artifact_descriptor(
+                artifact_key="pdf_preview",
+                url=self._build_machine_artifact_urls(period=period)["pdf_preview_url"],
+                file_path=pdf_path,
+            ),
+            "pdf_source_html": self._build_artifact_descriptor(
+                artifact_key="pdf_source_html",
+                url=None,
+                file_path=pdf_source_path,
+            ),
+            "zip_package": self._build_artifact_descriptor(
+                artifact_key="zip_package",
+                url=self._build_machine_artifact_urls(period=period)["zip_download_url"],
+                file_path=zip_path,
+                freshness={
+                    "source_dir_exists": month_dir.exists() and month_dir.is_dir(),
+                    "is_fresh": self._is_zip_artifact_fresh(zip_path=zip_path, source_dir=month_dir),
+                },
+            ),
+        }
+        if str(period.period_type or "").strip().lower() == "daily":
+            artifact_state["excel"] = self._build_artifact_descriptor(
+                artifact_key="excel",
+                url=None,
+                file_path=excel_path,
+            )
+
+        snapshot_service = ReportSnapshotService()
+        manifest = snapshot_service.build_artifact_manifest(
+            period=period,
+            artifact_state=artifact_state,
+            cache_fingerprint=cache_fingerprint,
+        )
+        logger.info(
+            "Built Web GUI report artifact manifest | period_type=%s start_date=%s end_date=%s",
+            period.period_type,
+            period.start_date,
+            period.end_date,
+        )
+        return manifest
 
     def build_report_pdf_preview(
         self,
@@ -1013,6 +1102,30 @@ class ReportEngineService:
         """Resolve the canonical anchor date for report naming and monthly grouping."""
         return getattr(period, "anchor_date", None) or period.end_date
 
+    def _build_machine_artifact_urls(self, *, period: ResolvedPeriod) -> dict[str, str]:
+        """Build public machine-facing artifact URLs for one resolved period."""
+        query = {
+            "period_type": str(period.period_type),
+        }
+        anchor_date = getattr(period, "anchor_date", None)
+        if anchor_date is not None:
+            query["anchor_date"] = anchor_date.isoformat()
+
+        interactive_query = dict(query)
+        interactive_query.update({
+            "template_mode": "view",
+            "_embed": "1",
+        })
+
+        pdf_query = dict(query)
+        pdf_query["template_mode"] = "pdf_source"
+
+        return {
+            "interactive_url": f"/reports?{urlencode(interactive_query)}",
+            "pdf_preview_url": f"/reports/preview-pdf?{urlencode(pdf_query)}",
+            "zip_download_url": f"/reports/download-zip?{urlencode(query)}",
+        }
+
     def _build_report_export_stem(self, env_cfg: dict[str, Any], period: ResolvedPeriod) -> str:
         """Build export filename stem as <sort-prefix>_<period>_<filename>_<date>."""
         base_name = self._resolve_report_filename_base(env_cfg)
@@ -1283,6 +1396,32 @@ class ReportEngineService:
                 continue
             newest_source_mtime = max(newest_source_mtime, path.stat().st_mtime)
         return zip_mtime >= newest_source_mtime
+
+    def _build_artifact_descriptor(
+        self,
+        *,
+        artifact_key: str,
+        file_path: Path,
+        url: str | None,
+        freshness: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Build one JSON-safe artifact descriptor without forcing generation."""
+        exists = file_path.exists() and file_path.is_file()
+        descriptor: dict[str, Any] = {
+            "artifact_key": artifact_key,
+            "filename": file_path.name,
+            "exists": exists,
+            "url": url,
+        }
+        if exists:
+            stats = file_path.stat()
+            descriptor.update({
+                "size_bytes": stats.st_size,
+                "modified_at": datetime.fromtimestamp(stats.st_mtime, timezone.utc).isoformat().replace("+00:00", "Z"),
+            })
+        if freshness is not None:
+            descriptor["freshness"] = freshness
+        return descriptor
 
     def _collect_report_batch_artifacts(
         self,

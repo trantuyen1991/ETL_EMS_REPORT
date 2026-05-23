@@ -72,6 +72,37 @@ def get_report_snapshot(
         )
 
 
+@app.get("/api/v1/report/artifacts")
+def get_report_artifacts(
+    period_type: str | None = Query(default=None),
+    anchor_date: str | None = Query(default=None),
+) -> JSONResponse:
+    """Return one machine-facing artifact manifest for the selected period."""
+    try:
+        normalized_period_type = _normalize_phase1_period_type(period_type)
+        manifest = report_engine.build_report_artifact_manifest(
+            period_type=normalized_period_type,
+            anchor_date_text=anchor_date,
+        )
+        return JSONResponse(content=manifest)
+    except ReportRequestError as exc:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "status": "bad_request",
+                "message": str(exc),
+            },
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": "Failed to build report artifact manifest.",
+            },
+        )
+
+
 @app.get("/reports", response_class=HTMLResponse)
 def render_report_page(
     period_type: str | None = Query(default=None),
