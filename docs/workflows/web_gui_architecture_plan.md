@@ -23,6 +23,27 @@ Target user experience for phase 1:
 Phase-1 browser scope no longer includes direct CSV export or `custom` period release.
 ---
 
+## 2.1 Next approved browser phase
+
+After the current Web GUI phase, the next approved browser workstream is a dedicated `view.html` mobile responsive phase.
+
+Its purpose is to improve:
+- mobile reading experience
+- touch usability
+- section stacking and overflow behavior
+- browser-only table/chart responsiveness
+
+Its explicit guardrails are:
+- keep report business logic unchanged
+- keep PDF output unchanged
+- treat `Interactive (view.html)` as the target surface
+- avoid mixing this phase with CSV/API/ThingsBoard decisions
+
+Detailed execution checklist:
+- `docs/workflows/view_html_mobile_responsive_checklist.md`
+
+---
+
 ## 3. Scope Boundaries
 
 ## 3.1 In Scope
@@ -272,6 +293,8 @@ Implemented cache/result state at the current checkpoint:
 - template-only switching stays on the warm-cache path for the interactive HTML surface.
 - real PDF preview now uses a dedicated `/reports/preview-pdf` route and renders or reuses the final PDF artifact instead of relying on simulated browser pagination of `pdf_source.html`.
 - ZIP reuse now follows month-folder freshness rather than rebuilding blindly.
+- on-demand monthly `Print Preview` and `Download Report ZIP` now use one shared per-period lock key inside `ReportEngineService`, so concurrent requests for the same resolved period serialize instead of racing each other.
+- on-demand artifact writes now use unique staging paths plus atomic replace for final HTML/PDF/ZIP/Excel outputs, reducing the chance of partial-file reads during concurrent access.
 - validated local timings after implementation were about:
   - forced/cold daily preview: `1.11s`
   - warm daily preview: `0.008s` to `0.009s`
@@ -309,6 +332,7 @@ Current browser report-review state:
 - zero-value cells in periodic detail no longer render a misleading background fill track.
 - Utility `view.html` display labels now use `MPC` instead of `DIODE` for business-facing text such as `MPC Chiller`, `MPC Air`, and `MPC Chilled Water`.
 - raw meter/source IDs such as `DIODEMSB1`, `DIODEAC2`, and `DIODECH1` intentionally remain unchanged.
+- multi-user cold-path hardening now covers the most likely race case on deploy hosts: concurrent monthly PDF preview and ZIP requests for the same period now wait on one shared period lock and publish final artifacts through atomic replace.
 
 Current header-preview design direction:
 - HTML `view.html` now uses an HTML-native two-column header preview layout.
@@ -335,6 +359,8 @@ Traceability note for the recent preview checkpoint chain:
 - `4c6a5a3` `style(web): scale periodic detail by table max`
 - `f859193` `style(web): sync periodic cell heat with global fill`
 - `4d06c8d` `fix(web): rename utility diode labels to mpc`
+- `e4bff64` `fix(web): lock period preview and zip builds`
+- `844a342` `fix(web): use atomic report artifact writes`
 
 ---
 

@@ -141,9 +141,14 @@ Chosen cache strategy for the current Web GUI phase:
 - the `Refresh` button is now implemented as an explicit cache-bypass action through `force_refresh=1`.
 - template-only switching does not bypass cache for `Interactive`, while `Print Preview` can rebuild or reuse the final PDF artifact as needed.
 - initial safe TTL for preview caches remains `5 minutes` in-process for HTML preview data.
+- monthly cold-path hardening now includes:
+  - one shared per-period artifact lock for `preview-pdf` and `download-zip`
+  - unique staging file paths for on-demand HTML/PDF generation
+  - atomic replace for final HTML/PDF/ZIP/Excel artifacts so concurrent readers do not observe partially written files
 - validated local result after implementation:
   - forced/cold daily preview: about `1.11s`
   - warm daily preview: about `0.008s` to `0.009s`
+  - concurrent local smoke test succeeded for two monthly preview requests plus two monthly ZIP requests targeting the same period key
 - cache invalidation should at minimum react to:
   - explicit refresh bypass
   - process restart/deploy restart
@@ -166,6 +171,8 @@ Chosen cache strategy for the current Web GUI phase:
 - [x] normalize periodic detail review visuals to one global max per visible area table and period window
 - [x] drive both periodic detail bar width and cell background intensity from the same global-max ratio
 - [x] rename Utility business-facing `DIODE` labels to `MPC` in browser-facing display text while preserving raw source IDs
+- [x] serialize same-period monthly preview and ZIP cold builds with a shared per-period lock
+- [x] publish final report artifacts through atomic replace instead of direct in-place writes
 
 ## Current browser review state
 - periodic Electricity Daily Detail in `view.html` now uses:
@@ -184,3 +191,13 @@ Recent checkpoints for this browser review slice:
 - `4c6a5a3` `style(web): scale periodic detail by table max`
 - `f859193` `style(web): sync periodic cell heat with global fill`
 - `4d06c8d` `fix(web): rename utility diode labels to mpc`
+- `e4bff64` `fix(web): lock period preview and zip builds`
+- `844a342` `fix(web): use atomic report artifact writes`
+
+## Next approved browser follow-up
+- [x] confirm the next browser phase should focus on `Interactive (view.html)` mobile responsiveness
+- [x] keep PDF output out of scope for that phase unless separately approved
+- [x] create a dedicated checklist for the mobile-responsive phase
+
+Reference:
+- `docs/workflows/view_html_mobile_responsive_checklist.md`
