@@ -49,6 +49,7 @@ Current status of the mobile workstream:
 - explicit mobile table strategy for Electricity / Utility / KPI is complete
 - chart-specific mobile polish for `Interactive (view.html)` is complete
 - explicit PDF verification is complete, and the dedicated browser-only mobile responsive checklist is now fully closed
+- current broader follow-up has moved back to operational verification plus future API/JSON direction
 
 ---
 
@@ -372,7 +373,37 @@ Traceability note for the recent preview checkpoint chain:
 
 ---
 
-## 15. Success Criteria for the architecture phase
+## 15. Approved JSON/API direction for future ThingsBoard integration
+
+Approved direction after the mobile-responsive closure:
+- keep realtime telemetry separate from report analytics
+- expose one canonical read-only report snapshot endpoint first, rather than many small ad-hoc endpoints
+- keep the machine-facing period contract aligned with the current resolved-period Web GUI contract
+- expose controlled chart schemas instead of raw ECharts option blobs
+- let machine consumers read JSON directly rather than scraping `view.html`
+
+Recommended first machine-facing endpoints:
+- `GET /api/v1/report/snapshot`
+- `GET /api/v1/report/artifacts`
+- separate future telemetry family under `/api/v1/telemetry/...`
+
+Reference:
+- `docs/workflows/web_gui_api_direction.md`
+
+## 16. Local Web UI operational verification result
+
+Latest dev-machine verification result:
+- `energy-report-web.service` is installed and `enabled`
+- local `/health` responds successfully on `127.0.0.1:8000`
+- however, the currently listening `uvicorn` process is not owned by the `systemd` service unit; it is a manually-started process under the current user session/cgroup
+- a clean `systemctl start energy-report-web.service` could not be proven from the current tool session while port `8000` was already occupied by that manual process
+
+Meaning:
+- the Web UI itself is healthy on the dev machine
+- the `systemd` install path looks prepared
+- but a clean proof that the current runtime is `systemd`-owned still requires operator-side cleanup/restart of the manual process on this machine
+
+## 17. Success Criteria for the architecture phase
 
 The architecture refactor is successful only when:
 - current CLI flow still works

@@ -112,8 +112,8 @@ Current implementation note:
 - [x] decide where caching belongs for browser-driven refresh
 - [x] implement service-layer preview cache and ZIP freshness reuse
 - [x] validate warm-cache behavior over real HTTP
-- [ ] define future JSON/API shape for ThingsBoard integration
-- [ ] decide whether realtime telemetry should stay separate from report analytics
+- [x] define future JSON/API shape for ThingsBoard integration
+- [x] decide whether realtime telemetry should stay separate from report analytics
 
 Current phase-3 findings:
 - shell route `/reports` is lightweight when it only renders the toolbar shell, about `0.005s` in local curl timing.
@@ -154,6 +154,18 @@ Chosen cache strategy for the current Web GUI phase:
   - process restart/deploy restart
   - style/config version changes included in the cache fingerprint
   - successful on-demand rerender replacing the corresponding HTML/PDF/ZIP artifacts
+- operational verification on the current dev machine showed a meaningful mismatch:
+  - `energy-report-web.service` is installed and `enabled`
+  - `/health` is currently healthy on `127.0.0.1:8000`
+  - but the live `uvicorn` process listening on `8000` is a manual session-owned process rather than the active `systemd` unit
+  - because that manual process currently occupies the port, a clean tool-side proof of `systemd`-owned runtime remains pending operator cleanup/restart on this machine
+- approved API direction for the next integration phase is now:
+  - keep realtime telemetry separate from finalized report analytics
+  - expose one canonical `GET /api/v1/report/snapshot` endpoint first
+  - keep artifact links under a separate manifest-style object or companion endpoint
+  - avoid raw ECharts option blobs in the machine-facing contract
+- reference for the proposed machine-facing contract:
+  - `docs/workflows/web_gui_api_direction.md`
 
 ---
 

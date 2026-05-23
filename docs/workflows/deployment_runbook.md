@@ -428,6 +428,17 @@ journalctl -u energy-report-web.service -n 100 --no-pager
 curl -I http://127.0.0.1:8000/reports
 ```
 
+If `/health` is OK but `energy-report-web.service` is still `inactive`, check whether port `8000` is being held by a manual `uvicorn` process outside the unit:
+
+```bash
+ss -ltnp '( sport = :8000 )'
+pgrep -af 'uvicorn src.web_app:app|python .*src.web_app|energy-report-web'
+```
+
+Interpretation rule:
+- if the listener belongs to a user-session/manual process instead of the `systemd` unit, health may still be OK even though auto-start ownership is not actually verified
+- in that case, stop the manual process first, then re-test `sudo systemctl start energy-report-web.service`
+
 If you need additional deterministic smoke anchors later, use the companion runbook:
 - `docs/workflows/release_runbook.md`
 
@@ -539,6 +550,8 @@ journalctl -u energy-report-web.service -n 200 --no-pager
 timedatectl
 systemctl list-timers energy-report-etl.timer --all
 curl -fsS http://127.0.0.1:8000/health
+ss -ltnp '( sport = :8000 )'
+pgrep -af 'uvicorn src.web_app:app|python .*src.web_app|energy-report-web'
 OUTPUT_ROOT="$(sudo grep '^OUTPUT_DIR=' /srv/energy-report/config/.env | cut -d= -f2-)"
 OUTPUT_ROOT="${OUTPUT_ROOT:-/srv/energy-report-output}"
 find "$OUTPUT_ROOT" \
