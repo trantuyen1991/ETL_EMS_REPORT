@@ -331,6 +331,23 @@ Phase 6 / Step 6.1 non-blocking carry-over:
 - some weekly/monthly PDF pages still have large unused lower-page whitespace in later sections, but this appears to be a pre-existing pagination efficiency issue rather than a mobile-phase regression
 - if needed later, PDF pagination compactness should be handled as a separate PDF-specific optimization task, not mixed back into the browser-responsive stream
 
+## Post-Closure Mobile Polish — 2026-05-30
+
+This follow-up checkpoint keeps the previously closed mobile phase intact while applying narrow `Interactive (view.html)` mobile fixes requested during phone review. It remains browser-only and does not change report business logic, backend context generation, PDF templates, or PDF CSS.
+
+Implemented fixes:
+- Daily Electricity `Area Share` and `Area Comparison` charts now stack into one chart per row on phone widths, including iPhone 11 Pro Max-sized viewports.
+- Electricity `Top 10 Meter Consumption` now uses a table `colgroup` for the grouped table so the mobile Rank column width is enforced by table structure instead of only cell CSS.
+- Electricity `Top 10 Meter Consumption` mobile mode now keeps only the Rank column sticky; Meter and remaining columns scroll horizontally.
+- Daily Electricity `Daily Energy Detail` now keeps one scrollable mobile table per Area (`MPC`, `ICO`, `SAKARI`) instead of showing multiple split column tables per Area. Desktop behavior remains unchanged.
+- Utility `Utility Detail Summary` mobile mode now reduces the Utility-name column width to roughly 60% of the previous allocation for daily, weekly, and monthly views, with wrapped labels so long utility names do not force the column wider again.
+
+Verification notes:
+- Chromium/CDP computed checks at `414px` confirmed the Electricity chart grid stacks, Top 10 Rank/Meter sticky behavior is correct, Daily Energy Detail exposes one visible mobile table per Area with vertical scroll, and Utility summary column widths are reduced across daily/weekly/monthly.
+- `./venv/bin/pytest -q` remained green with `85 passed`.
+- `/health` returned `200`.
+
 ## Current next action
 Recommended next action after this checklist lands:
-- the dedicated `Interactive (view.html)` mobile responsive phase is now complete, so the next follow-up can return to the broader Web GUI backlog instead of continuing this checklist.
+- the dedicated `Interactive (view.html)` mobile responsive phase remains complete after the 2026-05-30 phone-review polish checkpoint.
+- continue with the broader Web GUI backlog or commit/release hygiene rather than reopening the full mobile-responsive checklist.

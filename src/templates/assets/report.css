@@ -2071,6 +2071,22 @@
             table-layout: fixed;
         }
 
+        .electricity-top10-grouped-table .top10-col-rank {
+            width: 68px;
+        }
+
+        .electricity-top10-grouped-table .top10-col-meter {
+            width: 220px;
+        }
+
+        .electricity-top10-grouped-table .top10-col-area {
+            width: 84px;
+        }
+
+        .electricity-top10-grouped-table .top10-col-current {
+            width: 118px;
+        }
+
         .electricity-top10-table-area {
             min-width: 860px;
         }
@@ -2425,6 +2441,10 @@
 
         .electricity-daily-vertical-columns.columns-2 {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .electricity-daily-vertical-columns-mobile {
+            display: none;
         }
 
         .electricity-daily-vertical-column {
@@ -7066,6 +7086,15 @@
                 grid-template-columns: 1fr;
             }
 
+            .report-family-daily .electricity-daily-vertical-columns-desktop {
+                display: none;
+            }
+
+            .report-family-daily .electricity-daily-vertical-columns-mobile {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+            }
+
             .electricity-chart {
                 height: 240px;
             }
@@ -7249,6 +7278,35 @@
                 min-width: 1180px;
             }
 
+            .electricity-top10-grouped-table {
+                min-width: 1174px;
+            }
+
+            .electricity-top10-grouped-table .top10-col-rank {
+                width: 48px;
+            }
+
+            .electricity-top10-grouped-table .top10-col-meter {
+                width: 148px;
+            }
+
+            .electricity-top10-grouped-table .top10-col-area {
+                width: 62px;
+            }
+
+            .electricity-top10-grouped-table .top10-col-current {
+                width: 118px;
+            }
+
+            .electricity-top10-table .col-rank {
+                width: 48px;
+                min-width: 48px;
+                max-width: 48px;
+                box-sizing: border-box;
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
             .electricity-top10-table .col-area {
                 width: 62px;
                 min-width: 62px;
@@ -7257,6 +7315,18 @@
 
             .electricity-top10-table .col-meter {
                 min-width: 148px;
+            }
+
+            .electricity-top10-table .sticky-meter {
+                position: static;
+                left: auto;
+                z-index: auto;
+                background: inherit;
+            }
+
+            .electricity-top10-table thead .sticky-meter,
+            .electricity-top10-table tbody tr:nth-child(even) .sticky-meter {
+                background: inherit;
             }
 
             .electricity-daily-summary-table {
@@ -7280,9 +7350,34 @@
                 table-layout: auto;
             }
 
+            .utility-total-table col.col-utility {
+                width: 15.6% !important;
+            }
+
+            .utility-total-table .col-utility,
+            .utility-total-table .sticky-utility-col {
+                width: 118px !important;
+                min-width: 118px !important;
+                max-width: 118px !important;
+                white-space: normal;
+                overflow-wrap: anywhere;
+                line-height: 1.25;
+            }
+
             .utility-energy-detail-table {
                 min-width: 920px;
                 table-layout: auto;
+            }
+
+            .utility-energy-detail-table col.col-utility {
+                width: 13.5% !important;
+            }
+
+            .utility-energy-detail-table .col-utility,
+            .utility-energy-detail-table .sticky-utility-col {
+                width: 126px !important;
+                min-width: 126px !important;
+                max-width: 126px !important;
             }
 
             .utility-detail-table {
@@ -7378,6 +7473,10 @@
             .utility-period-insight-grid,
             .utility-energy-chart-grid,
             .utility-sensor-trend-preview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-family-daily .electricity-chart-grid.electricity-chart-grid-daily {
                 grid-template-columns: 1fr;
             }
 

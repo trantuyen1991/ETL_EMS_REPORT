@@ -335,6 +335,10 @@ Current browser-shell behavior:
 
 Current browser report-review state:
 - periodic `view.html` Electricity Daily Detail remains split into 3 area tables (`MPC`, `ICO`, `SAKARI`), while split chunks inside each area are merged into one scrollable table per area.
+- daily `view.html` mobile Electricity Daily Energy Detail now also presents one scrollable table per Area while preserving the existing desktop multi-column presentation.
+- daily `view.html` mobile Electricity Area Share and Area Comparison charts stack into separate rows on phone widths.
+- mobile `view.html` Electricity Top 10 keeps only Rank sticky, enforces a compact Rank width through `colgroup`, and lets Meter plus value columns scroll horizontally.
+- mobile `view.html` Utility Detail Summary reduces the Utility-name column allocation across daily, weekly, and monthly views while allowing long names to wrap.
 - periodic detail keeps sticky `Index`, sticky `Date`, sticky header, bounded internal scrolling, and area-specific browser tones without affecting PDF output.
 - periodic detail value bars and cell-background intensity are now synchronized to one rule: both read from the same global-max ratio of the current visible area table and period window.
 - periodic detail now uses one shared max of the whole visible area table for the selected week/month, not per-row and not per-meter normalization.

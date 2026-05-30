@@ -413,6 +413,18 @@
 
                 <div class="electricity-top10-wrap report-table-wrap mobile-scroll-table-wrap">
                     <table class="electricity-top10-table electricity-top10-grouped-table report-table-ui">
+                        <colgroup>
+                            <col class="top10-col-rank">
+                            <col class="top10-col-meter">
+                            <col class="top10-col-area">
+                            <col class="top10-col-current">
+                            <col class="top10-col-meter">
+                            <col class="top10-col-current">
+                            <col class="top10-col-meter">
+                            <col class="top10-col-current">
+                            <col class="top10-col-meter">
+                            <col class="top10-col-current">
+                        </colgroup>
                         <thead>
                             <tr>
                                 {% for column in top10_group_columns %}
@@ -537,7 +549,7 @@
                     >
                         <h4 class="electricity-subsection-title">{{ table.title }}</h4>
 
-                        <div class="electricity-daily-vertical-columns columns-{{ table.column_groups|length }}">
+                        <div class="electricity-daily-vertical-columns electricity-daily-vertical-columns-desktop columns-{{ table.column_groups|length }}">
                             {% for column_group in table.column_groups %}
                             <div class="electricity-daily-vertical-column report-table-wrap">
                                 <div class="electricity-daily-vertical-head">
@@ -560,6 +572,31 @@
                                 {% endfor %}
                             </div>
                             {% endfor %}
+                        </div>
+
+                        <div class="electricity-daily-vertical-columns electricity-daily-vertical-columns-mobile columns-1">
+                            <div class="electricity-daily-vertical-column report-table-wrap">
+                                <div class="electricity-daily-vertical-head">
+                                    <span class="col-index">Index</span>
+                                    <span>Meter</span>
+                                    <span>Value</span>
+                                </div>
+
+                                {% for column_group in table.column_groups %}
+                                {% for entry in column_group %}
+                                <div class="electricity-daily-vertical-row {{ entry.heat_class }} {% if entry.is_max %}is-max{% endif %}">
+                                    <div class="electricity-daily-vertical-index">{{ entry.index }}</div>
+                                    <div class="electricity-daily-vertical-meter">{{ entry.meter_name }}</div>
+                                    <div class="electricity-daily-vertical-value {% if entry.is_zero %}value-zero{% endif %}">
+                                        <div class="electricity-daily-value-bar-cell" style="--detail-fill-width: {{ entry.fill_pct }}%;">
+                                            <span class="electricity-daily-value-bar-fill"></span>
+                                            <span class="electricity-daily-value-bar-label">{{ entry.display }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
