@@ -440,6 +440,15 @@ Interpretation rule:
 - in that case, stop the manual process first, then re-test `sudo systemctl start energy-report-web.service`
 - if the verification is being done from a non-interactive automation/tool session, the remaining blocker may simply be that `sudo` cannot read a password or open a TTY; in that case, repeat the handoff test from a real terminal owned by the operator
 
+Verification is considered complete only when all of the following are true:
+- `systemctl status energy-report-web.service --no-pager` shows `active (running)`
+- `curl -fsS http://127.0.0.1:8000/health` returns `{"status":"ok","service":"energy-report-web-gui"}`
+- `ss -ltnp '( sport = :8000 )'` shows listener on `0.0.0.0:8000`
+- that listener belongs to the same `uvicorn` PID under `/system.slice/energy-report-web.service`
+
+Current dev-machine note:
+- verified clean service ownership on `2026-05-24` after port cleanup
+
 If you need additional deterministic smoke anchors later, use the companion runbook:
 - `docs/workflows/release_runbook.md`
 

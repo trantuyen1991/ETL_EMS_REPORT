@@ -157,12 +157,12 @@ Chosen cache strategy for the current Web GUI phase:
   - process restart/deploy restart
   - style/config version changes included in the cache fingerprint
   - successful on-demand rerender replacing the corresponding HTML/PDF/ZIP artifacts
-- operational verification on the current dev machine showed a meaningful mismatch:
-  - `energy-report-web.service` is installed and `enabled`
+- operational verification on the current dev machine is now clean:
+  - `energy-report-web.service` is installed, `enabled`, and `active (running)`
   - `/health` is healthy on `127.0.0.1:8000`
-  - the manual `uvicorn` listener conflict on port `8000` was cleared during the follow-up check
-  - however, clean `systemd` ownership still could not be proven because this tool session cannot satisfy the required `sudo` password / TTY flow to start the system service after the port was freed
-  - Web UI availability was restored manually after the check, but final proof of `systemd`-owned runtime remains pending a privileged operator-side restart on this machine
+  - `systemctl status energy-report-web.service --no-pager` shows the live `uvicorn` process under `/system.slice/energy-report-web.service`
+  - `ss -ltnp '( sport = :8000 )'` confirms port `8000` is owned by the same service-backed `uvicorn` PID
+  - the earlier manual-listener ownership ambiguity is therefore closed for the current dev machine state
 - approved API direction for the next integration phase is now:
   - keep realtime telemetry separate from finalized report analytics
   - expose one canonical `GET /api/v1/report/snapshot` endpoint first
@@ -177,6 +177,18 @@ Chosen cache strategy for the current Web GUI phase:
   - the tightened DTO contract now includes section counts, table column lists, chart series counts, artifact status fields, and an `artifact_manifest_url` link
   - the artifact manifest now reports read-only existence and freshness metadata without forcing artifact regeneration
   - lightweight automated coverage now exists in `tests/test_report_snapshot_service.py` and `scripts/smoke_report_api.py`
+- test-stabilization follow-up on 2026-05-30:
+  - full pytest recovered from the earlier collection/test drift and now passes at `85 passed`
+  - `tests/test_render_pipeline.py` now targets `ReportEngineService` instead of the old helper functions formerly exposed by `src.main`
+  - existing template/style assertions were aligned with the accepted `MPC` business-facing labels, current donut geometry, sticky KPI index columns, and current periodic sensor pagination policy
+  - `ProcessValueRepository` now handles ISO-like datetime strings with explicit validation instead of failing with an `AttributeError`
+  - daily Utility sensor anomaly scan rendering is restored for `view.html` and PDF source while card-only periodic behavior remains gated
+  - local Web/API verification remains clean: `/health` is OK and `scripts/smoke_report_api.py` passes against `127.0.0.1:8000`
+- remaining release-readiness checklist:
+  - [ ] run representative daily / weekly / monthly PDF regression export and visual review after the current cleanup
+  - [ ] decide the CSV export payload contract before exposing `Export CSV`
+  - [ ] review sensor anomaly thresholds with business/domain context
+  - [ ] create an explicit Git checkpoint only after review/approval
 - reference for the machine-facing contract and implementation direction:
   - `docs/workflows/web_gui_api_direction.md`
 

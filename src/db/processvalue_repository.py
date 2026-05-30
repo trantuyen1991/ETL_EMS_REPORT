@@ -65,15 +65,15 @@ class ProcessValueRepository:
 
     def fetch_sensor_rows(
         self,
-        start_dt: datetime,
-        end_dt_exclusive: datetime,
+        start_dt: datetime | str,
+        end_dt_exclusive: datetime | str,
         sensor_columns: List[str],
     ) -> List[Dict[str, Any]]:
         """Fetch raw sensor rows for a timestamp range.
 
         Args:
-            start_dt: Inclusive start datetime.
-            end_dt_exclusive: Exclusive end datetime.
+            start_dt: Inclusive start datetime or ISO-like datetime string.
+            end_dt_exclusive: Exclusive end datetime or ISO-like datetime string.
             sensor_columns: Sensor column names to select from processvalue.
 
         Returns:
@@ -232,6 +232,25 @@ class ProcessValueRepository:
         except Exception as exc:
             raise ValueError(f"Invalid timezone: {timezone_name}") from exc
 
+    def _coerce_datetime(self, value: datetime | str, field_name: str) -> datetime:
+        """Normalize one datetime input with a clear error on invalid values."""
+        if isinstance(value, datetime):
+            return value
+
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                raise ValueError(f"{field_name} must not be empty.")
+
+            try:
+                return datetime.fromisoformat(text)
+            except ValueError as exc:
+                raise ValueError(
+                    f"{field_name} must be a datetime or ISO datetime string."
+                ) from exc
+
+        raise TypeError(f"{field_name} must be a datetime or ISO datetime string.")
+
     def _attach_timezone(self, value: datetime, zone: ZoneInfo) -> datetime:
         """Attach or convert a datetime into a specific timezone."""
         if value.tzinfo is None:
@@ -245,12 +264,14 @@ class ProcessValueRepository:
     def _convert_local_window_to_source(
         self,
         *,
-        start_dt: datetime,
-        end_dt_exclusive: datetime,
+        start_dt: datetime | str,
+        end_dt_exclusive: datetime | str,
     ) -> tuple[datetime, datetime]:
         """Convert local report datetimes into the stored source timezone."""
-        localized_start = self._attach_timezone(start_dt, self._target_zone)
-        localized_end = self._attach_timezone(end_dt_exclusive, self._target_zone)
+        normalized_start = self._coerce_datetime(start_dt, "start_dt")
+        normalized_end = self._coerce_datetime(end_dt_exclusive, "end_dt_exclusive")
+        localized_start = self._attach_timezone(normalized_start, self._target_zone)
+        localized_end = self._attach_timezone(normalized_end, self._target_zone)
         source_start = localized_start.astimezone(self._source_zone)
         source_end = localized_end.astimezone(self._source_zone)
         return (

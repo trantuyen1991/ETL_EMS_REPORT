@@ -305,7 +305,7 @@ def test_electric_templates_use_period_aware_wording_for_top10_note_and_headers(
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/electricity.html").read_text(encoding="utf-8")
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/electricity.html").read_text(encoding="utf-8")
 
-    expected_note = 'Top 10 meters are sorted by {{ labels.current_period | lower }} consumption.'
+    expected_note = 'Top {{ top10_display_limit }} meters are sorted by {{ labels.current_period | lower }} consumption.'
     expected_header = '<th>{{ labels.current_period }}</th>'
 
     assert expected_note in view_template
@@ -318,10 +318,12 @@ def test_electric_templates_use_period_aware_wording_for_top10_note_and_headers(
     assert 'if flags.is_daily_report else "current-period"' not in pdf_template
 
 
-def test_daily_pdf_electric_template_skips_empty_top10_block() -> None:
+def test_daily_pdf_electric_template_keeps_empty_top10_structure_visible() -> None:
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/electricity.html").read_text(encoding="utf-8")
 
-    assert '{% if sections.electricity.top10.grouped_rows %}' in pdf_template
+    assert "{% if top10_rows %}" in pdf_template
+    assert "electricity-top10-empty-row" in pdf_template
+    assert "No meter ranking data is available for this day." in pdf_template
 
 
 def test_periodic_electric_area_summary_templates_use_fill_classes_and_styles() -> None:

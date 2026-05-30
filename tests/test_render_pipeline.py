@@ -3,14 +3,8 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-from src.main import (
-    _archive_report_batch,
-    _render_report_artifacts,
-    _resolve_pdf_staging_dir,
-    _resolve_report_batch_dir,
-    _select_template_bundle,
-)
 from src.models.period_models import ResolvedPeriod
+from src.services.report_engine_service import ReportEngineService
 from src.services.template_service import TemplateRenderingService
 
 
@@ -18,6 +12,11 @@ class FakePdfService:
     def export(self, html_path: Path, output_pdf: Path) -> None:
         assert html_path.exists()
         output_pdf.write_bytes(b"%PDF-smoke\n")
+
+
+class FakeExcelService:
+    def export_daily_workbook(self, output_path: Path, report_context: dict) -> None:
+        output_path.write_bytes(b"XLSX-smoke\n")
 
 
 def _build_period(period_type: str = "daily") -> ResolvedPeriod:
@@ -38,11 +37,13 @@ def _build_period(period_type: str = "daily") -> ResolvedPeriod:
 
 
 def test_select_template_bundle_maps_periodic_reports_to_shared_templates() -> None:
-    assert _select_template_bundle("daily") == {
+    service = ReportEngineService()
+
+    assert service._select_template_bundle("daily") == {
         "view": "report/view/report_view_daily.html",
         "pdf": "report/pdf/report_pdf_daily.html",
     }
-    assert _select_template_bundle("weekly") == {
+    assert service._select_template_bundle("weekly") == {
         "view": "report/view/report_view_periodic.html",
         "pdf": "report/pdf/report_pdf_periodic.html",
     }
@@ -67,24 +68,31 @@ def test_render_report_artifacts_writes_view_pdf_source_and_final_pdf(tmp_path: 
     project_output_dir.mkdir(parents=True)
     staging_output_dir.mkdir(parents=True)
 
-    artifacts = _render_report_artifacts(
+    service = ReportEngineService(project_root=tmp_path)
+    artifacts = service._render_report_artifacts(
         renderer=TemplateRenderingService(template_dir),
         pdf_service=FakePdfService(),
+        excel_service=FakeExcelService(),
         env_cfg={"REPORT_FILENAME": "Energy Report"},
         period=_build_period(),
         report_context={"meta": {"message": "ok"}},
-        project_output_dir=project_output_dir,
+        canonical_output_root=project_output_dir,
         staging_output_dir=staging_output_dir,
     )
 
+    assert artifacts["view_html"].name == "03_daily_energy_report_20250831.html"
+    assert artifacts["pdf_source_html"].name == "03_daily_energy_report_20250831.html"
+    assert artifacts["pdf"].name == "03_daily_energy_report_20250831.pdf"
+    assert artifacts["excel"].name == "03_daily_energy_report_20250831.xlsx"
     assert artifacts["view_html"].read_text(encoding="utf-8") == "<html><body>VIEW ok</body></html>"
     assert artifacts["pdf_source_html"].read_text(encoding="utf-8") == "<html><body>PDF ok</body></html>"
     assert artifacts["staging_html"].read_text(encoding="utf-8") == "<html><body>PDF ok</body></html>"
     assert artifacts["pdf"].read_bytes() == b"%PDF-smoke\n"
     assert artifacts["staging_pdf"].read_bytes() == b"%PDF-smoke\n"
+    assert artifacts["excel"].read_bytes() == b"XLSX-smoke\n"
 
 
-def test_archive_report_batch_copies_current_run_artifacts_into_dated_folder(tmp_path: Path) -> None:
+def test_collect_report_batch_artifacts_returns_existing_canonical_paths(tmp_path: Path) -> None:
     project_output_dir = tmp_path / "output" / "reports"
     project_output_dir.mkdir(parents=True)
 
@@ -95,46 +103,48 @@ def test_archive_report_batch_copies_current_run_artifacts_into_dated_folder(tmp
     view_path.write_text("view", encoding="utf-8")
     pdf_source_path.write_text("pdf_source", encoding="utf-8")
     pdf_path.write_bytes(b"%PDF-test\n")
+    excel_path = project_output_dir / "daily_automatic_report_daily_20250625.xlsx"
+    excel_path.write_bytes(b"XLSX-test\n")
 
-    report_batch_dir = project_output_dir / "2026_05_01"
-    archived_paths = _archive_report_batch(
+    service = ReportEngineService(project_root=tmp_path)
+    collected_paths = service._collect_report_batch_artifacts(
         rendered_reports=[
             {
                 "artifacts": {
                     "view_html": view_path,
                     "pdf_source_html": pdf_source_path,
                     "pdf": pdf_path,
+                    "excel": excel_path,
                 }
             }
         ],
-        report_batch_dir=report_batch_dir,
     )
 
-    assert [path.name for path in archived_paths] == [
+    assert [path.name for path in collected_paths] == [
         "daily_automatic_report_daily_20250625_view.html",
         "daily_automatic_report_daily_20250625_pdf_source.html",
         "daily_automatic_report_daily_20250625.pdf",
+        "daily_automatic_report_daily_20250625.xlsx",
     ]
-    assert (report_batch_dir / view_path.name).read_text(encoding="utf-8") == "view"
-    assert (report_batch_dir / pdf_source_path.name).read_text(encoding="utf-8") == "pdf_source"
-    assert (report_batch_dir / pdf_path.name).read_bytes() == b"%PDF-test\n"
 
 
-def test_resolve_report_batch_dir_uses_export_run_date_folder_name() -> None:
-    report_batch_dir = _resolve_report_batch_dir(
-        env_cfg={"APP_TIMEZONE": "UTC"},
-        project_output_dir=Path("output/reports"),
+def test_resolve_monthly_report_dir_uses_report_anchor_month() -> None:
+    service = ReportEngineService()
+    report_batch_dir = service._resolve_monthly_report_dir(
+        canonical_output_root=Path("output/reports"),
+        period=_build_period(),
     )
 
     assert report_batch_dir.parent == Path("output/reports")
-    assert len(report_batch_dir.name) == 10
-    assert report_batch_dir.name.count("_") == 2
+    assert report_batch_dir.name == "2025_08"
 
 
 def test_resolve_pdf_staging_dir_falls_back_for_hidden_output_paths() -> None:
-    staging_dir = _resolve_pdf_staging_dir(
+    service = ReportEngineService()
+    staging_dir = service._resolve_pdf_staging_dir(
         env_cfg={},
-        project_output_dir=Path("/home/nbt/.openclaw/workspace/02_MySQL/output/reports"),
+        canonical_output_root=Path("/home/nbt/.openclaw/workspace/02_MySQL/output/reports"),
+        project_root=Path("/home/nbt/.openclaw/workspace/02_MySQL"),
     )
 
-    assert staging_dir == Path.home() / "Reports"
+    assert staging_dir == Path.home() / "Reports" / "_staging"

@@ -586,7 +586,7 @@ def test_period_sensor_detail_tables_cover_all_sensor_groups() -> None:
     ]
 
     air_table = tables[2]
-    assert [group["label"] for group in air_table["column_groups"]] == ["ICO Air", "DIODE Air"]
+    assert [group["label"] for group in air_table["column_groups"]] == ["ICO Air", "MPC Air"]
     assert [column["display_name"] for column in air_table["column_groups"][0]["columns"]] == ["Pressure", "Flow"]
     assert [column["display_name"] for column in air_table["column_groups"][1]["columns"]] == ["Pressure", "Flow"]
     assert air_table["column_groups"][1]["group_class"] == "is-split-group"
@@ -669,7 +669,7 @@ def test_period_sensor_templates_keep_cluster_trends_below_detail_table() -> Non
     assert 'is-periodic-trend-{{ chart.periodic_page_variant }}' in pdf_template
     assert 'utility-sensor-period-detail-pages' in pdf_template
     assert 'utility-sensor-period-detail-page pdf-keep-together' in pdf_template
-    assert 'page_size = 2' in pdf_template
+    assert "page_size = 1 if period.type == 'monthly' else 2" in pdf_template
     assert '{% if is_card_only_period %}' in pdf_template
     assert '.utility-sensor-period-detail-card' in report_css
     assert '.utility-sensor-period-group-head' in report_css

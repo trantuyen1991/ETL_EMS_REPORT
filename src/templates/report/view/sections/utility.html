@@ -800,7 +800,7 @@
                     {% endfor %}
                 </div>
 
-                {% if sensor_monitoring_view.anomaly_rows and not flags.is_daily_report and not is_card_only_period %}
+                {% if sensor_monitoring_view.anomaly_rows and (flags.is_daily_report or not is_card_only_period) %}
                 <div class="utility-sensor-anomaly-block">
                     <h4 class="utility-sensor-anomaly-title">Sensor anomaly scan</h4>
                     <div class="utility-sensor-anomaly-wrap report-table-wrap mobile-scroll-table-wrap">

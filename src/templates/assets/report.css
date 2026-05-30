@@ -7392,6 +7392,7 @@
 
             .electricity-total-card,
             .utility-overview-card,
+            .utility-sensor-overview-card,
             .kpi-plant-card,
             .kpi-daily-card,
             .electricity-chart-card {
@@ -7443,9 +7444,9 @@
                 gap: 8px;
             }
 
-            .electricity-total-card-title-row,
             .kpi-daily-card-top {
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
+                align-items: center;
             }
 
             .kpi-daily-card-badge,
@@ -7458,16 +7459,25 @@
 
             .electricity-total-card-title,
             .utility-overview-card-title,
-            .kpi-daily-card-title {
+            .kpi-daily-card-title,
+            .utility-sensor-overview-title {
                 font-size: 11.5px;
             }
 
-            .utility-overview-card-icon {
+            .electricity-total-card-title-row {
+                flex-wrap: nowrap;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .utility-overview-card-icon,
+            .utility-sensor-overview-icon {
                 width: 44px;
                 height: 44px;
             }
 
-            .utility-overview-card-icon svg {
+            .utility-overview-card-icon svg,
+            .utility-sensor-overview-icon svg {
                 width: 26px;
                 height: 26px;
             }
@@ -7481,24 +7491,24 @@
             }
 
             .utility-overview-card-compare,
-            .electricity-total-card-compare,
-            .kpi-daily-card-compare {
-                grid-template-columns: 1fr;
+            .kpi-daily-card-compare,
+            .electricity-total-card-compare {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 padding: 8px 9px;
             }
 
             .utility-overview-card-compare-item,
-            .electricity-total-card-compare-item,
-            .kpi-daily-card-compare-item {
+            .kpi-daily-card-compare-item,
+            .electricity-total-card-compare-item {
                 min-height: 0;
                 padding: 6px 8px;
             }
 
             .utility-overview-card-compare-item + .utility-overview-card-compare-item,
-            .electricity-total-card-compare-item + .electricity-total-card-compare-item,
-            .kpi-daily-card-compare-item + .kpi-daily-card-compare-item {
-                border-left: none;
-                border-top: 1px solid var(--section-card-compare-divider, rgba(214, 226, 236, 0.95));
+            .kpi-daily-card-compare-item + .kpi-daily-card-compare-item,
+            .electricity-total-card-compare-item + .electricity-total-card-compare-item {
+                border-top: none;
+                border-left: 1px solid var(--section-card-compare-divider, rgba(214, 226, 236, 0.95));
             }
 
             .utility-overview-card-compare-label,
@@ -7513,11 +7523,21 @@
                 font-size: 13px;
             }
 
-            .electricity-total-card-primary,
             .kpi-daily-card-primary,
+            .utility-overview-card-value-row,
+            .electricity-total-card-primary {
+                flex-wrap: nowrap;
+                row-gap: 0;
+                white-space: nowrap;
+            }
+
+            .kpi-daily-card-primary,
+            .electricity-total-card-primary {
+                column-gap: 5px;
+            }
+
             .utility-overview-card-value-row {
-                flex-wrap: wrap;
-                row-gap: 2px;
+                column-gap: 4px;
             }
 
             .electricity-total-card-primary-value,
@@ -7526,11 +7546,17 @@
                 line-height: 1;
             }
 
-            .electricity-total-card-footer,
-            .kpi-daily-card-footer {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 6px;
+            .electricity-total-card-primary-unit {
+                font-size: 10px;
+                white-space: nowrap;
+            }
+
+            .kpi-daily-card-footer,
+            .electricity-total-card-footer {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
             }
 
             .energy-card-meta-row,
@@ -7541,11 +7567,29 @@
                 white-space: normal;
             }
 
+            .electricity-total-card-footer .energy-card-meta-row,
+            .electricity-total-card-footer .energy-card-trend-row {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                white-space: nowrap;
+            }
+
             .energy-card-meta-row .electricity-total-card-meta,
             .energy-card-meta-row .electricity-total-card-delta-block,
             .energy-card-trend-row .delta-pct,
             .energy-card-trend-row .electricity-total-card-note {
                 white-space: normal;
+            }
+
+            .electricity-total-card-footer .energy-card-meta-row .electricity-total-card-meta,
+            .electricity-total-card-footer .energy-card-meta-row .electricity-total-card-delta-block,
+            .electricity-total-card-footer .energy-card-trend-row .delta-pct,
+            .electricity-total-card-footer .energy-card-trend-row .electricity-total-card-note,
+            .kpi-daily-card-footer .kpi-daily-card-delta,
+            .kpi-daily-card-footer .kpi-daily-card-note {
+                white-space: nowrap;
             }
 
             .kpi-daily-card-delta,
@@ -7555,6 +7599,26 @@
             .electricity-total-card-note,
             .utility-overview-card-compare-note {
                 font-size: 10.5px;
+            }
+
+            .utility-overview-card-title,
+            .utility-overview-card-value,
+            .utility-overview-card-unit,
+            .utility-overview-card-compare-value,
+            .utility-sensor-overview-title,
+            .utility-sensor-overview-primary-label,
+            .utility-sensor-overview-primary-value,
+            .utility-sensor-overview-label,
+            .utility-sensor-overview-value,
+            .utility-sensor-overview-badge,
+            .kpi-daily-card-title,
+            .kpi-daily-card-primary-value,
+            .kpi-daily-card-primary-unit,
+            .kpi-daily-card-compare-value,
+            .electricity-total-card-meter-value,
+            .electricity-total-card-footer-value,
+            .electricity-total-card-compare-value {
+                white-space: nowrap;
             }
 
             .electricity-chart-card-trend .electricity-chart,
@@ -7587,6 +7651,14 @@
             .periodic-electricity-chart-grid .electricity-delta-chart,
             .periodic-electricity-chart-grid-monthly .electricity-chart-card-delta .electricity-delta-chart {
                 height: 236px;
+            }
+
+            .utility-energy-distribution-chart,
+            .utility-energy-distribution-card,
+            .utility-energy-distribution-layout,
+            .utility-energy-distribution-chart-wrap {
+                width: 100%;
+                max-width: 100%;
             }
 
             .electricity-heatmap-chart,
@@ -7627,9 +7699,11 @@
 
             .utility-energy-distribution-layout,
             .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-layout {
-                grid-template-columns: 1fr;
+                display: flex;
+                flex-direction: column;
                 gap: 10px;
-                align-items: flex-start;
+                align-items: stretch;
+                width: 100%;
             }
 
             .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-chart-wrap {
@@ -7639,6 +7713,10 @@
 
             .utility-energy-distribution-chart-wrap {
                 min-height: 220px;
+                width: 100%;
+                max-width: 100%;
+                justify-self: stretch;
+                flex: 0 0 auto;
             }
 
             .utility-energy-distribution-center,
@@ -7655,6 +7733,7 @@
             .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-legend {
                 padding-left: 0;
                 align-items: stretch;
+                width: 100%;
             }
 
             .utility-energy-distribution-total,
@@ -7662,17 +7741,275 @@
                 justify-content: flex-start;
             }
 
-            .utility-overview-card-grid {
+            .utility-chart-block-energy-distribution,
+            .utility-energy-distribution-card {
+                width: 100%;
+            }
+
+            .utility-overview-card-grid,
+            .utility-sensor-overview-grid,
+            .utility-sensor-group-grid {
                 grid-template-columns: 1fr;
             }
 
-            .utility-overview-card-compare {
-                grid-template-columns: 1fr;
+            .utility-sensor-overview-card,
+            .utility-sensor-group-card {
+                padding: 11px 12px 12px;
+                border-radius: 16px;
             }
 
-            .utility-overview-card-compare-item + .utility-overview-card-compare-item {
-                border-left: none;
-                border-top: 1px solid rgba(203, 213, 225, 0.92);
+            .utility-sensor-overview-head,
+            .utility-sensor-overview-head-reference,
+            .utility-sensor-overview-head-main,
+            .utility-sensor-overview-primary-row,
+            .utility-sensor-group-head,
+            .utility-sensor-group-heading-copy {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                flex-wrap: nowrap;
+            }
+
+            .utility-sensor-overview-head-main,
+            .utility-sensor-group-heading-copy {
+                min-width: 0;
+                flex: 1 1 auto;
+                justify-content: flex-start;
+            }
+
+            .utility-sensor-overview-title,
+            .utility-sensor-group-title {
+                min-width: 0;
+                line-height: 1.25;
+            }
+
+            .utility-sensor-overview-badge,
+            .utility-sensor-group-badge {
+                flex: 0 0 auto;
+                min-width: 0;
+                padding: 3px 8px;
+                font-size: 9px;
+            }
+
+            .utility-sensor-overview-divider {
+                margin: 10px 0 9px;
+            }
+
+            .utility-sensor-overview-primary-row,
+            .utility-sensor-group-head {
+                margin-bottom: 8px;
+            }
+
+            .utility-sensor-overview-primary-label,
+            .utility-sensor-overview-label {
+                font-size: 9px;
+            }
+
+            .utility-sensor-overview-primary-value,
+            .utility-sensor-overview-value {
+                font-size: 18px;
+                line-height: 1.05;
+            }
+
+            .utility-sensor-overview-secondary-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+            }
+
+            .utility-sensor-overview-item {
+                min-width: 0;
+                gap: 3px;
+            }
+
+            .utility-sensor-group-icon {
+                width: 24px;
+                height: 24px;
+                border-radius: 8px;
+            }
+
+            .utility-sensor-group-icon svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .utility-sensor-group-meta {
+                font-size: 9.5px;
+                line-height: 1.3;
+            }
+
+            .report-family-daily .utility-sensor-metric-table-head,
+            .report-family-periodic .utility-sensor-metric-table-head {
+                display: none;
+            }
+
+            .report-family-daily .utility-sensor-metric-table,
+            .report-family-periodic .utility-sensor-metric-table {
+                border-radius: 12px;
+            }
+
+            .report-family-daily .utility-sensor-metric-row,
+            .report-family-periodic .utility-sensor-metric-row {
+                grid-template-columns: minmax(0, 1.75fr) repeat(3, minmax(56px, 0.72fr)) minmax(82px, 0.9fr);
+                gap: 8px;
+                padding: 12px 10px;
+                align-items: center;
+            }
+
+            .report-family-daily .utility-sensor-metric-main,
+            .report-family-periodic .utility-sensor-metric-main {
+                min-width: 0;
+                display: contents;
+            }
+
+            .report-family-daily .utility-sensor-metric-row,
+            .report-family-periodic .utility-sensor-metric-row {
+                grid-template-rows: auto auto;
+                grid-auto-flow: row;
+                row-gap: 4px;
+            }
+
+            .report-family-daily .utility-sensor-metric-title-row,
+            .report-family-periodic .utility-sensor-metric-title-row {
+                gap: 6px;
+                flex-wrap: nowrap;
+                grid-column: 1;
+                grid-row: 1;
+                min-width: 0;
+            }
+
+            .report-family-daily .utility-sensor-metric-note,
+            .report-family-periodic .utility-sensor-metric-note {
+                margin-top: 0;
+                font-size: 8.4px;
+                line-height: 1.28;
+                grid-column: 1 / -1;
+                grid-row: 2;
+                white-space: normal;
+            }
+
+            .report-family-daily .utility-sensor-metric-row .col-min,
+            .report-family-daily .utility-sensor-metric-row .col-avg,
+            .report-family-daily .utility-sensor-metric-row .col-max,
+            .report-family-periodic .utility-sensor-metric-row .col-min,
+            .report-family-periodic .utility-sensor-metric-row .col-avg,
+            .report-family-periodic .utility-sensor-metric-row .col-max {
+                grid-row: 1;
+                justify-self: end;
+            }
+
+            .report-family-daily .utility-sensor-metric-row .col-min,
+            .report-family-periodic .utility-sensor-metric-row .col-min {
+                grid-column: 2;
+            }
+
+            .report-family-daily .utility-sensor-metric-row .col-avg,
+            .report-family-periodic .utility-sensor-metric-row .col-avg {
+                grid-column: 3;
+            }
+
+            .report-family-daily .utility-sensor-metric-row .col-max,
+            .report-family-periodic .utility-sensor-metric-row .col-max {
+                grid-column: 4;
+            }
+
+            .report-family-daily .utility-sensor-metric-status,
+            .report-family-periodic .utility-sensor-metric-status {
+                grid-row: 1;
+                grid-column: 5;
+                align-items: flex-end;
+                text-align: right;
+                gap: 2px;
+            }
+
+            .report-family-daily .utility-sensor-metric-icon,
+            .report-family-periodic .utility-sensor-metric-icon {
+                width: 18px;
+                height: 18px;
+            }
+
+            .report-family-daily .utility-sensor-metric-icon svg,
+            .report-family-periodic .utility-sensor-metric-icon svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .report-family-daily .utility-sensor-metric-name,
+            .report-family-periodic .utility-sensor-metric-name {
+                font-size: 10.2px;
+                line-height: 1.22;
+            }
+
+            .report-family-daily .utility-sensor-metric-value,
+            .report-family-periodic .utility-sensor-metric-value {
+                align-items: flex-end;
+                text-align: right;
+                gap: 2px;
+            }
+
+            .report-family-daily .utility-sensor-metric-value strong,
+            .report-family-periodic .utility-sensor-metric-value strong {
+                font-size: 10.5px;
+                line-height: 1.2;
+                white-space: nowrap;
+            }
+
+            .report-family-daily .utility-sensor-metric-status-main,
+            .report-family-periodic .utility-sensor-metric-status-main {
+                gap: 4px;
+                font-size: 9.4px;
+                white-space: nowrap;
+            }
+
+            .report-family-daily .utility-sensor-metric-status-icon,
+            .report-family-periodic .utility-sensor-metric-status-icon {
+                width: 14px;
+                height: 14px;
+            }
+
+            .report-family-daily .utility-sensor-metric-status-icon svg,
+            .report-family-periodic .utility-sensor-metric-status-icon svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .report-family-daily .utility-sensor-metric-value-note,
+            .report-family-periodic .utility-sensor-metric-note-detail,
+            .report-family-daily .utility-sensor-metric-value-note-detail {
+                font-size: 7.4px;
+                line-height: 1.15;
+            }
+
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical {
+                display: contents;
+            }
+
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning .utility-sensor-metric-value-label,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning .utility-sensor-metric-value-note,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning .utility-sensor-metric-value-note-detail,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical .utility-sensor-metric-value-label,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical .utility-sensor-metric-value-note,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical .utility-sensor-metric-value-note-detail {
+                grid-row: 1;
+            }
+
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning .utility-sensor-metric-value-label,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical .utility-sensor-metric-value-label,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning strong,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical strong {
+                grid-column: 3;
+            }
+
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning .utility-sensor-metric-value-note,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.warning .utility-sensor-metric-value-note-detail,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical .utility-sensor-metric-value-note,
+            .report-family-daily .utility-sensor-metric-value.col-avg.has-alert-message.critical .utility-sensor-metric-value-note-detail {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                justify-self: stretch;
+                margin-top: 2px;
             }
         }
 

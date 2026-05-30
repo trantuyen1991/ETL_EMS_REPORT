@@ -460,8 +460,8 @@ def test_utility_pdf_distribution_chart_uses_compact_donut_geometry() -> None:
 
     series = option["series"][0]
 
-    assert series["radius"] == ["48%", "72%"]
-    assert series["center"] == ["42%", "54%"]
+    assert series["radius"] == ["40%", "76%"]
+    assert series["center"] == ["49%", "54%"]
     assert series["label"]["fontSize"] == 7
 
 
@@ -490,7 +490,7 @@ def test_weekly_utility_energy_distribution_uses_mix_style_layout() -> None:
     assert distribution["option"]["title"][0]["top"] == "34%"
     assert distribution["option"]["title"][1]["top"] == "48%"
     assert series["radius"] == ["42%", "78%"]
-    assert series["center"] == ["50%", "42%"]
+    assert series["center"] == ["50%", "45%"]
     assert series["startAngle"] == 180
     assert series["label"]["formatter"] == "{b}\n{d}%"
 
@@ -716,7 +716,7 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
     assert all(key in dual_axis["grid"] for key in ("left", "right", "top", "bottom", "containLabel"))
     assert "bottom" in dual_axis["legend"]
     assert dual_axis["leftAxis"]["nameGap"] == 12
-    assert dual_axis["rightAxis"]["nameGap"] == 2
+    assert dual_axis["rightAxis"]["nameGap"] == 12
     assert dual_axis["series"]["lineWidth"] == 2.2
     assert dual_axis["markPoint"]["label"]["fontSize"] == 9
     assert dual_axis["periodicChillerDualAxis"]["leftAxis"]["scale"]["targetTickCount"] == 4
@@ -728,7 +728,7 @@ def test_report_style_json_contains_sensor_dual_axis_controls_and_height_tokens(
     assert period_insight_mix["pie"]["sliceBorderRadius"] == 8
     assert energy_distribution["height"]["view"] == "276px"
     assert energy_distribution["legend"]["bottom"] == "center"
-    assert energy_distribution["pie"]["center"] == ["50%", "42%"]
+    assert energy_distribution["pie"]["center"] == ["50%", "45%"]
     assert deviation_value_label["nearZeroPositivePosition"] == "right"
     assert deviation_value_label["nearZeroNegativePosition"] == "left"
     assert deviation_value_label["nearZeroThreshold"] == 4

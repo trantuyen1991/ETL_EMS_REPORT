@@ -952,7 +952,7 @@
                 </div>
                 {% endif %}
 
-                {% if sensor_monitoring_view.anomaly_rows and not flags.is_daily_report and not is_card_only_period %}
+                {% if sensor_monitoring_view.anomaly_rows and (flags.is_daily_report or not is_card_only_period) %}
                 <div class="utility-sensor-anomaly-block{% if flags.is_daily_report %} page-break-before{% endif %}">
                     <h4 class="utility-sensor-anomaly-title">Sensor anomaly scan</h4>
                     <div class="utility-sensor-anomaly-wrap report-table-wrap">
@@ -1152,7 +1152,7 @@
                 {% set page_size = 1 if period.type == 'monthly' else 2 %}
                 <div class="utility-sensor-period-detail-pages">
                     {% for page_start in range(0, sensor_monitoring.period_detail_tables|length, page_size) %}
-                    <div class="utility-sensor-period-detail-page{% if page_start == 0 %} page-break-before{% elif period.type == 'monthly' %} page-break-before{% endif %}">
+                    <div class="utility-sensor-period-detail-page pdf-keep-together{% if page_start == 0 %} page-break-before{% elif period.type == 'monthly' %} page-break-before{% endif %}">
                         {% if page_start == 0 %}
                         <div class="utility-sensor-section-label-block is-period-detail utility-sensor-period-detail-intro">
                             <div>

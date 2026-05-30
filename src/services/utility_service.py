@@ -294,7 +294,29 @@ class UtilityService:
         if value is None:
             return "-"
         return f"{float(value):,.2f}"
-        
+
+    def _fmt_sensor_metric_compact_or_dash(self, value: Any) -> str:
+        """Format sensor metric number for compact card display.
+
+        Rules:
+        - None -> "-"
+        - abs(value) >= 1000 -> use k suffix, keep up to 2 decimals, trim trailing zeros
+        - otherwise keep normal grouped 2-decimal format, trim trailing zeros
+        """
+        if value is None:
+            return "-"
+
+        numeric_value = float(value)
+        abs_value = abs(numeric_value)
+
+        def _trim_decimal(text: str) -> str:
+            return text.rstrip("0").rstrip(".")
+
+        if abs_value >= 1000:
+            return f"{_trim_decimal(f'{numeric_value / 1000:.2f}')}k"
+
+        return _trim_decimal(f"{numeric_value:,.2f}")
+
     def _format_date_with_weekday(self, value: date | None) -> str:
         """Format date with weekday."""
         if value is None:
@@ -1446,9 +1468,9 @@ class UtilityService:
             "range_span": range_span,
             "peak_to_avg_ratio": peak_to_avg_ratio,
             "latest_drift_ratio": latest_drift_ratio,
-            "min_display": self._fmt_or_dash(min_value),
-            "avg_display": self._fmt_or_dash(avg_value),
-            "max_display": self._fmt_or_dash(max_value),
+            "min_display": self._fmt_sensor_metric_compact_or_dash(min_value),
+            "avg_display": self._fmt_sensor_metric_compact_or_dash(avg_value),
+            "max_display": self._fmt_sensor_metric_compact_or_dash(max_value),
             "latest_display": self._fmt_or_dash(latest_value),
             "avg_position_pct": round(avg_position_pct, 2),
             "context_scope": context_scope,

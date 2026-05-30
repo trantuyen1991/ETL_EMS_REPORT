@@ -394,7 +394,7 @@ def test_weekly_kpi_dashboard_adds_period_trend_chart() -> None:
     assert period_trend["title"] == "Energy KPI daily trend"
     assert period_trend["subtitle"] == "Daily KPI for this week by Total and workshop"
     assert period_trend["option"]["xAxis"]["data"][0] == "May 12 (Mon)"
-    assert [series["name"] for series in period_trend["option"]["series"]] == ["Total", "DIODE", "ICO", "SAKARI"]
+    assert [series["name"] for series in period_trend["option"]["series"]] == ["Total", "MPC", "ICO", "SAKARI"]
     assert period_trend["option"]["legend"]["left"] == "center"
     compare_bar = dashboard["charts"]["compare_bar"]
     waterfall = dashboard["charts"]["waterfall"]
@@ -403,8 +403,8 @@ def test_weekly_kpi_dashboard_adds_period_trend_chart() -> None:
     assert period_trend["option"]["grid"]["bottom"] == 25
     assert period_heatmap["title"] == "Energy KPI heatmap"
     assert period_heatmap["option"]["xAxis"]["data"][0] == "May 12 (Mon)"
-    assert period_heatmap["option"]["xAxis"]["data"][-1] == "Avg"
-    assert period_heatmap["option"]["yAxis"]["data"] == ["Total", "DIODE", "ICO", "SAKARI"]
+    assert "Avg" not in period_heatmap["option"]["xAxis"]["data"]
+    assert period_heatmap["option"]["yAxis"]["data"] == ["Total", "MPC", "ICO", "SAKARI"]
     assert variance["option"]["xAxis"]["min"] == -variance["option"]["xAxis"]["max"]
     assert variance["option"]["series"][0]["barWidth"] == 22
     assert "\n" in variance["option"]["series"][0]["data"][0]["label"]["formatter"]
@@ -476,8 +476,8 @@ def test_weekly_kpi_templates_promote_variance_beside_period_trend() -> None:
     assert "kpi-weekly-dashboard-page" in view_template
     assert "kpi-weekly-compare-grid" in view_template
     assert "kpi-weekly-waterfall-tile" in view_template
-    assert '<th class="col-index">Index</th>' in view_template
-    assert 'class="col-index" rowspan="{{ row.area_rows | length }}">{{ row.index }}</td>' in view_template
+    assert '<th class="col-index sticky-index-col">Index</th>' in view_template
+    assert 'class="col-index sticky-index-col" rowspan="{{ row.area_rows | length }}">{{ row.index }}</td>' in view_template
     assert 'for area_row in row.area_rows' in view_template
     assert 'value-missing' in view_template
     assert '{{ area_row.row_class }}' in view_template
