@@ -670,16 +670,16 @@
                     </div>
                 </div>
 
-                {% if sensor_monitoring_view.overview_cards and not flags.is_daily_report %}
-                <div class="utility-sensor-section-label-block is-overview">
+                {% if sensor_monitoring_view.overview_cards %}
+                <div class="utility-sensor-section-label-block is-overview{% if flags.is_daily_report %} is-mobile-daily-overview{% endif %}">
                     <div>
                         <h4 class="utility-sensor-section-label-title">Overview cards</h4>
                         <p class="utility-sensor-section-label-note">Group-level active sensor and alert snapshot.</p>
                     </div>
                 </div>
-                <div class="utility-sensor-overview-grid">
+                <div class="utility-sensor-overview-grid{% if flags.is_daily_report %} is-mobile-daily-overview{% endif %}">
                     {% for card in sensor_monitoring_view.overview_cards %}
-                    <div class="utility-sensor-overview-card is-reference-card" style="--sensor-accent: {{ card.accent_color }}; --sensor-tint: {{ card.accent_tint }};">
+                    <div class="utility-sensor-overview-card {% if flags.is_daily_report %}is-daily-overview-card{% else %}is-reference-card{% endif %}" style="--sensor-accent: {{ card.accent_color }}; --sensor-tint: {{ card.accent_tint }};">
                         <div class="utility-sensor-overview-head utility-sensor-overview-head-reference">
                             <div class="utility-sensor-overview-head-main">
                                 <span class="utility-sensor-overview-icon" aria-hidden="true">{{ sensor_ui.group_icon(card.key) }}</span>
@@ -752,7 +752,14 @@
                                         </div>
                                         <div class="utility-sensor-metric-note {{ sensor.severity_class }}">
                                             {% if flags.is_daily_report %}
+                                                {% if sensor.has_alert and (sensor.flag_summary or sensor.flag_detail_summary) %}
+                                                <span class="utility-sensor-metric-note-main">{{ sensor.flag_summary or 'Alert' }}</span>
+                                                {% if sensor.flag_detail_summary %}
+                                                <span class="utility-sensor-metric-note-detail">{{ sensor.flag_detail_summary }}</span>
+                                                {% endif %}
+                                                {% else %}
                                                 <span class="utility-sensor-metric-note-main">{{ sensor.measurement_type_label }}</span>
+                                                {% endif %}
                                             {% else %}
                                                 {% if sensor.has_alert and sensor.flag_summary %}
                                                 <span class="utility-sensor-metric-note-main">{{ sensor.flag_summary }}{% if sensor.days_with_data_display is defined and sensor.days_with_data_display %} · {{ sensor.days_with_data_display }}{% endif %}</span>
@@ -770,17 +777,9 @@
                                         <span class="utility-sensor-metric-value-label">Min</span>
                                         <strong>{{ sensor.min_display }}</strong>
                                     </div>
-                                    <div class="utility-sensor-metric-value col-avg {% if flags.is_daily_report and sensor.has_alert %}has-alert-message {{ sensor.severity_class }}{% endif %}">
+                                    <div class="utility-sensor-metric-value col-avg">
                                         <span class="utility-sensor-metric-value-label">Avg</span>
                                         <strong>{{ sensor.avg_display }}</strong>
-                                        {% if flags.is_daily_report and sensor.has_alert and (sensor.flag_summary or sensor.flag_detail_summary) %}
-                                        <span class="utility-sensor-metric-value-note {{ sensor.severity_class }}">
-                                            <span class="utility-sensor-metric-value-note-main">{{ sensor.flag_summary or 'Alert' }}</span>
-                                            {% if sensor.flag_detail_summary %}
-                                            <span class="utility-sensor-metric-value-note-detail">{{ sensor.flag_detail_summary }}</span>
-                                            {% endif %}
-                                        </span>
-                                        {% endif %}
                                     </div>
                                     <div class="utility-sensor-metric-value col-max">
                                         <span class="utility-sensor-metric-value-label">Max</span>
@@ -1264,7 +1263,10 @@
                                 height: height,
                             });
                             const option = Object.assign({ animation: false }, config.option);
-                            chart.setOption(option, true);
+                            const enhancedOption = window.__enhanceReportLineChartOption
+                                ? window.__enhanceReportLineChartOption(option)
+                                : option;
+                            chart.setOption(enhancedOption, true);
                             chart.resize({ width: width, height: height });
                             if (chart.getZr && chart.getZr()) {
                                 chart.getZr().flush();

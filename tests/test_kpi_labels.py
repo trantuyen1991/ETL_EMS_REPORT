@@ -381,6 +381,37 @@ def test_daily_kpi_view_uses_empty_state_label_treatment() -> None:
     assert 'LOW ACTIVITY DAY' in css
 
 
+def test_daily_kpi_mobile_dashboard_charts_stack_on_phone_widths() -> None:
+    css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+
+    assert "@media (max-width: 900px)" in css
+    assert ".report-family-daily .kpi-daily-dashboard-grid {\n                grid-template-columns: 1fr;" in css
+    assert ".report-family-daily .kpi-daily-dashboard-grid > .kpi-daily-chart-tile {\n                grid-column: 1 / -1;" in css
+
+
+def test_kpi_summary_matrix_view_metric_column_width_is_compact() -> None:
+    report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+    pdf_css = (PROJECT_ROOT / "src/templates/assets/report_pdf.css").read_text(encoding="utf-8")
+    style_cfg = json.loads((PROJECT_ROOT / "config/report_style.json").read_text(encoding="utf-8"))
+    summary_matrix_cfg = style_cfg["reportStyle"]["components"]["report"]["section"]["kpi"]["table"]["summaryMatrix"]
+
+    assert summary_matrix_cfg["metricColumnWidth"]["view"] == "80px"
+    assert summary_matrix_cfg["metricColumnWidth"]["pdf"] == "110px"
+    assert (
+        "min-width: var(--report-components-report-section-kpi-table-summary-matrix-metric-column-width-view, 80px);"
+        in report_css
+    )
+    assert "table-layout: fixed;" in report_css
+    assert (
+        "max-width: var(--report-components-report-section-kpi-table-summary-matrix-metric-column-width-view, 80px);"
+        in report_css
+    )
+    assert (
+        "width: var(--report-components-report-section-kpi-table-summary-matrix-metric-column-width-pdf, 110px) !important;"
+        in pdf_css
+    )
+
+
 def test_weekly_kpi_dashboard_adds_period_trend_chart() -> None:
     service = ReportBuilderService()
     service._style_config = {}

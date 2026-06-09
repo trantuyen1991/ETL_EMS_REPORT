@@ -2038,7 +2038,7 @@
                   "pdf": "100%"
                 },
                 "metricColumnWidth": {
-                  "view": "160px",
+                  "view": "80px",
                   "pdf": "110px"
                 },
                 "groupHeaderPaddingY": {

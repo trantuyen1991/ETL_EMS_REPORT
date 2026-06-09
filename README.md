@@ -193,6 +193,7 @@ Includes:
 - periodic utility-energy charts now include:
   - `Utility Energy trend` as a daily-total line chart by utility energy group
   - `Utility Distribution` as a donut chart with a right-side legend and total kWh summary
+- interactive `view.html` line charts include browser-only zoom/slider support; PDF exports keep static chart rendering
 
 #### 4.2 Sensor Monitoring
 - data from `processvalue`

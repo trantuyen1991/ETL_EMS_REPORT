@@ -313,16 +313,25 @@ def test_daily_view_sensor_monitoring_uses_metric_table_layout() -> None:
     assert 'sensor_ui.group_icon(group.key)' in view_template
     assert 'sensor_ui.metric_icon(sensor)' in view_template
     assert 'sensor_ui.status_icon(sensor)' in view_template
-    assert 'sensor_monitoring_view.overview_cards and not flags.is_daily_report' in view_template
-    assert 'utility-sensor-overview-card is-reference-card' in view_template
+    assert 'sensor_monitoring_view.overview_cards' in view_template
+    assert 'is-mobile-daily-overview' in view_template
+    assert 'is-daily-overview-card' in view_template
+    assert 'is-reference-card' in view_template
     assert 'utility-sensor-overview-primary-row' in view_template
     assert 'utility-sensor-group-card {% if flags.is_daily_report %}is-daily-metric-card{% else %}is-reference-metric-card{% endif %}' in view_template
     assert 'sensor.short_display_name or sensor.display_name' in view_template
+    assert "{% if sensor.has_alert and (sensor.flag_summary or sensor.flag_detail_summary) %}" in view_template
+    assert '<span class="utility-sensor-metric-note-main">{{ sensor.flag_summary or \'Alert\' }}</span>' in view_template
+    assert '<div class="utility-sensor-metric-value col-avg">' in view_template
+    assert 'utility-sensor-metric-value col-avg {% if flags.is_daily_report and sensor.has_alert %}has-alert-message' not in view_template
     assert 'utility-sensor-metric-submeta' not in view_template
+    assert 'has-alert-message' not in report_css
+    assert '.report-family-daily .utility-sensor-metric-note-detail' in report_css
     assert '.report-family-daily .utility-sensor-metric-table' in report_css
     assert '.report-family-daily .utility-sensor-group-card.is-daily-metric-card::before' in report_css
     assert '.report-family-daily .utility-sensor-group-card.group-key-sakari_water' in report_css
     assert '.report-family-daily .utility-sensor-overview-title {' in report_css
+    assert '.report-family-daily .utility-sensor-overview-grid.is-mobile-daily-overview' in report_css
     assert 'font-size: 13px;' in report_css
     assert 'font-weight: 900;' in report_css
     assert 'line-height: 1.3;' in report_css
@@ -540,6 +549,36 @@ def test_utility_periodic_layout_css_matches_weekly_delta_width_and_height_targe
     assert 'height: var(--report-components-report-section-utility-chart-energy-distribution-weekly-height-pdf, 239px) !important;' in pdf_css
     assert 'height: var(--report-components-report-section-utility-chart-period-trend-height-pdf, 228px) !important;' in pdf_css
     assert 'height: var(--report-components-report-section-utility-chart-period-insight-mix-height-pdf, 184px) !important;' in pdf_css
+
+
+def test_monthly_utility_distribution_chart_stacks_full_width_on_mobile() -> None:
+    report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+    media_900_start = report_css.index("@media (max-width: 900px)")
+    media_700_start = report_css.index("@media (max-width: 700px)")
+    media_900_css = report_css[media_900_start:media_700_start]
+
+    assert (
+        '.utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-distribution {\n'
+        "                grid-column: 1 / -1;\n"
+        "                width: 100%;\n"
+        "                max-width: 100%;"
+    ) in media_900_css
+    assert (
+        '.utility-energy-chart-grid[data-layout-variant="monthly"] .utility-energy-distribution-layout {\n'
+        "                display: flex;\n"
+        "                flex-direction: column;"
+    ) in media_900_css
+    assert (
+        '.utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-deviation,\n'
+        '            .utility-energy-chart-grid[data-layout-variant="monthly"] .utility-chart-block-energy-distribution {\n'
+        "                grid-column: 1 / -1;"
+    ) in report_css
+    assert (
+        ".utility-chart-block-energy-distribution,\n"
+        "            .utility-energy-distribution-card {\n"
+        "                width: 100%;\n"
+        "                max-width: 100%;"
+    ) in report_css
 
 
 def test_utility_pdf_deviation_chart_uses_compact_axis_spacing() -> None:

@@ -380,7 +380,10 @@
                             }
 
                             const chart = echarts.init(el);
-                            chart.setOption(config.option, true);
+                            const option = window.__enhanceReportLineChartOption
+                                ? window.__enhanceReportLineChartOption(config.option)
+                                : config.option;
+                            chart.setOption(option, true);
                             chart.resize({ width: width, height: height });
                             charts.push(chart);
                             chartTargets.push(el);

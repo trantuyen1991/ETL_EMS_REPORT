@@ -144,11 +144,13 @@ KPI logic:
 - Periodic utility distribution donut chart with right-side legend + total kWh: ✅
 - Monthly Utility Energy layout now uses `Trend` full-width, `Distribution + Deviation vs Last Month` in a shared row, and `Utility energy heatmap` as a full-width row below: ✅
 - Monthly Utility distribution donut now uses a slightly right-shifted geometry to avoid left-edge label crowding, while keeping the pie visually large and the legend/total left-aligned in the right column: ✅
+- Monthly WebUI Utility distribution donut now expands to full width on phone/tablet-small breakpoints, including iPhone 11 Pro Max landscape: ✅
 - Monthly Utility energy heatmap now hides the misleading `Low ... kWh ... High` scale legend: ✅
 - Monthly PDF Utility `Detail Summary` and `Daily Utility Detail` now fit on the same page through targeted periodic/PDF compaction instead of backend logic changes: ✅
 - Utility section header now uses the shared `utilityheader.svg` icon in both HTML and PDF templates: ✅
 - Weekly `This Week mix` donut now uses corrected PDF geometry, with a 90° start rotation and upward-centered total/caption positioning: ✅
 - Weekly `Utility daily total heatmap` now renders full-width after removing the duplicate `This Week mix` donut from the same row: ✅
+- Daily WebUI Sensor Monitoring now uses a mobile-only overview-card block and a cleaner metric-note alert layout: ✅
 
 #### Daily Utility Detail
 - Dense daily rows: ✅

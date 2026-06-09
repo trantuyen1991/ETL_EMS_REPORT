@@ -347,7 +347,24 @@ Verification notes:
 - `./venv/bin/pytest -q` remained green with `85 passed`.
 - `/health` returned `200`.
 
+## Post-Closure WebUI Polish — 2026-05-31
+
+This checkpoint extends the closed `Interactive (view.html)` mobile polish stream without changing report data, backend business rules, PDF templates, or PDF CSS.
+
+Implemented fixes:
+- HTML view line charts now receive an interactive ECharts inside zoom and bottom slider through the shared view template helper. Electricity, Utility, and KPI view chart initializers apply the helper; PDF templates remain untouched.
+- Daily KPI dashboard charts stack into one column on phone-sized viewports.
+- KPI summary matrix now uses a compact fixed metric column in HTML view so wide KPI period columns get more usable horizontal space without changing PDF sizing.
+- Daily Utility Sensor Monitoring mobile view restores overview cards only for the mobile layout, moves daily alert text into the metric-note area, and removes the previous average-cell alert layout that caused cramped wrapping.
+- Monthly Utility Distribution now becomes a full-width block at `900px` and below, including iPhone 11 Pro Max landscape, and its donut/legend layout stacks vertically for more chart width.
+
+Verification notes:
+- Chromium/CDP computed checks confirmed Monthly Utility Distribution is full-width at `414x896`, `430x932`, and `896x414`.
+- `tests/test_daily_utility_labels.py` passed with `20 passed`.
+- Full pytest passed with `91 passed`.
+- `git diff --check` passed.
+
 ## Current next action
 Recommended next action after this checklist lands:
-- the dedicated `Interactive (view.html)` mobile responsive phase remains complete after the 2026-05-30 phone-review polish checkpoint.
+- the dedicated `Interactive (view.html)` mobile responsive phase remains complete after the 2026-05-31 WebUI polish checkpoint.
 - continue with the broader Web GUI backlog or commit/release hygiene rather than reopening the full mobile-responsive checklist.

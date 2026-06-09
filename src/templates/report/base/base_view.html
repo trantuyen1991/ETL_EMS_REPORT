@@ -70,6 +70,119 @@
                 schedule();
             }
         };
+
+        window.__enhanceReportLineChartOption = function (option) {
+            if (!option || typeof option !== "object") {
+                return option;
+            }
+
+            const seriesList = Array.isArray(option.series) ? option.series : (option.series ? [option.series] : []);
+            const hasLineSeries = seriesList.some(function (series) {
+                return series && String(series.type || "").toLowerCase() === "line";
+            });
+            if (!hasLineSeries || !option.xAxis) {
+                return option;
+            }
+
+            const xAxisList = Array.isArray(option.xAxis) ? option.xAxis : [option.xAxis];
+            const xAxisIndexes = xAxisList.map(function (_axis, index) {
+                return index;
+            });
+            const legendList = Array.isArray(option.legend) ? option.legend : (option.legend ? [option.legend] : []);
+            const hasBottomLegend = legendList.some(function (legend) {
+                return legend && legend.bottom !== undefined && legend.top === undefined;
+            });
+            const sliderBottom = hasBottomLegend ? 26 : 4;
+            const minGridBottom = hasBottomLegend ? 78 : 54;
+            const existingDataZoom = Array.isArray(option.dataZoom) ? option.dataZoom : (option.dataZoom ? [option.dataZoom] : []);
+            const hasInsideZoom = existingDataZoom.some(function (zoom) {
+                return zoom && String(zoom.type || "").toLowerCase() === "inside";
+            });
+            const hasSliderZoom = existingDataZoom.some(function (zoom) {
+                return zoom && String(zoom.type || "").toLowerCase() === "slider";
+            });
+            const dataZoom = existingDataZoom.slice();
+
+            if (!hasInsideZoom) {
+                dataZoom.push({
+                    type: "inside",
+                    xAxisIndex: xAxisIndexes,
+                    start: 0,
+                    end: 100,
+                    filterMode: "filter",
+                    zoomOnMouseWheel: true,
+                    moveOnMouseMove: true,
+                    moveOnMouseWheel: false,
+                    throttle: 80,
+                });
+            }
+
+            if (!hasSliderZoom) {
+                dataZoom.push({
+                    type: "slider",
+                    xAxisIndex: xAxisIndexes,
+                    start: 0,
+                    end: 100,
+                    filterMode: "filter",
+                    bottom: sliderBottom,
+                    height: 18,
+                    showDataShadow: false,
+                    showDetail: false,
+                    brushSelect: false,
+                    borderColor: "#cbd5e1",
+                    fillerColor: "rgba(0, 84, 150, 0.16)",
+                    handleSize: "90%",
+                    handleStyle: {
+                        color: "#005496",
+                        borderColor: "#005496",
+                    },
+                    moveHandleStyle: {
+                        color: "#005496",
+                    },
+                    textStyle: {
+                        color: "#64748b",
+                    },
+                });
+            }
+
+            option.dataZoom = dataZoom;
+
+            function numericBottom(value) {
+                if (typeof value === "number") {
+                    return value;
+                }
+                if (typeof value === "string" && /^\d+(\.\d+)?(px)?$/.test(value.trim())) {
+                    return Number.parseFloat(value);
+                }
+                return null;
+            }
+
+            function expandGridBottom(grid) {
+                if (!grid || typeof grid !== "object") {
+                    return;
+                }
+                const currentBottom = numericBottom(grid.bottom);
+                if (currentBottom === null || currentBottom < minGridBottom) {
+                    grid.bottom = minGridBottom;
+                }
+                if (grid.containLabel === undefined) {
+                    grid.containLabel = true;
+                }
+            }
+
+            if (Array.isArray(option.grid)) {
+                option.grid.forEach(expandGridBottom);
+            } else if (option.grid && typeof option.grid === "object") {
+                expandGridBottom(option.grid);
+            } else {
+                option.grid = {
+                    bottom: minGridBottom,
+                    containLabel: true,
+                };
+            }
+
+            return option;
+        };
     </script>
 </head>
 {% set report_scope = 'daily' if period.type == 'daily' else 'periodic' %}
