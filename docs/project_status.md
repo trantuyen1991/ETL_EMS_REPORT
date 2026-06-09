@@ -275,6 +275,7 @@ Current anomaly rules:
   - KPI deviation label positions now match Utility (`positivePosition: left`, `negativePosition: right`)
   - both KPI and Utility horizontal deviation charts now support near-zero label fallback spacing so tiny bars can move away from the 0% axis without changing the main left/right policy
 - Completed temporary implementation checklists were retired from `docs/workflows/` after consolidation.
+- Added a dedicated checkpoint checklist for LaTeX rebuild work (`docs/workflows/latex_rebuild_checklist.md`) and executed it successfully for the current source rebuild (Technical Manual + Reader Guide) on 2026-06-09, with output regenerated to `docs/output/project_technical_documentation_YYYYMMDD.pdf` and `docs/output/report_reader_guide_YYYYMMDD.pdf`.
   Durable references are now:
   - `docs/project_status.md`
   - `docs/style/ui_style.md`

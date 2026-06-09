@@ -177,6 +177,7 @@ AI agents MUST:
 - preserve formatting consistency
 
 AI agents SHOULD:
+- use `docs/workflows/latex_rebuild_checklist.md` for grouped rebuild work to keep checkpoints small and rollback-friendly
 - clean temporary build files when appropriate
 - archive older PDFs if versioning is enabled
 
