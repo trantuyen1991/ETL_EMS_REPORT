@@ -1873,7 +1873,8 @@
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart {
-            height: var(--report-components-report-section-electric-chart-daily-trend-height-view-monthly, 262px);
+            height: 280px !important;
+            min-height: 280px !important;
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-area .electricity-chart {
@@ -7763,6 +7764,11 @@
                 height: 252px;
             }
 
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart {
+                height: 280px !important;
+                min-height: 280px !important;
+            }
+
             .electricity-chart-card-share .electricity-chart,
             .utility-comparison-chart,
             .utility-comparison-chart-wide,
@@ -8194,6 +8200,11 @@
             .kpi-periodic-trend-chart,
             .kpi-periodic-variance-chart {
                 height: 264px;
+            }
+
+            .periodic-electricity-chart-grid-monthly .electricity-chart-card-trend .electricity-chart {
+                height: 280px !important;
+                min-height: 280px !important;
             }
 
             .electricity-chart-card-share .electricity-chart,

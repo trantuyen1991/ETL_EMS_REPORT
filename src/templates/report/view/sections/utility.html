@@ -1153,64 +1153,96 @@
                             return false;
                         }
 
+                        function cloneOption(option) {
+                            if (!option || typeof option !== "object") {
+                                return option;
+                            }
+                            return window.structuredClone ? window.structuredClone(option) : JSON.parse(JSON.stringify(option));
+                        }
+
+                        function enhanceChartOption(config, width) {
+                            const baseOption = cloneOption(config.option);
+                            if (!window.__enhanceReportLineChartOption) {
+                                return baseOption;
+                            }
+                            return window.__enhanceReportLineChartOption(Object.assign({ animation: false }, baseOption), {
+                                width: width,
+                                axisDateMode: config.axisDateMode,
+                            });
+                        }
+
                         const chartConfigs = [
                             {% if flags.is_daily_report %}
                             {
                                 id: "utility-deviation-chart",
                                 option: {{ sections.utility.daily_dashboard.variance_chart.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-comparison-chart-wide",
                                 option: {{ sections.utility.charts.comparison_split.wide.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-comparison-chart-narrow",
                                 option: {{ sections.utility.charts.comparison_split.narrow.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {% else %}
                             {
                                 id: "utility-period-type-trend-chart",
                                 option: {{ sections.utility.charts.period_type_trend.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-period-heatmap-chart",
                                 option: {{ sections.utility.charts.period_heatmap.option | tojson if sections.utility.charts.period_heatmap else {} }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-period-insight-heatmap-chart",
                                 option: {{ sections.utility.charts.period_insight_split.wide.option | tojson if sections.utility.charts.period_insight_split.wide else {} }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-period-mix-chart",
                                 option: {{ sections.utility.charts.period_insight_split.narrow.option | tojson if sections.utility.charts.period_insight_split.narrow else {} }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-energy-trend-chart",
                                 option: {{ sections.utility.energy.charts.trend.option | tojson if sections.utility.energy.charts.trend else {} }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-energy-distribution-chart",
                                 option: {{ sections.utility.energy.charts.distribution.option | tojson if sections.utility.energy.charts.distribution else {} }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-energy-deviation-chart",
                                 option: {{ sections.utility.energy.charts.deviation.option | tojson if sections.utility.energy.charts.deviation else {} }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-energy-heatmap-chart",
                                 option: {{ sections.utility.energy.charts.heatmap.option | tojson if sections.utility.energy.charts.heatmap else {} }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-deviation-chart",
                                 option: {{ sections.utility.daily_dashboard.variance_chart.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-comparison-chart-wide",
                                 option: {{ sections.utility.charts.comparison_split.wide.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "utility-comparison-chart-narrow",
                                 option: {{ sections.utility.charts.comparison_split.narrow.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {% endif %}
                             {% for cluster in sensor_monitoring.trend_clusters_render or [] %}
@@ -1218,6 +1250,7 @@
                             {
                                 id: "{{ chart.chart_id }}",
                                 option: {{ chart.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {% endfor %}
                             {% endfor %}
@@ -1225,6 +1258,7 @@
                             {
                                 id: "{{ chart.chart_id }}",
                                 option: {{ chart.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {% endfor %}
                             {% for cluster in sensor_monitoring.period_trend_clusters_render or [] %}
@@ -1232,13 +1266,13 @@
                             {
                                 id: "{{ chart.chart_id }}",
                                 option: {{ chart.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {% endfor %}
                             {% endfor %}
                         ];
 
-                        const charts = [];
-                        const chartTargets = [];
+                        const chartMetas = [];
                         let hasSizedTarget = false;
 
                         chartConfigs.forEach(function (config) {
@@ -1262,17 +1296,13 @@
                                 width: width,
                                 height: height,
                             });
-                            const option = Object.assign({ animation: false }, config.option);
-                            const enhancedOption = window.__enhanceReportLineChartOption
-                                ? window.__enhanceReportLineChartOption(option)
-                                : option;
-                            chart.setOption(enhancedOption, true);
+                            const option = enhanceChartOption(config, width);
+                            chart.setOption(option, true);
                             chart.resize({ width: width, height: height });
                             if (chart.getZr && chart.getZr()) {
                                 chart.getZr().flush();
                             }
-                            charts.push(chart);
-                            chartTargets.push(el);
+                            chartMetas.push({ chart: chart, target: el, config: config });
                             hasSizedTarget = true;
                         });
 
@@ -1281,14 +1311,19 @@
                         }
 
                         function resizeChart() {
-                            charts.forEach(function (chart, index) {
-                                const target = chartTargets[index];
+                            chartMetas.forEach(function (meta) {
+                                const chart = meta.chart;
+                                const target = meta.target;
                                 if (!chart || !target) {
                                     return;
                                 }
 
                                 const width = Math.max(1, Math.floor(target.clientWidth || target.getBoundingClientRect().width || 0));
                                 const height = Math.max(1, Math.floor(target.clientHeight || target.getBoundingClientRect().height || 0));
+                                const nextOption = enhanceChartOption(meta.config, width);
+                                if (nextOption) {
+                                    chart.setOption(nextOption, true);
+                                }
                                 chart.resize({ width: width, height: height });
                                 if (chart.getZr && chart.getZr()) {
                                     chart.getZr().flush();
@@ -1314,7 +1349,11 @@
                             const observer = new ResizeObserver(function () {
                                 resizeChart();
                             });
-                            chartTargets.forEach(function (target) {
+                            chartMetas.forEach(function (meta) {
+                                const target = meta.target;
+                                if (!target) {
+                                    return;
+                                }
                                 observer.observe(target);
                             });
                         }

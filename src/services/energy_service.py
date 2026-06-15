@@ -151,7 +151,7 @@ class EnergyService:
                 continue
 
             result[dt_value] = {
-                "plant_total_energy": float(row.get("Total_engy")) if row.get("Total_engy") is not None else None,
+                "plant_total_energy": self._compute_plant_total_energy(row),
                 "diode": float(row.get("DIODE_engy")) if row.get("DIODE_engy") is not None else None,
                 "ico": float(row.get("ICO_engy")) if row.get("ICO_engy") is not None else None,
                 "sakari": float(row.get("SAKARI_engy")) if row.get("SAKARI_engy") is not None else None,
@@ -174,8 +174,9 @@ class EnergyService:
         area_has_value = {"diode": False, "ico": False, "sakari": False}
 
         for row in total_energy_rows:
-            if row.get("Total_engy") is not None:
-                plant_total += float(row.get("Total_engy"))
+            row_plant_total = self._compute_plant_total_energy(row)
+            if row_plant_total is not None:
+                plant_total += row_plant_total
                 plant_has_value = True
             if row.get("DIODE_engy") is not None:
                 area_totals["diode"] += float(row.get("DIODE_engy"))
@@ -197,6 +198,17 @@ class EnergyService:
                 "sakari": {"energy": area_totals["sakari"] if area_has_value["sakari"] else None},
             },
         }
+
+    def _compute_plant_total_energy(self, row: dict[str, Any]) -> float | None:
+        """Return plant total including SAKARI when ICO is already net of SAKARI."""
+        total_energy = row.get("Total_engy")
+        if total_energy is None:
+            return None
+
+        sakari_energy = row.get("SAKARI_engy")
+        return float(total_energy) + (
+            float(sakari_energy) if sakari_energy is not None else 0.0
+        )
 
     def _build_energy_anomalies(
         self,

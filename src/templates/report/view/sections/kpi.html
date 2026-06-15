@@ -335,31 +335,53 @@
                             return false;
                         }
 
+                        function cloneOption(option) {
+                            if (!option || typeof option !== "object") {
+                                return option;
+                            }
+                            return window.structuredClone ? window.structuredClone(option) : JSON.parse(JSON.stringify(option));
+                        }
+
+                        function enhanceChartOption(config, width) {
+                            const baseOption = cloneOption(config.option);
+                            if (!window.__enhanceReportLineChartOption) {
+                                return baseOption;
+                            }
+                            return window.__enhanceReportLineChartOption(baseOption, {
+                                width: width,
+                                axisDateMode: config.axisDateMode,
+                            });
+                        }
+
                         const chartConfigs = [
                             {
                                 id: "kpi-period-trend-chart",
                                 option: {{ sections.kpi.charts.daily_dashboard.charts.period_trend.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "kpi-daily-compare-chart",
                                 option: {{ sections.kpi.charts.daily_dashboard.charts.compare_bar.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "kpi-period-heatmap-chart",
                                 option: {{ sections.kpi.charts.daily_dashboard.charts.period_heatmap.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "kpi-daily-waterfall-chart",
                                 option: {{ sections.kpi.charts.daily_dashboard.charts.waterfall.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                             {
                                 id: "kpi-daily-variance-chart",
                                 option: {{ sections.kpi.charts.daily_dashboard.charts.variance.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
                             },
                         ];
 
-                        const charts = [];
-                        const chartTargets = [];
+                        const chartMetas = [];
                         let hasSizedTarget = false;
 
                         chartConfigs.forEach(function (config) {
@@ -380,13 +402,10 @@
                             }
 
                             const chart = echarts.init(el);
-                            const option = window.__enhanceReportLineChartOption
-                                ? window.__enhanceReportLineChartOption(config.option)
-                                : config.option;
+                            const option = enhanceChartOption(config, width);
                             chart.setOption(option, true);
                             chart.resize({ width: width, height: height });
-                            charts.push(chart);
-                            chartTargets.push(el);
+                            chartMetas.push({ chart: chart, target: el, config: config });
                             hasSizedTarget = true;
                         });
 
@@ -395,13 +414,18 @@
                         }
 
                         function resizeChart() {
-                            charts.forEach(function (chart, index) {
-                                const el = chartTargets[index];
+                            chartMetas.forEach(function (meta) {
+                                const chart = meta.chart;
+                                const el = meta.target;
                                 if (!chart || !el) {
                                     return;
                                 }
                                 const width = Math.max(1, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 0));
                                 const height = Math.max(1, Math.floor(el.clientHeight || el.getBoundingClientRect().height || 0));
+                                const nextOption = enhanceChartOption(meta.config, width);
+                                if (nextOption) {
+                                    chart.setOption(nextOption, true);
+                                }
                                 chart.resize({ width: width, height: height });
                             });
                         }
@@ -413,8 +437,12 @@
                             const observer = new ResizeObserver(function () {
                                 resizeChart();
                             });
-                            chartTargets.forEach(function (el) {
-                                observer.observe(el);
+                            chartMetas.forEach(function (meta) {
+                                const target = meta.target;
+                                if (!target) {
+                                    return;
+                                }
+                                observer.observe(target);
                             });
                         }
 

@@ -1207,6 +1207,7 @@ class ReportEngineService:
         tracked_paths = [
             project_root / "config" / "app.yaml",
             project_root / "config" / "report_style.json",
+            project_root / "src" / "services" / "energy_service.py",
             project_root / "src" / "services" / "report_builder_service.py",
             project_root / "src" / "templates" / template_bundle["view"],
             project_root / "src" / "templates" / template_bundle["pdf"],

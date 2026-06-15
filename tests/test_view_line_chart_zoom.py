@@ -11,7 +11,7 @@ def _read_template(relative_path: str) -> str:
 def test_base_view_defines_line_chart_zoom_helper() -> None:
     base_view = _read_template("src/templates/report/base/base_view.html")
 
-    assert "window.__enhanceReportLineChartOption = function (option)" in base_view
+    assert "window.__enhanceReportLineChartOption = function (option, context)" in base_view
     assert 'String(series.type || "").toLowerCase() === "line"' in base_view
     assert 'type: "inside"' in base_view
     assert 'type: "slider"' in base_view
@@ -22,6 +22,10 @@ def test_base_view_defines_line_chart_zoom_helper() -> None:
     assert "showDetail: false" in base_view
     assert "brushSelect: false" in base_view
     assert "grid.bottom = minGridBottom" in base_view
+    assert "axisDateMode !== \"monthly\"" in base_view
+    assert "dateFromAxisIndex(index)" in base_view
+    assert 'toLocaleDateString("en-US", { day: "2-digit" })' in base_view
+    assert "labelIndex === 0 || labelIndex === total - 1" in base_view
 
 
 def test_view_chart_initializers_apply_line_chart_zoom_helper() -> None:
@@ -29,9 +33,11 @@ def test_view_chart_initializers_apply_line_chart_zoom_helper() -> None:
     utility_view = _read_template("src/templates/report/view/sections/utility.html")
     kpi_view = _read_template("src/templates/report/view/sections/kpi.html")
 
-    assert "__enhanceReportLineChartOption(config.option)" in electricity_view
-    assert "__enhanceReportLineChartOption(option)" in utility_view
-    assert "__enhanceReportLineChartOption(config.option)" in kpi_view
+    assert "__enhanceReportLineChartOption(baseOption, {" in electricity_view
+    assert "periodStartDate: config.periodStartDate" in electricity_view
+    assert "periodEndDate: config.periodEndDate" in electricity_view
+    assert "__enhanceReportLineChartOption(Object.assign({ animation: false }, baseOption), {" in utility_view
+    assert "__enhanceReportLineChartOption(baseOption, {" in kpi_view
 
 
 def test_pdf_templates_do_not_apply_interactive_line_chart_zoom_helper() -> None:

@@ -663,31 +663,62 @@
                             return false;
                         }
 
+                        function cloneOption(option) {
+                            if (!option || typeof option !== "object") {
+                                return option;
+                            }
+                            return window.structuredClone ? window.structuredClone(option) : JSON.parse(JSON.stringify(option));
+                        }
+
+                        function enhanceChartOption(config, width) {
+                            const baseOption = cloneOption(config.option);
+                            if (!window.__enhanceReportLineChartOption) {
+                                return baseOption;
+                            }
+                            return window.__enhanceReportLineChartOption(baseOption, {
+                                width: width,
+                                axisDateMode: config.axisDateMode,
+                                periodStartDate: config.periodStartDate,
+                                periodEndDate: config.periodEndDate,
+                            });
+                        }
+
                         const chartConfigs = [
                             {
                                 id: "electricity-daily-trend-chart",
                                 option: {{ sections.electricity.charts.daily_trend.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
+                                periodStartDate: {{ period.start_date | string | tojson }},
+                                periodEndDate: {{ period.end_date | string | tojson }},
                             },
                             {
                                 id: "electricity-area-comparison-chart",
                                 option: {{ sections.electricity.charts.area_comparison.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
+                                periodStartDate: {{ period.start_date | string | tojson }},
+                                periodEndDate: {{ period.end_date | string | tojson }},
                             },
                             {% if not flags.is_daily_report and sections.electricity.charts.period_heatmap.option %}
                             {
                                 id: "electricity-period-heatmap-chart",
                                 option: {{ sections.electricity.charts.period_heatmap.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
+                                periodStartDate: {{ period.start_date | string | tojson }},
+                                periodEndDate: {{ period.end_date | string | tojson }},
                             },
                             {% endif %}
                             {% if not flags.is_daily_report and sections.electricity.charts.period_area_delta.option %}
                             {
                                 id: "electricity-period-area-delta-chart",
                                 option: {{ sections.electricity.charts.period_area_delta.option | tojson }},
+                                axisDateMode: "{{ period.type }}",
+                                periodStartDate: {{ period.start_date | string | tojson }},
+                                periodEndDate: {{ period.end_date | string | tojson }},
                             },
                             {% endif %}
                         ];
 
-                        const charts = [];
-                        const chartTargets = [];
+                        const chartMetas = [];
                         let hasSizedTarget = false;
 
                         chartConfigs.forEach(function (config) {
@@ -708,13 +739,10 @@
                             }
 
                             const chart = echarts.init(el);
-                            const option = window.__enhanceReportLineChartOption
-                                ? window.__enhanceReportLineChartOption(config.option)
-                                : config.option;
+                            const option = enhanceChartOption(config, width);
                             chart.setOption(option, true);
                             chart.resize({ width: width, height: height });
-                            charts.push(chart);
-                            chartTargets.push(el);
+                            chartMetas.push({ chart: chart, target: el, config: config });
                             hasSizedTarget = true;
                         });
 
@@ -723,19 +751,24 @@
                         }
 
                         function resizeCharts() {
-                            charts.forEach(function (chart, index) {
-                                const target = chartTargets[index];
+                            chartMetas.forEach(function (meta) {
+                                const chart = meta.chart;
+                                const target = meta.target;
                                 if (!chart || !target) {
                                     return;
                                 }
 
                                 const width = Math.max(1, Math.floor(target.clientWidth || target.getBoundingClientRect().width || 0));
                                 const height = Math.max(1, Math.floor(target.clientHeight || target.getBoundingClientRect().height || 0));
+                                const nextOption = enhanceChartOption(meta.config, width);
+                                if (nextOption) {
+                                    chart.setOption(nextOption, true);
+                                }
                                 chart.resize({ width: width, height: height });
                             });
                         }
 
-                        if (charts.length > 0) {
+                        if (chartMetas.length > 0) {
                             window.addEventListener("resize", resizeCharts);
 
                             window.addEventListener("beforeprint", resizeCharts);
@@ -756,7 +789,11 @@
                                     resizeCharts();
                                 });
 
-                                chartTargets.forEach(function (target) {
+                                chartMetas.forEach(function (meta) {
+                                    const target = meta.target;
+                                    if (!target) {
+                                        return;
+                                    }
                                     observer.observe(target);
                                 });
                             }

@@ -71,30 +71,36 @@
             }
         };
 
-        window.__enhanceReportLineChartOption = function (option) {
+        window.__enhanceReportLineChartOption = function (option, context) {
+            const chartContext = context || {};
             if (!option || typeof option !== "object") {
                 return option;
             }
 
-            const seriesList = Array.isArray(option.series) ? option.series : (option.series ? [option.series] : []);
+            const enhancedOption = JSON.parse(JSON.stringify(option));
+            const seriesList = Array.isArray(enhancedOption.series) ? enhancedOption.series : (enhancedOption.series ? [enhancedOption.series] : []);
             const hasLineSeries = seriesList.some(function (series) {
                 return series && String(series.type || "").toLowerCase() === "line";
             });
-            if (!hasLineSeries || !option.xAxis) {
-                return option;
+            if (!enhancedOption.xAxis) {
+                return enhancedOption;
             }
 
-            const xAxisList = Array.isArray(option.xAxis) ? option.xAxis : [option.xAxis];
+            if (!hasLineSeries) {
+                return enhancedOption;
+            }
+
+            const xAxisList = Array.isArray(enhancedOption.xAxis) ? enhancedOption.xAxis : [enhancedOption.xAxis];
             const xAxisIndexes = xAxisList.map(function (_axis, index) {
                 return index;
             });
-            const legendList = Array.isArray(option.legend) ? option.legend : (option.legend ? [option.legend] : []);
+            const legendList = Array.isArray(enhancedOption.legend) ? enhancedOption.legend : (enhancedOption.legend ? [enhancedOption.legend] : []);
             const hasBottomLegend = legendList.some(function (legend) {
                 return legend && legend.bottom !== undefined && legend.top === undefined;
             });
             const sliderBottom = hasBottomLegend ? 26 : 4;
             const minGridBottom = hasBottomLegend ? 78 : 54;
-            const existingDataZoom = Array.isArray(option.dataZoom) ? option.dataZoom : (option.dataZoom ? [option.dataZoom] : []);
+            const existingDataZoom = Array.isArray(enhancedOption.dataZoom) ? enhancedOption.dataZoom : (enhancedOption.dataZoom ? [enhancedOption.dataZoom] : []);
             const hasInsideZoom = existingDataZoom.some(function (zoom) {
                 return zoom && String(zoom.type || "").toLowerCase() === "inside";
             });
@@ -145,7 +151,7 @@
                 });
             }
 
-            option.dataZoom = dataZoom;
+            enhancedOption.dataZoom = dataZoom;
 
             function numericBottom(value) {
                 if (typeof value === "number") {
@@ -170,18 +176,235 @@
                 }
             }
 
-            if (Array.isArray(option.grid)) {
-                option.grid.forEach(expandGridBottom);
-            } else if (option.grid && typeof option.grid === "object") {
-                expandGridBottom(option.grid);
+            if (Array.isArray(enhancedOption.grid)) {
+                enhancedOption.grid.forEach(expandGridBottom);
+            } else if (enhancedOption.grid && typeof enhancedOption.grid === "object") {
+                expandGridBottom(enhancedOption.grid);
             } else {
-                option.grid = {
+                enhancedOption.grid = {
                     bottom: minGridBottom,
                     containLabel: true,
                 };
             }
 
-            return option;
+            const axisDateMode = String(chartContext.axisDateMode || chartContext.periodType || chartContext.period_type || "").toLowerCase();
+            if (axisDateMode !== "monthly") {
+                return enhancedOption;
+            }
+
+            function safeDateValue(value) {
+                if (value === null || value === undefined) {
+                    return null;
+                }
+                if (value instanceof Date) {
+                    return Number.isNaN(value.getTime()) ? null : { date: value };
+                }
+                if (Array.isArray(value) && value.length) {
+                    return safeDateValue(value[0]);
+                }
+                if (typeof value === "object") {
+                    if (value.time !== undefined) {
+                        const parsed = new Date(value.time);
+                        return Number.isNaN(parsed.getTime()) ? null : { date: parsed };
+                    }
+                    if (value.date !== undefined) {
+                        const parsed = new Date(value.date);
+                        return Number.isNaN(parsed.getTime()) ? null : { date: parsed };
+                    }
+                }
+                if (typeof value === "number") {
+                    const parsed = new Date(value);
+                    return Number.isNaN(parsed.getTime()) ? null : { date: parsed };
+                }
+
+                if (typeof value === "string") {
+                    const trimmed = value.trim();
+                    if (!trimmed) {
+                        return null;
+                    }
+
+                    const monthDayMatch = trimmed.match(/^([a-z]{3,10})\s+(\d{1,2})\s*(?:\(\s*([a-z]{3,10})\s*\))?$/i);
+                    if (monthDayMatch) {
+                        const monthMap = {
+                            jan: 0,
+                            january: 0,
+                            feb: 1,
+                            february: 1,
+                            mar: 2,
+                            march: 2,
+                            apr: 3,
+                            april: 3,
+                            may: 4,
+                            jun: 5,
+                            june: 5,
+                            jul: 6,
+                            july: 6,
+                            aug: 7,
+                            august: 7,
+                            sep: 8,
+                            sept: 8,
+                            september: 8,
+                            oct: 9,
+                            october: 9,
+                            nov: 10,
+                            november: 10,
+                            dec: 11,
+                            december: 11,
+                        };
+
+                        const monthKey = monthDayMatch[1].toLowerCase();
+                        const monthIndex = monthMap[monthKey];
+                        const day = Number(monthDayMatch[2]);
+                        if (!Number.isNaN(monthIndex) && !Number.isNaN(day)) {
+                            const parsed = new Date(2000, monthIndex, day);
+                            if (Number.isNaN(parsed.getTime())) {
+                                return null;
+                            }
+                            if (monthDayMatch[3]) {
+                                return {
+                                    weekdayText: monthDayMatch[3],
+                                    date: parsed,
+                                };
+                            }
+                            return {
+                                date: parsed,
+                            };
+                        }
+                    }
+
+                    const isoParts = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    if (isoParts) {
+                        const year = Number(isoParts[1]);
+                        const month = Number(isoParts[2]) - 1;
+                        const day = Number(isoParts[3]);
+                        if (!Number.isNaN(year) && !Number.isNaN(month) && !Number.isNaN(day)) {
+                            const parsed = new Date(year, month, day);
+                            return Number.isNaN(parsed.getTime()) ? null : { date: parsed };
+                        }
+                    }
+
+                    const parsed = new Date(trimmed);
+                    return Number.isNaN(parsed.getTime()) ? null : {
+                        date: parsed,
+                    };
+                }
+
+                return null;
+            }
+
+            function dateFromAxisIndex(index) {
+                const periodStart = safeDateValue(chartContext.periodStartDate || chartContext.startDate || chartContext.start_date);
+                const labelIndex = Number(index);
+                if (!periodStart || !Number.isInteger(labelIndex) || labelIndex < 0) {
+                    return null;
+                }
+
+                const dateValue = new Date(periodStart.date.getTime());
+                dateValue.setDate(dateValue.getDate() + labelIndex);
+
+                const periodEnd = safeDateValue(chartContext.periodEndDate || chartContext.endDate || chartContext.end_date);
+                if (periodEnd && dateValue.getTime() > periodEnd.date.getTime()) {
+                    return null;
+                }
+
+                return { date: dateValue };
+            }
+
+            function formatMonthDayWeekday(value, index) {
+                const parsed = safeDateValue(value);
+                const resolved = parsed || dateFromAxisIndex(index);
+                if (!resolved) {
+                    return value === null || value === undefined ? "" : String(value);
+                }
+                const dateValue = resolved.date;
+                const weekday = resolved.weekdayText;
+                return (
+                    dateValue.toLocaleDateString("en-US", { month: "short" }) + " " +
+                    dateValue.toLocaleDateString("en-US", { day: "2-digit" }) +
+                    " (" + (weekday || dateValue.toLocaleDateString("en-US", { weekday: "short" })) + ")"
+                );
+            }
+
+            function hasMonthDayValues(axis) {
+                return Boolean(chartContext.periodStartDate || chartContext.startDate || chartContext.start_date) || collectAxisValues(axis).some(function (value) {
+                    return safeDateValue(value) !== null;
+                });
+            }
+
+            function collectAxisValues(axis) {
+                if (axis && Array.isArray(axis.data) && axis.data.length) {
+                    return axis.data.slice();
+                }
+                const collected = [];
+                seriesList.forEach(function (series) {
+                    if (!series || !Array.isArray(series.data)) {
+                        return;
+                    }
+                    series.data.forEach(function (point) {
+                        if (Array.isArray(point)) {
+                            collected.push(point[0]);
+                            return;
+                        }
+                        if (point && typeof point === "object" && point.value !== undefined) {
+                            const pointValue = Array.isArray(point.value) ? point.value[0] : point.value;
+                            collected.push(pointValue);
+                        }
+                    });
+                });
+                return collected;
+            }
+
+            function resolveAxisPointCount(axis) {
+                if (axis && Array.isArray(axis.data) && axis.data.length) {
+                    return axis.data.length;
+                }
+
+                return seriesList.reduce(function (maxCount, series) {
+                    const count = series && Array.isArray(series.data) ? series.data.length : 0;
+                    return Math.max(maxCount, count);
+                }, 0);
+            }
+
+            function applyMonthlyAxisLabel(axis, width) {
+                const total = Math.max(1, resolveAxisPointCount(axis));
+                const containerWidth = Number(width) > 0 ? Number(width) : 1024;
+                const visibleTarget = Math.max(4, Math.floor(containerWidth / 110));
+                const interval = Math.max(1, Math.ceil(total / visibleTarget));
+                const nextAxisLabel = axis.axisLabel ? Object.assign({}, axis.axisLabel) : {};
+
+                nextAxisLabel.interval = visibleTarget >= total
+                    ? 0
+                    : function (index) {
+                        const labelIndex = Number(index);
+                        if (!Number.isInteger(labelIndex)) {
+                            return false;
+                        }
+                        return labelIndex === 0 || labelIndex === total - 1 || (labelIndex % interval) === 0;
+                    };
+                nextAxisLabel.rotate = 0;
+                nextAxisLabel.margin = 6;
+                nextAxisLabel.formatter = function (value, index) {
+                    return formatMonthDayWeekday(value, index);
+                };
+                nextAxisLabel.hideOverlap = true;
+                axis.axisLabel = nextAxisLabel;
+            }
+
+            xAxisList.forEach(function (axis) {
+                if (!axis || typeof axis !== "object") {
+                    return;
+                }
+                const axisType = String(axis.type || "category").toLowerCase();
+                if (axisType !== "time" && axisType !== "category") {
+                    return;
+                }
+                if (!hasMonthDayValues(axis)) {
+                    return;
+                }
+                applyMonthlyAxisLabel(axis, chartContext.width);
+            });
+
+            return enhancedOption;
         };
     </script>
 </head>

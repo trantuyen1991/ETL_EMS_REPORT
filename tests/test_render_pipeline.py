@@ -8,6 +8,9 @@ from src.services.report_engine_service import ReportEngineService
 from src.services.template_service import TemplateRenderingService
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 class FakePdfService:
     def export(self, html_path: Path, output_pdf: Path) -> None:
         assert html_path.exists()
@@ -47,6 +50,17 @@ def test_select_template_bundle_maps_periodic_reports_to_shared_templates() -> N
         "view": "report/view/report_view_periodic.html",
         "pdf": "report/pdf/report_pdf_periodic.html",
     }
+
+
+def test_preview_cache_fingerprint_tracks_energy_service_changes() -> None:
+    service = ReportEngineService(project_root=PROJECT_ROOT)
+
+    fingerprint = service._build_preview_cache_fingerprint(
+        project_root=PROJECT_ROOT,
+        period=_build_period(period_type="monthly"),
+    )
+
+    assert "energy_service.py:" in fingerprint
 
 
 def test_render_report_artifacts_writes_view_pdf_source_and_final_pdf(tmp_path: Path) -> None:
