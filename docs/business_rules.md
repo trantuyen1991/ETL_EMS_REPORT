@@ -129,6 +129,9 @@ For all comparable metrics:
   - previous
   - delta
   - delta %
+- Utility overview totals must be built from the `utility_usage` source, not from Sensor Monitoring / `processvalue`.
+- `Water (Total)` is the sum of utility metrics whose metadata category is `water`, currently `DomWater` and `SakariWater`.
+- Sensor Monitoring remains a separate Utility subsection for process sensor quality and operating ranges.
 
 ### 4.3 Daily Utility Detail
 - Must render full date range (dense)
@@ -138,6 +141,7 @@ For all comparable metrics:
 ### 4.4 Business Mapping
 - Utility metrics must be mapped from raw sensors into business-level names:
   - Domestic Water
+  - Sakari Water
   - ICO Chilled Water
   - Diode Air
   - Steam

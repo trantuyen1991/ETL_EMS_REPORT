@@ -188,6 +188,8 @@ Includes:
 - water
 - air
 - steam
+- utility consumption values come from `utility_usage`; Sensor Monitoring / `processvalue` is not used for Utility overview totals
+- `Water (Total)` groups utility metadata entries in category `water`, currently `Domestic Water` and `Sakari Water`
 - utility-energy rollup cards for `Total Utility Energy`, `Air Energy`, `Chilled Water Energy`, and `Boiler Energy`
 - periodic utility-energy cards reuse the compact current/previous compare style from the daily family
 - periodic utility-energy charts now include:
@@ -197,6 +199,7 @@ Includes:
 
 #### 4.2 Sensor Monitoring
 - data from `processvalue`
+- displayed under Utility as operating/sensor monitoring context, separate from Utility overview total calculations
 - current configured backend coverage: `18` sensors across `6` system groups
 - daily aggregation:
   - minimum (min)

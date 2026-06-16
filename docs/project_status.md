@@ -136,6 +136,7 @@ KPI logic:
 
 #### Utility Summary
 - Business-level utilities (water, air, steam, etc.): ✅
+- Water Total source rule documented: `utility_usage` grouped by metadata category `water`, separate from Sensor Monitoring / `processvalue`: ✅
 - Current vs previous comparison: ✅
 - Utility comparison bar chart: ✅
 - Daily utility cards now use a 2-up current/previous compare row with a dedicated delta line for tighter layout: ✅

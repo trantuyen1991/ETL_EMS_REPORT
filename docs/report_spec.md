@@ -455,6 +455,10 @@ Show business-level utility consumption values and their comparison across perio
 Style-config navigation target:
 - `report -> section -> utility -> ...`
 
+Data-source rule:
+- Utility consumption overview and detail values come from `utility_usage`.
+- Sensor Monitoring values come from `processvalue` and must not be used to calculate Utility overview totals.
+
 ### 8.2 Content
 This section should include:
 - utility summary table
@@ -475,6 +479,8 @@ Utility summary should include:
 - previous period value
 - delta
 - delta %
+
+`Water (Total)` should be calculated by grouping `utility_usage` columns through `src/config/utility_metadata.py` where `category = "water"`. Current water contributors are `DomWater` (`Domestic Water`) and `SakariWater` (`Sakari Water`).
 
 For the `daily` template family, the utility overview cards should:
 - keep the title area to a stable two-line height to avoid uneven card rows
