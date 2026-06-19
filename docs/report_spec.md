@@ -585,6 +585,7 @@ Show energy intensity based on energy and production context.
 This section should include:
 - plant KPI total
 - area KPI comparison
+- period KPI summary calculated as `SUM(Energy) / SUM(Production)` from selected `energy_kpi` rows
 - production context
 - daily KPI detail
 - KPI coverage information
@@ -612,13 +613,21 @@ For the periodic template:
 Coverage must be visible and explicit.
 Missing dates must still be rendered in daily KPI detail.
 
-### 9.5 Production Day Rule
+### 9.5 Period KPI Calculation Rule
+For weekly and monthly KPI summaries:
+- source rows must come from the resolved `energy_kpi` coverage set
+- plant KPI must be calculated as `SUM(Total_engy) / SUM(Total_prod)`
+- area KPI must be calculated as `SUM(Area_engy) / SUM(Area_prod)`
+- do not sum daily or row-level KPI ratios to produce a period KPI
+- if summed production is zero or missing, KPI should display as `-`
+
+### 9.6 Production Day Rule
 For non-daily KPI summary matrices:
 - `Production day` means the count of dates in the resolved current / previous period where the relevant production metric is greater than zero
 - counts must be calculated per area and for plant total
 - do not use anchor-day snapshot production values for this row
 
-### 9.6 KPI / Electricity / Utility Theme Consistency Rule
+### 9.7 KPI / Electricity / Utility Theme Consistency Rule
 For the upcoming palette rollout:
 - Electricity should act as the first visual pilot for the new enterprise palette direction
 - KPI should reuse the same visual grammar after the Electricity pilot is approved, especially for total-card emphasis, workshop tint cards, status badges, and chart card surfaces

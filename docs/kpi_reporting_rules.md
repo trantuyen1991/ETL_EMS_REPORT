@@ -40,8 +40,16 @@ This applies to:
 - plant KPI-related energy totals
 - area KPI-related energy totals
 - production values
-- KPI values
+- row-level KPI values
 - coverage-ready reporting blocks
+
+Period KPI summaries must be calculated from selected `energy_kpi` rows as:
+
+```text
+Period KPI = SUM(energy) / SUM(production)
+```
+
+Do not sum daily or row-level KPI ratios to produce weekly or monthly KPI.
 
 ### 3.2 Latest Row Rule
 If multiple rows represent the same reporting block, always select the row with the latest `dt_lastupdate`.
@@ -169,4 +177,3 @@ Daily KPI detail is both:
 
 - a reporting table
 - a debugging / validation surface for KPI coverage behavior
-

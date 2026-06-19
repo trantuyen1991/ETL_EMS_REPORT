@@ -190,10 +190,9 @@ class KPIService:
         """Build KPI summary from resolved KPI rows.
 
         Rules:
-        - Production is taken directly from KPI rows
-        - Energy is taken directly from KPI rows
-        - KPI is taken directly from KPI rows
-        - No KPI recalculation is applied
+        - Production is summed from selected KPI rows
+        - Energy is summed from selected KPI rows
+        - Period KPI is calculated as summed energy / summed production
         - Covered rows may come from Day/Week/Month/Year blocks
         - No prorating is applied
 
@@ -211,7 +210,7 @@ class KPIService:
         """
         plant_prod = self._sum_numeric(selected_rows, "Total_prod")
         plant_energy = self._sum_numeric(selected_rows, "Total_engy")
-        plant_kpi = self._sum_numeric(selected_rows, "Total_kpi")
+        plant_kpi = self._calculate_kpi_ratio(plant_energy, plant_prod)
 
         ico_prod = self._sum_numeric(selected_rows, "ICO_prod")
         diode_prod = self._sum_numeric(selected_rows, "DIODE_prod")
@@ -221,9 +220,9 @@ class KPIService:
         diode_energy = self._sum_numeric(selected_rows, "DIODE_engy")
         sakari_energy = self._sum_numeric(selected_rows, "SAKARI_engy")
 
-        ico_kpi = self._sum_numeric(selected_rows, "ICO_kpi")
-        diode_kpi = self._sum_numeric(selected_rows, "DIODE_kpi")
-        sakari_kpi = self._sum_numeric(selected_rows, "SAKARI_kpi")
+        ico_kpi = self._calculate_kpi_ratio(ico_energy, ico_prod)
+        diode_kpi = self._calculate_kpi_ratio(diode_energy, diode_prod)
+        sakari_kpi = self._calculate_kpi_ratio(sakari_energy, sakari_prod)
 
         return {
             "plant": {
@@ -268,8 +267,7 @@ class KPIService:
         Compare KPI summaries between current and previous period.
 
         IMPORTANT:
-        - Do NOT recalculate KPI
-        - Only compare aggregated values from summary
+        - Only compare period KPI values that were already prepared in summary
 
         Args:
             current_summary: Current KPI summary
@@ -737,6 +735,20 @@ class KPIService:
                 total += float(value)
 
         return round(total, 4)
+
+    def _calculate_kpi_ratio(
+        self,
+        energy: float | None,
+        production: float | None,
+    ) -> float | None:
+        """Calculate period KPI from summed energy and summed production."""
+        if energy is None or production is None:
+            return None
+
+        if production == 0:
+            return None
+
+        return round(energy / production, 4)
 
     def _find_exact_day_row(
         self,

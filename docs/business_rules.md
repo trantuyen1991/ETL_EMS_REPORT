@@ -156,12 +156,17 @@ For all comparable metrics:
 - KPI is derived from:
   - energy
   - production
+- Period KPI must be calculated as:
+  - `SUM(energy) / SUM(production)`
+  - using only the selected `energy_kpi` coverage rows
+- Do not calculate period KPI by summing daily or row-level KPI ratios.
 
 ---
 
 ### 5.2 Coverage-First Rule (CRITICAL)
 - KPI data must only use rows that were already calculated and stored in `energy_kpi`.
 - Do not recompute KPI coverage values from raw electricity views or utility views.
+- KPI summary may calculate the period ratio from stored `energy_kpi` energy and production values.
 - Do not prorate.
 - Do not split `Week`, `Month`, or `Year` rows into smaller daily values.
 - Only use rows that fully match the intended reporting block for display.

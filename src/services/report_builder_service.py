@@ -6689,6 +6689,7 @@ class ReportBuilderService:
         if not kpi_object:
             return {
                 "title": "KPI Summary Matrix",
+                "note": "Period Energy KPI = SUM(Energy) / SUM(Production) from selected energy_kpi rows.",
                 "group_columns": [],
                 "rows": [],
             }
@@ -6858,6 +6859,7 @@ class ReportBuilderService:
 
         return {
             "title": "KPI Summary Matrix",
+            "note": "Period Energy KPI = SUM(Energy) / SUM(Production) from selected energy_kpi rows.",
             "group_columns": [
                 {"key": "total", "label": "Total", "tone": "total", "is_total": True},
                 *[

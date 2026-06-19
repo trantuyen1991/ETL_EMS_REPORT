@@ -60,6 +60,7 @@ def test_kpi_summary_matrix_empty_title_uses_neutral_wording() -> None:
     matrix = service._build_v3_kpi_summary_matrix(None)
 
     assert matrix["title"] == "KPI Summary Matrix"
+    assert matrix["note"] == "Period Energy KPI = SUM(Energy) / SUM(Production) from selected energy_kpi rows."
 
 
 def test_kpi_summary_matrix_populated_title_uses_neutral_wording() -> None:
@@ -68,6 +69,7 @@ def test_kpi_summary_matrix_populated_title_uses_neutral_wording() -> None:
     matrix = service._build_v3_kpi_summary_matrix(_build_minimal_kpi_object(), period_type="weekly")
 
     assert matrix["title"] == "KPI Summary Matrix"
+    assert matrix["note"] == "Period Energy KPI = SUM(Energy) / SUM(Production) from selected energy_kpi rows."
 
 
 def _build_weekly_kpi_object() -> dict:

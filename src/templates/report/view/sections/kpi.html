@@ -243,6 +243,9 @@
 
             <div class="kpi-summary-block">
                 <h3 class="electricity-subsection-title">KPI Summary Matrix</h3>
+                {% if sections.kpi.summary_matrix.note %}
+                <p class="kpi-daily-dashboard-note">Note: {{ sections.kpi.summary_matrix.note }}</p>
+                {% endif %}
 
                 <div class="kpi-summary-table-wrap report-table-wrap mobile-scroll-table-wrap">
                     <table class="kpi-summary-table report-table-ui">

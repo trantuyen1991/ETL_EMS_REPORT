@@ -128,6 +128,8 @@ Stable baseline:
 KPI logic:
 - Coverage-first approach implemented
 - Source of truth: `energy_kpi`
+- Period KPI summary now uses `SUM(Energy) / SUM(Production)` from selected `energy_kpi` rows
+- Daily or row-level KPI ratios are not summed into weekly/monthly KPI
 - No recalculation from raw energy view
 
 ---

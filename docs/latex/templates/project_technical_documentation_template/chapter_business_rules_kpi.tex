@@ -138,7 +138,23 @@ Bộ output hiện tại của sensor monitoring phải đủ linh hoạt để 
 
 \subsection{KPI definition và source-of-truth rule}
 
-KPI của dự án đang được dùng theo đơn vị \texttt{kWh/Ton}. Giá trị KPI được dẫn xuất từ năng lượng và sản lượng, nhưng điều quan trọng là report không được tự recompute KPI từ raw electricity views. KPI reporting phải sử dụng các row đã được tính sẵn và lưu trong \texttt{energy\_kpi}.
+KPI của dự án đang được dùng theo đơn vị \texttt{kWh/Ton}. Giá trị KPI được dẫn xuất từ năng lượng và sản lượng, nhưng điều quan trọng là report không được tự recompute KPI từ raw electricity views. KPI reporting phải sử dụng các row đã được tính sẵn và lưu trong \texttt{energy\_kpi}. Trong implementation hiện hành, \texttt{energy\_kpi} vẫn là source of truth cho energy, production, row-level KPI, và coverage blocks.
+
+Đối với KPI summary của một kỳ báo cáo, hệ thống không cộng trực tiếp các giá trị \texttt{Total\_kpi}, \texttt{ICO\_kpi}, \texttt{DIODE\_kpi}, hoặc \texttt{SAKARI\_kpi} của từng ngày. Lý do là KPI có đơn vị tỷ lệ \texttt{kWh/Ton}; cộng nhiều tỷ lệ daily lại với nhau sẽ làm số tháng hoặc tuần bị phình lên và không còn ý nghĩa vật lý. KPI kỳ phải được tính từ tổng energy và tổng production của các KPI rows đã được chọn theo coverage:
+
+\begin{equation}
+	\text{Period KPI}_{plant} =
+	\frac{\sum \texttt{Total\_engy}}{\sum \texttt{Total\_prod}}
+	\label{eq:kpi_period_plant}
+\end{equation}
+
+\begin{equation}
+	\text{Period KPI}_{area} =
+	\frac{\sum \texttt{Area\_engy}}{\sum \texttt{Area\_prod}}
+	\label{eq:kpi_period_area}
+\end{equation}
+
+Trong đó \texttt{Area} tương ứng với \texttt{ICO}, \texttt{DIODE}, hoặc \texttt{SAKARI}. Nếu tổng production của kỳ bằng 0, KPI kỳ không được tính và phải hiển thị là \texttt{-}, vì phép chia không còn hợp lệ. Giá trị bằng 0 vẫn là dữ liệu hợp lệ cho energy hoặc production khi nó phản ánh đúng dữ liệu nguồn; tuy nhiên KPI ratio chỉ hợp lệ khi mẫu số production khác 0.
 
 Các nguyên tắc bất biến gồm:
 
@@ -147,7 +163,9 @@ Các nguyên tắc bất biến gồm:
 \item không prorate Week, Month, hoặc Year rows thành các giá trị daily nhân tạo;
 \item không split broader blocks thành synthetic rows;
 \item nếu có nhiều row cho cùng một reporting block, luôn chọn row có \texttt{dt\_lastupdate} mới nhất;
-\item KPI rendering phải phản ánh stored business-approved values, không phản ánh giá trị suy diễn.
+\item KPI summary của kỳ được tính bằng \texttt{sum(energy) / sum(production)} trên các rows \texttt{energy\_kpi} đã được chọn;
+\item daily detail vẫn hiển thị row-level KPI đã lưu để phục vụ kiểm tra dữ liệu theo ngày hoặc block;
+\item KPI rendering phải phản ánh stored business-approved energy/production/coverage values, không phản ánh giá trị suy diễn từ raw views.
 \end{enumerate}
 
 \subsection{Coverage hierarchy và selection rules}
