@@ -8275,6 +8275,7 @@ class ReportBuilderService:
             result.append({
                 "key": key,
                 "display_name": meta["display_name"],
+                "unit_display": str(meta.get("unit") or "").strip(),
                 "family_class": visual["family_class"],
                 "header_style": (
                     f"--utility-detail-header-bg: {header_bg}; "

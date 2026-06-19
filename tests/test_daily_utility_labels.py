@@ -217,10 +217,10 @@ def test_utility_detail_rows_use_per_column_heat_and_family_tints() -> None:
     utility_object = {
         "current": {
             "metadata": {
-                "domestic_water": {"display_name": "Domestic Water", "category": "water"},
-                "ico_air": {"display_name": "ICO Air", "category": "compressed_air"},
-                "diode_chilled_water": {"display_name": "Diode Chilled Water", "category": "chilled_water"},
-                "steam": {"display_name": "Steam", "category": "steam"},
+                "domestic_water": {"display_name": "Domestic Water", "unit": "m³", "category": "water"},
+                "ico_air": {"display_name": "ICO Air", "unit": "Nm³", "category": "compressed_air"},
+                "diode_chilled_water": {"display_name": "Diode Chilled Water", "unit": "RT", "category": "chilled_water"},
+                "steam": {"display_name": "Steam", "unit": "kg", "category": "steam"},
             },
             "timeseries": [
                 {"dt": date(2025, 5, 12), "domestic_water": 10.0, "ico_air": 100.0, "diode_chilled_water": 0.0, "steam": None},
@@ -233,10 +233,14 @@ def test_utility_detail_rows_use_per_column_heat_and_family_tints() -> None:
     rows = service._build_daily_rows(utility_object)
 
     assert columns[0]["family_class"] == "utility-detail-family-water"
+    assert columns[0]["unit_display"] == "m³"
     assert "--utility-detail-header-text: #005496;" in columns[0]["header_style"]
     assert columns[1]["family_class"] == "utility-detail-family-compressed-air"
+    assert columns[1]["unit_display"] == "Nm³"
     assert columns[2]["family_class"] == "utility-detail-family-chilled-water"
+    assert columns[2]["unit_display"] == "RT"
     assert columns[3]["family_class"] == "utility-detail-family-steam"
+    assert columns[3]["unit_display"] == "kg"
 
     first_row = rows[0]["daily_values"]
     second_row = rows[1]["daily_values"]
@@ -272,6 +276,10 @@ def test_utility_detail_templates_use_family_headers_and_heat_cells() -> None:
 
     assert 'class="utility-detail-col-head {{ column.family_class }}"' in view_template
     assert 'class="utility-detail-col-head {{ column.family_class }}"' in pdf_template
+    assert '<span class="utility-detail-col-name">{{ column.display_name }}</span>' in view_template
+    assert '<span class="utility-detail-col-name">{{ column.display_name }}</span>' in pdf_template
+    assert '<span class="utility-detail-col-unit">{{ column.unit_display }}</span>' in view_template
+    assert '<span class="utility-detail-col-unit">{{ column.unit_display }}</span>' in pdf_template
     assert 'class="col-value utility-detail-value-cell {{ cell.family_class }} {{ cell.heat_class }} {{ cell.state_class }}"' in view_template
     assert 'class="col-value utility-detail-value-cell {{ cell.family_class }} {{ cell.heat_class }} {{ cell.state_class }}"' in pdf_template
     assert '{% if cell.cell_style %} style="{{ cell.cell_style }}"{% endif %}' in view_template
@@ -281,11 +289,13 @@ def test_utility_detail_templates_use_family_headers_and_heat_cells() -> None:
     assert '.utility-detail-table .utility-detail-value-cell.value-zero {' in report_css
     assert '.utility-detail-table .utility-detail-value-cell.value-missing {' in report_css
     assert '.utility-detail-table .utility-detail-value-cell.value-max {' in report_css
+    assert '.utility-detail-table .utility-detail-col-unit {' in report_css
     assert '.utility-detail-table .utility-detail-col-head {' in pdf_css
     assert '.utility-detail-table .utility-detail-value-cell {' in pdf_css
     assert '.utility-detail-table .utility-detail-value-cell.value-zero {' in pdf_css
     assert '.utility-detail-table .utility-detail-value-cell.value-missing {' in pdf_css
     assert '.utility-detail-table .utility-detail-value-cell.value-max {' in pdf_css
+    assert '.utility-detail-table .utility-detail-col-unit {' in pdf_css
 
 
 def test_daily_view_utility_template_marks_comparison_cards_for_compact_layout() -> None:

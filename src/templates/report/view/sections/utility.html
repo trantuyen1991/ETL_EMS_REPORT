@@ -600,7 +600,12 @@
                             <tr>
                                 <th class="col-date sticky-date-col">Date</th>
                                 {% for column in sections.utility.consumption.detail.daily_columns %}
-                                <th class="utility-detail-col-head {{ column.family_class }}"{% if column.header_style %} style="{{ column.header_style }}"{% endif %}>{{ column.display_name }}</th>
+                                <th class="utility-detail-col-head {{ column.family_class }}"{% if column.header_style %} style="{{ column.header_style }}"{% endif %}>
+                                    <span class="utility-detail-col-name">{{ column.display_name }}</span>
+                                    {% if column.unit_display %}
+                                    <span class="utility-detail-col-unit">{{ column.unit_display }}</span>
+                                    {% endif %}
+                                </th>
                                 {% endfor %}
                             </tr>
                         </thead>
@@ -1125,7 +1130,12 @@
                             <tr>
                                 <th class="col-date sticky-date-col">Date</th>
                                 {% for column in sections.utility.consumption.detail.daily_columns %}
-                                <th class="utility-detail-col-head {{ column.family_class }}"{% if column.header_style %} style="{{ column.header_style }}"{% endif %}>{{ column.display_name }}</th>
+                                <th class="utility-detail-col-head {{ column.family_class }}"{% if column.header_style %} style="{{ column.header_style }}"{% endif %}>
+                                    <span class="utility-detail-col-name">{{ column.display_name }}</span>
+                                    {% if column.unit_display %}
+                                    <span class="utility-detail-col-unit">{{ column.unit_display }}</span>
+                                    {% endif %}
+                                </th>
                                 {% endfor %}
                             </tr>
                         </thead>
