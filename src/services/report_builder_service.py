@@ -2165,6 +2165,8 @@ class ReportBuilderService:
                     "tooltip": {
                         "trigger": "axis",
                         "axisPointer": {"type": "line"},
+                        "reportFormatter": "electricityDailyTrend",
+                        "valueUnit": "kWh",
                     },
                     "legend": self._resolve_chart_legend(
                         {
@@ -2279,6 +2281,8 @@ class ReportBuilderService:
                     "tooltip": {
                         "trigger": "axis",
                         "axisPointer": {"type": "shadow"},
+                        "reportFormatter": "electricityAreaComparison",
+                        "valueUnit": "kWh",
                     },
                     "legend": self._resolve_chart_legend(
                         {
@@ -3140,11 +3144,24 @@ class ReportBuilderService:
 
         normalized_period = str(period_type or "").strip().lower()
         if normalized_period in {"weekly", "monthly"} and len(label_dates) >= max_daily_points:
-            return [self._format_periodic_axis_date_label(dt, normalized_period) for dt in label_dates[:max_daily_points]]
+            return [
+                self._format_periodic_axis_date_label(
+                    dt,
+                    normalized_period,
+                    skip_monthly_odd_days=False,
+                )
+                for dt in label_dates[:max_daily_points]
+            ]
 
         return [f"D{index}" for index in range(1, max_daily_points + 1)]
 
-    def _format_periodic_axis_date_label(self, value, period_type: str = "") -> str:
+    def _format_periodic_axis_date_label(
+        self,
+        value,
+        period_type: str = "",
+        *,
+        skip_monthly_odd_days: bool = True,
+    ) -> str:
         """Format periodic chart x-axis label by period type."""
         if value in (None, ""):
             return "-"
@@ -3158,7 +3175,7 @@ class ReportBuilderService:
             return str(value)
 
         normalized_period = str(period_type or "").strip().lower()
-        if normalized_period == "monthly" and value.day % 2 == 1:
+        if skip_monthly_odd_days and normalized_period == "monthly" and value.day % 2 == 1:
             return ""
 
         return f"{value.strftime('%b')} {value.day} ({value.strftime('%a')})"

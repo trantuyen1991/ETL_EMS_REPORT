@@ -678,6 +678,7 @@
                             return window.__enhanceReportLineChartOption(baseOption, {
                                 width: width,
                                 axisDateMode: config.axisDateMode,
+                                axisLabelDensity: config.axisLabelDensity,
                                 periodStartDate: config.periodStartDate,
                                 periodEndDate: config.periodEndDate,
                             });
@@ -688,6 +689,7 @@
                                 id: "electricity-daily-trend-chart",
                                 option: {{ sections.electricity.charts.daily_trend.option | tojson }},
                                 axisDateMode: "{{ period.type }}",
+                                axisLabelDensity: "full",
                                 periodStartDate: {{ period.start_date | string | tojson }},
                                 periodEndDate: {{ period.end_date | string | tojson }},
                             },

@@ -26,6 +26,19 @@ def test_base_view_defines_line_chart_zoom_helper() -> None:
     assert "dateFromAxisIndex(index)" in base_view
     assert 'toLocaleDateString("en-US", { day: "2-digit" })' in base_view
     assert "labelIndex === 0 || labelIndex === total - 1" in base_view
+    assert 'String(chartContext.axisLabelDensity || "").toLowerCase() === "full"' in base_view
+    assert "nextAxisLabel.rotate = forceFullLabels ? 32 : 0" in base_view
+
+
+def test_base_view_applies_electricity_tooltip_before_line_only_zoom_logic() -> None:
+    base_view = _read_template("src/templates/report/base/base_view.html")
+
+    tooltip_index = base_view.index('applyElectricityDeltaTooltip("electricityAreaComparison")')
+    line_only_return_index = base_view.index("if (!hasLineSeries)", tooltip_index)
+
+    assert tooltip_index < line_only_return_index
+    assert "Delta: <strong>" in base_view
+    assert "Delta %: <strong>" in base_view
 
 
 def test_view_chart_initializers_apply_line_chart_zoom_helper() -> None:
@@ -36,6 +49,7 @@ def test_view_chart_initializers_apply_line_chart_zoom_helper() -> None:
     assert "__enhanceReportLineChartOption(baseOption, {" in electricity_view
     assert "periodStartDate: config.periodStartDate" in electricity_view
     assert "periodEndDate: config.periodEndDate" in electricity_view
+    assert 'axisLabelDensity: "full"' in electricity_view
     assert "__enhanceReportLineChartOption(Object.assign({ animation: false }, baseOption), {" in utility_view
     assert "__enhanceReportLineChartOption(baseOption, {" in kpi_view
 

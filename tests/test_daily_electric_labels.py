@@ -130,6 +130,8 @@ def test_daily_electric_area_comparison_chart_uses_today_yesterday_labels() -> N
     assert area_chart["subtitle"] == "Today vs yesterday total by workshop"
     assert area_chart["option"]["series"][0]["name"] == "Today"
     assert area_chart["option"]["series"][1]["name"] == "Yesterday"
+    assert area_chart["option"]["tooltip"]["reportFormatter"] == "electricityAreaComparison"
+    assert area_chart["option"]["tooltip"]["valueUnit"] == "kWh"
 
 
 def test_periodic_electric_charts_use_period_aware_labels() -> None:
@@ -149,9 +151,13 @@ def test_periodic_electric_charts_use_period_aware_labels() -> None:
     assert weekly_charts["daily_trend"]["subtitle"] == "This Week vs last week"
     assert weekly_charts["daily_trend"]["option"]["series"][0]["name"] == "This Week"
     assert weekly_charts["daily_trend"]["option"]["series"][1]["name"] == "Last Week"
+    assert weekly_charts["daily_trend"]["option"]["tooltip"]["reportFormatter"] == "electricityDailyTrend"
+    assert weekly_charts["daily_trend"]["option"]["tooltip"]["valueUnit"] == "kWh"
     assert weekly_charts["area_comparison"]["subtitle"] == "This Week vs last week total by workshop"
     assert weekly_charts["area_comparison"]["option"]["series"][0]["name"] == "This Week"
     assert weekly_charts["area_comparison"]["option"]["series"][1]["name"] == "Last Week"
+    assert weekly_charts["area_comparison"]["option"]["tooltip"]["reportFormatter"] == "electricityAreaComparison"
+    assert weekly_charts["area_comparison"]["option"]["tooltip"]["valueUnit"] == "kWh"
     assert weekly_charts["period_area_delta"]["title"] == "Deviation vs Last Week"
     assert weekly_charts["period_area_delta"]["subtitle"] == "This Week vs last week change by total and workshop"
 
@@ -163,6 +169,21 @@ def test_periodic_electric_charts_use_period_aware_labels() -> None:
     assert monthly_charts["area_comparison"]["option"]["series"][1]["name"] == "Last Month"
     assert monthly_charts["period_area_delta"]["title"] == "Deviation vs Last Month"
     assert monthly_charts["period_area_delta"]["subtitle"] == "This Month vs last month change by total and workshop"
+
+
+def test_monthly_electric_daily_trend_keeps_full_date_axis_labels() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    monthly_charts = service._build_v3_electricity_charts(
+        energy_object=_build_periodic_energy_object(date(2025, 5, 1), date(2025, 4, 1)),
+        period_type="monthly",
+    )
+
+    labels = monthly_charts["daily_trend"]["option"]["xAxis"]["data"]
+
+    assert labels == ["May 1 (Thu)", "May 2 (Fri)", "May 3 (Sat)"]
 
 
 def test_weekly_electric_heatmap_rotates_day_labels_like_daily_trend() -> None:

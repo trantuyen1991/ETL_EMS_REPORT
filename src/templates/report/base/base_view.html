@@ -86,6 +86,107 @@
                 return enhancedOption;
             }
 
+            function resolvePointValue(point) {
+                if (point === null || point === undefined) {
+                    return null;
+                }
+                const rawValue = point && typeof point === "object" && point.value !== undefined ? point.value : point;
+                const value = Array.isArray(rawValue) ? rawValue[rawValue.length - 1] : rawValue;
+                const numericValue = Number(value);
+                return Number.isFinite(numericValue) ? numericValue : null;
+            }
+
+            function formatReportNumber(value) {
+                const numericValue = Number(value);
+                if (!Number.isFinite(numericValue)) {
+                    return "-";
+                }
+                return numericValue.toLocaleString("en-US", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2,
+                });
+            }
+
+            function formatReportDelta(value) {
+                const numericValue = Number(value);
+                if (!Number.isFinite(numericValue)) {
+                    return "-";
+                }
+                const sign = numericValue > 0 ? "+" : "";
+                return sign + formatReportNumber(numericValue);
+            }
+
+            function formatReportPercent(value) {
+                const numericValue = Number(value);
+                if (!Number.isFinite(numericValue)) {
+                    return "-";
+                }
+                const sign = numericValue > 0 ? "+" : "";
+                return sign + (numericValue * 100).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                }) + "%";
+            }
+
+            function escapeReportHtml(value) {
+                return String(value === null || value === undefined ? "" : value)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+            function applyElectricityDeltaTooltip(formatterName) {
+                const tooltip = enhancedOption.tooltip;
+                if (!tooltip || tooltip.reportFormatter !== formatterName) {
+                    return;
+                }
+
+                const valueUnit = String(tooltip.valueUnit || "kWh").trim();
+                enhancedOption.tooltip = Object.assign({}, tooltip, {
+                    formatter: function (params) {
+                        const rows = Array.isArray(params) ? params : [params];
+                        const axisLabel = rows[0] && (rows[0].axisValueLabel || rows[0].axisValue || rows[0].name);
+                        const currentRow = rows[0] || {};
+                        const previousRow = rows[1] || {};
+                        const currentValue = resolvePointValue(currentRow.data !== undefined ? currentRow.data : currentRow.value);
+                        const previousValue = resolvePointValue(previousRow.data !== undefined ? previousRow.data : previousRow.value);
+                        const deltaValue = currentValue !== null && previousValue !== null ? currentValue - previousValue : null;
+                        const deltaPct = deltaValue !== null && previousValue ? deltaValue / previousValue : null;
+                        const unitSuffix = valueUnit ? " " + escapeReportHtml(valueUnit) : "";
+                        const lines = [
+                            "<div>" + escapeReportHtml(axisLabel || "") + "</div>",
+                        ];
+
+                        rows.forEach(function (row) {
+                            if (!row) {
+                                return;
+                            }
+                            const rowValue = resolvePointValue(row.data !== undefined ? row.data : row.value);
+                            const marker = row.marker || "";
+                            lines.push(
+                                "<div>" + marker +
+                                escapeReportHtml(row.seriesName || "") +
+                                ": <strong>" + escapeReportHtml(formatReportNumber(rowValue)) + unitSuffix + "</strong></div>"
+                            );
+                        });
+
+                        lines.push(
+                            "<div style=\"margin-top:6px;border-top:1px solid rgba(148,163,184,0.35);padding-top:6px;\">" +
+                            "Delta: <strong>" + escapeReportHtml(formatReportDelta(deltaValue)) + unitSuffix + "</strong></div>"
+                        );
+                        lines.push(
+                            "<div>Delta %: <strong>" + escapeReportHtml(formatReportPercent(deltaPct)) + "</strong></div>"
+                        );
+                        return lines.join("");
+                    },
+                });
+            }
+
+            applyElectricityDeltaTooltip("electricityDailyTrend");
+            applyElectricityDeltaTooltip("electricityAreaComparison");
+
             if (!hasLineSeries) {
                 return enhancedOption;
             }
@@ -368,7 +469,8 @@
             function applyMonthlyAxisLabel(axis, width) {
                 const total = Math.max(1, resolveAxisPointCount(axis));
                 const containerWidth = Number(width) > 0 ? Number(width) : 1024;
-                const visibleTarget = Math.max(4, Math.floor(containerWidth / 110));
+                const forceFullLabels = String(chartContext.axisLabelDensity || "").toLowerCase() === "full";
+                const visibleTarget = forceFullLabels ? total : Math.max(4, Math.floor(containerWidth / 110));
                 const interval = Math.max(1, Math.ceil(total / visibleTarget));
                 const nextAxisLabel = axis.axisLabel ? Object.assign({}, axis.axisLabel) : {};
 
@@ -381,12 +483,12 @@
                         }
                         return labelIndex === 0 || labelIndex === total - 1 || (labelIndex % interval) === 0;
                     };
-                nextAxisLabel.rotate = 0;
-                nextAxisLabel.margin = 6;
+                nextAxisLabel.rotate = forceFullLabels ? 32 : 0;
+                nextAxisLabel.margin = forceFullLabels ? 12 : 6;
                 nextAxisLabel.formatter = function (value, index) {
                     return formatMonthDayWeekday(value, index);
                 };
-                nextAxisLabel.hideOverlap = true;
+                nextAxisLabel.hideOverlap = !forceFullLabels;
                 axis.axisLabel = nextAxisLabel;
             }
 
