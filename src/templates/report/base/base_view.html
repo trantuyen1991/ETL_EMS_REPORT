@@ -128,6 +128,17 @@
                 }) + "%";
             }
 
+            function formatReportSharePercent(value) {
+                const numericValue = Number(value);
+                if (!Number.isFinite(numericValue)) {
+                    return "-";
+                }
+                return (numericValue * 100).toLocaleString("en-US", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 1,
+                }) + "%";
+            }
+
             function escapeReportHtml(value) {
                 return String(value === null || value === undefined ? "" : value)
                     .replace(/&/g, "&amp;")
@@ -184,8 +195,156 @@
                 });
             }
 
+            function applyElectricityPeriodAreaDeltaTooltip() {
+                const tooltip = enhancedOption.tooltip;
+                if (!tooltip || tooltip.reportFormatter !== "electricityPeriodAreaDelta") {
+                    return;
+                }
+
+                const valueUnit = String(tooltip.valueUnit || "kWh").trim();
+                enhancedOption.tooltip = Object.assign({}, tooltip, {
+                    formatter: function (params) {
+                        const rows = Array.isArray(params) ? params : [params];
+                        const row = rows[0] || {};
+                        const data = row.data && typeof row.data === "object" ? row.data : {};
+                        const customData = data.customData && typeof data.customData === "object" ? data.customData : {};
+                        const axisLabel = row.axisValueLabel || row.axisValue || row.name || data.name || "";
+                        const deltaValue = customData.delta !== undefined ? customData.delta : resolvePointValue(data.value !== undefined ? data.value : row.value);
+                        const deltaPct = customData.deltaPct !== undefined ? customData.deltaPct : null;
+                        const currentValue = customData.current !== undefined ? customData.current : null;
+                        const previousValue = customData.previous !== undefined ? customData.previous : null;
+                        const unitSuffix = valueUnit ? " " + escapeReportHtml(valueUnit) : "";
+                        const lines = [
+                            "<div>" + escapeReportHtml(axisLabel || "") + "</div>",
+                            "<div>" + (row.marker || "") +
+                            "Delta: <strong>" + escapeReportHtml(formatReportDelta(deltaValue)) + unitSuffix + "</strong></div>",
+                            "<div>Delta %: <strong>" + escapeReportHtml(formatReportPercent(deltaPct)) + "</strong></div>",
+                        ];
+
+                        if (currentValue !== null || previousValue !== null) {
+                            lines.push("<div style=\"margin-top:6px;border-top:1px solid rgba(148,163,184,0.35);padding-top:6px;\">");
+                            lines.push("Current: <strong>" + escapeReportHtml(formatReportNumber(currentValue)) + unitSuffix + "</strong></div>");
+                            lines.push("<div>Previous: <strong>" + escapeReportHtml(formatReportNumber(previousValue)) + unitSuffix + "</strong></div>");
+                        }
+
+                        return lines.join("");
+                    },
+                });
+            }
+
+            function applyElectricityDailyTotalHeatmapTooltipAndZoom() {
+                const tooltip = enhancedOption.tooltip;
+                if (!tooltip || tooltip.reportFormatter !== "electricityDailyTotalHeatmap") {
+                    return;
+                }
+
+                const valueUnit = String(tooltip.valueUnit || "kWh").trim();
+                enhancedOption.tooltip = Object.assign({}, tooltip, {
+                    formatter: function (params) {
+                        const row = Array.isArray(params) ? (params[0] || {}) : (params || {});
+                        const data = row.data && typeof row.data === "object" ? row.data : {};
+                        const customData = data.customData && typeof data.customData === "object" ? data.customData : {};
+                        const value = customData.value !== undefined ? customData.value : resolvePointValue(data.value !== undefined ? data.value : row.value);
+                        const unitSuffix = valueUnit ? " " + escapeReportHtml(valueUnit) : "";
+                        const marker = row.marker || "";
+                        const categoryLabel = customData.category || row.name || customData.columnLabel || "";
+                        const areaLabel = customData.area || row.seriesName || "";
+                        const periodMaxValue = customData.periodMaxValue !== undefined ? customData.periodMaxValue : null;
+                        const periodMaxLabel = customData.periodMaxCategory || "Period MAX";
+                        const percentOfPeriodMax = customData.percentOfPeriodMax !== undefined ? customData.percentOfPeriodMax : null;
+
+                        return [
+                            "<div><strong>" + escapeReportHtml(categoryLabel) + "</strong></div>",
+                            "<div>Area: <strong>" + escapeReportHtml(areaLabel) + "</strong></div>",
+                            "<div>" + marker + "Total: <strong>" + escapeReportHtml(formatReportNumber(value)) + unitSuffix + "</strong></div>",
+                            "<div style=\"margin-top:6px;border-top:1px solid rgba(148,163,184,0.35);padding-top:6px;\">Period MAX: <strong>" +
+                            escapeReportHtml(formatReportNumber(periodMaxValue)) + unitSuffix + "</strong></div>",
+                            "<div>MAX date: <strong>" + escapeReportHtml(periodMaxLabel) + "</strong></div>",
+                            "<div>% of MAX: <strong>" + escapeReportHtml(formatReportSharePercent(percentOfPeriodMax)) + "</strong></div>",
+                        ].join("");
+                    },
+                });
+
+                const xAxisList = Array.isArray(enhancedOption.xAxis) ? enhancedOption.xAxis : [enhancedOption.xAxis];
+                const xAxisIndexes = xAxisList.map(function (_axis, index) {
+                    return index;
+                });
+                const existingDataZoom = Array.isArray(enhancedOption.dataZoom) ? enhancedOption.dataZoom : (enhancedOption.dataZoom ? [enhancedOption.dataZoom] : []);
+                const hasInsideZoom = existingDataZoom.some(function (zoom) {
+                    return zoom && String(zoom.type || "").toLowerCase() === "inside";
+                });
+                const hasSliderZoom = existingDataZoom.some(function (zoom) {
+                    return zoom && String(zoom.type || "").toLowerCase() === "slider";
+                });
+                const dataZoom = existingDataZoom.slice();
+
+                if (!hasInsideZoom) {
+                    dataZoom.push({
+                        type: "inside",
+                        xAxisIndex: xAxisIndexes,
+                        start: 0,
+                        end: 100,
+                        filterMode: "filter",
+                        zoomOnMouseWheel: true,
+                        moveOnMouseMove: true,
+                        moveOnMouseWheel: false,
+                        throttle: 80,
+                    });
+                }
+
+                if (!hasSliderZoom) {
+                    dataZoom.push({
+                        type: "slider",
+                        xAxisIndex: xAxisIndexes,
+                        start: 0,
+                        end: 100,
+                        filterMode: "filter",
+                        bottom: 18,
+                        height: 18,
+                        showDataShadow: false,
+                        showDetail: false,
+                        brushSelect: false,
+                        borderColor: "#cbd5e1",
+                        fillerColor: "rgba(0, 84, 150, 0.16)",
+                        handleSize: "90%",
+                        handleStyle: {
+                            color: "#005496",
+                            borderColor: "#005496",
+                        },
+                        moveHandleStyle: {
+                            color: "#005496",
+                        },
+                        textStyle: {
+                            color: "#64748b",
+                        },
+                    });
+                }
+
+                enhancedOption.dataZoom = dataZoom;
+
+                function expandHeatmapGridBottom(grid) {
+                    if (!grid || typeof grid !== "object") {
+                        return;
+                    }
+                    const currentBottom = typeof grid.bottom === "number" ? grid.bottom : Number.parseFloat(String(grid.bottom || ""));
+                    if (!Number.isFinite(currentBottom) || currentBottom < 72) {
+                        grid.bottom = 72;
+                    }
+                }
+
+                if (Array.isArray(enhancedOption.grid)) {
+                    enhancedOption.grid.forEach(expandHeatmapGridBottom);
+                } else if (enhancedOption.grid && typeof enhancedOption.grid === "object") {
+                    expandHeatmapGridBottom(enhancedOption.grid);
+                } else {
+                    enhancedOption.grid = { bottom: 72 };
+                }
+            }
+
             applyElectricityDeltaTooltip("electricityDailyTrend");
             applyElectricityDeltaTooltip("electricityAreaComparison");
+            applyElectricityPeriodAreaDeltaTooltip();
+            applyElectricityDailyTotalHeatmapTooltipAndZoom();
 
             if (!hasLineSeries) {
                 return enhancedOption;

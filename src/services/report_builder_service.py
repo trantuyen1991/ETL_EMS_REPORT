@@ -2732,6 +2732,9 @@ class ReportBuilderService:
             delta_rows.append({
                 "name": row.get("area_name") or "-",
                 "value": delta_value,
+                "current_value": current_value,
+                "previous_value": previous_value,
+                "delta_pct": round(delta_pct, 4) if delta_pct is not None else None,
                 "label_text": label_text,
             })
 
@@ -2778,6 +2781,12 @@ class ReportBuilderService:
             delta_items.append({
                 "name": row.get("name") or "-",
                 "value": delta_value,
+                "customData": {
+                    "current": row.get("current_value"),
+                    "previous": row.get("previous_value"),
+                    "delta": delta_value,
+                    "deltaPct": row.get("delta_pct"),
+                },
                 "itemStyle": {
                     "color": delta_color,
                     "opacity": 0.95,
@@ -2811,6 +2820,8 @@ class ReportBuilderService:
                 "tooltip": {
                     "trigger": "axis",
                     "axisPointer": {"type": "shadow"},
+                    "reportFormatter": "electricityPeriodAreaDelta",
+                    "valueUnit": "kWh",
                 },
                 "grid": self._resolve_chart_grid(
                     {
@@ -2892,10 +2903,13 @@ class ReportBuilderService:
         if not area_summary_rows:
             return {}
 
-        x_labels = [
+        date_labels = [
             self._format_periodic_axis_date_label(row.get("date"), period_type)
             for row in area_summary_rows
         ]
+        x_labels = list(date_labels)
+        if period_type != "monthly":
+            x_labels.append("Avg")
 
         row_defs = [
             ("plant", "TOTAL"),
@@ -2966,15 +2980,36 @@ class ReportBuilderService:
             row_key = row_defs[row_index][0]
             base_color = row_palettes.get(row_key, {}).get("bar_color", total_bar_color)
             numeric_row_values = [value for value in row_values if value is not None]
+            period_row_values = [
+                value
+                for col_index, value in enumerate(row_values)
+                if value is not None and not (period_type != "monthly" and col_index == len(row_values) - 1)
+            ]
             row_min = min(numeric_row_values) if numeric_row_values else 0.0
             row_max = max(numeric_row_values) if numeric_row_values else 0.0
+            period_max = max(period_row_values) if period_row_values else row_max
+            period_max_index = next(
+                (
+                    col_index
+                    for col_index, value in enumerate(row_values)
+                    if value is not None
+                    and not (period_type != "monthly" and col_index == len(row_values) - 1)
+                    and value == period_max
+                ),
+                None,
+            )
             row_span = row_max - row_min
 
             for col_index, raw_value in enumerate(row_values):
                 if raw_value is None:
                     continue
 
-                is_avg_col = col_index == len(row_values) - 1
+                is_avg_col = period_type != "monthly" and col_index == len(row_values) - 1
+                day_row = area_summary_rows[col_index] if col_index < len(area_summary_rows) else {}
+                date_value = day_row.get("date")
+                column_label = "Average" if is_avg_col else (
+                    self._format_date_with_weekday(date_value) if date_value is not None else x_labels[col_index]
+                )
                 if period_type == "monthly":
                     display_value = self._fmt_chart_compact(raw_value)
                 else:
@@ -2984,12 +3019,41 @@ class ReportBuilderService:
                 row_pct = 0.0
                 if row_max > 0:
                     row_pct = (float(raw_value) / float(row_max)) * 100.0
+                period_max_pct = None
+                if period_max > 0:
+                    period_max_pct = (float(raw_value) / float(period_max)) * 100.0
                 intensity = 0.45
                 if row_span > 0:
                     intensity = 0.28 + (0.68 * ((float(raw_value) - row_min) / row_span))
+                period_max_label = "-"
+                if period_max_index is not None:
+                    period_max_row = area_summary_rows[period_max_index] if period_max_index < len(area_summary_rows) else {}
+                    period_max_date = period_max_row.get("date")
+                    period_max_label = (
+                        self._format_date_with_weekday(period_max_date)
+                        if period_max_date is not None else x_labels[period_max_index]
+                    )
+                period_max_display = (
+                    self._fmt_chart_compact(period_max)
+                    if period_type == "monthly" else f"{period_max:.1f}"
+                )
 
                 heatmap_data.append({
                     "value": [col_index, row_index, round(raw_value, 4)],
+                    "customData": {
+                        "category": column_label,
+                        "columnLabel": x_labels[col_index],
+                        "columnType": "average" if is_avg_col else "date",
+                        "date": date_value.isoformat() if isinstance(date_value, date) else None,
+                        "area": row_defs[row_index][1],
+                        "areaKey": row_key,
+                        "value": round(raw_value, 4),
+                        "displayValue": display_value,
+                        "periodMaxValue": round(period_max, 4),
+                        "periodMaxDisplayValue": period_max_display,
+                        "periodMaxCategory": period_max_label,
+                        "percentOfPeriodMax": round(period_max_pct / 100.0, 4) if period_max_pct is not None else None,
+                    },
                     "label": {
                         "show": bool(is_monthly_period or is_weekly_period),
                         "formatter": (f"{row_pct:.0f}%" if is_monthly_period else display_value),
@@ -3024,6 +3088,8 @@ class ReportBuilderService:
             "option": {
                 "tooltip": {
                     "position": "top",
+                    "reportFormatter": "electricityDailyTotalHeatmap",
+                    "valueUnit": "kWh",
                 },
                 "grid": grid_option,
                 "xAxis": {

@@ -364,6 +364,22 @@ Verification notes:
 - Full pytest passed with `91 passed`.
 - `git diff --check` passed.
 
+## Post-Closure WebUI Polish — 2026-06-22
+
+This checkpoint extends the interactive chart polish stream for `view.html` without changing report data, backend business rules, PDF templates, or PDF CSS.
+
+Implemented fixes:
+- Electricity periodic `Daily total heatmap` now uses backend-provided point metadata so tooltip content can distinguish date cells from the `Average` column.
+- The same heatmap tooltip now hides the redundant `Category: Date` line and shows a clearer order: date/average label, area, total kWh, period MAX, MAX date, and `% of MAX`.
+- Weekly heatmap x-axis data now includes the `Avg` category when the average column is present, so ECharts category mapping stays explicit.
+- The heatmap now gets browser-only ECharts inside zoom plus a bottom slider in `view.html`; PDF output remains static.
+- Periodic Electricity area-delta tooltip metadata now includes current, previous, delta, and delta percent values for the shared WebUI formatter.
+
+Verification notes:
+- Focused tests passed with `22 passed`.
+- Full pytest passed with `98 passed`.
+- `/health` returned OK after restarting WebUI.
+
 ## Current next action
 Recommended next action after this checklist lands:
 - the dedicated `Interactive (view.html)` mobile responsive phase remains complete after the 2026-05-31 WebUI polish checkpoint.

@@ -201,6 +201,42 @@ def test_weekly_electric_heatmap_rotates_day_labels_like_daily_trend() -> None:
     assert heatmap_axis["rotate"] == 28
 
 
+def test_weekly_electric_heatmap_keeps_average_category_metadata() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    weekly_charts = service._build_v3_electricity_charts(
+        energy_object=_build_periodic_energy_object(date(2025, 4, 14), date(2025, 4, 7)),
+        period_type="weekly",
+    )
+
+    heatmap_option = weekly_charts["period_heatmap"]["option"]
+    heatmap_data = heatmap_option["series"][0]["data"]
+    average_cell = next(
+        item
+        for item in heatmap_data
+        if item["customData"]["areaKey"] == "plant"
+        and item["customData"]["columnType"] == "average"
+    )
+
+    assert heatmap_option["tooltip"]["reportFormatter"] == "electricityDailyTotalHeatmap"
+    assert heatmap_option["tooltip"]["valueUnit"] == "kWh"
+    assert heatmap_option["xAxis"]["data"] == [
+        "Apr 14 (Mon)",
+        "Apr 15 (Tue)",
+        "Apr 16 (Wed)",
+        "Avg",
+    ]
+    assert average_cell["value"] == [3, 0, 110.0]
+    assert average_cell["customData"]["category"] == "Average"
+    assert average_cell["customData"]["area"] == "TOTAL"
+    assert average_cell["customData"]["displayValue"] == "110.00"
+    assert average_cell["customData"]["periodMaxValue"] == 120.0
+    assert average_cell["customData"]["periodMaxCategory"] == "2025-04-16 (Wed)"
+    assert average_cell["customData"]["percentOfPeriodMax"] == 0.9167
+
+
 def test_weekly_electric_delta_chart_uses_inset_labels_and_trend_colors() -> None:
     service = ReportBuilderService()
     service._style_config = {}
@@ -217,6 +253,14 @@ def test_weekly_electric_delta_chart_uses_inset_labels_and_trend_colors() -> Non
 
     assert total_item["label"]["position"] == "left"
     assert total_item["itemStyle"]["color"] == "#c04b39"
+    assert delta_option["tooltip"]["reportFormatter"] == "electricityPeriodAreaDelta"
+    assert delta_option["tooltip"]["valueUnit"] == "kWh"
+    assert total_item["customData"] == {
+        "current": 100.0,
+        "previous": 90.0,
+        "delta": 10.0,
+        "deltaPct": round(10.0 / 90.0, 4),
+    }
     assert delta_option["xAxis"]["min"] == -40.0
     assert delta_option["xAxis"]["max"] == 40.0
 

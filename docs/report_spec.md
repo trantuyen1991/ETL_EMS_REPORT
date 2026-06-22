@@ -416,6 +416,8 @@ For the `periodic` template family:
 - the heatmap legend in PDF should be rendered as static HTML/CSS instead of interactive ECharts visualMap controls
 - the area delta chart should show both delta kWh and delta % labels for quick attribution
 - area comparison labels must stay readable for dense workshop names, including `ICO`
+- in `view.html`, the daily-total heatmap tooltip should use backend-provided point metadata rather than frontend inference, and should show the selected date/average label, area, total kWh, period MAX, MAX date, and `% of MAX`
+- in `view.html`, the daily-total heatmap may use ECharts inside zoom plus a bottom slider for inspection; this interaction is browser-only and must not leak into PDF rendering rules
 
 ### 7.8 Periodic Shutdown Analysis Sub-section
 For the `periodic` Electricity section, add a dedicated sub-section named `Shutdown Analysis` after the heatmap as the final Electricity block.

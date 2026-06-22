@@ -39,6 +39,14 @@ def test_base_view_applies_electricity_tooltip_before_line_only_zoom_logic() -> 
     assert tooltip_index < line_only_return_index
     assert "Delta: <strong>" in base_view
     assert "Delta %: <strong>" in base_view
+    assert 'tooltip.reportFormatter !== "electricityPeriodAreaDelta"' in base_view
+    assert "customData.deltaPct" in base_view
+    assert 'tooltip.reportFormatter !== "electricityDailyTotalHeatmap"' in base_view
+    assert "Period MAX: <strong>" in base_view
+    assert "% of MAX: <strong>" in base_view
+    assert "formatReportSharePercent(percentOfPeriodMax)" in base_view
+    assert 'Category: <strong>' not in base_view
+    assert "applyElectricityDailyTotalHeatmapTooltipAndZoom();" in base_view
 
 
 def test_view_chart_initializers_apply_line_chart_zoom_helper() -> None:

@@ -86,6 +86,7 @@ Stable baseline:
 - Periodic `Daily Energy Summary` now uses a 2-family semantic fill policy (`Total` in blue, `Avg / meter active` in purple), with each family normalized only against its own metric group: ✅
 - Periodic electricity heatmap using daily total kWh by area: ✅
 - Static HTML/CSS heatmap legend for PDF stability: ✅
+- WebUI periodic Electricity daily-total heatmap now exposes clearer tooltip context (`Date`/`Average`, area, total, period MAX, MAX date, `% of MAX`) and browser-only heatmap zoom/slider while keeping PDF static: ✅
 - Periodic area delta chart (`Current - Previous`) with delta kWh and delta % labels: ✅
 - Periodic area comparison labels tuned for dense workshop names including `ICO`: ✅
 - Weekly periodic `Daily Energy Detail` now keeps `DIODE Part 1/7` on the same page as `Daily Energy Summary`, with the remaining detail blocks repaginated into 3 follow-up pages at 5 tables per page: ✅
