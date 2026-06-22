@@ -171,7 +171,18 @@ The web layer should not:
 - resolve the backend-built report package to download
 - return a ZIP file for the selected report folder
 
-## 8.5 `GET /health`
+## 8.5 `GET /help`
+- render the WebUI Help page
+- embed the release-built PDF guide artifact from `docs/output/report_reader_guide_latest.pdf`
+- show a clear missing-file message if the release artifact is not present
+
+## 8.6 `GET /help/pdf`
+- return the release-built Help PDF inline as `application/pdf` for browser preview
+
+## 8.7 `GET /help/download`
+- return the same release-built Help PDF as a downloadable file
+
+## 8.8 `GET /health`
 - return a simple health JSON payload
 
 ---
@@ -329,6 +340,7 @@ Current browser-shell behavior:
 - helper copy moved into hover hints/tooltips.
 - outer page scroll is hidden while iframe/report scroll remains active.
 - action buttons stay on one row.
+- `Help PDF` opens `/help`, which previews the release-built reader guide PDF and offers a direct download.
 - template-only switching auto reloads preview immediately, while period/date changes still depend on `Refresh`.
 - `Interactive (view.html)` still renders as embedded HTML.
 - `Print Preview` now opens the real rendered PDF inside the WebUI through `/reports/preview-pdf`.

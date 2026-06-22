@@ -6,6 +6,7 @@ This keeps routes thin while the shared report logic stays in ReportEngineServic
 
 from __future__ import annotations
 
+from pathlib import Path
 from urllib.parse import urlencode
 
 from fastapi import FastAPI, Query
@@ -23,6 +24,10 @@ app = FastAPI(
 report_engine = ReportEngineService()
 web_renderer = TemplateRenderingService("src/templates")
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+HELP_PDF_PATH = PROJECT_ROOT / "docs" / "output" / "report_reader_guide_latest.pdf"
+HELP_PDF_FILENAME = "energy_report_reader_guide.pdf"
+
 
 @app.get("/", include_in_schema=False)
 def root_redirect() -> RedirectResponse:
@@ -37,6 +42,66 @@ def health() -> dict[str, str]:
         "status": "ok",
         "service": "energy-report-web-gui",
     }
+
+
+@app.get("/help", response_class=HTMLResponse)
+def render_help_page() -> HTMLResponse:
+    """Render the WebUI help surface backed by the release PDF artifact."""
+    help_pdf_available = HELP_PDF_PATH.is_file()
+    help_error_message = "" if help_pdf_available else (
+        f"Help PDF is not available at {_display_project_path(HELP_PDF_PATH)}."
+    )
+    shell_html = web_renderer.render(
+        "web/help_shell.html",
+        {
+            "page_title": "Energy Report Help",
+            "help_pdf_url": "/help/pdf",
+            "help_download_url": "/help/download",
+            "help_pdf_available": help_pdf_available,
+            "help_error_message": help_error_message,
+            "help_pdf_filename": HELP_PDF_FILENAME,
+        },
+    )
+    return HTMLResponse(content=shell_html)
+
+
+@app.get("/help/pdf", response_model=None)
+def preview_help_pdf():
+    """Return the release-built Help PDF for in-browser preview."""
+    try:
+        help_pdf_path = _resolve_help_pdf_path()
+        return FileResponse(
+            path=help_pdf_path,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'inline; filename="{HELP_PDF_FILENAME}"',
+            },
+        )
+    except FileNotFoundError as exc:
+        return HTMLResponse(
+            content=_build_report_error_html(str(exc)),
+            status_code=404,
+        )
+
+
+@app.get("/help/download", response_model=None)
+def download_help_pdf():
+    """Download the release-built Help PDF artifact."""
+    try:
+        help_pdf_path = _resolve_help_pdf_path()
+        return FileResponse(
+            path=help_pdf_path,
+            filename=HELP_PDF_FILENAME,
+            media_type="application/pdf",
+        )
+    except FileNotFoundError as exc:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "status": "not_found",
+                "message": str(exc),
+            },
+        )
 
 
 @app.get("/api/v1/report/snapshot")
@@ -351,6 +416,21 @@ def _derive_month_value(anchor_date: str) -> str:
     if len(text) >= 7:
         return text[:7]
     return ""
+
+
+def _resolve_help_pdf_path() -> Path:
+    """Resolve the release-built Help PDF artifact."""
+    if not HELP_PDF_PATH.is_file():
+        raise FileNotFoundError(f"Help PDF is not available at {_display_project_path(HELP_PDF_PATH)}.")
+    return HELP_PDF_PATH
+
+
+def _display_project_path(path: Path) -> str:
+    """Return a stable project-relative path when possible."""
+    try:
+        return str(path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(path)
 
 
 def _build_report_error_html(message: str) -> str:

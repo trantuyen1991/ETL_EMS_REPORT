@@ -860,7 +860,17 @@ Naming rule:
 - the UI label should clearly indicate that the action downloads a package
 - avoid labeling a ZIP download as `Print`, because that would be misleading
 
-### 15.5 CSV export rule for the browser phase
+### 15.5 WebUI Help PDF rule
+The WebUI may expose a release-built Help PDF generated from the LaTeX documentation source.
+
+Required behavior:
+- the Help PDF is built once as part of release/documentation preparation, then stored under `docs/output/`
+- the default Help artifact is `docs/output/report_reader_guide_latest.pdf`
+- the WebUI must serve the same artifact for inline preview and download
+- the WebUI must not rebuild LaTeX on request
+- if the PDF is missing, the route should return a clear missing-file state instead of failing the report page
+
+### 15.6 CSV export rule for the browser phase
 CSV export is deferred from the phase-1 browser toolbar until the project locks one explicit export contract, for example:
 - raw DB rows
 - normalized ETL rows
@@ -868,7 +878,7 @@ CSV export is deferred from the phase-1 browser toolbar until the project locks 
 
 The endpoint should not remain ambiguous across these meanings.
 
-### 15.6 Architecture rule for the browser phase
+### 15.7 Architecture rule for the browser phase
 The approved direction is to keep web routes thin and place heavy execution logic in a shared backend service, for example a `report_engine_service`.
 
 Route responsibilities should stay limited to:
@@ -882,6 +892,8 @@ Current browser route shape:
 - `/reports` serves the shell page and the embedded interactive HTML surface
 - `/reports/preview-pdf` returns the real rendered PDF for browser preview
 - `/reports/download-zip` returns the backend-built package download
+- `/help` previews the release-built reader-guide PDF from `docs/output/report_reader_guide_latest.pdf`
+- `/help/pdf` and `/help/download` expose the same Help PDF artifact for inline preview and download
 
 ---
 

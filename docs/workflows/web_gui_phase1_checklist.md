@@ -66,12 +66,16 @@ Current product decision:
 - [x] add `GET /reports`
 - [x] add `GET /reports/download-zip`
 - [x] add `GET /reports/export-csv`
+- [x] add `GET /help`
+- [x] add `GET /help/pdf`
+- [x] add `GET /help/download`
 - [x] add `GET /health`
 - [x] wire Jinja2 template rendering for the report page
 
 Current prep note:
 - `/reports/download-zip` now packages the existing backend-built month folder for the selected timeline.
 - `/reports/export-csv` remains an internal 501 placeholder until the CSV contract is finalized.
+- `/help` previews the release-built `docs/output/report_reader_guide_latest.pdf` artifact, while `/help/download` serves the same PDF for local download.
 
 ---
 
