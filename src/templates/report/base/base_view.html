@@ -327,8 +327,8 @@
                         return;
                     }
                     const currentBottom = typeof grid.bottom === "number" ? grid.bottom : Number.parseFloat(String(grid.bottom || ""));
-                    if (!Number.isFinite(currentBottom) || currentBottom < 72) {
-                        grid.bottom = 72;
+                    if (!Number.isFinite(currentBottom) || currentBottom < 40) {
+                        grid.bottom = 40;
                     }
                 }
 
@@ -337,7 +337,7 @@
                 } else if (enhancedOption.grid && typeof enhancedOption.grid === "object") {
                     expandHeatmapGridBottom(enhancedOption.grid);
                 } else {
-                    enhancedOption.grid = { bottom: 72 };
+                    enhancedOption.grid = { bottom: 40 };
                 }
             }
 

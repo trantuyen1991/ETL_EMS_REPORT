@@ -373,6 +373,7 @@ Implemented fixes:
 - The same heatmap tooltip now hides the redundant `Category: Date` line and shows a clearer order: date/average label, area, total kWh, period MAX, MAX date, and `% of MAX`.
 - Weekly heatmap x-axis data now includes the `Avg` category when the average column is present, so ECharts category mapping stays explicit.
 - The heatmap now gets browser-only ECharts inside zoom plus a bottom slider in `view.html`; PDF output remains static.
+- Monthly full-width heatmap now keeps every x-axis date label visible and uses a 20% taller view height token with tighter grid top/bottom spacing so the added height goes into the plot/grid area.
 - Periodic Electricity area-delta tooltip metadata now includes current, previous, delta, and delta percent values for the shared WebUI formatter.
 
 Verification notes:

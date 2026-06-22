@@ -2904,7 +2904,11 @@ class ReportBuilderService:
             return {}
 
         date_labels = [
-            self._format_periodic_axis_date_label(row.get("date"), period_type)
+            self._format_periodic_axis_date_label(
+                row.get("date"),
+                period_type,
+                skip_monthly_odd_days=False,
+            )
             for row in area_summary_rows
         ]
         x_labels = list(date_labels)
@@ -2943,8 +2947,8 @@ class ReportBuilderService:
         has_dense_columns = len(x_labels) > 8
         use_area_legend = is_weekly_period or is_monthly_period
         hide_y_axis_labels = use_area_legend
-        bottom_gap = 44 if is_monthly_period else (62 if is_weekly_period or has_dense_columns else 44)
-        label_rotate = 24 if is_monthly_period else (28 if is_weekly_period or has_dense_columns else 0)
+        bottom_gap = 40 if is_monthly_period else (48 if is_weekly_period or has_dense_columns else 40)
+        label_rotate = 28 if is_monthly_period else (28 if is_weekly_period or has_dense_columns else 0)
         label_font_size = 9 if len(x_labels) <= 8 else 8
 
         area_visual_map = self._get_v3_area_visual_map()
@@ -3069,7 +3073,7 @@ class ReportBuilderService:
             {
                 "left": 18 if hide_y_axis_labels else 58,
                 "right": 18,
-                "top": 10,
+                "top": 8,
                 "bottom": bottom_gap,
                 "containLabel": False,
             },

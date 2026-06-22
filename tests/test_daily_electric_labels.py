@@ -237,6 +237,29 @@ def test_weekly_electric_heatmap_keeps_average_category_metadata() -> None:
     assert average_cell["customData"]["percentOfPeriodMax"] == 0.9167
 
 
+def test_monthly_electric_heatmap_keeps_full_width_axis_labels() -> None:
+    service = ReportBuilderService()
+    service._style_config = {}
+    service._render_mode = "html"
+
+    monthly_charts = service._build_v3_electricity_charts(
+        energy_object=_build_periodic_energy_object(date(2025, 5, 1), date(2025, 4, 1)),
+        period_type="monthly",
+    )
+
+    heatmap_option = monthly_charts["period_heatmap"]["option"]
+
+    assert heatmap_option["xAxis"]["data"] == [
+        "May 1 (Thu)",
+        "May 2 (Fri)",
+        "May 3 (Sat)",
+    ]
+    assert "" not in heatmap_option["xAxis"]["data"]
+    assert heatmap_option["xAxis"]["axisLabel"]["rotate"] == 28
+    assert heatmap_option["grid"]["top"] == 8
+    assert heatmap_option["grid"]["bottom"] == 40
+
+
 def test_weekly_electric_delta_chart_uses_inset_labels_and_trend_colors() -> None:
     service = ReportBuilderService()
     service._style_config = {}

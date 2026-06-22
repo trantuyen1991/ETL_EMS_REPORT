@@ -45,6 +45,8 @@ def test_base_view_applies_electricity_tooltip_before_line_only_zoom_logic() -> 
     assert "Period MAX: <strong>" in base_view
     assert "% of MAX: <strong>" in base_view
     assert "formatReportSharePercent(percentOfPeriodMax)" in base_view
+    assert "currentBottom < 40" in base_view
+    assert "grid.bottom = 40" in base_view
     assert 'Category: <strong>' not in base_view
     assert "applyElectricityDailyTotalHeatmapTooltipAndZoom();" in base_view
 

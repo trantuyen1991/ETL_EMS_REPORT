@@ -418,6 +418,8 @@ For the `periodic` template family:
 - area comparison labels must stay readable for dense workshop names, including `ICO`
 - in `view.html`, the daily-total heatmap tooltip should use backend-provided point metadata rather than frontend inference, and should show the selected date/average label, area, total kWh, period MAX, MAX date, and `% of MAX`
 - in `view.html`, the daily-total heatmap may use ECharts inside zoom plus a bottom slider for inspection; this interaction is browser-only and must not leak into PDF rendering rules
+- in `view.html`, the full-width monthly daily-total heatmap should keep every x-axis date label visible instead of suppressing alternating days
+- in `view.html`, the daily-total heatmap chart height should be roughly 20% taller than the earlier compact baseline, and grid top/bottom spacing should preserve that increase as real plot/grid height rather than only increasing the outer container
 
 ### 7.8 Periodic Shutdown Analysis Sub-section
 For the `periodic` Electricity section, add a dedicated sub-section named `Shutdown Analysis` after the heatmap as the final Electricity block.

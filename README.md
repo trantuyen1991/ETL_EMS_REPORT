@@ -109,6 +109,7 @@ REPORT_ANCHOR_DATE (.env)
     - a static HTML/CSS heatmap legend for PDF stability
     - browser-only heatmap tooltip metadata for date/average category, area, total kWh, period MAX, MAX date, and `% of MAX`
     - browser-only heatmap inside zoom plus a bottom slider in `view.html`
+    - full-width monthly heatmap labels keep every date visible, with a taller browser chart surface for readability
     - a period-only area delta chart (`Current - Previous`) with delta kWh and delta % labels
   - periodic area comparison axis labels are forced readable for workshop names including `ICO`
 

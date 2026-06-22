@@ -746,9 +746,9 @@
               "heatmap": {
                 "height": {
                   "view": {
-                    "default": "228px",
-                    "weekly": "252px",
-                    "monthly": "130px"
+                    "default": "274px",
+                    "weekly": "302px",
+                    "monthly": "156px"
                   },
                   "pdf": {
                     "default": "156px",
@@ -760,22 +760,22 @@
                   "default": {
                     "left": 58,
                     "right": 18,
-                    "top": 10,
-                    "bottom": 30,
+                    "top": 8,
+                    "bottom": 40,
                     "containLabel": false
                   },
                   "dense": {
                     "left": 58,
                     "right": 18,
-                    "top": 10,
-                    "bottom": 30,
+                    "top": 8,
+                    "bottom": 40,
                     "containLabel": false
                   },
                   "monthly": {
                     "left": 18,
                     "right": 18,
-                    "top": 10,
-                    "bottom": 30,
+                    "top": 8,
+                    "bottom": 40,
                     "containLabel": false
                   }
                 }

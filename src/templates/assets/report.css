@@ -1883,15 +1883,15 @@
 
         .electricity-heatmap-chart {
             width: 100%;
-            height: var(--report-components-report-section-electric-chart-heatmap-height-view-default, 228px);
+            height: var(--report-components-report-section-electric-chart-heatmap-height-view-default, 274px);
         }
 
         .periodic-electricity-chart-grid-weekly .electricity-heatmap-chart {
-            height: var(--report-components-report-section-electric-chart-heatmap-height-view-weekly, 252px);
+            height: var(--report-components-report-section-electric-chart-heatmap-height-view-weekly, 302px);
         }
 
         .periodic-electricity-chart-grid-monthly .electricity-chart-card-heatmap .electricity-heatmap-chart {
-            height: max(var(--report-components-report-section-electric-chart-heatmap-height-view-monthly, 192px), 150px);
+            height: max(var(--report-components-report-section-electric-chart-heatmap-height-view-monthly, 156px), 150px);
         }
 
         .electricity-delta-chart {
