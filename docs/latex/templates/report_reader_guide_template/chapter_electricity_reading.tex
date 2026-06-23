@@ -129,6 +129,32 @@ Hiện tại, phần detail được đọc theo các nguyên tắc sau:
 
 Với daily report, detail có thể được trình bày theo block dọc để người đọc nhìn nhanh meter nào cao nhất trong area. Với weekly hoặc monthly report, detail thường quay về dạng bảng ngày nhân với meter để thuận tiện dò ngày biến động.
 
+\section{Cách đọc \texttt{Shutdown Analysis}}
+
+Trong weekly và monthly report, phần Electricity có thể có thêm block \texttt{Shutdown Analysis}. Block này không dùng để thay thế total điện chính thức, mà dùng để so sánh hành vi tiêu thụ điện giữa ngày làm việc và ngày không làm việc.
+
+Người đọc nên hiểu block này theo ba bước:
+
+\begin{enumerate}[label=-]
+\item \texttt{STEP 1}: so sánh tổng và trung bình điện năng giữa nhóm off-working day và working day;
+\item \texttt{STEP 2}: quy đổi mức tiêu thụ theo giờ để tránh so sánh ngày 24 giờ với ngày chỉ có số giờ làm việc thực tế;
+\item \texttt{STEP 3}: hiển thị \texttt{Shutdown Energy \%}, tức tỷ lệ giữa mức dùng điện trung bình trong off hours và mức dùng điện trung bình trong operation hours.
+\end{enumerate}
+
+Ngày trong block này được phân loại bằng trạng thái lịch làm việc từ bảng timeline, cụ thể là field \texttt{work\_status}:
+
+\begin{enumerate}[label=-]
+\item \texttt{Working}: được tính vào nhóm working hoặc operation day;
+\item \texttt{Off day}: được tính vào nhóm off-working day;
+\item \texttt{Holiday}: cũng được tính vào nhóm off-working cho công thức, nhưng vẫn nên được hiểu là holiday trong audit/đối chiếu nghiệp vụ.
+\end{enumerate}
+
+Với ngày \texttt{Working}, số giờ làm việc của plant được lấy theo area có khoảng \texttt{start\_time} đến \texttt{end\_time} dài nhất trong ba area \texttt{MPC}, \texttt{ICO}, và \texttt{SAKARI}. Cách chọn này giúp một area có lịch làm việc dài nhất đại diện cho lịch vận hành của toàn plant trong ngày đó.
+
+\begin{ReaderNote}{Cách hiểu đúng về Shutdown Energy \%}
+\texttt{Shutdown Energy \%} càng cao thì mức nền tiêu thụ điện trong thời gian không vận hành càng đáng chú ý so với lúc vận hành. Tuy nhiên, đây là chỉ báo để khoanh vùng điều tra, không phải kết luận tự động rằng có lỗi vận hành. Người đọc nên xem cùng lịch làm việc, holiday, production context, và các meter nổi bật trong cùng kỳ.
+\end{ReaderNote}
+
 \section{Cách đọc đúng các biến động điện}
 
 Nếu muốn đọc phần Electricity theo hướng tìm nguyên nhân, thứ tự khuyến nghị là:

@@ -23,10 +23,25 @@ Phần Electricity có hai lớp nguồn cần phân biệt:
 
 \begin{enumerate}[label=-]
 \item \textbf{official total} của plant và area lấy từ \texttt{total\_energy};
-\item lớp meter detail, Top N, và daily detail đến từ các bề mặt meter-level đã được cấu hình cho report.
+\item lớp meter detail, Top N, và daily detail đến từ các bề mặt meter-level đã được cấu hình cho report;
+\item riêng \texttt{Shutdown Analysis} dùng thêm lịch làm việc từ \texttt{workshop\_timeline}.
 \end{enumerate}
 
 Điều này dẫn tới một rule đọc rất quan trọng: \textbf{official electricity total không nên bị hiểu là phép cộng trực tiếp của tất cả meter đang hiện trên màn hình}. Report chủ động tách hai lớp này vì còn có rule loại trừ main feeder, rule topology area, và khả năng xuất hiện \texttt{Residual Load} như một virtual meter hợp lệ.
+
+Ở lớp cấu hình kỹ thuật, các logical dataset như \texttt{all\_energy}, \texttt{diode\_energy}, và \texttt{ico\_energy} hiện trỏ tới các physical view mở rộng:
+
+\begin{enumerate}[label=-]
+\item \texttt{all\_energy\_extend};
+\item \texttt{diode\_energy\_extend};
+\item \texttt{ico\_energy\_extend}.
+\end{enumerate}
+
+Người đọc report không cần nhớ tên view vật lý này khi diễn giải con số, nhưng nên hiểu rằng report vẫn giữ logical naming ổn định ở tầng nghiệp vụ.
+
+\begin{ReaderNote}{Nguồn phân loại ngày trong Shutdown Analysis}
+Ngày \texttt{Working}, \texttt{Off day}, và \texttt{Holiday} trong \texttt{Shutdown Analysis} được lấy từ \texttt{workshop\_timeline.work\_status}. Production value từ KPI vẫn có thể hữu ích để đối chiếu, nhưng không phải rule chính để phân loại ngày cho block này.
+\end{ReaderNote}
 
 \subsection{Utility}
 

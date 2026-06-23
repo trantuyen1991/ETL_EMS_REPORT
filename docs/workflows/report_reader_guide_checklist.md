@@ -78,6 +78,7 @@ The new PDF should avoid going deep into:
 - [x] Checkpoint 7. Write source-of-truth, comparison, coverage, zero-vs-missing, and caveat chapter
 - [x] Checkpoint 8. Add quick glossary / reader cheat sheet and do visual cleanup
 - [x] Checkpoint 9. Final review pass, PDF rebuild, and checkpoint summary
+- [x] 2026-06-23 update. Align Electricity reader guidance with `Shutdown Analysis` work-status classification and extended energy view mapping.
 
 ## Notes for execution
 
