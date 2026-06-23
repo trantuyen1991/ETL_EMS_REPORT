@@ -40,6 +40,10 @@ Important notes
 - Interactive runs should end with a summary/confirmation before the real work starts
 - Bootstrap can now optionally install/start the Web UI service too via:
   --install-webui --web-host 0.0.0.0 --web-port 8000
+- Bootstrap now runs a MySQL schema preflight before report smoke. It checks
+  the extended electricity views, key report views/tables, and
+  workshop_timeline.work_status so deployment fails early with a readable
+  message when the database schema is not ready.
 
 Interactive wizard entrypoint
 -----------------------------
@@ -54,11 +58,11 @@ sudo ./bootstrap_ubuntu_host.sh --interactive --deploy-ref feature/web-gui-phase
 B1 - Fresh bootstrap + month-end smoke (Daily + Monthly)
 --------------------------------------------------------
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/feature/web-gui-phase1/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref feature/web-gui-phase1 --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/feature/web-gui-phase1/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref feature/web-gui-phase1 --mysql-host 192.168.100.217 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project
 
 Optional same-host Web UI install during bootstrap:
 
-curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/feature/web-gui-phase1/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref feature/web-gui-phase1 --mysql-host 192.168.100.217 --mysql-database ems_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project --install-webui --web-host 0.0.0.0 --web-port 8000
+curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/feature/web-gui-phase1/deploy/bootstrap_ubuntu_host.sh" | sudo bash -s -- --deploy-ref feature/web-gui-phase1 --mysql-host 192.168.100.217 --mysql-database bms_db --mysql-user admin --anchor-date 2025-05-31 --output-dir /home/trantuyen/Reports --reset-project --install-webui --web-host 0.0.0.0 --web-port 8000
 
 Check what was deployed:
 
@@ -71,6 +75,9 @@ find "$OUTPUT_ROOT" -path "$OUTPUT_ROOT/_staging" -prune -o -type f -print | sor
 Expected idea for B1:
 - script prompts securely for MySQL password if it was omitted and the operator has a TTY
 - bootstrap warns if host timezone is not Asia/Ho_Chi_Minh
+- bootstrap confirms required DB objects exist before running report smoke:
+  all_energy_extend, diode_energy_extend, ico_energy_extend, sakari_energy,
+  total_energy, utility_usage, energy_kpi, workshop_timeline, processvalue
 - Daily artifacts for 2025-05-31 under "$OUTPUT_ROOT"/2025_05/
 - Monthly artifacts for 2025-05-31 under "$OUTPUT_ROOT"/2025_05/
 - Temporary print files are auto-cleaned after successful copy-back

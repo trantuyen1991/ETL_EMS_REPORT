@@ -44,6 +44,17 @@ Current one-command bootstrap intentionally uses the deploy branch `deploy/stabl
 
 Bootstrap now forces both fresh clone and existing checkout update onto the latest remote tip of the selected `DEPLOY_REF`, so the target host does not stay on a stale local branch copy by accident.
 
+Bootstrap also runs a MySQL schema preflight before report smoke. This check fails early with a readable message if the target database is missing the current required physical views/tables or columns, including:
+- `all_energy_extend`
+- `diode_energy_extend`
+- `ico_energy_extend`
+- `sakari_energy`
+- `total_energy`
+- `utility_usage`
+- `energy_kpi`
+- `workshop_timeline.work_status`
+- `processvalue.Time_Stamp`
+
 Recommended B1 command:
 
 ```bash
@@ -53,6 +64,7 @@ curl -fsSL "https://raw.githubusercontent.com/trantuyen1991/ETL_EMS_REPORT/deplo
 Behavior note:
 - if `--mysql-password` is omitted and the operator is running from a normal terminal, bootstrap prompts securely via TTY
 - this is now the preferred fresh-machine command shape for interactive human operators
+- the bootstrap DB preflight must pass before the manual report smoke starts
 
 Optional B1 variant when the same host should expose Web UI immediately:
 
@@ -491,6 +503,7 @@ Before calling the deployment production-ready, verify all of the following:
 
 ### 9.2 Runtime configuration
 - MySQL credentials in `config/.env` are correct
+- MySQL schema preflight passed for the current required views/tables and `workshop_timeline.work_status`
 - `REPORT_ANCHOR_DATE` is blank in steady-state scheduled mode
 - output path is writable and non-hidden
 - if output/staging lives under `/home/<user>/...`, ACL setup was applied and the human owner can open/remove generated files

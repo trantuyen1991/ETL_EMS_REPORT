@@ -89,7 +89,7 @@ Nếu operator muốn tránh copy nhiều dòng lệnh từ PDF, repo có sẵn 
 
 Khuyến nghị vận hành là copy one-command từ file \texttt{deployment\_copy\_paste\_commands.txt} hoặc từ raw GitHub text, không copy các block lệnh dài trực tiếp từ PDF vì trình đọc PDF có thể wrap dòng, làm mất dấu \texttt{\textbackslash}, tách \texttt{.deb}, hoặc bỏ sót các dòng sau.
 
-Script bootstrap hiện có thể tự cài package nền, cài Google Chrome \texttt{.deb}, tạo service account, clone repo từ \texttt{deploy/stable}, dựng \texttt{venv}, ghi \texttt{config/.env}, ép PDF browser path sang \texttt{/usr/bin/google-chrome}, auto-cài \texttt{acl} và cấp quyền nếu \texttt{OUTPUT\_DIR} hoặc \texttt{PRINT\_STAGING\_DIR} nằm dưới \texttt{/home/<user>/...} để service account ghi được đồng thời home owner vẫn mở, sửa, và dọn file report đã sinh được, kiểm tra icon Sensor Monitoring, chạy manual smoke, và nếu có flag \texttt{--install-systemd} thì cài luôn timer. Trong operator flow chuẩn, B1 smoke mode cố ý chưa cài timer cho đến sau bước restore \texttt{REPORT\_ANCHOR\_DATE=}.
+Script bootstrap hiện có thể tự cài package nền, cài Google Chrome \texttt{.deb}, tạo service account, clone repo từ \texttt{deploy/stable}, dựng \texttt{venv}, ghi \texttt{config/.env}, ép PDF browser path sang \texttt{/usr/bin/google-chrome}, auto-cài \texttt{acl} và cấp quyền nếu \texttt{OUTPUT\_DIR} hoặc \texttt{PRINT\_STAGING\_DIR} nằm dưới \texttt{/home/<user>/...} để service account ghi được đồng thời home owner vẫn mở, sửa, và dọn file report đã sinh được, kiểm tra icon Sensor Monitoring, chạy MySQL schema preflight cho các view/table bắt buộc, chạy manual smoke, và nếu có flag \texttt{--install-systemd} thì cài luôn timer. Trong operator flow chuẩn, B1 smoke mode cố ý chưa cài timer cho đến sau bước restore \texttt{REPORT\_ANCHOR\_DATE=}.
 
 \subsection{Step 1. Chuẩn bị host mới}
 
@@ -255,6 +255,20 @@ ln -sf ../sensor/power.svg alert-circle.svg
 ln -sf ../sensor/power.svg circle-check.svg
 '
 \end{ShellBlock}
+
+\subsection{Step 4.1. MySQL schema preflight}
+
+Bootstrap tự chạy bước schema preflight sau khi \texttt{venv} và \texttt{config/.env} đã sẵn sàng, trước manual smoke. Mục tiêu là fail sớm với lỗi dễ đọc nếu database chưa có đúng các bề mặt dữ liệu mà report hiện tại cần.
+
+Các object/column quan trọng được kiểm tra gồm:
+
+\begin{enumerate}[label=-]
+\item các view electricity mở rộng: \texttt{all\_energy\_extend}, \texttt{diode\_energy\_extend}, \texttt{ico\_energy\_extend};
+\item các nguồn report chính: \texttt{sakari\_energy}, \texttt{total\_energy}, \texttt{utility\_usage}, \texttt{energy\_kpi}, và \texttt{processvalue};
+\item bảng timeline mới cho Shutdown Analysis: \texttt{workshop\_timeline} với các cột \texttt{work\_date}, \texttt{workshop\_code}, \texttt{start\_time}, \texttt{end\_time}, và \texttt{work\_status}.
+\end{enumerate}
+
+Nếu bước này fail, operator nên sửa database/schema trước rồi chạy lại bootstrap hoặc smoke. Không nên bypass bằng cách sửa report logic tại host deploy.
 
 \subsection{Step 5. Manual smoke trước khi bật schedule}
 
