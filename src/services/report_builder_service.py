@@ -2379,16 +2379,17 @@ class ReportBuilderService:
         kpi_object: Optional[Dict[str, Any]],
         period_type: str,
     ) -> Dict[str, Any]:
-        """Build periodic Electricity shutdown-analysis payload from official energy and KPI production days."""
+        """Build periodic Electricity shutdown-analysis payload from official energy and timeline status."""
         normalized_period_type = str(period_type or "").strip().lower()
         default_block = {
             "enabled": False,
             "title": "Shutdown Analysis",
-            "subtitle": "Off-day vs operation-day energy behavior based on Total Product.",
+            "subtitle": "Off-day vs working-day energy behavior based on workshop timeline status.",
             "formula_version": "worksheet_v1",
             "assumptions": [
-                "Off day = Total Product equals 0",
-                "Operation day = Total Product greater than 0",
+                "Day status comes from workshop_timeline.work_status",
+                "Working day = work_status Working",
+                "Off-working day = work_status Off day or Holiday",
                 "Off-day hours fixed at 24",
                 "Operation-day working hours from workshop_timeline max area schedule",
             ],
@@ -2408,15 +2409,20 @@ class ReportBuilderService:
         production_rows_by_date = self._build_kpi_daily_rows_by_date(
             kpi_object.get("current", {}).get("daily_rows", []) or [],
         )
-        working_hours_by_date = self._build_shutdown_working_hours_by_date(
+        timeline_status_by_date = self._build_shutdown_timeline_status_by_date(
             energy_object.get("current", {}).get("workshop_timeline_rows", []) or [],
         )
 
-        all_dates = sorted(set(plant_energy_by_date.keys()) | set(production_rows_by_date.keys()))
+        all_dates = sorted(
+            set(plant_energy_by_date.keys())
+            | set(production_rows_by_date.keys())
+            | set(timeline_status_by_date.keys())
+        )
         if not all_dates:
             return default_block
 
         off_days_count = 0
+        holiday_days_count = 0
         operation_days_count = 0
         unknown_days_count = 0
         off_days_total_energy = 0.0
@@ -2424,44 +2430,56 @@ class ReportBuilderService:
         operation_days_with_schedule_count = 0
         operation_days_missing_schedule_count = 0
         operation_days_total_working_hours = 0.0
+        missing_timeline_status_count = 0
         classified_rows: list[dict[str, Any]] = []
 
         for dt_value in all_dates:
             production_row = production_rows_by_date.get(dt_value, {})
             total_prod = self._safe_float(production_row.get("prod"))
             day_energy = float(plant_energy_by_date.get(dt_value, 0.0) or 0.0)
-            working_hours_row = working_hours_by_date.get(dt_value)
+            timeline_status_row = timeline_status_by_date.get(dt_value)
+            normalized_work_status = (
+                timeline_status_row.get("normalized_work_status")
+                if timeline_status_row else None
+            )
 
-            if total_prod is None:
-                day_type = "unknown"
-                unknown_days_count += 1
-            elif total_prod == 0:
-                day_type = "off"
-                off_days_count += 1
-                off_days_total_energy += day_energy
-            elif total_prod > 0:
+            if normalized_work_status == "working":
                 day_type = "operation"
                 operation_days_count += 1
                 operation_days_total_energy += day_energy
-                if working_hours_row is None:
+                working_hours = self._safe_float(timeline_status_row.get("working_hours"))
+                if working_hours is None or working_hours <= 0:
                     operation_days_missing_schedule_count += 1
                 else:
                     operation_days_with_schedule_count += 1
-                    operation_days_total_working_hours += float(working_hours_row.get("working_hours") or 0.0)
+                    operation_days_total_working_hours += working_hours
+            elif normalized_work_status == "off_day":
+                day_type = "off"
+                off_days_count += 1
+                off_days_total_energy += day_energy
+            elif normalized_work_status == "holiday":
+                day_type = "holiday"
+                holiday_days_count += 1
+                off_days_count += 1
+                off_days_total_energy += day_energy
             else:
                 day_type = "unknown"
                 unknown_days_count += 1
+                if timeline_status_row is None:
+                    missing_timeline_status_count += 1
 
             classified_rows.append({
                 "date": dt_value,
                 "day_type": day_type,
+                "work_status": timeline_status_row.get("work_status") if timeline_status_row else None,
+                "work_statuses": timeline_status_row.get("work_statuses") if timeline_status_row else [],
                 "total_prod": total_prod,
                 "energy_kwh": day_energy,
                 "representative_workshop_code": (
-                    working_hours_row.get("workshop_code") if working_hours_row else None
+                    timeline_status_row.get("workshop_code") if timeline_status_row else None
                 ),
                 "working_hours": (
-                    working_hours_row.get("working_hours") if working_hours_row else None
+                    timeline_status_row.get("working_hours") if timeline_status_row else None
                 ),
             })
 
@@ -2501,7 +2519,7 @@ class ReportBuilderService:
         return {
             "enabled": True,
             "title": "Shutdown Analysis",
-            "subtitle": "Off-day vs operation-day energy behavior based on Total Product.",
+            "subtitle": "Off-day vs working-day energy behavior based on workshop timeline status.",
             "formula_version": "worksheet_v1",
             "assumptions": default_block["assumptions"],
             "steps": {
@@ -2609,10 +2627,12 @@ class ReportBuilderService:
                 "period_type": normalized_period_type,
                 "classified_days": off_days_count + operation_days_count,
                 "off_days_count": off_days_count,
+                "holiday_days_count": holiday_days_count,
                 "operation_days_count": operation_days_count,
                 "unknown_days_count": unknown_days_count,
                 "operation_days_with_schedule_count": operation_days_with_schedule_count,
                 "operation_days_missing_schedule_count": operation_days_missing_schedule_count,
+                "missing_timeline_status_count": missing_timeline_status_count,
                 "missing_official_energy_days_count": len(missing_official_energy_days),
                 "missing_official_energy_dates": [item.isoformat() for item in missing_official_energy_days],
                 "off_days_total_energy_kwh": off_days_total_energy,
@@ -2627,11 +2647,11 @@ class ReportBuilderService:
             },
         }
 
-    def _build_shutdown_working_hours_by_date(
+    def _build_shutdown_timeline_status_by_date(
         self,
         rows: list[dict[str, Any]],
     ) -> dict[date, dict[str, Any]]:
-        """Pick the longest daily MPC/ICO/SAKARI working schedule as plant hours."""
+        """Pick the longest daily MPC/ICO/SAKARI schedule as representative plant status."""
         allowed_codes = {"MPC", "ICO", "SAKARI"}
         candidates_by_date: dict[date, list[dict[str, Any]]] = {}
 
@@ -2644,9 +2664,9 @@ class ReportBuilderService:
             if workshop_code not in allowed_codes:
                 continue
 
-            work_status = str(row.get("work_status") or "").strip().lower()
+            normalized_work_status = self._normalize_shutdown_work_status(row.get("work_status"))
             working_hours = 0.0
-            if work_status == "working":
+            if normalized_work_status == "working":
                 working_hours = self._calculate_shutdown_working_hours(
                     start_value=row.get("start_time"),
                     end_value=row.get("end_time"),
@@ -2655,26 +2675,47 @@ class ReportBuilderService:
             candidates_by_date.setdefault(dt_value, []).append({
                 "workshop_code": workshop_code,
                 "work_status": row.get("work_status"),
+                "normalized_work_status": normalized_work_status,
                 "working_hours": working_hours,
             })
 
         result: dict[date, dict[str, Any]] = {}
         for dt_value, candidates in candidates_by_date.items():
-            result[dt_value] = max(
+            representative = max(
                 candidates,
                 key=lambda item: (
                     float(item.get("working_hours") or 0.0),
                     str(item.get("workshop_code") or ""),
                 ),
             )
+            result[dt_value] = {
+                **representative,
+                "work_statuses": sorted({
+                    str(item.get("work_status") or "").strip()
+                    for item in candidates
+                    if str(item.get("work_status") or "").strip()
+                }),
+            }
         return result
 
-    def _calculate_shutdown_working_hours(self, *, start_value: Any, end_value: Any) -> float:
+    def _normalize_shutdown_work_status(self, value: Any) -> str | None:
+        """Normalize workshop timeline work_status values for shutdown analysis."""
+        normalized = str(value or "").strip().lower().replace("-", " ").replace("_", " ")
+        normalized = " ".join(normalized.split())
+        if normalized in {"working", "work", "working day", "work day"}:
+            return "working"
+        if normalized in {"off", "off day", "offday", "off working day", "off working"}:
+            return "off_day"
+        if normalized in {"holiday", "holidays"}:
+            return "holiday"
+        return None
+
+    def _calculate_shutdown_working_hours(self, *, start_value: Any, end_value: Any) -> float | None:
         """Calculate schedule duration in hours, supporting MySQL TIME values."""
         start_seconds = self._time_value_to_seconds(start_value)
         end_seconds = self._time_value_to_seconds(end_value)
         if start_seconds is None or end_seconds is None:
-            return 0.0
+            return None
 
         duration_seconds = end_seconds - start_seconds
         if duration_seconds < 0:

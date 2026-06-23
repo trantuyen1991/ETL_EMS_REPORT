@@ -431,13 +431,15 @@ Purpose:
 - expose final `Shutdown Energy %`
 
 Classification rule:
-- if `Total Product = 0`, classify the date as an off-working day
-- if `Total Product > 0`, classify the date as an operation day
-- if production data is missing, do not silently classify the date; keep it explicit in backend audit fields
+- use `workshop_timeline.work_status` to classify the date as `Working`, `Off day`, or `Holiday`
+- `Working` is counted as an operation/working day
+- `Off day` and `Holiday` are counted in the off-working bucket for the shutdown formula, while Holiday remains visible in backend audit fields
+- if timeline status is missing or unknown, do not silently classify the date; keep it explicit in backend audit fields
 
 Source rules:
 - electricity values must come from `total_energy`
-- day classification must use production values from `energy_kpi`
+- day classification must use `workshop_timeline.work_status`
+- `energy_kpi.Total_prod` remains available for audit/cross-checking, but is not the primary day classification rule
 - operation-day working hours must come from `workshop_timeline`
 
 Approved V1 formula rule:

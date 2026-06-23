@@ -13,12 +13,14 @@ This block is intended to help readers compare:
 ## Business Rule Baseline
 
 Day classification rule:
-- if `Total Product = 0`, classify the date as an off-working day
-- if `Total Product > 0`, classify the date as an operation day
+- use `workshop_timeline.work_status` to classify the date as `Working`, `Off day`, or `Holiday`
+- `Working` is counted as an operation/working day
+- `Off day` and `Holiday` are counted in the off-working bucket for the shutdown formula
 
 Source-of-truth rule:
 - Electricity energy must still come from `total_energy`
-- day classification must use KPI production data from `energy_kpi`
+- day classification must use `workshop_timeline.work_status`
+- KPI production data from `energy_kpi` remains available for audit/cross-checking
 - operation-day working hours must come from `workshop_timeline`
 
 Approved formula rule for V1:

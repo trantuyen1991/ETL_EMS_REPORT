@@ -449,6 +449,27 @@ def test_periodic_shutdown_analysis_uses_longest_workshop_timeline_hours() -> No
                 ],
                 "workshop_timeline_rows": [
                     {
+                        "work_date": date(2026, 6, 1),
+                        "workshop_code": "ICO",
+                        "start_time": None,
+                        "end_time": None,
+                        "work_status": "Off day",
+                    },
+                    {
+                        "work_date": date(2026, 6, 1),
+                        "workshop_code": "MPC",
+                        "start_time": None,
+                        "end_time": None,
+                        "work_status": "Off day",
+                    },
+                    {
+                        "work_date": date(2026, 6, 1),
+                        "workshop_code": "SAKARI",
+                        "start_time": None,
+                        "end_time": None,
+                        "work_status": "Off day",
+                    },
+                    {
                         "work_date": report_day,
                         "workshop_code": "ICO",
                         "start_time": "08:00:00",
@@ -489,6 +510,64 @@ def test_periodic_shutdown_analysis_uses_longest_workshop_timeline_hours() -> No
     assert block["audit"]["operation_days_total_working_hours"] == 16.5
     assert block["audit"]["classified_rows"][1]["representative_workshop_code"] == "MPC"
     assert block["audit"]["shutdown_energy_pct"] == 1.0
+
+
+def test_periodic_shutdown_analysis_classifies_days_from_work_status() -> None:
+    service = ReportBuilderService()
+
+    block = service._build_v3_electricity_shutdown_analysis(
+        energy_object={
+            "current": {
+                "daily_tables": [
+                    {
+                        "rows": [
+                            {"date": date(2026, 6, 1), "official_daily_total": 240.0},
+                            {"date": date(2026, 6, 2), "official_daily_total": 165.0},
+                            {"date": date(2026, 6, 3), "official_daily_total": 120.0},
+                        ],
+                    },
+                ],
+                "workshop_timeline_rows": [
+                    {
+                        "work_date": date(2026, 6, 1),
+                        "workshop_code": "MPC",
+                        "start_time": "06:00:00",
+                        "end_time": "22:00:00",
+                        "work_status": "Holiday",
+                    },
+                    {
+                        "work_date": date(2026, 6, 2),
+                        "workshop_code": "MPC",
+                        "start_time": "06:00:00",
+                        "end_time": "22:00:00",
+                        "work_status": "Working",
+                    },
+                    {
+                        "work_date": date(2026, 6, 3),
+                        "workshop_code": "MPC",
+                        "start_time": None,
+                        "end_time": None,
+                        "work_status": "Off day",
+                    },
+                ],
+            },
+        },
+        kpi_object={
+            "current": {
+                "daily_rows": [
+                    {"dt": date(2026, 6, 1), "prod": 100},
+                    {"dt": date(2026, 6, 2), "prod": 0},
+                    {"dt": date(2026, 6, 3), "prod": 100},
+                ],
+            },
+        },
+        period_type="monthly",
+    )
+
+    assert block["audit"]["off_days_count"] == 2
+    assert block["audit"]["holiday_days_count"] == 1
+    assert block["audit"]["operation_days_count"] == 1
+    assert [row["day_type"] for row in block["audit"]["classified_rows"]] == ["holiday", "operation", "off"]
 
 
 def test_periodic_electric_area_summary_templates_use_fill_classes_and_styles() -> None:
