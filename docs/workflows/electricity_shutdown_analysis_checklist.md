@@ -137,8 +137,8 @@ Suggested fields:
 - [x] verify weekly output
 - [x] verify monthly output
 - [x] verify missing `total_energy` day does not break the block
-- [x] verify `Total Product = 0` days are classified as off days
-- [x] verify non-zero production days are classified as operation days
+- [x] verify `work_status = Off day` and `Holiday` days are classified into the off-working formula bucket
+- [x] verify `work_status = Working` days are classified as operation days
 - [x] preview and review HTML/PDF
 - [x] commit stable checkpoint
 - [ ] mine again

@@ -30,21 +30,21 @@ def get_data_sources(database: str) -> Dict[str, DataSourceConfig]:
     return {
         "all_energy": DataSourceConfig(
             database=database,
-            object_name="all_energy",
+            object_name="all_energy_extend",
             object_type="view",
             date_column="dt",
             excluded_columns=("dt",),
         ),
         "diode_energy": DataSourceConfig(
             database=database,
-            object_name="diode_energy",
+            object_name="diode_energy_extend",
             object_type="view",
             date_column="dt",
             excluded_columns=("dt",),
         ),
         "ico_energy": DataSourceConfig(
             database=database,
-            object_name="ico_energy",
+            object_name="ico_energy_extend",
             object_type="view",
             date_column="dt",
             excluded_columns=("dt",),

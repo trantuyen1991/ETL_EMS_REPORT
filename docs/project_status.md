@@ -24,7 +24,7 @@ Focus:
 - complete the JSON-driven inline style/theme rollout and document the stopping point
 - begin the approved enterprise color-palette rollout from a documentation + checkpoint baseline
 - keep sensor monitoring follow-up behind the now-stable presentation checkpoint
-- add the approved periodic Electricity `Shutdown Analysis` subsection using `total_energy` + `energy_kpi.Total_prod`
+- add the approved periodic Electricity `Shutdown Analysis` subsection using `total_energy` + `workshop_timeline.work_status`
 Stable baseline:
 - PDF export stabilized after the 2026-04-27 chart-init timing fix and multi-anchor regression batches
 - PDF print flow now also uses a controlled Chrome DevTools Protocol path with `scale=1.0` and `preferCSSPageSize=true`, keeping the old Chromium CLI print as fallback only

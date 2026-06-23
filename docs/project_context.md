@@ -43,6 +43,9 @@ Sources:
 
 * `total_energy`
 * `energy_kpi`
+* `all_energy_extend`
+* `diode_energy_extend`
+* `ico_energy_extend`
 
 Purpose:
 
@@ -52,12 +55,16 @@ Purpose:
 * `energy_kpi`
   * KPI-related values
   * production context
+* `all_energy_extend`, `diode_energy_extend`, and `ico_energy_extend`
+  * physical MySQL views behind the logical `all_energy`, `diode_energy`, and `ico_energy` data-source keys
+  * meter-level detail rows for electricity area reporting and comparison
 
 Rule:
 
 * `total_energy` is the source of truth for Electricity official totals
 * `energy_kpi` is the source of truth for KPI and production-oriented values
 * `total_energy` may be sparse on non-production days or source-gap days, so report logic must not assume every dense calendar date has a matching source row
+* report code should keep using the logical data-source keys; physical view names belong in `src/config/data_sources.py`
 
 ---
 

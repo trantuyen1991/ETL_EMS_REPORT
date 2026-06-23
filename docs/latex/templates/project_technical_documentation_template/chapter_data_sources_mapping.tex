@@ -50,17 +50,17 @@ Bảng \ref{tab:data_source_inventory} tóm tắt inventory nguồn dữ liệu 
 	\renewcommand{\arraystretch}{1.3}
 	\caption{Configured data source inventory}
 	\label{tab:data_source_inventory}
-	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.8cm}|>{\RaggedRight\arraybackslash}p{2.1cm}|>{\RaggedRight\arraybackslash}p{2.0cm}|>{\RaggedRight\arraybackslash}X|}
+\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.6cm}|>{\RaggedRight\arraybackslash}p{2.1cm}|>{\RaggedRight\arraybackslash}p{2.9cm}|>{\RaggedRight\arraybackslash}p{1.7cm}|>{\RaggedRight\arraybackslash}X|}
 		\hline
-		\textbf{Logical Dataset} & \textbf{Object Type} & \textbf{Date Column} & \textbf{Primary Use} \\ \hline
-		\texttt{all\_energy} & view & \texttt{dt} & nguồn tổng quát cho energy-related exploration hoặc future aggregation slices. \\ \hline
-		\texttt{diode\_energy} & view & \texttt{dt} & chi tiết điện năng theo area DIODE. \\ \hline
-		\texttt{ico\_energy} & view & \texttt{dt} & chi tiết điện năng theo area ICO. \\ \hline
-		\texttt{sakari\_energy} & view & \texttt{dt} & chi tiết điện năng theo area SAKARI. \\ \hline
-		\texttt{total\_energy} & view & \texttt{dt} & official plant totals và official area totals cho Electricity section. \\ \hline
-		\texttt{utility\_usage} & view & \texttt{dt} & utility daily detail, utility summary, và utility comparison blocks. \\ \hline
-		\texttt{energy\_kpi} & table & none at config level & source-of-truth cho KPI rows, production values, và energy-linked KPI reporting. \\ \hline
-		\texttt{processvalue} & raw table & \texttt{Time\_Stamp} & raw utility sensor rows cho sensor monitoring, anomaly-ready aggregation, và trend context. \\ \hline
+		\textbf{Logical Dataset} & \textbf{Object Type} & \textbf{Physical Object} & \textbf{Date Column} & \textbf{Primary Use} \\ \hline
+		\texttt{all\_energy} & view & \texttt{all\_energy\_extend} & \texttt{dt} & nguồn tổng quát cho energy-related exploration hoặc future aggregation slices. \\ \hline
+		\texttt{diode\_energy} & view & \texttt{diode\_energy\_extend} & \texttt{dt} & chi tiết điện năng theo area DIODE. \\ \hline
+		\texttt{ico\_energy} & view & \texttt{ico\_energy\_extend} & \texttt{dt} & chi tiết điện năng theo area ICO. \\ \hline
+		\texttt{sakari\_energy} & view & \texttt{sakari\_energy} & \texttt{dt} & chi tiết điện năng theo area SAKARI. \\ \hline
+		\texttt{total\_energy} & view & \texttt{total\_energy} & \texttt{dt} & official plant totals và official area totals cho Electricity section. \\ \hline
+		\texttt{utility\_usage} & view & \texttt{utility\_usage} & \texttt{dt} & utility daily detail, utility summary, và utility comparison blocks. \\ \hline
+		\texttt{energy\_kpi} & table & \texttt{energy\_kpi} & none at config level & source-of-truth cho KPI rows, production values, và energy-linked KPI reporting. \\ \hline
+		\texttt{processvalue} & raw table & \texttt{processvalue} & \texttt{Time\_Stamp} & raw utility sensor rows cho sensor monitoring, anomaly-ready aggregation, và trend context. \\ \hline
 	\end{tabularx}
 \end{table}
 
