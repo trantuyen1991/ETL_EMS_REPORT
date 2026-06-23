@@ -92,7 +92,7 @@ Stable baseline:
 - Periodic area comparison labels tuned for dense workshop names including `ICO`: ✅
 - Weekly periodic `Daily Energy Detail` now keeps `DIODE Part 1/7` on the same page as `Daily Energy Summary`, with the remaining detail blocks repaginated into 3 follow-up pages at 5 tables per page: ✅
 - Weekly lower `Daily Energy Detail` pages now use the same table scale as `DIODE Part 1/7`, while fitting through tighter inter-block spacing instead of smaller text/table sizing: ✅
-- Approved next slice: periodic Electricity will add a final `Shutdown Analysis` sub-section after the heatmap, using `Total Product = 0` as the off-day rule and the worksheet-aligned V1 formula with fixed `24h / 12h` assumptions: 🚧
+- Periodic Electricity `Shutdown Analysis` uses `Total Product = 0` as the off-day rule, fixed `24h` off-day hours, and operation-day working hours from the largest daily MPC/ICO/SAKARI `workshop_timeline` schedule: ✅
 
 ### 3.2 Energy KPI Section
 - KPI summary matrix by area + total: ✅

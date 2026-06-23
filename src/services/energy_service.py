@@ -25,12 +25,15 @@ class EnergyService:
         report_end: date,
         previous_start: date,
         previous_end: date,
+        current_workshop_timeline_rows: list[dict[str, Any]] | None = None,
+        previous_workshop_timeline_rows: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         """Build full energy object for V2 report."""
         current_obj = self.build_energy_report_object(
             area_rows=current_area_rows,
             area_columns=current_area_columns,
             total_energy_rows=current_total_energy_rows,
+            workshop_timeline_rows=current_workshop_timeline_rows or [],
             report_start=report_start,
             report_end=report_end,
         )
@@ -39,6 +42,7 @@ class EnergyService:
             area_rows=previous_area_rows,
             area_columns=previous_area_columns,
             total_energy_rows=previous_total_energy_rows,
+            workshop_timeline_rows=previous_workshop_timeline_rows or [],
             report_start=previous_start,
             report_end=previous_end,
         )
@@ -71,6 +75,7 @@ class EnergyService:
         total_energy_rows: list[dict[str, Any]],
         report_start: date,
         report_end: date,
+        workshop_timeline_rows: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         """Build one period energy object."""
         metadata = get_energy_area_metadata()
@@ -119,6 +124,7 @@ class EnergyService:
                 area_tables["ico"],
                 area_tables["sakari"],
             ],
+            "workshop_timeline_rows": workshop_timeline_rows or [],
             "anomalies": self._build_energy_anomalies(
                 area_tables=area_tables,
                 official_summary=period_official_summary,

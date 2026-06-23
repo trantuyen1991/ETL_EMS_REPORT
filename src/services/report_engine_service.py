@@ -1048,6 +1048,14 @@ class ReportEngineService:
             start_date=period.previous_start_date,
             end_date=period.previous_end_date,
         )
+        current_workshop_timeline_rows = repos["workshop_timeline"].get_workshop_timeline_rows(
+            start_date=period.start_date,
+            end_date=period.end_date,
+        )
+        previous_workshop_timeline_rows = repos["workshop_timeline"].get_workshop_timeline_rows(
+            start_date=period.previous_start_date,
+            end_date=period.previous_end_date,
+        )
         current_area_columns = {
             "diode": repos["diode_energy"].get_meter_columns(),
             "ico": repos["ico_energy"].get_meter_columns(),
@@ -1061,6 +1069,8 @@ class ReportEngineService:
             previous_area_columns=current_area_columns,
             current_total_energy_rows=current_total_energy_rows,
             previous_total_energy_rows=previous_total_energy_rows,
+            current_workshop_timeline_rows=current_workshop_timeline_rows,
+            previous_workshop_timeline_rows=previous_workshop_timeline_rows,
             report_start=period.start_date,
             report_end=period.end_date,
             previous_start=period.previous_start_date,

@@ -432,6 +432,65 @@ def test_view_top10_meter_columns_are_compacted_for_all_periods() -> None:
     assert "min-width: 1054px;" in report_css
 
 
+def test_periodic_shutdown_analysis_uses_longest_workshop_timeline_hours() -> None:
+    service = ReportBuilderService()
+    report_day = date(2026, 6, 2)
+
+    block = service._build_v3_electricity_shutdown_analysis(
+        energy_object={
+            "current": {
+                "daily_tables": [
+                    {
+                        "rows": [
+                            {"date": date(2026, 6, 1), "official_daily_total": 240.0},
+                            {"date": report_day, "official_daily_total": 165.0},
+                        ],
+                    },
+                ],
+                "workshop_timeline_rows": [
+                    {
+                        "work_date": report_day,
+                        "workshop_code": "ICO",
+                        "start_time": "08:00:00",
+                        "end_time": "16:30:00",
+                        "work_status": "Working",
+                    },
+                    {
+                        "work_date": report_day,
+                        "workshop_code": "MPC",
+                        "start_time": "06:00:00",
+                        "end_time": "22:30:00",
+                        "work_status": "Working",
+                    },
+                    {
+                        "work_date": report_day,
+                        "workshop_code": "SAKARI",
+                        "start_time": "08:00:00",
+                        "end_time": "17:00:00",
+                        "work_status": "Working",
+                    },
+                ],
+            },
+        },
+        kpi_object={
+            "current": {
+                "daily_rows": [
+                    {"dt": date(2026, 6, 1), "prod": 0},
+                    {"dt": report_day, "prod": 100},
+                ],
+            },
+        },
+        period_type="monthly",
+    )
+
+    step2_rows = block["steps"]["step2"]["rows"]
+    assert step2_rows[3]["value"] == 16.5
+    assert step2_rows[3]["value_display"] == "16.50"
+    assert block["audit"]["operation_days_total_working_hours"] == 16.5
+    assert block["audit"]["classified_rows"][1]["representative_workshop_code"] == "MPC"
+    assert block["audit"]["shutdown_energy_pct"] == 1.0
+
+
 def test_periodic_electric_area_summary_templates_use_fill_classes_and_styles() -> None:
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/electricity.html").read_text(encoding="utf-8")
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/electricity.html").read_text(encoding="utf-8")

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import base64
 import math
-from datetime import date, datetime
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -2390,7 +2390,7 @@ class ReportBuilderService:
                 "Off day = Total Product equals 0",
                 "Operation day = Total Product greater than 0",
                 "Off-day hours fixed at 24",
-                "Operation-day working hours fixed at 12",
+                "Operation-day working hours from workshop_timeline max area schedule",
             ],
             "steps": {},
             "audit": {},
@@ -2408,6 +2408,9 @@ class ReportBuilderService:
         production_rows_by_date = self._build_kpi_daily_rows_by_date(
             kpi_object.get("current", {}).get("daily_rows", []) or [],
         )
+        working_hours_by_date = self._build_shutdown_working_hours_by_date(
+            energy_object.get("current", {}).get("workshop_timeline_rows", []) or [],
+        )
 
         all_dates = sorted(set(plant_energy_by_date.keys()) | set(production_rows_by_date.keys()))
         if not all_dates:
@@ -2418,12 +2421,16 @@ class ReportBuilderService:
         unknown_days_count = 0
         off_days_total_energy = 0.0
         operation_days_total_energy = 0.0
+        operation_days_with_schedule_count = 0
+        operation_days_missing_schedule_count = 0
+        operation_days_total_working_hours = 0.0
         classified_rows: list[dict[str, Any]] = []
 
         for dt_value in all_dates:
             production_row = production_rows_by_date.get(dt_value, {})
             total_prod = self._safe_float(production_row.get("prod"))
             day_energy = float(plant_energy_by_date.get(dt_value, 0.0) or 0.0)
+            working_hours_row = working_hours_by_date.get(dt_value)
 
             if total_prod is None:
                 day_type = "unknown"
@@ -2436,6 +2443,11 @@ class ReportBuilderService:
                 day_type = "operation"
                 operation_days_count += 1
                 operation_days_total_energy += day_energy
+                if working_hours_row is None:
+                    operation_days_missing_schedule_count += 1
+                else:
+                    operation_days_with_schedule_count += 1
+                    operation_days_total_working_hours += float(working_hours_row.get("working_hours") or 0.0)
             else:
                 day_type = "unknown"
                 unknown_days_count += 1
@@ -2445,6 +2457,12 @@ class ReportBuilderService:
                 "day_type": day_type,
                 "total_prod": total_prod,
                 "energy_kwh": day_energy,
+                "representative_workshop_code": (
+                    working_hours_row.get("workshop_code") if working_hours_row else None
+                ),
+                "working_hours": (
+                    working_hours_row.get("working_hours") if working_hours_row else None
+                ),
             })
 
         avg_off_day_energy = (
@@ -2457,7 +2475,11 @@ class ReportBuilderService:
         )
 
         off_day_hours = 24.0
-        operation_day_hours = 12.0
+        operation_day_hours = (
+            operation_days_total_working_hours / operation_days_count
+            if operation_days_count > 0 and operation_days_missing_schedule_count == 0
+            else None
+        )
 
         avg_off_hour_kw = (
             avg_off_day_energy / off_day_hours
@@ -2465,7 +2487,9 @@ class ReportBuilderService:
         )
         avg_operation_hour_kw = (
             avg_operation_day_energy / operation_day_hours
-            if avg_operation_day_energy is not None and operation_day_hours > 0 else None
+            if avg_operation_day_energy is not None
+            and operation_day_hours is not None
+            and operation_day_hours > 0 else None
         )
         shutdown_energy_pct = (
             avg_off_hour_kw / avg_operation_hour_kw
@@ -2548,7 +2572,7 @@ class ReportBuilderService:
                         {
                             "label": "Working hours on operation days",
                             "value": operation_day_hours,
-                            "value_display": self._fmt_int_or_dash(operation_day_hours),
+                            "value_display": self._fmt_hours_or_dash(operation_day_hours),
                             "unit": "hours",
                             "is_emphasis": True,
                         },
@@ -2587,10 +2611,13 @@ class ReportBuilderService:
                 "off_days_count": off_days_count,
                 "operation_days_count": operation_days_count,
                 "unknown_days_count": unknown_days_count,
+                "operation_days_with_schedule_count": operation_days_with_schedule_count,
+                "operation_days_missing_schedule_count": operation_days_missing_schedule_count,
                 "missing_official_energy_days_count": len(missing_official_energy_days),
                 "missing_official_energy_dates": [item.isoformat() for item in missing_official_energy_days],
                 "off_days_total_energy_kwh": off_days_total_energy,
                 "operation_days_total_energy_kwh": operation_days_total_energy,
+                "operation_days_total_working_hours": operation_days_total_working_hours,
                 "avg_off_day_energy_kwh": avg_off_day_energy,
                 "avg_operation_day_energy_kwh": avg_operation_day_energy,
                 "avg_off_hour_kw": avg_off_hour_kw,
@@ -2599,6 +2626,83 @@ class ReportBuilderService:
                 "classified_rows": classified_rows,
             },
         }
+
+    def _build_shutdown_working_hours_by_date(
+        self,
+        rows: list[dict[str, Any]],
+    ) -> dict[date, dict[str, Any]]:
+        """Pick the longest daily MPC/ICO/SAKARI working schedule as plant hours."""
+        allowed_codes = {"MPC", "ICO", "SAKARI"}
+        candidates_by_date: dict[date, list[dict[str, Any]]] = {}
+
+        for row in rows:
+            dt_value = row.get("work_date")
+            if not isinstance(dt_value, date):
+                continue
+
+            workshop_code = str(row.get("workshop_code") or "").strip().upper()
+            if workshop_code not in allowed_codes:
+                continue
+
+            work_status = str(row.get("work_status") or "").strip().lower()
+            working_hours = 0.0
+            if work_status == "working":
+                working_hours = self._calculate_shutdown_working_hours(
+                    start_value=row.get("start_time"),
+                    end_value=row.get("end_time"),
+                )
+
+            candidates_by_date.setdefault(dt_value, []).append({
+                "workshop_code": workshop_code,
+                "work_status": row.get("work_status"),
+                "working_hours": working_hours,
+            })
+
+        result: dict[date, dict[str, Any]] = {}
+        for dt_value, candidates in candidates_by_date.items():
+            result[dt_value] = max(
+                candidates,
+                key=lambda item: (
+                    float(item.get("working_hours") or 0.0),
+                    str(item.get("workshop_code") or ""),
+                ),
+            )
+        return result
+
+    def _calculate_shutdown_working_hours(self, *, start_value: Any, end_value: Any) -> float:
+        """Calculate schedule duration in hours, supporting MySQL TIME values."""
+        start_seconds = self._time_value_to_seconds(start_value)
+        end_seconds = self._time_value_to_seconds(end_value)
+        if start_seconds is None or end_seconds is None:
+            return 0.0
+
+        duration_seconds = end_seconds - start_seconds
+        if duration_seconds < 0:
+            duration_seconds += 24 * 60 * 60
+        return duration_seconds / 3600
+
+    def _time_value_to_seconds(self, value: Any) -> float | None:
+        """Normalize date/time, time, timedelta, or HH:MM:SS text to seconds."""
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            value = value.time()
+        if isinstance(value, time):
+            return value.hour * 3600 + value.minute * 60 + value.second + (value.microsecond / 1_000_000)
+        if isinstance(value, timedelta):
+            return value.total_seconds()
+        if isinstance(value, str):
+            parts = value.strip().split(":")
+            if len(parts) < 2:
+                return None
+            try:
+                hours = int(parts[0])
+                minutes = int(parts[1])
+                seconds = float(parts[2]) if len(parts) > 2 else 0.0
+            except ValueError:
+                return None
+            return (hours * 3600) + (minutes * 60) + seconds
+        return None
 
     def _build_periodic_plant_energy_by_date(
         self,
@@ -8748,6 +8852,12 @@ class ReportBuilderService:
         if val is None:
             return "-"
         return f"{int(round(float(val))):,}"
+
+    def _fmt_hours_or_dash(self, val: Any) -> str:
+        """Return dash for missing hours, preserving fractional shift lengths."""
+        if val is None:
+            return "-"
+        return f"{float(val):,.2f}"
 
     def _fmt_pct(self, val):
         """Format ratio to percent display."""

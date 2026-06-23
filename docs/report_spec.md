@@ -438,11 +438,12 @@ Classification rule:
 Source rules:
 - electricity values must come from `total_energy`
 - day classification must use production values from `energy_kpi`
+- operation-day working hours must come from `workshop_timeline`
 
 Approved V1 formula rule:
 - use the worksheet-aligned formula currently accepted by the customer
 - off-day hours = `24`
-- operation-day working hours = `12`
+- operation-day working hours = the largest MPC/ICO/SAKARI schedule duration for each working day
 - V1 should remain table-first; charts may be added later if needed
 
 Render rule:

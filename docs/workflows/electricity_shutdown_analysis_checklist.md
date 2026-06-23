@@ -19,6 +19,7 @@ Day classification rule:
 Source-of-truth rule:
 - Electricity energy must still come from `total_energy`
 - day classification must use KPI production data from `energy_kpi`
+- operation-day working hours must come from `workshop_timeline`
 
 Approved formula rule for V1:
 - use the customer-aligned sheet formula (`Approach A`)
@@ -26,7 +27,7 @@ Approved formula rule for V1:
 
 Approved hour assumptions for V1:
 - off-day hours = `24`
-- operation-day working hours = `12`
+- operation-day working hours = the largest MPC/ICO/SAKARI schedule duration for each working day
 
 ## Scope
 
@@ -60,7 +61,7 @@ The report should render a 3-step table similar to the approved worksheet exampl
 - average electricity used during off hours per day
 - working hours on off days = `24`
 - average electricity used during working days per day
-- working hours on operation days = `12`
+- working hours on operation days = largest daily MPC/ICO/SAKARI schedule from `workshop_timeline`
 - average electricity used during off hours (`kW`)
 - average electricity used during operation hours (`kW`)
 

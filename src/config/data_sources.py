@@ -77,4 +77,11 @@ def get_data_sources(database: str) -> Dict[str, DataSourceConfig]:
             date_column=None,
             excluded_columns=(),
         ),
+        "workshop_timeline": DataSourceConfig(
+            database=database,
+            object_name="workshop_timeline",
+            object_type="table",
+            date_column="work_date",
+            excluded_columns=(),
+        ),
     }

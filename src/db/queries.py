@@ -327,3 +327,28 @@ class EnergyDataRepository:
         ORDER BY `dt_start` ASC, `dt_end` ASC, `dt_lastupdate` DESC
         """
         return self._client.fetch_all(query, (end_date, start_date))
+
+    def get_workshop_timeline_rows(
+        self,
+        start_date: date,
+        end_date: date,
+    ) -> list[dict[str, Any]]:
+        """Return workshop working-time rows for the requested report period."""
+        self._validate_date_range(start_date, end_date)
+
+        query = f"""
+        SELECT
+            `id`,
+            `work_date`,
+            `workshop_code`,
+            `start_time`,
+            `end_time`,
+            `work_status`,
+            `created_at`,
+            `updated_at`,
+            `user`
+        FROM {self._source()}
+        WHERE `work_date` BETWEEN %s AND %s
+        ORDER BY `work_date` ASC, `workshop_code` ASC, `id` ASC
+        """
+        return self._client.fetch_all(query, (start_date, end_date))
