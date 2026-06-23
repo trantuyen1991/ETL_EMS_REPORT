@@ -414,6 +414,24 @@ def test_daily_pdf_electric_template_keeps_empty_top10_structure_visible() -> No
     assert "No meter ranking data is available for this day." in pdf_template
 
 
+def test_view_top10_meter_columns_are_compacted_for_all_periods() -> None:
+    view_template = (PROJECT_ROOT / "src/templates/report/view/sections/electricity.html").read_text(encoding="utf-8")
+    report_css = (PROJECT_ROOT / "src/templates/assets/report.css").read_text(encoding="utf-8")
+
+    assert view_template.count("top10-col-plant-meter") == 1
+    assert view_template.count("top10-col-area-meter") == 3
+    assert view_template.count("col-plant-meter sticky-meter") == 2
+    assert view_template.count("col-area-meter top10-group-divider") == 4
+    for period in ["daily", "weekly", "monthly"]:
+        assert f".report-period-{period} .electricity-top10-grouped-table" in report_css
+        assert f".report-period-{period} .electricity-top10-grouped-table .top10-col-plant-meter" in report_css
+        assert f".report-period-{period} .electricity-top10-grouped-table .top10-col-area-meter" in report_css
+        assert f".report-period-{period} .electricity-top10-table .col-plant-meter" in report_css
+        assert f".report-period-{period} .electricity-top10-table .col-area-meter" in report_css
+    assert "width: 118px;" in report_css
+    assert "min-width: 1054px;" in report_css
+
+
 def test_periodic_electric_area_summary_templates_use_fill_classes_and_styles() -> None:
     view_template = (PROJECT_ROOT / "src/templates/report/view/sections/electricity.html").read_text(encoding="utf-8")
     pdf_template = (PROJECT_ROOT / "src/templates/report/pdf/sections/electricity.html").read_text(encoding="utf-8")

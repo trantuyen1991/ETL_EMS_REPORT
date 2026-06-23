@@ -415,14 +415,14 @@
                     <table class="electricity-top10-table electricity-top10-grouped-table report-table-ui">
                         <colgroup>
                             <col class="top10-col-rank">
-                            <col class="top10-col-meter">
+                            <col class="top10-col-meter top10-col-plant-meter">
                             <col class="top10-col-area">
                             <col class="top10-col-current">
-                            <col class="top10-col-meter">
+                            <col class="top10-col-meter top10-col-area-meter">
                             <col class="top10-col-current">
-                            <col class="top10-col-meter">
+                            <col class="top10-col-meter top10-col-area-meter">
                             <col class="top10-col-current">
-                            <col class="top10-col-meter">
+                            <col class="top10-col-meter top10-col-area-meter">
                             <col class="top10-col-current">
                         </colgroup>
                         <thead>
@@ -454,7 +454,7 @@
                                 {% set sakari = row.areas.sakari %}
 
                                 <td class="col-rank sticky-rank">{{ row.rank }}</td>
-                                <td class="col-meter sticky-meter">
+                                <td class="col-meter col-plant-meter sticky-meter">
                                     {% if plant %}
                                     <div
                                         class="electricity-meter-bar-cell area-{{ plant.area_key }}"
@@ -479,7 +479,7 @@
                                 </td>
 
                                 {% for area_row in [diode, ico, sakari] %}
-                                <td class="col-meter top10-group-divider">
+                                <td class="col-meter col-area-meter top10-group-divider">
                                     {% if area_row %}
                                             <div
                                                 class="electricity-meter-bar-cell area-{{ area_row.area_key }}"
@@ -507,14 +507,14 @@
                             {% for rank in range(1, top10_display_limit + 1) %}
                             <tr class="electricity-top10-empty-row">
                                 <td class="col-rank sticky-rank">{{ rank }}</td>
-                                <td class="col-meter sticky-meter">-</td>
+                                <td class="col-meter col-plant-meter sticky-meter">-</td>
                                 <td class="col-area">-</td>
                                 <td class="col-current">-</td>
-                                <td class="col-meter top10-group-divider">-</td>
+                                <td class="col-meter col-area-meter top10-group-divider">-</td>
                                 <td class="col-current">-</td>
-                                <td class="col-meter top10-group-divider">-</td>
+                                <td class="col-meter col-area-meter top10-group-divider">-</td>
                                 <td class="col-current">-</td>
-                                <td class="col-meter top10-group-divider">-</td>
+                                <td class="col-meter col-area-meter top10-group-divider">-</td>
                                 <td class="col-current">-</td>
                             </tr>
                             {% endfor %}
