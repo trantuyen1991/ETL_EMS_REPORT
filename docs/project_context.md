@@ -52,6 +52,7 @@ Purpose:
 * `total_energy`
   * official plant totals for the Electricity section
   * official area totals for the Electricity section
+  * `Total_engy` is the official plant total consumed by the report
 * `energy_kpi`
   * KPI-related values
   * production context
@@ -62,6 +63,7 @@ Purpose:
 Rule:
 
 * `total_energy` is the source of truth for Electricity official totals
+* plant total must read `total_energy.Total_engy` directly, without adding `SAKARI_engy` in backend code
 * `energy_kpi` is the source of truth for KPI and production-oriented values
 * `total_energy` may be sparse on non-production days or source-gap days, so report logic must not assume every dense calendar date has a matching source row
 * report code should keep using the logical data-source keys; physical view names belong in `src/config/data_sources.py`
@@ -147,6 +149,7 @@ Responsibilities:
 Key rules:
 
 * must use `total_energy` as the source of truth for Electricity official totals
+* must use `total_energy.Total_engy` directly for plant total
 * must keep `energy_kpi` untouched for KPI logic
 * must not recompute totals from raw views
 * must preserve dense calendar rendering even when `total_energy` is missing a day

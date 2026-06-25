@@ -42,6 +42,7 @@ For all comparable metrics:
 - `total_energy` is the source of truth for:
   - plant total energy in the Electricity section
   - area official total energy in the Electricity section
+- Plant total in the Electricity section must read `total_energy.Total_engy` directly.
 - `energy_kpi` remains the source of truth for:
   - KPI-related official energy values
 - Main feeder definitions and area topology must be controlled by `config/energy_metadata.py`.

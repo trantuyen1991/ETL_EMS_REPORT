@@ -206,15 +206,12 @@ class EnergyService:
         }
 
     def _compute_plant_total_energy(self, row: dict[str, Any]) -> float | None:
-        """Return plant total including SAKARI when ICO is already net of SAKARI."""
+        """Return the official plant total from the total_energy source row."""
         total_energy = row.get("Total_engy")
         if total_energy is None:
             return None
 
-        sakari_energy = row.get("SAKARI_engy")
-        return float(total_energy) + (
-            float(sakari_energy) if sakari_energy is not None else 0.0
-        )
+        return float(total_energy)
 
     def _build_energy_anomalies(
         self,

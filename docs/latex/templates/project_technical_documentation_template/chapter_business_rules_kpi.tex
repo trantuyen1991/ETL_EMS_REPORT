@@ -73,6 +73,7 @@ Các rule điện năng cốt lõi gồm:
 
 \begin{enumerate}[label=-]
 \item official plant total và official area total phải lấy từ \texttt{total\_energy};
+\item plant total phải đọc trực tiếp từ \texttt{total\_energy.Total\_engy};
 \item không được suy ra official totals bằng cách cộng toàn bộ meter values từ energy views, vì các energy views có thể chứa main feeders và downstream overlap;
 \item main feeder definitions và area topology phải được quản lý qua metadata cấu hình của dự án;
 \item residual load được xem như một virtual meter khi có đủ điều kiện tính hợp lệ.

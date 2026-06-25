@@ -139,7 +139,7 @@ Bảng \ref{tab:repository_mapping} tóm tắt mapping giữa data sources và r
 \item anomalies và topology-aware diagnostics khi cần.
 \end{enumerate}
 
-Một chi tiết quan trọng là \texttt{EnergyService} không xem raw area views là official totals. Nó sử dụng \texttt{total\_energy} làm reference cho plant total và area total theo các rule đã chốt.
+Một chi tiết quan trọng là \texttt{EnergyService} không xem raw area views là official totals. Nó sử dụng \texttt{total\_energy} làm reference cho plant total và area total theo các rule đã chốt. Plant total trong report đọc trực tiếp từ \texttt{total\_energy.Total\_engy}; backend không cộng thêm \texttt{SAKARI\_engy} để tự suy ra plant total.
 
 Bên cạnh đó, lớp Electricity phải xử lý được trường hợp \texttt{total\_energy} bị sparse theo ngày. Dense calendar ở report layer vẫn phải được giữ nguyên, nhưng các bước arithmetic-only như snapshot tổng hợp, summary rollup, hoặc các phép cộng nội bộ phải chống lỗi khi source day bị thiếu. Quy ước an toàn là: missing source row không được làm crash report; ở các lớp tính toán nội bộ có thể normalize missing official-energy value về \texttt{0}, còn ở lớp hiển thị vẫn nên giữ khả năng phân biệt giữa zero thực và giá trị thiếu bằng ký hiệu như \texttt{-} khi phù hợp.
 
@@ -218,7 +218,7 @@ Bảng \ref{tab:domain_owner_map} tổng hợp ownership ở cấp domain và ex
 	\begin{tabularx}{\linewidth}{|>{\RaggedRight\arraybackslash}p{2.1cm}|>{\RaggedRight\arraybackslash}p{2.6cm}|>{\RaggedRight\arraybackslash}p{2.8cm}|>{\RaggedRight\arraybackslash}X|}
 		\hline
 		\textbf{Domain} & \textbf{Primary Source} & \textbf{Repository / Service Path} & \textbf{Output Contribution} \\ \hline
-		Electricity & area energy views + \texttt{energy\_kpi} & \shortstack[l]{\texttt{EnergyDataRepository} \\ $\rightarrow$ \texttt{EnergyService}} & electricity summary cards, top meter tables, daily detail tables, comparison blocks \\ \hline
+		Electricity & \texttt{total\_energy} + area energy views & \shortstack[l]{\texttt{EnergyDataRepository} \\ $\rightarrow$ \texttt{EnergyService}} & electricity summary cards, top meter tables, daily detail tables, comparison blocks \\ \hline
 		KPI & \texttt{energy\_kpi} & \shortstack[l]{\texttt{EnergyDataRepository} \\ $\rightarrow$ \texttt{KPIService}} & KPI summary, coverage notes, daily KPI detail, comparison surfaces \\ \hline
 		Utility usage & \texttt{utility\_usage} & \shortstack[l]{\texttt{EnergyDataRepository} \\ $\rightarrow$ \texttt{UtilityService}} & utility summary, dense utility tables, utility comparison blocks \\ \hline
 		Sensor monitoring & \texttt{processvalue} + sensor metadata & \shortstack[l]{\texttt{ProcessValueRepository} \\ $\rightarrow$ \texttt{ProcessValueService} \\ $\rightarrow$ \texttt{UtilityService}} & sensor overview cards, daily sensor rows, anomaly-ready payloads, periodic detail tables \\ \hline

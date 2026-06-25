@@ -104,9 +104,10 @@ The project uses MySQL.
 Do not assume PostgreSQL.
 
 Important source-of-truth rule:
-- `energy_kpi` is the official source for KPI reporting and official energy totals.
+- `total_energy` is the official source for Electricity official totals.
+- `energy_kpi` is the official source for KPI reporting and production-linked KPI values.
 
-Do not recompute official plant or area totals from raw electricity views when the approved rule says to use `energy_kpi`.
+Do not recompute official plant or area totals from raw electricity views when the approved rule says to use `total_energy`.
 
 Raw/detail views may be used for supporting detail, meter ranking, visual tables, or diagnostic context only when aligned with business rules.
 
@@ -129,7 +130,8 @@ Raw/detail views may be used for supporting detail, meter ranking, visual tables
 
 ### Electricity
 
-- Official plant and area totals come from `energy_kpi`.
+- Official plant and area totals come from `total_energy`.
+- Plant total must read `total_energy.Total_engy` directly.
 - Do not sum all meter values to derive official totals because feeder overlap may exist.
 - Main feeder definitions and area topology are controlled by `config/energy_metadata.py`.
 - Main feeders must be excluded from Top 10 meter logic.

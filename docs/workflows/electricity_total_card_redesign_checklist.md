@@ -20,6 +20,7 @@ This is a display and readability enhancement.
 
 It must not change the source-of-truth rule:
 - Electricity official totals still come from `total_energy`
+- plant total reads `total_energy.Total_engy` directly
 - backend detail tables and source rows must remain available
 
 ## Scope
@@ -66,6 +67,7 @@ Each sub-block should keep the same quick-read semantics where possible:
 ## Safety Rules
 
 - do not change Electricity source logic away from `total_energy`
+- do not derive plant total by adding area columns in backend code
 - do not remove backend detail builders
 - do not silently change Top 10, chart, or daily summary logic unless required by the new card layout
 - preserve Plant card hierarchy

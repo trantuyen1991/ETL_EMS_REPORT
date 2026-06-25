@@ -93,6 +93,7 @@ REPORT_ANCHOR_DATE (.env)
 ### 2. Energy Section
 
 - Uses `total_energy` as source of truth for Electricity official totals
+- Plant total reads `total_energy.Total_engy` directly
 - No recalculation from raw meters
 - Supports:
 - plant total

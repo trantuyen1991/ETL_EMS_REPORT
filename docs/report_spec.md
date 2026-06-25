@@ -368,6 +368,8 @@ For the `periodic` template family, the electricity chart block should also supp
 ### 7.3 Total Logic
 Plant and area official totals in the Electricity section must come from pre-calculated values stored in `total_energy`, not from summing all raw energy view columns.
 
+The plant total used by the report is `total_energy.Total_engy` directly. Backend code must not add `SAKARI_engy` or any other area column to derive the plant total.
+
 `total_energy` may be sparse on some non-production days, stop days, or source-pipeline gap days. Report logic must not assume that every dense calendar date has a matching `total_energy` row.
 
 If the UI shows a combined quick-read card such as `ICO + SAKARI`, that combined number must still be derived from the same official area totals rather than reconstructed from raw detail meter columns.

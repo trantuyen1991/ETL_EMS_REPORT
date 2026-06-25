@@ -19,6 +19,7 @@ Day classification rule:
 
 Source-of-truth rule:
 - Electricity energy must still come from `total_energy`
+- plant total must read `total_energy.Total_engy` directly
 - day classification must use `workshop_timeline.work_status`
 - KPI production data from `energy_kpi` remains available for audit/cross-checking
 - operation-day working hours must come from `workshop_timeline`
@@ -100,6 +101,7 @@ Suggested fields:
 
 - do not change Electricity official totals away from `total_energy`
 - do not recompute plant official totals from raw area views
+- do not derive plant official totals by adding `SAKARI_engy` in backend code
 - keep sparse-day handling safe when `total_energy` has missing rows
 - if production is missing for a date, do not silently classify it as an off day
 - keep backend assumptions explicit in the payload
